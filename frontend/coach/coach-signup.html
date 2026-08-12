@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Coach Create Account | Fitness Performance Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#22c55e',
+                            hover: '#16a34a',
+                            light: '#f0fdf4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+
+
+<body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans">
+
+<div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+
+
+    <!-- LEFT -->
+
+    <section class="relative min-h-[500px] lg:min-h-[650px] p-8 sm:p-12 bg-slate-950 flex flex-col justify-between overflow-hidden">
+
+        <img
+            src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop"
+            alt="Coach"
+            class="absolute inset-0 w-full h-full object-cover opacity-35">
+
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/80"></div>
+
+
+        <div class="relative z-10 flex items-center gap-3">
+
+            <div class="w-11 h-11 rounded-full border-2 border-brand flex items-center justify-center">
+                🏆
+            </div>
+
+            <div>
+
+                <div class="text-xs font-extrabold text-white">
+                    FITNESS
+                </div>
+
+                <div class="text-xs font-extrabold text-brand">
+                    PERFORMANCE TRACKER
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="relative z-10">
+
+            <h1 class="text-4xl sm:text-5xl font-black text-white leading-none">
+
+                Coach.<br>
+                Guide.<br>
+
+                <span class="text-brand">
+                    Inspire.
+                </span>
+
+            </h1>
+
+            <p class="text-slate-300 text-sm mt-5 max-w-sm leading-relaxed">
+
+                Build your coaching profile, manage athletes,
+                track performance, and provide meaningful feedback.
+
+            </p>
+
+            <div class="w-12 h-1 bg-brand rounded-full mt-7"></div>
+
+        </div>
+
+
+        <div class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest">
+
+            Coach Performance Platform
+
+        </div>
+
+    </section>
+
+
+
+    <!-- RIGHT -->
+
+    <section class="bg-white p-8 sm:p-12">
+
+        <div class="max-w-md mx-auto">
+
+
+            <div class="text-center mb-7">
+
+                <div class="w-14 h-14 mx-auto rounded-full bg-brand-light border-2 border-brand/40 flex items-center justify-center mb-4">
+                    🏆
+                </div>
+
+                <h2 class="text-2xl font-black text-slate-900">
+
+                    <span class="text-brand">
+                        Coach
+                    </span>
+
+                    Create Account
+
+                </h2>
+
+                <p class="text-xs text-slate-500 mt-2">
+
+                    Create your coaching account to manage your athletes.
+
+                </p>
+
+            </div>
+
+
+            <form id="signupForm" class="space-y-4">
+
+
+                <!-- Name -->
+
+                <div>
+
+                    <label
+                        for="fullName"
+                        class="block text-xs font-bold text-slate-800 mb-1">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="fullName"
+                        required
+                        placeholder="Enter your full name"
+                        class="w-full px-3.5 py-3 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand">
+
+                </div>
+
+
+                <!-- Email -->
+
+                <div>
+
+                    <label
+                        for="email"
+                        class="block text-xs font-bold text-slate-800 mb-1">
+                        Coach Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        required
+                        placeholder="Enter your coach email"
+                        class="w-full px-3.5 py-3 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand">
+
+                </div>
+
+
+                <!-- Specialization -->
+
+                <div>
+
+                    <label
+                        for="specialization"
+                        class="block text-xs font-bold text-slate-800 mb-1">
+                        Coaching Specialization
+                    </label>
+
+                    <select
+                        id="specialization"
+                        required
+                        class="w-full px-3.5 py-3 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand">
+
+                        <option value="">Select specialization</option>
+                        <option>Strength & Conditioning</option>
+                        <option>Fitness Training</option>
+                        <option>Football</option>
+                        <option>Cricket</option>
+                        <option>Basketball</option>
+                        <option>Athletic Performance</option>
+                        <option>Other</option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Password -->
+
+                <div>
+
+                    <label
+                        for="password"
+                        class="block text-xs font-bold text-slate-800 mb-1">
+                        Password
+                    </label>
+
+                    <div class="relative">
+
+                        <input
+                            type="password"
+                            id="password"
+                            minlength="6"
+                            required
+                            placeholder="Create a password"
+                            class="w-full px-3.5 py-3 pr-12 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand">
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+
+                            👁
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Confirm -->
+
+                <div>
+
+                    <label
+                        for="confirmPassword"
+                        class="block text-xs font-bold text-slate-800 mb-1">
+                        Confirm Password
+                    </label>
+
+                    <div class="relative">
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            required
+                            placeholder="Confirm your password"
+                            class="w-full px-3.5 py-3 pr-12 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand">
+
+                        <button
+                            type="button"
+                            id="toggleConfirmPassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+
+                            👁
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Terms -->
+
+                <label class="flex items-center gap-2 text-xs text-slate-500">
+
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        required
+                        class="accent-green-500">
+
+                    I agree to the Terms & Privacy Policy.
+
+                </label>
+
+
+                <div
+                    id="errorMessage"
+                    class="hidden bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-xs">
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="signupButton"
+                    class="w-full py-3.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl transition">
+
+                    Create Coach Account →
+
+                </button>
+
+            </form>
+
+
+            <p class="text-center text-sm text-slate-500 mt-6">
+
+                Already have an account?
+
+                <a
+                    href="coach-login.html"
+                    class="text-brand font-bold hover:underline">
+                    Sign In
+                </a>
+
+            </p>
+
+
+            <a
+                href="../index.html"
+                class="block text-center text-xs text-slate-400 mt-4 hover:text-brand">
+
+                ← Back to role selection
+
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+
+<script>
+
+function setupToggle(buttonId, inputId) {
+
+    const button = document.getElementById(buttonId);
+    const input = document.getElementById(inputId);
+
+    button.addEventListener("click", function() {
+
+        if (input.type === "password") {
+
+            input.type = "text";
+            button.textContent = "🙈";
+
+        } else {
+
+            input.type = "password";
+            button.textContent = "👁";
+
+        }
+
+    });
+
+}
+
+
+setupToggle("togglePassword", "password");
+setupToggle("toggleConfirmPassword", "confirmPassword");
+
+
+document.getElementById("signupForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const password =
+        document.getElementById("password").value;
+
+    const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+    const error =
+        document.getElementById("errorMessage");
+
+    if (password.length < 6) {
+
+        error.textContent =
+            "Password must contain at least 6 characters.";
+
+        error.classList.remove("hidden");
+
+        return;
+
+    }
+
+
+    if (password !== confirmPassword) {
+
+        error.textContent =
+            "Passwords do not match.";
+
+        error.classList.remove("hidden");
+
+        return;
+
+    }
+
+
+    error.classList.add("hidden");
+
+
+    document.getElementById("signupButton").textContent =
+        "Creating Account...";
+
+
+    setTimeout(function() {
+
+        window.location.href = "coach-login.html";
+
+    }, 1000);
+
+});
+
+</script>
+
+</body>
+</html>

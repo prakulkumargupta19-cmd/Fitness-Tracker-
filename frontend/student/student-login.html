@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -346,6 +347,12 @@
             transform: translateY(0);
         }
 
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* ==============================
            SIGN UP
         ============================== */
@@ -551,6 +558,7 @@
 
         </section>
 
+
         <!-- ==================================
              LOGIN SECTION
         =================================== -->
@@ -565,6 +573,7 @@
                     🎓
                 </div>
 
+
                 <!-- TITLE -->
 
                 <h2>
@@ -576,6 +585,7 @@
                     goals, improvement areas, and coach feedback.
                 </p>
 
+
                 <!-- ERROR MESSAGE -->
 
                 <div
@@ -584,6 +594,7 @@
                 >
                     Please enter a valid email and password.
                 </div>
+
 
                 <!-- LOGIN FORM -->
 
@@ -615,6 +626,7 @@
 
                     </div>
 
+
                     <!-- PASSWORD -->
 
                     <div class="form-group">
@@ -645,6 +657,7 @@
 
                     </div>
 
+
                     <!-- REMEMBER ME / FORGOT PASSWORD -->
 
                     <div class="form-options">
@@ -669,6 +682,7 @@
 
                     </div>
 
+
                     <!-- LOGIN BUTTON -->
 
                     <button
@@ -680,6 +694,7 @@
                     </button>
 
                 </form>
+
 
                 <!-- SIGN UP -->
 
@@ -696,6 +711,7 @@
 
                 </div>
 
+
                 <!-- BACK LINK -->
 
                 <a
@@ -704,6 +720,7 @@
                 >
                     ← Back to role selection
                 </a>
+
 
                 <!-- SECURITY MESSAGE -->
 
@@ -725,15 +742,16 @@
 
     </div>
 
+
     <!-- ==================================
          JAVASCRIPT
     =================================== -->
 
     <script>
 
-        /*
-         * PASSWORD VISIBILITY
-         */
+        /* =================================
+           PASSWORD VISIBILITY
+        ================================= */
 
         function togglePassword() {
 
@@ -756,13 +774,12 @@
                 toggle.textContent = "👁";
 
             }
-
         }
 
 
-        /*
-         * STUDENT LOGIN
-         */
+        /* =================================
+           STUDENT LOGIN
+        ================================= */
 
         document
             .getElementById("studentLoginForm")
@@ -796,6 +813,7 @@
                         document
                             .getElementById("loginButton");
 
+
                     /* BASIC VALIDATION */
 
                     if (!email || !password) {
@@ -809,10 +827,12 @@
                         return;
                     }
 
+
                     /* HIDE ERROR */
 
                     errorMessage.style.display =
                         "none";
+
 
                     /* SHOW LOADING */
 
@@ -823,31 +843,15 @@
 
 
                     /*
-                     * BACKEND API
+                     * DEMO LOGIN
                      *
-                     * Replace this section with
-                     * your real backend API.
+                     * This currently simulates a
+                     * successful login.
                      *
-                     * Example:
-                     *
-                     * fetch("/api/student/login", {
-                     *
-                     *     method: "POST",
-                     *
-                     *     headers: {
-                     *         "Content-Type":
-                     *             "application/json"
-                     *     },
-                     *
-                     *     body: JSON.stringify({
-                     *         email: email,
-                     *         password: password,
-                     *         remember: remember
-                     *     })
-                     *
-                     * })
+                     * When your backend is connected,
+                     * replace this section with your
+                     * real authentication API.
                      */
-
 
                     setTimeout(function() {
 
@@ -857,12 +861,7 @@
                             "Login as Student →";
 
 
-                        /*
-                         * DEMO ONLY
-                         *
-                         * Replace with backend
-                         * authentication.
-                         */
+                        /* SUCCESS MESSAGE */
 
                         alert(
                             "Student login submitted successfully!"
@@ -870,11 +869,17 @@
 
 
                         /*
-                         * After successful login:
+                         * REDIRECT TO STUDENT DASHBOARD
                          *
-                         * window.location.href =
-                         *     "student-dashboard.html";
+                         * student-login.html and
+                         * student-dashboard.html
+                         * are inside the same
+                         * frontend/student/ folder.
                          */
+
+                        window.location.href =
+                            "student-dashboard.html";
+
 
                     }, 1000);
 
@@ -884,4 +889,5 @@
     </script>
 
 </body>
+
 </html>

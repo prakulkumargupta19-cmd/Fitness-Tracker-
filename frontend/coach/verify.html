@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify OTP | Fitness Performance Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#22c55e',
+                            hover: '#16a34a',
+                            light: '#f0fdf4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+
+
+<body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans">
+
+
+<div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-8 sm:p-12">
+
+
+    <div class="w-16 h-16 mx-auto rounded-full bg-brand-light border-2 border-brand/40 flex items-center justify-center text-3xl">
+
+        ✉️
+
+    </div>
+
+
+    <div class="text-center mt-5">
+
+        <h1 class="text-3xl font-black text-slate-900">
+
+            Verify <span class="text-brand">Account</span>
+
+        </h1>
+
+
+        <p class="text-sm text-slate-500 mt-3">
+
+            Enter the 6-digit verification code sent
+            to your registered coach email.
+
+        </p>
+
+    </div>
+
+
+    <form id="verifyForm" class="mt-8">
+
+
+        <label
+            for="otp"
+            class="block text-xs font-bold text-slate-800 mb-2 text-center">
+
+            Verification Code
+
+        </label>
+
+
+        <input
+            type="text"
+            id="otp"
+            maxlength="6"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            placeholder="000000"
+            required
+            class="w-full text-center tracking-[10px] text-2xl font-bold px-4 py-4 border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+        >
+
+
+        <div
+            id="message"
+            class="hidden mt-4 rounded-lg p-3 text-xs">
+        </div>
+
+
+        <button
+            type="submit"
+            id="verifyButton"
+            class="w-full mt-5 py-3.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl transition">
+
+            Verify Code →
+
+        </button>
+
+    </form>
+
+
+    <div class="text-center mt-6 text-sm text-slate-500">
+
+        Didn't receive the code?
+
+        <button
+            type="button"
+            id="resendButton"
+            class="text-brand font-bold hover:underline">
+
+            Resend Code
+
+        </button>
+
+    </div>
+
+
+    <a
+        href="forgot-password.html"
+        class="block text-center mt-5 text-xs text-slate-400 hover:text-brand">
+
+        ← Change Email
+
+    </a>
+
+</div>
+
+
+
+<script>
+
+const otp = document.getElementById("otp");
+
+otp.addEventListener("input", function() {
+
+    this.value =
+        this.value.replace(/\D/g, "").slice(0, 6);
+
+});
+
+
+document.getElementById("verifyForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const code = otp.value.trim();
+
+    const message =
+        document.getElementById("message");
+
+    const button =
+        document.getElementById("verifyButton");
+
+
+    if (code.length !== 6) {
+
+        message.textContent =
+            "Please enter the 6-digit verification code.";
+
+        message.className =
+            "mt-4 rounded-lg p-3 text-xs bg-red-50 border border-red-200 text-red-600";
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+    button.textContent = "Verifying...";
+
+
+    setTimeout(function() {
+
+        /*
+         * Frontend demo verification.
+         *
+         * Replace this with backend OTP verification.
+         */
+
+        window.location.href = "reset-password.html";
+
+    }, 1000);
+
+});
+
+
+document.getElementById("resendButton").addEventListener("click", function() {
+
+    alert("A new verification code has been sent.");
+
+});
+
+</script>
+
+</body>
+</html>
