@@ -82,12 +82,14 @@
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                     >
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M13 10V3L4 14h7v7l9-11h-7z"
                         />
+
                     </svg>
 
                 </div>
@@ -323,10 +325,7 @@
 
 
 
-                    <!-- ==============================
-                         PASSWORD
-                    ============================== -->
-
+                    <!-- PASSWORD -->
                     <div>
 
                         <label
@@ -350,7 +349,6 @@
                             >
 
 
-                            <!-- Show Password Button -->
                             <button
                                 type="button"
                                 id="togglePassword"
@@ -390,10 +388,7 @@
 
 
 
-                    <!-- ==============================
-                         CONFIRM PASSWORD
-                    ============================== -->
-
+                    <!-- CONFIRM PASSWORD -->
                     <div>
 
                         <label
@@ -417,7 +412,6 @@
                             >
 
 
-                            <!-- Show Confirm Password Button -->
                             <button
                                 type="button"
                                 id="toggleConfirmPassword"
@@ -437,7 +431,7 @@
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7z"
                                     />
 
                                     <path
@@ -468,7 +462,6 @@
                                 required
                                 class="w-3.5 h-3.5 rounded border-slate-300 text-brand focus:ring-0"
                             >
-
 
                             <span class="ml-2">
 
@@ -569,7 +562,6 @@
 
                 </svg>
 
-
                 <span>
                     Your personal performance data is securely protected.
                 </span>
@@ -618,7 +610,7 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M6.228 6.228L3 3m3.228 3.228l11.544 11.544M9.88 9.88a3 3 0 104.24 4.24"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                     />
                 `;
 
@@ -683,7 +675,7 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M6.228 6.228L3 3m3.228 3.228l11.544 11.544M9.88 9.88a3 3 0 104.24 4.24"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                     />
                 `;
 
@@ -701,7 +693,7 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7z"
                     />
 
                     <path
@@ -741,10 +733,16 @@
 
 
             const fullName =
-                document.getElementById("fullName").value.trim();
+                document
+                    .getElementById("fullName")
+                    .value
+                    .trim();
 
             const email =
-                document.getElementById("studentEmail").value.trim();
+                document
+                    .getElementById("studentEmail")
+                    .value
+                    .trim();
 
             const password =
                 passwordInput.value;
@@ -754,11 +752,39 @@
 
 
             /* Clear previous error */
+
             errorMessage.classList.add("hidden");
             errorMessage.textContent = "";
 
 
+            /* Check name */
+
+            if (!fullName) {
+
+                errorMessage.textContent =
+                    "Please enter your full name.";
+
+                errorMessage.classList.remove("hidden");
+
+                return;
+            }
+
+
+            /* Check email */
+
+            if (!email) {
+
+                errorMessage.textContent =
+                    "Please enter your email address.";
+
+                errorMessage.classList.remove("hidden");
+
+                return;
+            }
+
+
             /* Check password length */
+
             if (password.length < 6) {
 
                 errorMessage.textContent =
@@ -771,6 +797,7 @@
 
 
             /* Check password match */
+
             if (password !== confirmPassword) {
 
                 errorMessage.textContent =
@@ -782,19 +809,8 @@
             }
 
 
-            /* Check name */
-            if (!fullName) {
-
-                errorMessage.textContent =
-                    "Please enter your full name.";
-
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
-
-
             /* Loading state */
+
             signupButton.disabled = true;
 
             signupButton.classList.add(
@@ -807,36 +823,53 @@
 
 
             /*
-             * DEMO ACCOUNT CREATION
-             *
-             * Replace this section with your
-             * backend API when the backend is ready.
+             * Save account information
+             * for frontend testing.
+             */
+
+            localStorage.setItem(
+                "studentName",
+                fullName
+            );
+
+            localStorage.setItem(
+                "studentEmail",
+                email
+            );
+
+
+            /*
+             * Save the email for the
+             * Student Signup OTP page.
+             */
+
+            sessionStorage.setItem(
+                "studentSignupEmail",
+                email
+            );
+
+
+            /*
+             * Save the name as well so
+             * the verification page can
+             * use it if needed.
+             */
+
+            sessionStorage.setItem(
+                "studentSignupName",
+                fullName
+            );
+
+
+            /*
+             * Redirect to the Student
+             * Signup OTP verification page.
              */
 
             setTimeout(function () {
 
-                /*
-                 * Save basic account information locally
-                 * for frontend testing only.
-                 */
-
-                localStorage.setItem(
-                    "studentName",
-                    fullName
-                );
-
-                localStorage.setItem(
-                    "studentEmail",
-                    email
-                );
-
-
-                /*
-                 * Redirect to student login page
-                 */
-
                 window.location.href =
-                    "student-login.html";
+                    "student-signup-verify.html";
 
             }, 1000);
 
