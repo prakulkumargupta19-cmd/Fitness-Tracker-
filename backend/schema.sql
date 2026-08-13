@@ -22,6 +22,7 @@ CREATE TABLE users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    email_verified INTEGER DEFAULT 0,
     role TEXT NOT NULL CHECK(role IN ('admin', 'coach', 'player')),
     sport TEXT,
     contact_number TEXT UNIQUE,
@@ -189,4 +190,14 @@ CREATE TABLE coach_feedback (
     follow_up_date TEXT,
     FOREIGN KEY (athlete_id) REFERENCES users(id),
     FOREIGN KEY (coach_id) REFERENCES users(id)
+);
+-- Password reset OTP storage
+CREATE TABLE password_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    otp TEXT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used INTEGER DEFAULT 0,
+    purpose TEXT DEFAULT 'password_reset',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
