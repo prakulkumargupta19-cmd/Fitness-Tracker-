@@ -727,7 +727,7 @@
             document.getElementById("errorMessage");
 
 
-        signupForm.addEventListener("submit", function (event) {
+        signupForm.addEventListener("submit", async function (event) {
 
             event.preventDefault();
 
@@ -785,10 +785,10 @@
 
             /* Check password length */
 
-            if (password.length < 6) {
+            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
 
                 errorMessage.textContent =
-                    "Password must contain at least 6 characters.";
+                    "Use 8+ characters with uppercase, lowercase, a number, and a special character.";
 
                 errorMessage.classList.remove("hidden");
 
@@ -820,58 +820,30 @@
 
             buttonText.textContent =
                 "Creating Account...";
-
-
-            /*
-             * Save account information
-             * for frontend testing.
-             */
-
-            localStorage.setItem(
-                "studentName",
-                fullName
-            );
-
-            localStorage.setItem(
-                "studentEmail",
-                email
-            );
-
-
-            /*
-             * Save the email for the
-             * Student Signup OTP page.
-             */
-
-            sessionStorage.setItem(
-                "studentSignupEmail",
-                email
-            );
-
-
-            /*
-             * Save the name as well so
-             * the verification page can
-             * use it if needed.
-             */
-
-            sessionStorage.setItem(
-                "studentSignupName",
-                fullName
-            );
-
-
-            /*
-             * Redirect to the Student
-             * Signup OTP verification page.
-             */
-
-            setTimeout(function () {
-
-                window.location.href =
-                    "student-signup-verify.html";
-
-            }, 1000);
+            try {
+                const response = await fetch("/api/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: fullName,
+                        email: email,
+                        password: password,
+                        role: "player"
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || result.success !== true) {
+                    throw new Error(result.message || "Unable to create your account.");
+                }
+                sessionStorage.setItem("signupEmail", email);
+                window.location.href = "student-signup-verify.html";
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.remove("hidden");
+                signupButton.disabled = false;
+                signupButton.classList.remove("opacity-70", "cursor-not-allowed");
+                buttonText.textContent = "Create Student Account";
+            }
 
         });
 

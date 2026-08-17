@@ -723,7 +723,7 @@
 
         verifyButton.addEventListener(
             "click",
-            function() {
+            async function() {
 
                 const otp =
                     getOTP();
@@ -745,40 +745,21 @@
                     "Verifying...";
 
 
-                /* DEMO VERIFICATION */
-
-                setTimeout(
-                    function() {
-
-                        verifyButton.disabled =
-                            false;
-
-                        verifyButton.textContent =
-                            "Verify OTP";
-
-                        showMessage(
-                            "OTP verified successfully.",
-                            "success"
-                        );
-
-
-                        /*
-                         * PASSWORD RESET FLOW
-                         */
-
-                        setTimeout(
-                            function() {
-
-                                window.location.href =
-                                    "reset-password.html";
-
-                            },
-                            1000
-                        );
-
-                    },
-                    1000
-                );
+                try {
+                    const response = await fetch("/api/forgot-password/verify-otp", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email, otp })
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) throw new Error(result.message || "Invalid OTP.");
+                    sessionStorage.setItem("resetOtp", otp);
+                    showMessage("OTP verified successfully.", "success");
+                    setTimeout(() => window.location.href = "reset-password.html", 500);
+                } catch (error) {
+                    showMessage(error.message, "error");
+                    verifyButton.disabled = false;
+                    verifyButton.textContent = "Verify OTP";
+                }
 
             }
         );
@@ -831,7 +812,7 @@
 
         resendButton.addEventListener(
             "click",
-            function() {
+            async function() {
 
                 resendButton.disabled =
                     true;
@@ -840,25 +821,22 @@
                     "Sending...";
 
 
-                setTimeout(
-                    function() {
-
-                        resendButton.textContent =
-                            "Resend OTP";
-
-                        showMessage(
-                            "A new OTP has been sent to your email.",
-                            "success"
-                        );
-
-                        timeLeft = 120;
-
-                        timerElement.textContent =
-                            "02:00";
-
-                    },
-                    1000
-                );
+                try {
+                    const response = await fetch("/api/forgot-password/resend-otp", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email })
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) throw new Error(result.message || "Unable to resend OTP.");
+                    showMessage("A new OTP has been sent to your email.", "success");
+                    timeLeft = 120;
+                    timerElement.textContent = "02:00";
+                } catch (error) {
+                    showMessage(error.message, "error");
+                } finally {
+                    resendButton.disabled = false;
+                    resendButton.textContent = "Resend OTP";
+                }
 
             }
         );

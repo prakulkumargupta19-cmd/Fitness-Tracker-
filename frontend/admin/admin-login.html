@@ -461,16 +461,20 @@
             </div>
 
             <div class="logo-text">
-                FITNESS<br>
-                <span>PERFORMANCE</span><br>
+                FITNESS
+
+                <span>PERFORMANCE</span>
+
                 TRACKER
             </div>
 
         </div>
 
         <h1>
-            Manage.<br>
-            Monitor.<br>
+            Manage.
+
+            Monitor.
+
             <span>Perform.</span>
         </h1>
 
@@ -689,18 +693,26 @@
 
 
     /* ==============================
+       BACKEND
+    ============================== */
+
+    const API_URL =
+        "http://127.0.0.1:5000";
+
+
+    /* ==============================
        ADMIN LOGIN
     ============================== */
 
     const form =
         document.getElementById("adminLoginForm");
 
-    form.addEventListener("submit", function(event) {
+    form.addEventListener("submit", async function(event) {
 
         event.preventDefault();
 
         const email =
-            document.getElementById("email").value.trim();
+            document.getElementById("email").value.trim().toLowerCase();
 
         const passwordValue =
             document.getElementById("password").value;
@@ -730,19 +742,100 @@
         loginButton.textContent = "Signing in...";
 
 
-        /*
-            DEMO LOGIN
+        try {
 
-            After successful login,
-            go directly to admin-dashboard.html.
-        */
+            const response =
+                await fetch(
+                    API_URL + "/api/admin-login",
+                    {
+                        method: "POST",
 
-        setTimeout(function() {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-            window.location.href =
-                "admin-dashboard.html";
+                        /* Needed so the OTP verify can
+                           use the session cookie. */
+                        credentials:
+                            "include",
 
-        }, 700);
+                        body:
+                            JSON.stringify({
+                                email:
+                                    email,
+
+                                password:
+                                    passwordValue
+                            })
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "ADMIN LOGIN RESPONSE:",
+                response.status,
+                result
+            );
+
+
+            if (
+                !response.ok ||
+                result.success !== true
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to log in."
+                );
+            }
+
+
+            /* Store the email for the OTP page */
+
+            sessionStorage.setItem(
+                "adminLoginEmail",
+                email
+            );
+
+
+            loginButton.textContent =
+                "OTP sent...";
+
+
+            setTimeout(function() {
+
+                window.location.href =
+                    "admin-loginotp.html";
+
+            }, 600);
+
+        }
+
+        catch(error) {
+
+            console.error(
+                "ADMIN LOGIN ERROR:",
+                error
+            );
+
+            errorMessage.textContent =
+                error.message ||
+                "Unable to connect to the server.";
+
+            errorMessage.style.display =
+                "block";
+
+            loginButton.disabled =
+                false;
+
+            loginButton.textContent =
+                "Login as Admin →";
+        }
 
     });
 

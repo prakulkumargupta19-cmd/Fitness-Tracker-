@@ -2,12 +2,12 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Coach Create Account | Fitness Performance Tracker</title>
 
-    <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -16,7 +16,6 @@
         rel="stylesheet"
     >
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -26,7 +25,6 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-
                     colors: {
                         brand: {
                             DEFAULT: '#22c55e',
@@ -38,11 +36,10 @@
             }
         }
     </script>
+
 </head>
 
-
 <body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans relative overflow-x-hidden">
-
 
     <!-- BACKGROUND -->
 
@@ -54,14 +51,10 @@
 
     <!-- MAIN CARD -->
 
-    <div
-        class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10"
-    >
+    <div class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10">
 
 
-        <!-- =================================
-             LEFT COLUMN
-        ================================== -->
+        <!-- LEFT SIDE -->
 
         <div
             class="relative bg-slate-950 p-8 sm:p-12 flex flex-col justify-between overflow-hidden min-h-[450px] lg:min-h-[620px]"
@@ -73,18 +66,14 @@
                 class="absolute inset-0 w-full h-full object-cover object-center opacity-40"
             >
 
-            <div
-                class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"
-            ></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"></div>
 
 
             <!-- LOGO -->
 
             <div class="relative z-10 flex items-center gap-3">
 
-                <div
-                    class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80"
-                >
+                <div class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80">
 
                     <svg
                         class="w-5 h-5 text-brand"
@@ -107,15 +96,11 @@
 
                 <div class="leading-tight">
 
-                    <span
-                        class="block text-[11px] font-extrabold tracking-wider text-white uppercase"
-                    >
+                    <span class="block text-[11px] font-extrabold tracking-wider text-white uppercase">
                         FITNESS
                     </span>
 
-                    <span
-                        class="block text-[11px] font-extrabold tracking-wider text-brand uppercase"
-                    >
+                    <span class="block text-[11px] font-extrabold tracking-wider text-brand uppercase">
                         PERFORMANCE TRACKER
                     </span>
 
@@ -128,9 +113,7 @@
 
             <div class="relative z-10 my-auto py-8">
 
-                <h1
-                    class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4"
-                >
+                <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4">
 
                     Coach.<br>
                     Guide.<br>
@@ -142,9 +125,7 @@
                 </h1>
 
 
-                <p
-                    class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm"
-                >
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm">
 
                     Manage athlete performance,
                     monitor progress, provide feedback,
@@ -158,11 +139,7 @@
             </div>
 
 
-            <!-- FOOTER -->
-
-            <div
-                class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold"
-            >
+            <div class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
 
                 PerformX Engine Platform
 
@@ -171,24 +148,17 @@
         </div>
 
 
-        <!-- =================================
-             RIGHT COLUMN
-        ================================== -->
+        <!-- RIGHT SIDE -->
 
-        <div
-            class="bg-white p-8 sm:p-12 flex flex-col justify-between"
-        >
+        <div class="bg-white p-8 sm:p-12 flex flex-col justify-between">
 
             <div>
-
 
                 <!-- ICON -->
 
                 <div class="flex justify-center mb-4">
 
-                    <div
-                        class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light"
-                    >
+                    <div class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light">
 
                         <svg
                             class="w-7 h-7 text-slate-700"
@@ -222,9 +192,7 @@
 
                 <div class="text-center mb-6">
 
-                    <h2
-                        class="text-2xl font-black text-slate-900 tracking-tight"
-                    >
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">
 
                         <span class="text-brand">
                             Coach
@@ -245,12 +213,9 @@
                 </div>
 
 
-                <!-- REGISTRATION FORM -->
+                <!-- FORM -->
 
-                <form
-                    id="signupForm"
-                    class="space-y-4"
-                >
+                <form id="signupForm" class="space-y-4">
 
 
                     <!-- FULL NAME -->
@@ -264,23 +229,20 @@
                             Full Name
                         </label>
 
-                        <div class="relative">
 
-                            <input
-                                type="text"
-                                id="fullName"
-                                required
-                                placeholder="Enter your full name"
-                                autocomplete="name"
-                                class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
-                            >
-
-                        </div>
+                        <input
+                            type="text"
+                            id="fullName"
+                            required
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                        >
 
                     </div>
 
 
-                    <!-- COACH EMAIL -->
+                    <!-- EMAIL -->
 
                     <div>
 
@@ -291,18 +253,15 @@
                             Coach Email
                         </label>
 
-                        <div class="relative">
 
-                            <input
-                                type="email"
-                                id="coachEmail"
-                                required
-                                placeholder="Enter your coach email"
-                                autocomplete="email"
-                                class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
-                            >
-
-                        </div>
+                        <input
+                            type="email"
+                            id="coachEmail"
+                            required
+                            placeholder="Enter your coach email"
+                            autocomplete="email"
+                            class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                        >
 
                     </div>
 
@@ -318,23 +277,23 @@
                             Password
                         </label>
 
+
                         <div class="relative">
 
                             <input
                                 type="password"
                                 id="password"
                                 required
-                                minlength="6"
                                 placeholder="Create a password"
                                 autocomplete="new-password"
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
 
+
                             <button
                                 type="button"
                                 id="togglePassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand cursor-pointer"
-                                aria-label="Show password"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand"
                             >
                                 👁
                             </button>
@@ -355,23 +314,23 @@
                             Confirm Password
                         </label>
 
+
                         <div class="relative">
 
                             <input
                                 type="password"
                                 id="confirmPassword"
                                 required
-                                minlength="6"
                                 placeholder="Confirm your password"
                                 autocomplete="new-password"
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
 
+
                             <button
                                 type="button"
                                 id="toggleConfirmPassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand cursor-pointer"
-                                aria-label="Show confirm password"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand"
                             >
                                 👁
                             </button>
@@ -385,9 +344,7 @@
 
                     <div class="flex items-center text-xs py-1">
 
-                        <label
-                            class="flex items-center text-slate-600 cursor-pointer"
-                        >
+                        <label class="flex items-center text-slate-600 cursor-pointer">
 
                             <input
                                 type="checkbox"
@@ -427,11 +384,11 @@
                     <button
                         type="submit"
                         id="signupButton"
-                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2"
+                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg transition-all"
                     >
 
                         <span id="buttonText">
-                            Create Account
+                            Create Coach Account
                         </span>
 
                         <span>
@@ -477,11 +434,9 @@
             </div>
 
 
-            <!-- SECURITY NOTICE -->
+            <!-- SECURITY -->
 
-            <div
-                class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100"
-            >
+            <div class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100">
 
                 🔒
 
@@ -496,98 +451,19 @@
     </div>
 
 
-
-    <!-- =================================
-         JAVASCRIPT
-    ================================== -->
-
     <script>
 
-        /* =================================
-           PASSWORD VISIBILITY
-        ================================= */
+        /* =========================================
+           API BASE
+        ========================================= */
 
-        const passwordInput =
-            document.getElementById("password");
-
-        const togglePassword =
-            document.getElementById("togglePassword");
+        const API_BASE =
+            "http://127.0.0.1:5000";
 
 
-        togglePassword.addEventListener("click", function () {
-
-            if (passwordInput.type === "password") {
-
-                passwordInput.type = "text";
-
-                togglePassword.textContent = "🙈";
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Hide password"
-                );
-
-            } else {
-
-                passwordInput.type = "password";
-
-                togglePassword.textContent = "👁";
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Show password"
-                );
-
-            }
-
-        });
-
-
-
-        /* =================================
-           CONFIRM PASSWORD VISIBILITY
-        ================================= */
-
-        const confirmPasswordInput =
-            document.getElementById("confirmPassword");
-
-        const toggleConfirmPassword =
-            document.getElementById("toggleConfirmPassword");
-
-
-        toggleConfirmPassword.addEventListener("click", function () {
-
-            if (confirmPasswordInput.type === "password") {
-
-                confirmPasswordInput.type = "text";
-
-                toggleConfirmPassword.textContent = "🙈";
-
-                toggleConfirmPassword.setAttribute(
-                    "aria-label",
-                    "Hide confirm password"
-                );
-
-            } else {
-
-                confirmPasswordInput.type = "password";
-
-                toggleConfirmPassword.textContent = "👁";
-
-                toggleConfirmPassword.setAttribute(
-                    "aria-label",
-                    "Show confirm password"
-                );
-
-            }
-
-        });
-
-
-
-        /* =================================
-           FORM SUBMISSION
-        ================================= */
+        /* =========================================
+           ELEMENTS
+        ========================================= */
 
         const signupForm =
             document.getElementById("signupForm");
@@ -601,166 +477,350 @@
         const errorMessage =
             document.getElementById("errorMessage");
 
+        const passwordInput =
+            document.getElementById("password");
 
-        signupForm.addEventListener("submit", function (event) {
-
-            event.preventDefault();
-
-
-            /* GET VALUES */
-
-            const fullName =
-                document
-                    .getElementById("fullName")
-                    .value
-                    .trim();
-
-            const email =
-                document
-                    .getElementById("coachEmail")
-                    .value
-                    .trim();
-
-            const password =
-                passwordInput.value;
-
-            const confirmPassword =
-                confirmPasswordInput.value;
-
-            const terms =
-                document.getElementById("terms").checked;
+        const confirmPasswordInput =
+            document.getElementById("confirmPassword");
 
 
+        /* =========================================
+           PASSWORD TOGGLE
+        ========================================= */
 
-            /* CLEAR ERROR */
+        document
+            .getElementById("togglePassword")
+            .addEventListener("click", function () {
 
-            errorMessage.classList.add("hidden");
-            errorMessage.textContent = "";
+                passwordInput.type =
+                    passwordInput.type === "password"
+                        ? "text"
+                        : "password";
 
+                this.textContent =
+                    passwordInput.type === "password"
+                        ? "👁"
+                        : "🙈";
 
-
-            /* VALIDATE NAME */
-
-            if (!fullName) {
-
-                errorMessage.textContent =
-                    "Please enter your full name.";
-
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
-
-
-
-            /* VALIDATE EMAIL */
-
-            if (!email) {
-
-                errorMessage.textContent =
-                    "Please enter your email address.";
-
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
+            });
 
 
+        /* =========================================
+           CONFIRM PASSWORD TOGGLE
+        ========================================= */
 
-            /* VALIDATE PASSWORD */
+        document
+            .getElementById("toggleConfirmPassword")
+            .addEventListener("click", function () {
 
-            if (password.length < 6) {
+                confirmPasswordInput.type =
+                    confirmPasswordInput.type === "password"
+                        ? "text"
+                        : "password";
 
-                errorMessage.textContent =
-                    "Password must contain at least 6 characters.";
+                this.textContent =
+                    confirmPasswordInput.type === "password"
+                        ? "👁"
+                        : "🙈";
 
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
-
-
-
-            /* VALIDATE PASSWORD MATCH */
-
-            if (password !== confirmPassword) {
-
-                errorMessage.textContent =
-                    "Passwords do not match.";
-
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
+            });
 
 
+        /* =========================================
+           ERROR
+        ========================================= */
 
-            /* VALIDATE TERMS */
+        function showError(text) {
 
-            if (!terms) {
+            errorMessage.textContent =
+                text;
 
-                errorMessage.textContent =
-                    "Please agree to the Terms & Privacy Policy.";
-
-                errorMessage.classList.remove("hidden");
-
-                return;
-            }
-
-
-
-            /* LOADING STATE */
-
-            signupButton.disabled = true;
-
-            signupButton.classList.add(
-                "opacity-70",
-                "cursor-not-allowed"
+            errorMessage.classList.remove(
+                "hidden"
             );
 
-            buttonText.textContent =
-                "Creating Account...";
+        }
 
 
+        function clearError() {
 
-            /* =================================
-               SAVE COACH INFORMATION
-            ================================= */
+            errorMessage.textContent =
+                "";
 
-            localStorage.setItem(
-                "coachName",
-                fullName
+            errorMessage.classList.add(
+                "hidden"
             );
 
-            localStorage.setItem(
-                "coachEmail",
-                email
-            );
-
-            localStorage.setItem(
-                "coachPassword",
-                password
-            );
-
-            localStorage.setItem(
-                "coachVerified",
-                "false"
-            );
+        }
 
 
+        /* =========================================
+           SAFE JSON RESPONSE
+        ========================================= */
 
-            /* =================================
-               REDIRECT TO OTP PAGE
-            ================================= */
+        async function readJsonResponse(response) {
 
-            setTimeout(function () {
+            const text =
+                await response.text();
 
-                window.location.href =
-                    "coach-signup-verify.html";
+            if (!text) {
 
-            }, 800);
+                throw new Error(
+                    "Server returned an empty response."
+                );
 
-        });
+            }
+
+            try {
+
+                return JSON.parse(text);
+
+            } catch {
+
+                console.error(
+                    "SERVER RESPONSE:",
+                    text
+                );
+
+                throw new Error(
+                    "Server returned an invalid response."
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           SIGNUP
+        ========================================= */
+
+        signupForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                clearError();
+
+
+                const fullName =
+                    document
+                        .getElementById("fullName")
+                        .value
+                        .trim();
+
+
+                const email =
+                    document
+                        .getElementById("coachEmail")
+                        .value
+                        .trim()
+                        .toLowerCase();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                const confirmPassword =
+                    confirmPasswordInput.value;
+
+
+                const terms =
+                    document
+                        .getElementById("terms")
+                        .checked;
+
+
+                /* -----------------------------
+                   VALIDATION
+                ----------------------------- */
+
+                if (!fullName) {
+
+                    showError(
+                        "Please enter your full name."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!email) {
+
+                    showError(
+                        "Please enter your email address."
+                    );
+
+                    return;
+
+                }
+
+
+                const strongPassword =
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+
+                if (
+                    !strongPassword.test(
+                        password
+                    )
+                ) {
+
+                    showError(
+                        "Use 8+ characters with uppercase, lowercase, a number, and a special character."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    password !== confirmPassword
+                ) {
+
+                    showError(
+                        "Passwords do not match."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!terms) {
+
+                    showError(
+                        "Please agree to the Terms & Privacy Policy."
+                    );
+
+                    return;
+
+                }
+
+
+                /* -----------------------------
+                   LOADING
+                ----------------------------- */
+
+                signupButton.disabled =
+                    true;
+
+                signupButton.classList.add(
+                    "opacity-70",
+                    "cursor-not-allowed"
+                );
+
+                buttonText.textContent =
+                    "Creating Account...";
+
+
+                try {
+
+                    /* =================================
+                       STEP 1: REGISTER
+                    ================================= */
+
+                    const registerResponse =
+                        await fetch(
+                            `${API_BASE}/api/register`,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "include",
+
+                                body: JSON.stringify({
+
+                                    name:
+                                        fullName,
+
+                                    email:
+                                        email,
+
+                                    password:
+                                        password,
+
+                                    role:
+                                        "coach"
+
+                                })
+                            }
+                        );
+
+
+                    const registerResult =
+                        await readJsonResponse(
+                            registerResponse
+                        );
+
+
+                    if (
+                        !registerResponse.ok ||
+                        registerResult.success !== true
+                    ) {
+
+                        throw new Error(
+                            registerResult.message ||
+                            "Unable to create your account."
+                        );
+
+                    }
+
+
+                    /* =================================
+                       SAVE EMAIL
+                    ================================= */
+
+                    sessionStorage.setItem(
+                        "signupEmail",
+                        email
+                    );
+
+
+                    /* The registration request has already sent the OTP. */
+
+                    window.location.href =
+                        "coach-signup-verify.html";
+
+
+                } catch (error) {
+
+                    console.error(
+                        "COACH SIGNUP ERROR:",
+                        error
+                    );
+
+
+                    showError(
+                        error.message ||
+                        "Unable to create your account."
+                    );
+
+
+                    signupButton.disabled =
+                        false;
+
+                    signupButton.classList.remove(
+                        "opacity-70",
+                        "cursor-not-allowed"
+                    );
+
+                    buttonText.textContent =
+                        "Create Coach Account";
+
+                }
+
+            }
+        );
 
     </script>
 

@@ -442,8 +442,10 @@
         </div>
 
         <div class="logo-text">
-            FITNESS<br>
-            <span>PERFORMANCE</span><br>
+            FITNESS
+
+            <span>PERFORMANCE</span>
+
             TRACKER
         </div>
 
@@ -777,6 +779,7 @@
 
                     <h3>
                         Recent Activity
+
                     </h3>
 
                 </div>
@@ -868,9 +871,131 @@
 
 <script>
 
-    function logout() {
+    const API_URL =
+        "http://127.0.0.1:5000";
 
-        window.location.href = "login.html";
+
+    /* ==============================
+       SESSION GUARD
+    ============================== */
+
+    async function checkSession() {
+
+        try {
+
+            const response =
+                await fetch(
+                    API_URL +
+                    "/api/admin/session",
+                    {
+                        method: "GET",
+
+                        /* Required: sends the session cookie */
+                        credentials:
+                            "include"
+                    }
+                );
+
+
+            if (
+                response.status === 401
+            ) {
+
+                window.location.replace(
+                    "admin-login.html"
+                );
+
+                return;
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !data.authenticated
+            ) {
+
+                window.location.replace(
+                    "admin-login.html"
+                );
+
+                return;
+            }
+
+
+            /* Show the real admin name if present */
+
+            if (
+                data.admin &&
+                data.admin.name
+            ) {
+
+                const profileName =
+                    document.querySelector(
+                        ".profile-name"
+                    );
+
+                if (profileName) {
+
+                    profileName.textContent =
+                        data.admin.name;
+                }
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "SESSION CHECK ERROR:",
+                error
+            );
+
+            window.location.replace(
+                "admin-login.html"
+            );
+        }
+
+    }
+
+
+    checkSession();
+
+
+    /* ==============================
+       LOGOUT
+    ============================== */
+
+    async function logout() {
+
+        try {
+
+            await fetch(
+                API_URL +
+                "/api/admin/logout",
+                {
+                    method: "POST",
+
+                    credentials:
+                        "include"
+                }
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "LOGOUT ERROR:",
+                error
+            );
+
+        }
+
+
+        window.location.href =
+            "admin-login.html";
 
     }
 
