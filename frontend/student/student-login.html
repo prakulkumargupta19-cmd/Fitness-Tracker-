@@ -785,7 +785,7 @@
             .getElementById("studentLoginForm")
             .addEventListener(
                 "submit",
-                function(event) {
+                async function(event) {
 
                     event.preventDefault();
 
@@ -840,48 +840,23 @@
 
                     loginButton.textContent =
                         "Signing in...";
-
-
-                    /*
-                     * DEMO LOGIN
-                     *
-                     * This currently simulates a
-                     * successful login.
-                     *
-                     * When your backend is connected,
-                     * replace this section with your
-                     * real authentication API.
-                     */
-
-                    setTimeout(function() {
-
+                    try {
+                        const response = await fetch("/api/login", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: email, password: password, role: "player" })
+                        });
+                        const result = await response.json();
+                        if (!response.ok || result.success !== true) {
+                            throw new Error(result.message || "Unable to log in.");
+                        }
+                        window.location.href = "student-dashboard.html";
+                    } catch (error) {
+                        errorMessage.textContent = error.message;
+                        errorMessage.style.display = "block";
                         loginButton.disabled = false;
-
-                        loginButton.textContent =
-                            "Login as Student →";
-
-
-                        /* SUCCESS MESSAGE */
-
-                        alert(
-                            "Student login submitted successfully!"
-                        );
-
-
-                        /*
-                         * REDIRECT TO STUDENT DASHBOARD
-                         *
-                         * student-login.html and
-                         * student-dashboard.html
-                         * are inside the same
-                         * frontend/student/ folder.
-                         */
-
-                        window.location.href =
-                            "student-dashboard.html";
-
-
-                    }, 1000);
+                        loginButton.textContent = "Login as Student →";
+                    }
 
                 }
             );

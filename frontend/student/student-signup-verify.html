@@ -861,8 +861,11 @@
         let timeLeft = 120;
 
 
-        const countdown =
-            setInterval(
+        let countdown;
+
+        function startCountdown() {
+            clearInterval(countdown);
+            countdown = setInterval(
                 function() {
 
                     const minutes =
@@ -905,6 +908,9 @@
                 },
                 1000
             );
+        }
+
+        startCountdown();
 
 
         /* ==============================
@@ -913,7 +919,7 @@
 
         resendButton.addEventListener(
             "click",
-            function() {
+            async function() {
 
                 resendButton.disabled =
                     true;
@@ -922,45 +928,69 @@
                     "Sending...";
 
 
-                /*
-                 * Demo resend.
-                 * Connect this to your
-                 * backend later.
-                 */
+                const email = sessionStorage.getItem("signupEmail");
+                if (!email) {
+                    showMessage("Signup session expired. Please register again.", "error");
+                    resendButton.disabled = false;
+                    resendButton.textContent = "Resend OTP";
+                    return;
+                }
 
-                setTimeout(
-                    function() {
-
-                        resendButton.textContent =
-                            "Resend OTP";
-
-
-                        showMessage(
-                            "A new OTP has been sent to your email.",
-                            "success"
-                        );
-
-
-                        timeLeft = 120;
-
-
-                        timerElement.textContent =
-                            "02:00";
-
-
-                        /*
-                         * Start allowing resend
-                         * again after expiry.
-                         */
-
-                    },
-                    1000
-                );
+                try {
+                    const response = await fetch("/api/account-verification/send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: email })
+                    });
+                    const result = await response.json();
+                    if (!response.ok || result.success !== true) {
+                        throw new Error(result.message || "Unable to resend OTP.");
+                    }
+                    timeLeft = 120;
+                    timerElement.textContent = "02:00";
+                    startCountdown();
+                    showMessage("A new OTP has been sent to your email.", "success");
+                } catch (error) {
+                    showMessage(error.message, "error");
+                    resendButton.disabled = false;
+                } finally {
+                    resendButton.textContent = "Resend OTP";
+                }
 
             }
         );
 
-    </script>
+    
+        const realVerifyButton = verifyButton.cloneNode(true);
+        verifyButton.replaceWith(realVerifyButton);
+        realVerifyButton.addEventListener("click", async function () {
+            const otp = getOTP();
+            const email = sessionStorage.getItem("signupEmail");
+            if (!email || otp.length !== 6) {
+                showMessage("Enter the 6-digit OTP sent to your email.", "error");
+                return;
+            }
+            realVerifyButton.disabled = true;
+            realVerifyButton.textContent = "Verifying...";
+            try {
+                const response = await fetch("/api/account-verification/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, otp: otp })
+                });
+                const result = await response.json();
+                if (!response.ok || result.success !== true) {
+                    throw new Error(result.message || "OTP verification failed.");
+                }
+                sessionStorage.removeItem("signupEmail");
+                showMessage("Account verified successfully.", "success");
+                window.location.href = "student-dashboard.html";
+            } catch (error) {
+                showMessage(error.message, "error");
+                realVerifyButton.disabled = false;
+                realVerifyButton.textContent = "Verify OTP";
+            }
+        });</script>
 
 </body>
 
