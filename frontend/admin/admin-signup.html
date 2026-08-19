@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Admin Create Account | Athlete Tracker</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #071827,
+            #102c40
+        );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+.card {
+    width: 100%;
+    max-width: 460px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0,0,0,.28);
+}
+
+.logo {
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 16px;
+
+    background: #22c55e;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+    font-size: 27px;
+}
+
+h1 {
+    margin: 0;
+
+    text-align: center;
+
+    color: #0f172a;
+
+    font-size: 27px;
+}
+
+h1 span {
+    color: #22c55e;
+}
+
+.subtitle {
+    margin:
+        8px 0 25px;
+
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+.field {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+input {
+    width: 100%;
+
+    height: 46px;
+
+    padding:
+        0 13px;
+
+    border:
+        1px solid #d8dee8;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+input:focus {
+    border-color:
+        #22c55e;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(34,197,94,.10);
+}
+
+.password-box {
+    position: relative;
+}
+
+.password-box input {
+    padding-right: 45px;
+}
+
+.eye {
+    position: absolute;
+
+    right: 10px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    font-size: 17px;
+}
+
+.terms {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin:
+        3px 0 17px;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+.terms input {
+    width: 15px;
+    height: 15px;
+}
+
+.message {
+    display: none;
+
+    margin-bottom: 15px;
+
+    padding: 11px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+.message.error {
+    display: block;
+
+    background: #fff1f2;
+
+    border:
+        1px solid #fecdd3;
+
+    color: #be123c;
+}
+
+.message.success {
+    display: block;
+
+    background: #ecfdf5;
+
+    border:
+        1px solid #bbf7d0;
+
+    color: #15803d;
+}
+
+#signupButton {
+    width: 100%;
+
+    height: 48px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: #22c55e;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+#signupButton:hover {
+    background: #16a34a;
+}
+
+#signupButton:disabled {
+    background: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+.login {
+    margin-top: 20px;
+
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.login a {
+    color: #16a34a;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+
+    <div class="logo">
+        ⚙
+    </div>
+
+
+    <h1>
+        <span>Admin</span>
+        Create Account
+    </h1>
+
+
+    <p class="subtitle">
+
+        Create your administrator account.
+        A verification OTP will be sent to your email.
+
+    </p>
+
+
+    <form
+        id="signupForm"
+        novalidate
+    >
+
+
+        <div class="field">
+
+            <label for="fullName">
+                Full Name
+            </label>
+
+            <input
+                id="fullName"
+                type="text"
+                placeholder="Enter your full name"
+                autocomplete="name"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="adminEmail">
+                Admin Email
+            </label>
+
+            <input
+                id="adminEmail"
+                type="email"
+                placeholder="Enter your admin email"
+                autocomplete="email"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="password">
+                Password
+            </label>
+
+            <div class="password-box">
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Minimum 6 characters"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    type="button"
+                    class="eye"
+                    id="togglePassword"
+                >
+                    👁
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label for="confirmPassword">
+                Confirm Password
+            </label>
+
+            <div class="password-box">
+
+                <input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    type="button"
+                    class="eye"
+                    id="toggleConfirmPassword"
+                >
+                    👁
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <label class="terms">
+
+            <input
+                id="terms"
+                type="checkbox"
+            >
+
+            <span>
+                I agree to the Terms & Privacy Policy.
+            </span>
+
+        </label>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <button
+            type="button"
+            id="signupButton"
+        >
+
+            <span id="buttonText">
+                Create Account
+            </span>
+
+        </button>
+
+
+    </form>
+
+
+    <div class="login">
+
+        Already have an account?
+
+        <a href="admin-login.html">
+            Sign In
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+const API =
+    "http://127.0.0.1:5000";
+
+
+const signupButton =
+    document.getElementById(
+        "signupButton"
+    );
+
+const buttonText =
+    document.getElementById(
+        "buttonText"
+    );
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+
+function showMessage(
+    text,
+    type
+) {
+
+    message.textContent =
+        text;
+
+    message.className =
+        "message " + type;
+
+}
+
+
+function clearMessage() {
+
+    message.textContent =
+        "";
+
+    message.className =
+        "message";
+
+}
+
+
+/* PASSWORD */
+
+document
+.getElementById("togglePassword")
+.addEventListener(
+    "click",
+    function () {
+
+        const input =
+            document.getElementById(
+                "password"
+            );
+
+        if (
+            input.type ===
+            "password"
+        ) {
+
+            input.type =
+                "text";
+
+            this.textContent =
+                "🙈";
+
+        } else {
+
+            input.type =
+                "password";
+
+            this.textContent =
+                "👁";
+
+        }
+
+    }
+);
+
+
+/* CONFIRM PASSWORD */
+
+document
+.getElementById("toggleConfirmPassword")
+.addEventListener(
+    "click",
+    function () {
+
+        const input =
+            document.getElementById(
+                "confirmPassword"
+            );
+
+        if (
+            input.type ===
+            "password"
+        ) {
+
+            input.type =
+                "text";
+
+            this.textContent =
+                "🙈";
+
+        } else {
+
+            input.type =
+                "password";
+
+            this.textContent =
+                "👁";
+
+        }
+
+    }
+);
+
+
+/* CREATE ACCOUNT */
+
+signupButton.addEventListener(
+    "click",
+    async function () {
+
+        clearMessage();
+
+
+        const name =
+            document
+            .getElementById(
+                "fullName"
+            )
+            .value
+            .trim();
+
+
+        const email =
+            document
+            .getElementById(
+                "adminEmail"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+
+        const password =
+            document
+            .getElementById(
+                "password"
+            )
+            .value;
+
+
+        const confirmPassword =
+            document
+            .getElementById(
+                "confirmPassword"
+            )
+            .value;
+
+
+        const terms =
+            document
+            .getElementById(
+                "terms"
+            )
+            .checked;
+
+
+        if (!name) {
+
+            showMessage(
+                "Please enter your full name.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!email) {
+
+            showMessage(
+                "Please enter your email.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !email.includes("@")
+        ) {
+
+            showMessage(
+                "Please enter a valid email address.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            password.length < 6
+        ) {
+
+            showMessage(
+                "Password must contain at least 6 characters.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            password !==
+            confirmPassword
+        ) {
+
+            showMessage(
+                "Passwords do not match.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!terms) {
+
+            showMessage(
+                "Please accept the Terms & Privacy Policy.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        signupButton.disabled =
+            true;
+
+        buttonText.textContent =
+            "Sending OTP...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API +
+                    "/api/admin-signup",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                name:
+                                    name,
+
+                                email:
+                                    email,
+
+                                password:
+                                    password
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "ADMIN SIGNUP RESPONSE:",
+                response.status,
+                result
+            );
+
+
+            if (
+                response.status !== 201 ||
+                result.success !== true
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to send OTP."
+                );
+
+            }
+
+
+            /*
+             * Store ONLY temporary email.
+             */
+
+            sessionStorage.setItem(
+                "adminSignupEmail",
+                email
+            );
+
+
+            sessionStorage.setItem(
+                "adminSignupName",
+                name
+            );
+
+
+            showMessage(
+                "OTP sent successfully. Redirecting...",
+                "success"
+            );
+
+
+            /*
+             * THIS IS THE REDIRECT.
+             *
+             * No form submission.
+             * No 800ms fake redirect.
+             */
+
+            const verifyPage =
+                new URL(
+                    "admin-signup-verify.html",
+                    window.location.href
+                ).href;
+
+
+            window.location.assign(
+                verifyPage
+            );
+
+        }
+
+
+        catch(error) {
+
+            console.error(
+                "ADMIN SIGNUP ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to connect to server.",
+                "error"
+            );
+
+
+            signupButton.disabled =
+                false;
+
+            buttonText.textContent =
+                "Create Account";
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

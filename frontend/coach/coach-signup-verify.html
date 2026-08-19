@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify Coach Account | Fitness Performance Tracker</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                linear-gradient(
+                    rgba(5, 15, 25, 0.80),
+                    rgba(5, 15, 25, 0.90)
+                ),
+                url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2000&q=85")
+                center center / cover no-repeat;
+        }
+
+        .otp-card {
+
+            width: 100%;
+
+            max-width: 470px;
+
+            background: #ffffff;
+
+            border-radius: 20px;
+
+            padding: 40px;
+
+            text-align: center;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .otp-icon {
+
+            width: 75px;
+
+            height: 75px;
+
+            margin: 0 auto 20px;
+
+            border-radius: 50%;
+
+            background: #ecfdf3;
+
+            border: 2px solid #22c55e;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 34px;
+        }
+
+        h1 {
+
+            font-size: 30px;
+
+            color: #111;
+
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            color: #22c55e;
+        }
+
+        .description {
+
+            color: #666;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+
+            margin-bottom: 25px;
+        }
+
+        .email-display {
+
+            background: #f5f5f5;
+
+            border-radius: 8px;
+
+            padding: 11px;
+
+            margin-bottom: 22px;
+
+            font-size: 13px;
+
+            color: #555;
+        }
+
+        .email-display strong {
+            color: #222;
+        }
+
+        .otp-container {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            margin-bottom: 22px;
+        }
+
+        .otp-input {
+
+            width: 48px;
+
+            height: 55px;
+
+            border: 1px solid #d5d5d5;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        .otp-input:focus {
+
+            border-color: #22c55e;
+
+            box-shadow:
+                0 0 0 3px rgba(34, 197, 94, 0.12);
+        }
+
+        .verify-button {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #22c55e;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .verify-button:hover {
+            background: #16a34a;
+        }
+
+        .verify-button:disabled {
+
+            background: #9ca3af;
+
+            cursor: not-allowed;
+        }
+
+        .timer {
+
+            margin-top: 18px;
+
+            color: #777;
+
+            font-size: 13px;
+        }
+
+        .timer span {
+
+            color: #16a34a;
+
+            font-weight: bold;
+        }
+
+        .resend {
+
+            margin-top: 15px;
+
+            font-size: 13px;
+
+            color: #777;
+        }
+
+        .resend button {
+
+            border: none;
+
+            background: none;
+
+            color: #16a34a;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .resend button:disabled {
+
+            color: #999;
+
+            cursor: not-allowed;
+        }
+
+        .message {
+
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 11px;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+
+            line-height: 1.4;
+        }
+
+        .success {
+
+            display: block;
+
+            background: #ecfdf3;
+
+            color: #15803d;
+
+            border: 1px solid #bbf7d0;
+        }
+
+        .error {
+
+            display: block;
+
+            background: #fff1f2;
+
+            color: #be123c;
+
+            border: 1px solid #fecdd3;
+        }
+
+        .change-email {
+
+            display: inline-block;
+
+            margin-top: 22px;
+
+            color: #555;
+
+            font-size: 13px;
+
+            text-decoration: none;
+        }
+
+        .change-email:hover {
+            color: #22c55e;
+        }
+
+        .security-note {
+
+            border-top: 1px solid #eeeeee;
+
+            margin-top: 25px;
+
+            padding-top: 18px;
+
+            color: #888;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        @media (max-width: 500px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .otp-card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .otp-container {
+                gap: 6px;
+            }
+
+            .otp-input {
+                width: 42px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="otp-card">
+
+        <div class="otp-icon">
+            🔐
+        </div>
+
+        <h1>
+            Verify <span>Coach Account</span>
+        </h1>
+
+        <p class="description">
+            Enter the 6-digit verification code
+            sent to your email address.
+        </p>
+
+        <div class="email-display">
+
+            OTP sent to:
+
+            <strong id="userEmail">
+                Loading...
+            </strong>
+
+        </div>
+
+
+        <div class="otp-container">
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                autofocus
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+            >
+
+        </div>
+
+
+        <button
+            type="button"
+            class="verify-button"
+            id="verifyButton"
+        >
+            Verify OTP
+        </button>
+
+
+        <div class="timer">
+
+            OTP expires in:
+
+            <span id="timer">
+                10:00
+            </span>
+
+        </div>
+
+
+        <div class="resend">
+
+            Didn't receive the code?
+
+            <button
+                type="button"
+                id="resendButton"
+                disabled
+            >
+                Resend OTP
+            </button>
+
+        </div>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <a
+            href="coach-signup.html"
+            class="change-email"
+        >
+            ← Change Email Address
+        </a>
+
+
+        <div class="security-note">
+
+            🔒 Never share your OTP with anyone.
+            Our team will never ask you for your OTP.
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* =========================================
+           API BASE
+        ========================================= */
+
+        const API_BASE =
+            "http://127.0.0.1:5000";
+
+
+        /* =========================================
+           ELEMENTS
+        ========================================= */
+
+        const email =
+            sessionStorage.getItem(
+                "signupEmail"
+            );
+
+        const userEmail =
+            document.getElementById(
+                "userEmail"
+            );
+
+        const otpInputs =
+            document.querySelectorAll(
+                ".otp-input"
+            );
+
+        const verifyButton =
+            document.getElementById(
+                "verifyButton"
+            );
+
+        const resendButton =
+            document.getElementById(
+                "resendButton"
+            );
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+        const timerElement =
+            document.getElementById(
+                "timer"
+            );
+
+
+        /* =========================================
+           EMAIL CHECK
+        ========================================= */
+
+        if (!email) {
+
+            userEmail.textContent =
+                "No signup email found";
+
+            verifyButton.disabled =
+                true;
+
+            showMessage(
+                "Signup session expired. Please create the account again.",
+                "error"
+            );
+
+        } else {
+
+            userEmail.textContent =
+                maskEmail(email);
+
+        }
+
+
+        /* =========================================
+           MASK EMAIL
+        ========================================= */
+
+        function maskEmail(value) {
+
+            const parts =
+                value.split("@");
+
+            if (
+                parts.length !== 2
+            ) {
+                return value;
+            }
+
+            const username =
+                parts[0];
+
+            const domain =
+                parts[1];
+
+
+            if (
+                username.length <= 2
+            ) {
+
+                return (
+                    "*".repeat(
+                        username.length
+                    )
+                    +
+                    "@"
+                    +
+                    domain
+                );
+
+            }
+
+
+            return (
+                username.charAt(0)
+                +
+                "*".repeat(
+                    username.length - 2
+                )
+                +
+                username.charAt(
+                    username.length - 1
+                )
+                +
+                "@"
+                +
+                domain
+            );
+
+        }
+
+
+        /* =========================================
+           MESSAGE
+        ========================================= */
+
+        function showMessage(
+            text,
+            type
+        ) {
+
+            message.textContent =
+                text;
+
+            message.className =
+                "message " + type;
+
+        }
+
+
+        /* =========================================
+           SAFE JSON RESPONSE
+        ========================================= */
+
+        async function readJsonResponse(
+            response
+        ) {
+
+            const text =
+                await response.text();
+
+            if (!text) {
+
+                throw new Error(
+                    "Server returned an empty response."
+                );
+
+            }
+
+            try {
+
+                return JSON.parse(
+                    text
+                );
+
+            } catch {
+
+                console.error(
+                    "SERVER RESPONSE:",
+                    text
+                );
+
+                throw new Error(
+                    "Server returned an invalid response."
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           OTP INPUT
+        ========================================= */
+
+        otpInputs.forEach(
+            function (
+                input,
+                index
+            ) {
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        this.value =
+                            this.value
+                                .replace(
+                                    /\D/g,
+                                    ""
+                                )
+                                .slice(
+                                    0,
+                                    1
+                                );
+
+                        if (
+                            this.value &&
+                            index <
+                                otpInputs.length - 1
+                        ) {
+
+                            otpInputs[
+                                index + 1
+                            ].focus();
+
+                        }
+
+                    }
+                );
+
+
+                input.addEventListener(
+                    "keydown",
+                    function (
+                        event
+                    ) {
+
+                        if (
+                            event.key ===
+                                "Backspace" &&
+                            !this.value &&
+                            index > 0
+                        ) {
+
+                            otpInputs[
+                                index - 1
+                            ].focus();
+
+                        }
+
+                    }
+                );
+
+
+                input.addEventListener(
+                    "paste",
+                    function (
+                        event
+                    ) {
+
+                        event.preventDefault();
+
+                        const pasted =
+                            event.clipboardData
+                                .getData(
+                                    "text"
+                                )
+                                .replace(
+                                    /\D/g,
+                                    ""
+                                )
+                                .slice(
+                                    0,
+                                    6
+                                );
+
+
+                        pasted
+                            .split("")
+                            .forEach(
+                                function (
+                                    digit,
+                                    i
+                                ) {
+
+                                    if (
+                                        otpInputs[i]
+                                    ) {
+
+                                        otpInputs[
+                                            i
+                                        ].value =
+                                            digit;
+
+                                    }
+
+                                }
+                            );
+
+
+                        if (
+                            pasted.length ===
+                            6
+                        ) {
+
+                            otpInputs[
+                                5
+                            ].focus();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =========================================
+           GET OTP
+        ========================================= */
+
+        function getOTP() {
+
+            let otp = "";
+
+            otpInputs.forEach(
+                function (input) {
+
+                    otp += input.value;
+
+                }
+            );
+
+            return otp;
+
+        }
+
+
+        /* =========================================
+           VERIFY OTP
+        ========================================= */
+
+        verifyButton.addEventListener(
+            "click",
+            async function () {
+
+                if (!email) {
+
+                    showMessage(
+                        "Signup session expired. Please register again.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const otp =
+                    getOTP();
+
+
+                if (
+                    otp.length !== 6
+                ) {
+
+                    showMessage(
+                        "Please enter the complete 6-digit OTP.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                verifyButton.disabled =
+                    true;
+
+                verifyButton.textContent =
+                    "Verifying...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/api/account-verification/verify`,
+                            {
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "include",
+
+                                body:
+                                    JSON.stringify({
+                                        email:
+                                            email,
+
+                                        otp:
+                                            otp
+                                    })
+                            }
+                        );
+
+
+                    const result =
+                        await readJsonResponse(
+                            response
+                        );
+
+
+                    if (
+                        !response.ok ||
+                        result.success !== true
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            "OTP verification failed."
+                        );
+
+                    }
+
+
+                    sessionStorage.removeItem(
+                        "signupEmail"
+                    );
+
+
+                    showMessage(
+                        "Coach account verified successfully! Redirecting to dashboard...",
+                        "success"
+                    );
+
+
+                    setTimeout(
+                        function () {
+
+                            window.location.href =
+                                "coach-dashboard.html";
+
+                        },
+                        1000
+                    );
+
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        "COACH OTP ERROR:",
+                        error
+                    );
+
+
+                    showMessage(
+                        error.message ||
+                        "OTP verification failed.",
+                        "error"
+                    );
+
+
+                    verifyButton.disabled =
+                        false;
+
+                    verifyButton.textContent =
+                        "Verify OTP";
+
+                }
+
+            }
+        );
+
+
+        /* =========================================
+           TIMER
+        ========================================= */
+
+        let timeLeft =
+            600;
+
+        let countdown;
+
+
+        function updateTimer() {
+
+            const minutes =
+                Math.floor(
+                    timeLeft / 60
+                );
+
+            const seconds =
+                timeLeft % 60;
+
+
+            timerElement.textContent =
+                String(
+                    minutes
+                ).padStart(
+                    2,
+                    "0"
+                )
+                +
+                ":"
+                +
+                String(
+                    seconds
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+
+            if (
+                timeLeft <= 0
+            ) {
+
+                clearInterval(
+                    countdown
+                );
+
+                timerElement.textContent =
+                    "Expired";
+
+                resendButton.disabled =
+                    false;
+
+                return;
+
+            }
+
+
+            timeLeft--;
+
+        }
+
+
+        function startTimer() {
+
+            clearInterval(
+                countdown
+            );
+
+            timeLeft =
+                600;
+
+            resendButton.disabled =
+                true;
+
+            updateTimer();
+
+            countdown =
+                setInterval(
+                    updateTimer,
+                    1000
+                );
+
+        }
+
+
+        startTimer();
+
+
+        /* =========================================
+           RESEND OTP
+        ========================================= */
+
+        resendButton.addEventListener(
+            "click",
+            async function () {
+
+                if (!email) {
+
+                    showMessage(
+                        "Signup session expired. Please register again.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                resendButton.disabled =
+                    true;
+
+                resendButton.textContent =
+                    "Sending...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/api/account-verification/send`,
+                            {
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "include",
+
+                                body:
+                                    JSON.stringify({
+                                        email:
+                                            email
+                                    })
+                            }
+                        );
+
+
+                    const result =
+                        await readJsonResponse(
+                            response
+                        );
+
+
+                    if (
+                        !response.ok ||
+                        result.success !== true
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to resend OTP."
+                        );
+
+                    }
+
+
+                    showMessage(
+                        "A new OTP has been sent to your email.",
+                        "success"
+                    );
+
+
+                    startTimer();
+
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        "RESEND OTP ERROR:",
+                        error
+                    );
+
+
+                    showMessage(
+                        error.message ||
+                        "Unable to resend OTP.",
+                        "error"
+                    );
+
+
+                    resendButton.disabled =
+                        false;
+
+                } finally {
+
+                    resendButton.textContent =
+                        "Resend OTP";
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

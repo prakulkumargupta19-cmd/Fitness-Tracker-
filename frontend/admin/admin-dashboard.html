@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | Fitness Performance Tracker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7f6;
+            color: #17221c;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #0c1912;
+            color: white;
+            padding: 25px 18px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border: 2px solid #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1.3;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: #22c55e;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            color: #718078;
+            margin: 20px 10px 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            border-radius: 9px;
+            color: #b8c4bd;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            text-align: left;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #163221;
+            color: white;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid #22c55e;
+        }
+
+        .logout {
+            margin-top: 25px;
+            width: 100%;
+            border: 1px solid #2d4936;
+            background: transparent;
+            color: #b8c4bd;
+            padding: 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .logout:hover {
+            background: #351b1b;
+            color: #ffb4b4;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 75px;
+            background: white;
+            border-bottom: 1px solid #e5e9e6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 35px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+        }
+
+        .topbar h1 {
+            font-size: 23px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #dcfce7;
+            border: 1px solid #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .profile-role {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .content {
+            padding: 35px;
+        }
+
+        /* =========================
+           PAGE SECTIONS
+        ========================= */
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .welcome p {
+            color: #718078;
+            font-size: 14px;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e4e9e5;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            background: #ecfdf3;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7b847e;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           PANELS
+        ========================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 25px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e4e9e5;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            gap: 15px;
+        }
+
+        .panel-header h3 {
+            font-size: 17px;
+        }
+
+        .view-all {
+            color: #16a34a;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            color: #8a948d;
+            padding: 10px;
+            border-bottom: 1px solid #edf0ee;
+        }
+
+        td {
+            padding: 13px 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f2f1;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .active-status {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .pending-status {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* =========================
+           ACTIVITY
+        ========================= */
+
+        .activity {
+            display: flex;
+            gap: 13px;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf0ee;
+        }
+
+        .activity:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            background: #ecfdf3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-text {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .activity-time {
+            color: #9aa39d;
+            font-size: 10px;
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px 14px;
+            border: 1px solid #dfe5e1;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #22c55e;
+        }
+
+        .primary-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .primary-btn:hover {
+            background: #16a34a;
+        }
+
+        .secondary-btn {
+            background: white;
+            color: #17221c;
+            border: 1px solid #dfe5e1;
+            border-radius: 8px;
+            padding: 8px 13px;
+            cursor: pointer;
+        }
+
+        .secondary-btn:hover {
+            background: #f5f7f6;
+        }
+
+        /* =========================
+           PERMISSIONS / SETTINGS
+        ========================= */
+
+        .permission-row,
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0;
+            border-bottom: 1px solid #edf0ee;
+            gap: 20px;
+        }
+
+        .permission-row:last-child,
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .permission-title,
+        .setting-title {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .permission-description,
+        .setting-description {
+            font-size: 12px;
+            color: #718078;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           SWITCH
+        ========================= */
+
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: #cbd5cf;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .switch input:checked + .slider {
+            background: #22c55e;
+        }
+
+        .switch input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            border: none;
+            background: none;
+            font-size: 25px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .modal label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .modal input,
+        .modal select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px;
+            border: 1px solid #dfe5e1;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .modal input:focus,
+        .modal select:focus {
+            border-color: #22c55e;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .profile-role {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚡
+        </div>
+
+        <div class="logo-text">
+            FITNESS<br>
+            <span>PERFORMANCE</span><br>
+            TRACKER
+        </div>
+
+    </div>
+
+
+    <div class="nav-title">
+        Administration
+    </div>
+
+
+    <!-- IMPORTANT:
+         These are BUTTONS, not links.
+         They do NOT reload the page.
+    -->
+
+    <button
+        type="button"
+        class="nav-link active"
+        data-page="dashboard">
+
+        📊 Dashboard
+
+    </button>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="students">
+
+        👨‍🎓 Students
+
+    </button>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="coaches">
+
+        🏋️ Coaches
+
+    </button>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="users">
+
+        👥 Users
+
+    </button>
+
+
+    <div class="nav-title">
+        System
+    </div>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="permissions">
+
+        🔐 Permissions
+
+    </button>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="logs">
+
+        📋 System Logs
+
+    </button>
+
+
+    <button
+        type="button"
+        class="nav-link"
+        data-page="settings">
+
+        ⚙️ Settings
+
+    </button>
+
+
+    <button
+        type="button"
+        class="logout"
+        id="logoutButton">
+
+        ← Logout
+
+    </button>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <h1 id="pageTitle">
+            Admin Dashboard
+        </h1>
+
+
+        <div class="admin-profile">
+
+            <div class="profile-icon">
+                ⚡
+            </div>
+
+
+            <div>
+
+                <div
+                    class="profile-name"
+                    id="profileName">
+
+                    System Administrator
+
+                </div>
+
+
+                <div class="profile-role">
+                    Administrator
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <div
+            id="dashboard"
+            class="page-section active">
+
+            <div class="welcome">
+
+                <h2>
+                    Welcome, Administrator 👋
+                </h2>
+
+                <p>
+                    Monitor and manage the Fitness Performance Tracker platform.
+                </p>
+
+            </div>
+
+
+            <!-- STAT CARDS -->
+
+            <div class="stats">
+
+
+                <div
+                    class="stat-card"
+                    data-goto="students">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Total Students
+                        </div>
+
+                        <div class="stat-icon">
+                            🎓
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        248
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="stat-card"
+                    data-goto="coaches">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Active Coaches
+                        </div>
+
+                        <div class="stat-icon">
+                            🏋️
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        24
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="stat-card"
+                    data-goto="users">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Active Accounts
+                        </div>
+
+                        <div class="stat-icon">
+                            👥
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        272
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="stat-card"
+                    data-goto="permissions">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Pending Requests
+                        </div>
+
+                        <div class="stat-icon">
+                            🔔
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        7
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DASHBOARD GRID -->
+
+            <div class="dashboard-grid">
+
+
+                <!-- RECENT USERS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h3>
+                            Recent User Accounts
+                        </h3>
+
+                        <span
+                            class="view-all"
+                            data-goto="users">
+
+                            View All
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>USER</th>
+                                    <th>ROLE</th>
+                                    <th>STATUS</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <tr>
+                                    <td>Rahul Sharma</td>
+                                    <td>Student</td>
+                                    <td>
+                                        <span class="status active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>Arjun Singh</td>
+                                    <td>Coach</td>
+                                    <td>
+                                        <span class="status active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>Priya Das</td>
+                                    <td>Student</td>
+                                    <td>
+                                        <span class="status pending-status">
+                                            Pending
+                                        </span>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>Vikram Roy</td>
+                                    <td>Coach</td>
+                                    <td>
+                                        <span class="status active-status">
+                                            Active
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIVITY -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h3>
+                            Recent Activity
+                        </h3>
+
+                    </div>
+
+
+                    <div class="activity">
+
+                        <div class="activity-icon">
+                            👤
+                        </div>
+
+                        <div class="activity-text">
+
+                            New student account created.
+
+                            <div class="activity-time">
+                                10 minutes ago
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity">
+
+                        <div class="activity-icon">
+                            🏋️
+                        </div>
+
+                        <div class="activity-text">
+
+                            New coach account registered.
+
+                            <div class="activity-time">
+                                32 minutes ago
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity">
+
+                        <div class="activity-icon">
+                            🔐
+                        </div>
+
+                        <div class="activity-text">
+
+                            Account permissions updated.
+
+                            <div class="activity-time">
+                                1 hour ago
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity">
+
+                        <div class="activity-icon">
+                            📋
+                        </div>
+
+                        <div class="activity-text">
+
+                            System log generated.
+
+                            <div class="activity-time">
+                                2 hours ago
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             STUDENTS
+        ================================================== -->
+
+        <div
+            id="students"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    Students
+                </h2>
+
+                <p>
+                    Manage registered students.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="studentSearch"
+                        class="search-box"
+                        placeholder="Search students..."
+                    >
+
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="addStudentButton">
+
+                        + Add Student
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table id="studentsTable">
+
+                        <thead>
+
+                            <tr>
+                                <th>NAME</th>
+                                <th>EMAIL</th>
+                                <th>STATUS</th>
+                                <th>ACTION</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Rahul Sharma
+                                </td>
+
+                                <td>
+                                    rahul@example.com
+                                </td>
+
+                                <td>
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="secondary-btn view-user"
+                                        data-name="Rahul Sharma">
+
+                                        View
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Priya Das
+                                </td>
+
+                                <td>
+                                    priya@example.com
+                                </td>
+
+                                <td>
+                                    <span class="status pending-status">
+                                        Pending
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="secondary-btn view-user"
+                                        data-name="Priya Das">
+
+                                        View
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             COACHES
+        ================================================== -->
+
+        <div
+            id="coaches"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    Coaches
+                </h2>
+
+                <p>
+                    Manage registered coaches.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="coachSearch"
+                        class="search-box"
+                        placeholder="Search coaches..."
+                    >
+
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="addCoachButton">
+
+                        + Add Coach
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table id="coachesTable">
+
+                        <thead>
+
+                            <tr>
+                                <th>NAME</th>
+                                <th>EMAIL</th>
+                                <th>STATUS</th>
+                                <th>ACTION</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Arjun Singh
+                                </td>
+
+                                <td>
+                                    arjun@example.com
+                                </td>
+
+                                <td>
+
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="secondary-btn view-user"
+                                        data-name="Arjun Singh">
+
+                                        View
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Vikram Roy
+                                </td>
+
+                                <td>
+                                    vikram@example.com
+                                </td>
+
+                                <td>
+
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="secondary-btn view-user"
+                                        data-name="Vikram Roy">
+
+                                        View
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             USERS
+        ================================================== -->
+
+        <div
+            id="users"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    Users
+                </h2>
+
+                <p>
+                    View and manage all platform accounts.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="userSearch"
+                        class="search-box"
+                        placeholder="Search users..."
+                    >
+
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="addUserButton">
+
+                        + Add User
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table id="usersTable">
+
+                        <thead>
+
+                            <tr>
+                                <th>NAME</th>
+                                <th>EMAIL</th>
+                                <th>ROLE</th>
+                                <th>STATUS</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    Rahul Sharma
+                                </td>
+
+                                <td>
+                                    rahul@example.com
+                                </td>
+
+                                <td>
+                                    Student
+                                </td>
+
+                                <td>
+
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Arjun Singh
+                                </td>
+
+                                <td>
+                                    arjun@example.com
+                                </td>
+
+                                <td>
+                                    Coach
+                                </td>
+
+                                <td>
+
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    Priya Das
+                                </td>
+
+                                <td>
+                                    priya@example.com
+                                </td>
+
+                                <td>
+                                    Student
+                                </td>
+
+                                <td>
+
+                                    <span class="status pending-status">
+                                        Pending
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PERMISSIONS
+        ================================================== -->
+
+        <div
+            id="permissions"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    Permissions
+                </h2>
+
+                <p>
+                    Control access to administrative features.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+
+                <div class="permission-row">
+
+                    <div>
+
+                        <div class="permission-title">
+                            Student Management
+                        </div>
+
+                        <div class="permission-description">
+                            Allow administrators to manage student accounts.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="permission-toggle"
+                            data-name="Student Management"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="permission-row">
+
+                    <div>
+
+                        <div class="permission-title">
+                            Coach Management
+                        </div>
+
+                        <div class="permission-description">
+                            Allow administrators to manage coach accounts.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="permission-toggle"
+                            data-name="Coach Management"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="permission-row">
+
+                    <div>
+
+                        <div class="permission-title">
+                            User Management
+                        </div>
+
+                        <div class="permission-description">
+                            Allow administrators to manage platform users.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="permission-toggle"
+                            data-name="User Management"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="permission-row">
+
+                    <div>
+
+                        <div class="permission-title">
+                            System Logs
+                        </div>
+
+                        <div class="permission-description">
+                            Allow access to system activity logs.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="permission-toggle"
+                            data-name="System Logs"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SYSTEM LOGS
+        ================================================== -->
+
+        <div
+            id="logs"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    System Logs
+                </h2>
+
+                <p>
+                    Review recent platform activity.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        👤
+                    </div>
+
+                    <div class="activity-text">
+
+                        New student account created.
+
+                        <div class="activity-time">
+                            10 minutes ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        🏋️
+                    </div>
+
+                    <div class="activity-text">
+
+                        New coach account registered.
+
+                        <div class="activity-time">
+                            32 minutes ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        🔐
+                    </div>
+
+                    <div class="activity-text">
+
+                        Account permissions updated.
+
+                        <div class="activity-time">
+                            1 hour ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        📋
+                    </div>
+
+                    <div class="activity-text">
+
+                        System log generated.
+
+                        <div class="activity-time">
+                            2 hours ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SETTINGS
+        ================================================== -->
+
+        <div
+            id="settings"
+            class="page-section">
+
+            <div class="welcome">
+
+                <h2>
+                    Settings
+                </h2>
+
+                <p>
+                    Configure your administrator dashboard.
+                </p>
+
+            </div>
+
+
+            <div class="panel">
+
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <div class="setting-title">
+                            Email Notifications
+                        </div>
+
+                        <div class="setting-description">
+                            Receive notifications about new accounts.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="setting-toggle"
+                            data-name="Email Notifications"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <div class="setting-title">
+                            Activity Notifications
+                        </div>
+
+                        <div class="setting-description">
+                            Receive alerts about system activity.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            checked
+                            class="setting-toggle"
+                            data-name="Activity Notifications"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <div class="setting-title">
+                            Auto Refresh
+                        </div>
+
+                        <div class="setting-description">
+                            Automatically refresh dashboard information.
+                        </div>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            class="setting-toggle"
+                            data-name="Auto Refresh"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     ADD USER MODAL
+===================================================== -->
+
+<div
+    class="modal"
+    id="modal">
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <h3 id="modalTitle">
+                Add User
+            </h3>
+
+
+            <button
+                type="button"
+                class="close-modal"
+                id="closeModal">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form id="addForm">
+
+            <label for="newName">
+                Name
+            </label>
+
+            <input
+                type="text"
+                id="newName"
+                placeholder="Enter name"
+                required
+            >
+
+
+            <label for="newEmail">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="newEmail"
+                placeholder="Enter email"
+                required
+            >
+
+
+            <label for="newRole">
+                Role
+            </label>
+
+            <select id="newRole">
+
+                <option value="Student">
+                    Student
+                </option>
+
+                <option value="Coach">
+                    Coach
+                </option>
+
+                <option value="Administrator">
+                    Administrator
+                </option>
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                Add
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       PAGE TITLES
+    ===================================================== */
+
+    const pageNames = {
+
+        dashboard: "Admin Dashboard",
+        students: "Students",
+        coaches: "Coaches",
+        users: "Users",
+        permissions: "Permissions",
+        logs: "System Logs",
+        settings: "Settings"
+
+    };
+
+
+    /* =====================================================
+       SHOW PAGE
+       
+       IMPORTANT:
+       This DOES NOT change the URL.
+       This DOES NOT reload the page.
+       This DOES NOT go to admin-login.html.
+    ===================================================== */
+
+    function showPage(page) {
+
+        /*
+         * Hide every section
+         */
+
+        document
+            .querySelectorAll(".page-section")
+            .forEach(function(section) {
+
+                section.classList.remove("active");
+
+            });
+
+
+        /*
+         * Find selected section
+         */
+
+        const selectedPage =
+            document.getElementById(page);
+
+
+        /*
+         * Display selected section
+         */
+
+        if (selectedPage) {
+
+            selectedPage.classList.add("active");
+
+        }
+
+
+        /*
+         * Update sidebar active button
+         */
+
+        document
+            .querySelectorAll(".nav-link")
+            .forEach(function(button) {
+
+                button.classList.remove("active");
+
+
+                if (
+                    button.dataset.page === page
+                ) {
+
+                    button.classList.add("active");
+
+                }
+
+            });
+
+
+        /*
+         * Update top title
+         */
+
+        document
+            .getElementById("pageTitle")
+            .textContent =
+            pageNames[page] ||
+            "Admin Dashboard";
+
+
+        /*
+         * Scroll to top
+         */
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR NAVIGATION
+    ===================================================== */
+
+    document
+        .querySelectorAll(".nav-link")
+        .forEach(function(button) {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    /*
+                     * Prevent any default browser action.
+                     */
+
+                    event.preventDefault();
+
+                    /*
+                     * IMPORTANT:
+                     * We are NOT using location.href.
+                     * We are NOT opening another HTML file.
+                     */
+
+                    const page =
+                        this.dataset.page;
+
+                    showPage(page);
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       DASHBOARD CARD NAVIGATION
+    ===================================================== */
+
+    document
+        .querySelectorAll("[data-goto]")
+        .forEach(function(element) {
+
+            element.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const page =
+                        this.dataset.goto;
+
+                    if (page) {
+
+                        showPage(page);
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       SEARCH FUNCTION
+    ===================================================== */
+
+    function filterTable(
+        inputId,
+        tableId
+    ) {
+
+        const input =
+            document.getElementById(inputId);
+
+        const table =
+            document.getElementById(tableId);
+
+        if (!input || !table) {
+            return;
+        }
+
+
+        const search =
+            input.value.toLowerCase().trim();
+
+
+        const rows =
+            table.querySelectorAll(
+                "tbody tr"
+            );
+
+
+        rows.forEach(function(row) {
+
+            const text =
+                row.textContent.toLowerCase();
+
+
+            if (
+                text.includes(search)
+            ) {
+
+                row.style.display = "";
+
+            } else {
+
+                row.style.display = "none";
+
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       STUDENT SEARCH
+    ===================================================== */
+
+    document
+        .getElementById("studentSearch")
+        .addEventListener(
+            "input",
+            function() {
+
+                filterTable(
+                    "studentSearch",
+                    "studentsTable"
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       COACH SEARCH
+    ===================================================== */
+
+    document
+        .getElementById("coachSearch")
+        .addEventListener(
+            "input",
+            function() {
+
+                filterTable(
+                    "coachSearch",
+                    "coachesTable"
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       USER SEARCH
+    ===================================================== */
+
+    document
+        .getElementById("userSearch")
+        .addEventListener(
+            "input",
+            function() {
+
+                filterTable(
+                    "userSearch",
+                    "usersTable"
+                );
+
+            }
+        );
+
+
+    /* =====================================================
+       VIEW USER
+    ===================================================== */
+
+    document
+        .querySelectorAll(".view-user")
+        .forEach(function(button) {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const name =
+                        this.dataset.name;
+
+                    alert(
+                        "Viewing account: " +
+                        name
+                    );
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       MODAL
+    ===================================================== */
+
+    const modal =
+        document.getElementById("modal");
+
+    const modalTitle =
+        document.getElementById("modalTitle");
+
+    let modalType = "user";
+
+
+    function openModal(type) {
+
+        modalType = type;
+
+
+        if (type === "student") {
+
+            modalTitle.textContent =
+                "Add Student";
+
+            document
+                .getElementById("newRole")
+                .value = "Student";
+
+        }
+
+
+        else if (type === "coach") {
+
+            modalTitle.textContent =
+                "Add Coach";
+
+            document
+                .getElementById("newRole")
+                .value = "Coach";
+
+        }
+
+
+        else {
+
+            modalTitle.textContent =
+                "Add User";
+
+        }
+
+
+        modal.classList.add("show");
+
+    }
+
+
+    function closeModal() {
+
+        modal.classList.remove("show");
+
+        document
+            .getElementById("addForm")
+            .reset();
+
+    }
+
+
+    /* =====================================================
+       ADD STUDENT
+    ===================================================== */
+
+    document
+        .getElementById("addStudentButton")
+        .addEventListener(
+            "click",
+            function() {
+
+                openModal("student");
+
+            }
+        );
+
+
+    /* =====================================================
+       ADD COACH
+    ===================================================== */
+
+    document
+        .getElementById("addCoachButton")
+        .addEventListener(
+            "click",
+            function() {
+
+                openModal("coach");
+
+            }
+        );
+
+
+    /* =====================================================
+       ADD USER
+    ===================================================== */
+
+    document
+        .getElementById("addUserButton")
+        .addEventListener(
+            "click",
+            function() {
+
+                openModal("user");
+
+            }
+        );
+
+
+    /* =====================================================
+       CLOSE MODAL
+    ===================================================== */
+
+    document
+        .getElementById("closeModal")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+
+    modal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === modal
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       ADD FORM
+    ===================================================== */
+
+    document
+        .getElementById("addForm")
+        .addEventListener(
+            "submit",
+            function(event) {
+
+                event.preventDefault();
+
+
+                const name =
+                    document
+                        .getElementById("newName")
+                        .value
+                        .trim();
+
+
+                const email =
+                    document
+                        .getElementById("newEmail")
+                        .value
+                        .trim();
+
+
+                const role =
+                    document
+                        .getElementById("newRole")
+                        .value;
+
+
+                if (
+                    !name ||
+                    !email
+                ) {
+
+                    alert(
+                        "Please fill in all fields."
+                    );
+
+                    return;
+
+                }
+
+
+                alert(
+                    role +
+                    " \"" +
+                    name +
+                    "\" added successfully."
+                );
+
+
+                closeModal();
+
+            }
+        );
+
+
+    /* =====================================================
+       PERMISSION SWITCHES
+    ===================================================== */
+
+    document
+        .querySelectorAll(".permission-toggle")
+        .forEach(function(toggle) {
+
+            toggle.addEventListener(
+                "change",
+                function() {
+
+                    const name =
+                        this.dataset.name;
+
+
+                    const state =
+                        this.checked
+                            ? "enabled"
+                            : "disabled";
+
+
+                    console.log(
+                        name +
+                        " " +
+                        state
+                    );
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       SETTINGS SWITCHES
+    ===================================================== */
+
+    document
+        .querySelectorAll(".setting-toggle")
+        .forEach(function(toggle) {
+
+            toggle.addEventListener(
+                "change",
+                function() {
+
+                    const name =
+                        this.dataset.name;
+
+
+                    const state =
+                        this.checked
+                            ? "enabled"
+                            : "disabled";
+
+
+                    console.log(
+                        name +
+                        " " +
+                        state
+                    );
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       LOGOUT
+       
+       ONLY LOGOUT uses the login page.
+    ===================================================== */
+
+    document
+        .getElementById("logoutButton")
+        .addEventListener(
+            "click",
+            async function() {
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/admin/logout",
+                            {
+                                method: "POST",
+                                credentials: "include"
+                            }
+                        );
+
+
+                    /*
+                     * Regardless of API response,
+                     * return to login after logout.
+                     */
+
+                    window.location.href =
+                        "admin-login.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+
+                    /*
+                     * If backend is unavailable,
+                     * still return to login.
+                     */
+
+                    window.location.href =
+                        "admin-login.html";
+
+                }
+
+            }
+        );
+
+
+    /* =====================================================
+       IMPORTANT:
+       NO SESSION REDIRECT HERE
+       
+       We intentionally do NOT call:
+       
+       checkSession();
+       
+       on every navigation.
+       
+       Therefore clicking Students/Coaches/etc.
+       cannot automatically send you to login.
+    ===================================================== */
+
+
+</script>
+
+</body>
+</html>

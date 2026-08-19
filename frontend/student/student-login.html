@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -346,6 +347,12 @@
             transform: translateY(0);
         }
 
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* ==============================
            SIGN UP
         ============================== */
@@ -534,13 +541,11 @@
 
             </div>
 
-
             <h1>
                 Track.<br>
                 Improve.<br>
                 <span>Perform.</span>
             </h1>
-
 
             <p>
                 Stay connected with your fitness journey,
@@ -548,7 +553,6 @@
                 improvement areas, and receive feedback
                 from your coach.
             </p>
-
 
             <div class="brand-line"></div>
 
@@ -575,7 +579,6 @@
                 <h2>
                     <span>Student</span> Login
                 </h2>
-
 
                 <p class="subtitle">
                     Sign in to view your fitness performance,
@@ -670,7 +673,6 @@
 
                         </label>
 
-
                         <a
                             href="forgot-password.html"
                             class="forgot"
@@ -713,7 +715,7 @@
                 <!-- BACK LINK -->
 
                 <a
-                    href="login.html"
+                    href="../index.html"
                     class="back-link"
                 >
                     ← Back to role selection
@@ -747,9 +749,9 @@
 
     <script>
 
-        /*
-         * PASSWORD VISIBILITY
-         */
+        /* =================================
+           PASSWORD VISIBILITY
+        ================================= */
 
         function togglePassword() {
 
@@ -758,7 +760,6 @@
 
             const toggle =
                 document.getElementById("togglePassword");
-
 
             if (password.type === "password") {
 
@@ -773,22 +774,20 @@
                 toggle.textContent = "👁";
 
             }
-
         }
 
 
-        /*
-         * STUDENT LOGIN
-         */
+        /* =================================
+           STUDENT LOGIN
+        ================================= */
 
         document
             .getElementById("studentLoginForm")
             .addEventListener(
                 "submit",
-                function(event) {
+                async function(event) {
 
                     event.preventDefault();
-
 
                     const email =
                         document
@@ -796,23 +795,19 @@
                             .value
                             .trim();
 
-
                     const password =
                         document
                             .getElementById("password")
                             .value;
-
 
                     const remember =
                         document
                             .getElementById("remember")
                             .checked;
 
-
                     const errorMessage =
                         document
                             .getElementById("errorMessage");
-
 
                     const loginButton =
                         document
@@ -845,63 +840,23 @@
 
                     loginButton.textContent =
                         "Signing in...";
-
-
-                    /*
-                     * BACKEND API
-                     *
-                     * Replace this section with
-                     * your real backend API.
-                     *
-                     * Example:
-                     *
-                     * fetch("/api/student/login", {
-                     *
-                     *     method: "POST",
-                     *
-                     *     headers: {
-                     *         "Content-Type":
-                     *             "application/json"
-                     *     },
-                     *
-                     *     body: JSON.stringify({
-                     *         email: email,
-                     *         password: password,
-                     *         remember: remember
-                     *     })
-                     *
-                     * })
-                     */
-
-
-                    setTimeout(function() {
-
+                    try {
+                        const response = await fetch("/api/login", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: email, password: password, role: "player" })
+                        });
+                        const result = await response.json();
+                        if (!response.ok || result.success !== true) {
+                            throw new Error(result.message || "Unable to log in.");
+                        }
+                        window.location.href = "student-dashboard.html";
+                    } catch (error) {
+                        errorMessage.textContent = error.message;
+                        errorMessage.style.display = "block";
                         loginButton.disabled = false;
-
-                        loginButton.textContent =
-                            "Login as Student →";
-
-
-                        /*
-                         * DEMO ONLY
-                         *
-                         * Replace with backend
-                         * authentication.
-                         */
-
-                        alert(
-                            "Student login submitted successfully!"
-                        );
-
-
-                        /*
-                         * After successful login:
-                         *
-                         * window.location.href =
-                         *     "student-dashboard.html";
-                         */
-
-                    }, 1000);
+                        loginButton.textContent = "Login as Student →";
+                    }
 
                 }
             );
@@ -909,5 +864,5 @@
     </script>
 
 </body>
-</html>
 
+</html>
