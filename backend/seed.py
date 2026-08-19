@@ -1,10 +1,10 @@
 import sqlite3
-import hashlib
+from werkzeug.security import generate_password_hash
 
 DB_NAME = 'athlete_tracker.db'
 
 def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    return generate_password_hash(password)
 
 conn = sqlite3.connect(DB_NAME)
 cursor = conn.cursor()
