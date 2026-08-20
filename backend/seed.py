@@ -1,233 +1,374 @@
+"""
+ATHLETE TRACKER - FITNESS PDF DATA SEED
+=======================================
+Source: Fitness_final_data(1).pdf
+
+Loads the source data into the existing SQLite schema:
+  1 admin
+  3 coaches
+  5 athletes
+  15 coach-athlete assignments
+  5 physical assessments
+  125 training sessions
+  125 daily performance records
+
+IMPORTANT SOURCE NOTE
+---------------------
+The PDF has one naming inconsistency:
+- Page 2 identifies ATH002 as Sneha Gupta.
+- Pages 3-4 use "Riya Roy" for player/session ID 102.
+- Pages 5-6 again identify athlete 102 as Sneha Gupta.
+
+This script therefore uses ATH002/Sneha Gupta as the master athlete and
+links all PDF ID-102 records to ATH002. The actual session/performance values
+are preserved.
+
+The PDF does not provide:
+- athlete email addresses
+- passwords
+- detailed goal rows
+- detailed coach-feedback rows
+
+For the application to work locally, synthetic athlete emails are used and
+the temporary demo password is 1234 for every seeded account.
+"""
+
 import sqlite3
+from pathlib import Path
 from werkzeug.security import generate_password_hash
 
-DB_NAME = 'athlete_tracker.db'
+DB_NAME = Path(__file__).resolve().parent / "athlete_tracker.db"
+TEMP_PASSWORD = "1234"
 
 def hash_password(password):
     return generate_password_hash(password)
 
-conn = sqlite3.connect(DB_NAME)
-cursor = conn.cursor()
+# ---------------------------------------------------------------------
+# USERS
+# Source: PDF page 1 and page 2.
+# ---------------------------------------------------------------------
+users = [(1, 'ADM001', 'Riya Banerjee', 'riya.admin@fittrack.com', 'admin', None, '9876543210', None, None), (2, 'C001', 'Ananya Sen', 'ananya.sen@fittrack.com', 'coach', 'Athletics', '9000000001', None, None), (3, 'C002', 'Rahul Das', 'rahul.das@fittrack.com', 'coach', 'Basketball', '9000000002', None, None), (4, 'C003', 'Priya Sharma', 'priya.sharma@fittrack.com', 'coach', 'Football', '9000000003', None, None), (5, 'ATH001', 'Arjun Roy', 'ath001@fittrack.com', 'player', 'Athletics', None, 'Male', '2005-03-12'), (6, 'ATH002', 'Sneha Gupta', 'ath002@fittrack.com', 'player', 'Basketball', None, 'Female', '2004-07-21'), (7, 'ATH003', 'Kabir Ali', 'ath003@fittrack.com', 'player', 'Football', None, 'Male', '2003-11-18'), (8, 'ATH004', 'Meera Das', 'ath004@fittrack.com', 'player', 'Athletics', None, 'Female', '2006-02-02'), (9, 'ATH005', 'Rohan Singh', 'ath005@fittrack.com', 'player', 'Basketball', None, 'Male', '2004-09-30')]
 
-# Clear all tables
-cursor.execute("DELETE FROM coach_feedback")
-cursor.execute("DELETE FROM goals")
-cursor.execute("DELETE FROM training_sessions")
-cursor.execute("DELETE FROM physical_assessments")
-cursor.execute("DELETE FROM coach_athletes")
-cursor.execute("DELETE FROM users")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name='users'")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name='physical_assessments'")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name='training_sessions'")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name='goals'")
-cursor.execute("DELETE FROM sqlite_sequence WHERE name='coach_feedback'")
+# ---------------------------------------------------------------------
+# COACH <-> ATHLETE ASSIGNMENTS
+# Source: PDF page 8 says all three coaches trained all five athletes.
+# ---------------------------------------------------------------------
+coach_athletes = [(2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9)]
 
-# ============================================
-# USERS TABLE
-# ============================================
-users = [
-    (1, 'A001', 'Admin Kumar', 'admin@college.edu', hash_password('1234'), 'admin', None, '9876543210', None, None),
-    (2, 'C001', 'Coach Verma', 'verma@college.edu', hash_password('1234'), 'coach', 'Athletics', '9876543211', 'Male', '1985-03-15'),
-    (3, 'C002', 'Coach Sharma', 'sharma@college.edu', hash_password('1234'), 'coach', 'Basketball', '9876543212', 'Male', '1982-07-22'),
-    (4, 'ATH001', 'Arjun Roy', 'arjun@college.edu', hash_password('1234'), 'player', 'Athletics', '9876543213', 'Male', '2005-03-12'),
-    (5, 'ATH002', 'Sneha Gupta', 'sneha@college.edu', hash_password('1234'), 'player', 'Basketball', '9876543214', 'Female', '2004-07-21'),
-    (6, 'ATH003', 'Kabir Ali', 'kabir@college.edu', hash_password('1234'), 'player', 'Football', '9876543215', 'Male', '2003-11-18'),
-    (7, 'ATH004', 'Meera Das', 'meera@college.edu', hash_password('1234'), 'player', 'Athletics', '9876543216', 'Female', '2006-02-02'),
-    (8, 'ATH005', 'Rohan Singh', 'rohan@college.edu', hash_password('1234'), 'player', 'Basketball', '9876543217', 'Male', '2004-09-30'),
-]
+# ---------------------------------------------------------------------
+# PHYSICAL ASSESSMENTS
+# Source: PDF page 2.
+#
+# The assessment table does not explicitly show an assessment coach.
+# Primary coach is mapped by the athlete's master sport:
+# Athletics -> C001, Basketball -> C002, Football -> C003.
+# ---------------------------------------------------------------------
+assessments = [(5, 2, '2026-08-05', 178, 72, 22.7, '8/10', '8/10', 'Good', 'None', None, 'None', '74', '72', '-2 kg', 'Improved conditioning', '2026-09-05'), (6, 3, '2026-08-05', 170, 64, 22.1, '7/10', '8/10', 'Good', 'Mild ankle strain', None, 'Avoid jumping drills for 1 week', '65', '64', '-1 kg', 'Recovery progressing well', '2026-09-05'), (7, 4, '2026-08-06', 175, 69, 22.5, '9/10', '9/10', 'Excellent', 'None', None, 'None', '70', '69', '-1 kg', 'Mobility improved', '2026-09-06'), (8, 2, '2026-08-06', 165, 58, 21.3, '8/10', '7/10', 'Fair', 'Knee soreness', None, 'Reduce sprint volume', '59', '58', '-1 kg', 'Needs strengthening work', '2026-09-06'), (9, 3, '2026-08-07', 182, 80, 24.2, '6/10', '7/10', 'Good', 'Shoulder stiffness', None, 'Avoid overhead presses', '81', '80', '-1 kg', 'Flexibility needs improvement', '2026-09-07')]
 
-for user in users:
-    cursor.execute(
-        """INSERT INTO users (id, user_code, name, email, password_hash, role, sport, contact_number, gender, date_of_birth)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        user
-    )
+# ---------------------------------------------------------------------
+# 125 TRAINING SESSIONS
+# Source: PDF page 3.
+# ---------------------------------------------------------------------
+sessions = [{'sid': 'S001', 'name': 'Arjun Roy', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S002', 'name': 'Arjun Roy', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'observation': 'Worked hard during transition drills', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S003', 'name': 'Arjun Roy', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S004', 'name': 'Arjun Roy', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'observation': 'Worked hard during transition drills', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S005', 'name': 'Arjun Roy', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S006', 'name': 'Arjun Roy', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'observation': 'Shot selection was more balanced today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S007', 'name': 'Arjun Roy', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S008', 'name': 'Arjun Roy', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S009', 'name': 'Arjun Roy', 'date': '2026-07-09', 'attendance': 'Absent', 'reason': 'Personal/family commitment', 'observation': 'Session missed due to Personal/family commitment.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S010', 'name': 'Arjun Roy', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S011', 'name': 'Arjun Roy', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S012', 'name': 'Arjun Roy', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S013', 'name': 'Arjun Roy', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S014', 'name': 'Arjun Roy', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'observation': 'Net control improved in practice sets', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S015', 'name': 'Arjun Roy', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S016', 'name': 'Arjun Roy', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'observation': 'Blocking timing improved in match play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S017', 'name': 'Arjun Roy', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S018', 'name': 'Arjun Roy', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S019', 'name': 'Arjun Roy', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S020', 'name': 'Arjun Roy', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S021', 'name': 'Arjun Roy', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S022', 'name': 'Arjun Roy', 'date': '2026-07-22', 'attendance': 'Absent', 'reason': 'Medical appointment', 'observation': 'Session missed due to Medical appointment.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S023', 'name': 'Arjun Roy', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger finish in the final repeat', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S024', 'name': 'Arjun Roy', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'observation': 'Stride looked more relaxed today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S025', 'name': 'Arjun Roy', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S026', 'name': 'Riya Roy', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S027', 'name': 'Riya Roy', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'observation': 'Worked hard during transition drills', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S028', 'name': 'Riya Roy', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S029', 'name': 'Riya Roy', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S030', 'name': 'Riya Roy', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'observation': 'Improved first touch under pressure', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S031', 'name': 'Riya Roy', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S032', 'name': 'Riya Roy', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'observation': 'Shot selection was more balanced today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S033', 'name': 'Riya Roy', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S034', 'name': 'Riya Roy', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'observation': 'Shot selection was more balanced today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S035', 'name': 'Riya Roy', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S036', 'name': 'Riya Roy', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'observation': 'Recovered well during long rallies', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S037', 'name': 'Riya Roy', 'date': '2026-07-12', 'attendance': 'Absent', 'reason': 'Mild illness', 'observation': 'Session missed due to Mild illness.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S038', 'name': 'Riya Roy', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'observation': 'Net control improved in practice sets', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S039', 'name': 'Riya Roy', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S040', 'name': 'Riya Roy', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S041', 'name': 'Riya Roy', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'observation': 'Blocking timing improved in match play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S042', 'name': 'Riya Roy', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S043', 'name': 'Riya Roy', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S044', 'name': 'Riya Roy', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S045', 'name': 'Riya Roy', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S046', 'name': 'Riya Roy', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S047', 'name': 'Riya Roy', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'observation': 'Stride looked more relaxed today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S048', 'name': 'Riya Roy', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger finish in the final repeat', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S049', 'name': 'Riya Roy', 'date': '2026-07-24', 'attendance': 'Absent', 'reason': 'Academic work', 'observation': 'Session missed due to Academic work.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S050', 'name': 'Riya Roy', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'observation': 'Recovery between repetitions has improved', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S051', 'name': 'Kabir Ali', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S052', 'name': 'Kabir Ali', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'observation': 'Improved first touch under pressure', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S053', 'name': 'Kabir Ali', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'observation': 'Good passing rhythm in small-sided play', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S054', 'name': 'Kabir Ali', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'observation': 'Worked hard during transition drills', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S055', 'name': 'Kabir Ali', 'date': '2026-07-05', 'attendance': 'Absent', 'reason': 'Personal reason', 'observation': 'Session missed due to Personal reason.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S056', 'name': 'Kabir Ali', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'observation': 'Shot selection was more balanced today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S057', 'name': 'Kabir Ali', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger defensive stance', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S058', 'name': 'Kabir Ali', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S059', 'name': 'Kabir Ali', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger defensive stance', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S060', 'name': 'Kabir Ali', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S061', 'name': 'Kabir Ali', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S062', 'name': 'Kabir Ali', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S063', 'name': 'Kabir Ali', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'observation': 'Recovered well during long rallies', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S064', 'name': 'Kabir Ali', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S065', 'name': 'Kabir Ali', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S066', 'name': 'Kabir Ali', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S067', 'name': 'Kabir Ali', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S068', 'name': 'Kabir Ali', 'date': '2026-07-18', 'attendance': 'Absent', 'reason': 'Academic examination', 'observation': 'Session missed due to Academic examination.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S069', 'name': 'Kabir Ali', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S070', 'name': 'Kabir Ali', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S071', 'name': 'Kabir Ali', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger finish in the final repeat', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S072', 'name': 'Kabir Ali', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'observation': 'Stride looked more relaxed today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S073', 'name': 'Kabir Ali', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S074', 'name': 'Kabir Ali', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'observation': 'Recovery between repetitions has improved', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S075', 'name': 'Kabir Ali', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'observation': 'Recovery between repetitions has improved', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S076', 'name': 'Meera Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'observation': 'Improved first touch under pressure', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S077', 'name': 'Meera Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S078', 'name': 'Meera Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S079', 'name': 'Meera Das', 'date': '2026-07-04', 'attendance': 'Absent', 'reason': 'Family commitment', 'observation': 'Session missed due to Family commitment.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S080', 'name': 'Meera Das', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'observation': 'Improved first touch under pressure', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S081', 'name': 'Meera Das', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S082', 'name': 'Meera Das', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S083', 'name': 'Meera Das', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S084', 'name': 'Meera Das', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S085', 'name': 'Meera Das', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'observation': 'Improved dribble control with weaker hand', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S086', 'name': 'Meera Das', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'observation': 'Recovered well during long rallies', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S087', 'name': 'Meera Das', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S088', 'name': 'Meera Das', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S089', 'name': 'Meera Das', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'observation': 'Recovered well during long rallies', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S090', 'name': 'Meera Das', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S091', 'name': 'Meera Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S092', 'name': 'Meera Das', 'date': '2026-07-17', 'attendance': 'Absent', 'reason': 'Mild illness', 'observation': 'Session missed due to Mild illness.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S093', 'name': 'Meera Das', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S094', 'name': 'Meera Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'observation': 'Serve reception remained steady', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S095', 'name': 'Meera Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S096', 'name': 'Meera Das', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S097', 'name': 'Meera Das', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S098', 'name': 'Meera Das', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger finish in the final repeat', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S099', 'name': 'Meera Das', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'observation': 'Stride looked more relaxed today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S100', 'name': 'Meera Das', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S101', 'name': 'Rohan Singh', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S102', 'name': 'Rohan Singh', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S103', 'name': 'Rohan Singh', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S104', 'name': 'Rohan Singh', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'observation': 'Improved first touch under pressure', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Football'}, {'sid': 'S105', 'name': 'Rohan Singh', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'observation': 'Needs more confidence while finishing', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S106', 'name': 'Rohan Singh', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'observation': 'Shot selection was more balanced today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S107', 'name': 'Rohan Singh', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger defensive stance', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S108', 'name': 'Rohan Singh', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'observation': 'Needs stronger defensive stance', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S109', 'name': 'Rohan Singh', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Basketball'}, {'sid': 'S110', 'name': 'Rohan Singh', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'observation': 'Good ball movement during team drill', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S111', 'name': 'Rohan Singh', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S112', 'name': 'Rohan Singh', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S113', 'name': 'Rohan Singh', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'observation': 'Footwork looked sharper today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S114', 'name': 'Rohan Singh', 'date': '2026-07-14', 'attendance': 'Absent', 'reason': 'Minor illness', 'observation': 'Session missed due to Minor illness.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C003', 'sport': 'Badminton'}, {'sid': 'S115', 'name': 'Rohan Singh', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'observation': 'Backhand consistency still needs work', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S116', 'name': 'Rohan Singh', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S117', 'name': 'Rohan Singh', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S118', 'name': 'Rohan Singh', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S119', 'name': 'Rohan Singh', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'observation': 'Communicated well with teammates', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C002', 'sport': 'Volleyball'}, {'sid': 'S120', 'name': 'Rohan Singh', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'observation': 'Needs quicker movement to the net', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S121', 'name': 'Rohan Singh', 'date': '2026-07-21', 'attendance': 'Absent', 'reason': 'Family commitment', 'observation': 'Session missed due to Family commitment.', 'technical': 'No technical assessment due to absence.', 'recommendation': 'Review missed training content and return when ready.', 'next_focus': 'Next scheduled training session', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S122', 'name': 'Rohan Singh', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'observation': 'Stride looked more relaxed today', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S123', 'name': 'Rohan Singh', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'observation': 'Recovery between repetitions has improved', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S124', 'name': 'Rohan Singh', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}, {'sid': 'S125', 'name': 'Rohan Singh', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'observation': 'Maintained pace well in interval training', 'technical': 'Follow up on the improvement area noted in the coach remark.', 'recommendation': 'Continue regular training and monitor performance.', 'next_focus': 'Reinforce current training focus', 'coach_code': 'C001', 'sport': 'Athletics'}]
 
-# ============================================
-# COACH-ATHLETE ASSIGNMENTS
-# ============================================
-assignments = [
-    (2, 4),  # Coach Verma -> Arjun Roy
-    (2, 7),  # Coach Verma -> Meera Das
-    (3, 5),  # Coach Sharma -> Sneha Gupta
-    (3, 8),  # Coach Sharma -> Rohan Singh
-    (2, 6),  # Coach Verma -> Kabir Ali
-]
+# ---------------------------------------------------------------------
+# 125 DAILY PERFORMANCE RECORDS
+# Source: PDF page 4.
+# ---------------------------------------------------------------------
+performance = [{'pid': '101', 'name': 'Arjun Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 8.0, 8.0, 8.0, 9.0, 7.0, 9.0, 9.0, 9.0, 9.0, 8.4], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 8.0, 7.0, 8.0, 7.0, 8.0, 8.0, 10.0, 7.0, 7.7], 'remark': 'Worked hard during transition drills'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'scores': [9.0, 6.0, 7.0, 9.0, 7.0, 7.0, 7.0, 9.0, 8.0, 8.0, 7.7], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 7.0, 8.0, 9.0, 8.0, 8.0, 9.0, 8.0, 8.0, 8.0], 'remark': 'Worked hard during transition drills'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 6.0, 7.0, 8.0, 7.0, 6.0, 9.0, 10.0, 9.0, 9.0, 7.9], 'remark': 'Needs more confidence while finishing'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 7.0, 7.0, 8.0, 7.0, 8.0, 9.0, 9.0, 9.0, 7.9], 'remark': 'Shot selection was more balanced today'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 7.0, 8.0, 6.0, 7.0, 7.0, 8.0, 8.0, 8.0, 7.1], 'remark': 'Good ball movement during team drill'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 7.0, 7.0, 7.0, 6.0, 8.0, 7.0, 8.0, 7.0, 7.1], 'remark': 'Good ball movement during team drill'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-09', 'attendance': 'Absent', 'reason': 'Personal/family commitment', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Personal/family commitment'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 8.0, 7.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0, 8.0, 7.7], 'remark': 'Good ball movement during team drill'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 7.0, 7.0, 7.0, 6.0, 6.0, 8.0, 10.0, 7.0, 7.0], 'remark': 'Footwork looked sharper today'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 8.0, 7.0, 5.0, 6.0, 9.0, 8.0, 8.0, 7.1], 'remark': 'Backhand consistency still needs work'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 8.0, 9.0, 6.0, 6.0, 8.0, 9.0, 9.0, 7.5], 'remark': 'Backhand consistency still needs work'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 8.0, 7.0, 6.0, 8.0, 5.0, 6.0, 9.0, 9.0, 8.0, 7.1], 'remark': 'Net control improved in practice sets'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 6.0, 9.0, 4.0, 6.0, 7.0, 10.0, 8.0, 7.0], 'remark': 'Backhand consistency still needs work'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 6.0, 7.0, 7.0, 7.0, 9.0, 9.0, 8.0, 9.0, 7.2], 'remark': 'Blocking timing improved in match play'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 7.0, 7.0, 6.0, 6.0, 7.0, 9.0, 9.0, 8.0, 7.1], 'remark': 'Serve reception remained steady'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 6.0, 7.0, 7.0, 6.0, 8.0, 9.0, 8.0, 8.0, 7.2], 'remark': 'Needs quicker movement to the net'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 5.0, 6.0, 7.0, 7.0, 8.0, 8.0, 7.0, 8.0, 6.9], 'remark': 'Needs quicker movement to the net'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 5.0, 7.0, 8.0, 6.0, 7.0, 7.0, 9.0, 9.0, 7.0], 'remark': 'Serve reception remained steady'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 7.0, 7.0, 8.0, 6.0, 5.0, 8.0, 10.0, 7.0, 7.2], 'remark': 'Maintained pace well in interval training'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-22', 'attendance': 'Absent', 'reason': 'Medical appointment', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Medical appointment'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 5.0, 5.0, 7.0, 9.0, 7.0, 6.0, 9.0, 10.0, 10.0, 7.4], 'remark': 'Needs stronger finish in the final repeat'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 7.0, 9.0, 7.0, 5.0, 9.0, 10.0, 9.0, 7.6], 'remark': 'Stride looked more relaxed today'}, {'pid': '101', 'name': 'Arjun Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 6.0, 5.0, 9.0, 5.0, 6.0, 10.0, 10.0, 9.0, 7.3], 'remark': 'Maintained pace well in interval training'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 6.0, 7.0, 7.0, 6.0, 7.0, 7.0, 7.0, 5.0, 6.6], 'remark': 'Needs more confidence while finishing'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 6.0, 7.0, 7.0, 7.0, 7.0, 9.0, 9.0, 7.0, 7.2], 'remark': 'Worked hard during transition drills'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 6.0, 7.0, 8.0, 6.0, 6.0, 8.0, 8.0, 6.0, 7.0], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 5.0, 6.0, 6.0, 7.0, 8.0, 9.0, 8.0, 5.0, 6.7], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 5.0, 6.0, 7.0, 8.0, 6.0, 6.0, 8.0, 8.0, 5.0, 6.6], 'remark': 'Improved first touch under pressure'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'scores': [10.0, 8.0, 9.0, 9.0, 10.0, 9.0, 10.0, 10.0, 10.0, 8.0, 9.3], 'remark': 'Good ball movement during team drill'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 8.0, 10.0, 9.0, 9.0, 7.0, 10.0, 10.0, 10.0, 7.0, 8.8], 'remark': 'Shot selection was more balanced today'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'scores': [9.0, 9.0, 9.0, 9.0, 9.0, 8.0, 9.0, 9.0, 9.0, 8.0, 8.8], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 9.0, 9.0, 9.0, 9.0, 7.0, 10.0, 9.0, 10.0, 7.0, 8.7], 'remark': 'Shot selection was more balanced today'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'scores': [10.0, 9.0, 8.0, 8.0, 9.0, 8.0, 10.0, 10.0, 10.0, 7.0, 8.9], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 7.0, 7.0, 8.0, 4.0, 6.0, 8.0, 8.0, 7.0, 6.8], 'remark': 'Recovered well during long rallies'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-12', 'attendance': 'Absent', 'reason': 'Mild illness', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Mild illness'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 8.0, 7.0, 7.0, 5.0, 6.0, 8.0, 8.0, 6.0, 6.9], 'remark': 'Net control improved in practice sets'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 8.0, 7.0, 8.0, 5.0, 7.0, 8.0, 8.0, 6.0, 7.0], 'remark': 'Backhand consistency still needs work'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 7.0, 7.0, 8.0, 4.0, 7.0, 7.0, 9.0, 7.0, 7.0], 'remark': 'Footwork looked sharper today'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 6.0, 6.0, 7.0, 7.0, 9.0, 9.0, 9.0, 7.0, 7.2], 'remark': 'Blocking timing improved in match play'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 6.0, 8.0, 8.0, 7.0, 9.0, 9.0, 8.0, 7.0, 7.4], 'remark': 'Serve reception remained steady'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 5.0, 7.0, 8.0, 7.0, 8.0, 8.0, 8.0, 6.0, 7.0], 'remark': 'Communicated well with teammates'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 5.0, 6.0, 7.0, 8.0, 8.0, 9.0, 8.0, 7.0, 7.1], 'remark': 'Communicated well with teammates'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 6.0, 7.0, 8.0, 7.0, 9.0, 8.0, 9.0, 5.0, 6.9], 'remark': 'Communicated well with teammates'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'scores': [4.0, 5.0, 4.0, 5.0, 8.0, 6.0, 4.0, 8.0, 9.0, 6.0, 5.9], 'remark': 'Maintained pace well in interval training'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 5.0, 5.0, 8.0, 4.0, 5.0, 8.0, 9.0, 6.0, 6.0], 'remark': 'Stride looked more relaxed today'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 5.0, 4.0, 8.0, 5.0, 4.0, 8.0, 9.0, 5.0, 6.0], 'remark': 'Needs stronger finish in the final repeat'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-24', 'attendance': 'Absent', 'reason': 'Academic work', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Academic work'}, {'pid': '102', 'name': 'Riya Roy', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 4.0, 5.0, 5.0, 8.0, 6.0, 6.0, 9.0, 9.0, 6.0, 6.4], 'remark': 'Recovery between repetitions has improved'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 5.0, 7.0, 7.0, 6.0, 6.0, 8.0, 8.0, 8.0, 8.0, 7.0], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 6.0, 7.0, 7.0, 5.0, 8.0, 8.0, 8.0, 9.0, 7.1], 'remark': 'Improved first touch under pressure'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 6.0, 7.0, 6.0, 6.0, 6.0, 9.0, 7.0, 9.0, 6.8], 'remark': 'Good passing rhythm in small-sided play'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 5.0, 6.0, 7.0, 6.0, 6.0, 8.0, 8.0, 9.0, 6.8], 'remark': 'Worked hard during transition drills'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-05', 'attendance': 'Absent', 'reason': 'Personal reason', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Personal reason'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 6.0, 6.0, 7.0, 7.0, 8.0, 8.0, 8.0, 9.0, 7.4], 'remark': 'Shot selection was more balanced today'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 7.0, 8.0, 7.0, 5.0, 7.0, 8.0, 7.0, 8.0, 7.2], 'remark': 'Needs stronger defensive stance'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 9.0, 9.0, 7.5], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 8.0, 6.0, 8.0, 6.0, 8.0, 8.0, 7.0, 10.0, 7.4], 'remark': 'Needs stronger defensive stance'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 8.0, 7.0, 6.0, 7.0, 8.0, 8.0, 7.0, 9.0, 7.4], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 9.0, 9.0, 8.0, 10.0, 8.0, 8.0, 10.0, 10.0, 10.0, 9.0], 'remark': 'Backhand consistency still needs work'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 9.0, 9.0, 10.0, 10.0, 7.0, 8.0, 10.0, 10.0, 10.0, 9.1], 'remark': 'Footwork looked sharper today'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 9.0, 9.0, 9.0, 10.0, 7.0, 9.0, 9.0, 10.0, 10.0, 8.9], 'remark': 'Recovered well during long rallies'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 9.0, 8.0, 8.0, 10.0, 8.0, 8.0, 10.0, 10.0, 10.0, 8.9], 'remark': 'Backhand consistency still needs work'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'scores': [9.0, 10.0, 9.0, 9.0, 10.0, 6.0, 8.0, 9.0, 10.0, 10.0, 9.0], 'remark': 'Backhand consistency still needs work'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 5.0, 7.0, 6.0, 6.0, 7.0, 7.0, 8.0, 8.0, 10.0, 7.1], 'remark': 'Communicated well with teammates'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 6.0, 7.0, 7.0, 7.0, 9.0, 8.0, 10.0, 7.4], 'remark': 'Communicated well with teammates'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-18', 'attendance': 'Absent', 'reason': 'Academic examination', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Academic examination'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 5.0, 6.0, 6.0, 7.0, 7.0, 8.0, 7.0, 7.0, 9.0, 6.8], 'remark': 'Serve reception remained steady'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 8.0, 7.0, 8.0, 9.0, 7.1], 'remark': 'Needs quicker movement to the net'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 5.0, 5.0, 5.0, 9.0, 6.0, 5.0, 7.0, 9.0, 10.0, 6.7], 'remark': 'Needs stronger finish in the final repeat'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 5.0, 6.0, 8.0, 4.0, 6.0, 9.0, 9.0, 10.0, 6.7], 'remark': 'Stride looked more relaxed today'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 4.0, 6.0, 6.0, 7.0, 6.0, 5.0, 7.0, 8.0, 8.0, 6.3], 'remark': 'Maintained pace well in interval training'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 4.0, 4.0, 9.0, 4.0, 6.0, 8.0, 10.0, 9.0, 6.4], 'remark': 'Recovery between repetitions has improved'}, {'pid': '103', 'name': 'Kabir Ali', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 5.0, 5.0, 5.0, 8.0, 5.0, 4.0, 8.0, 9.0, 9.0, 6.4], 'remark': 'Recovery between repetitions has improved'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 6.0, 8.0, 6.0, 6.0, 6.0, 7.0, 8.0, 5.0, 6.5], 'remark': 'Improved first touch under pressure'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 6.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 8.0, 5.0, 7.0], 'remark': 'Needs more confidence while finishing'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 6.0, 7.0, 7.0, 6.0, 7.0, 7.0, 8.0, 7.0, 7.0], 'remark': 'Needs more confidence while finishing'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-04', 'attendance': 'Absent', 'reason': 'Family commitment', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Family commitment'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 5.0, 6.0, 8.0, 8.0, 7.0, 7.0, 8.0, 9.0, 7.0, 7.2], 'remark': 'Improved first touch under pressure'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 8.0, 8.0, 7.0, 6.0, 9.0, 9.0, 8.0, 6.0, 7.4], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 8.0, 6.0, 7.0], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 7.0, 7.0, 7.0, 6.0, 8.0, 7.0, 7.0, 5.0, 6.7], 'remark': 'Good ball movement during team drill'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 7.0, 8.0, 8.0, 6.0, 9.0, 7.0, 8.0, 7.0, 7.5], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 8.0, 7.0, 8.0, 7.0, 8.0, 7.0, 8.0, 6.0, 7.4], 'remark': 'Improved dribble control with weaker hand'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 6.0, 7.0, 6.0, 7.0, 6.0, 6.0, 9.0, 10.0, 6.0, 6.8], 'remark': 'Recovered well during long rallies'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 8.0, 6.0, 7.0, 8.0, 5.0, 7.0, 7.0, 9.0, 5.0, 6.7], 'remark': 'Footwork looked sharper today'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 8.0, 8.0, 9.0, 5.0, 5.0, 9.0, 9.0, 7.0, 7.5], 'remark': 'Footwork looked sharper today'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-14', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 8.0, 7.0, 8.0, 6.0, 6.0, 9.0, 10.0, 6.0, 7.3], 'remark': 'Recovered well during long rallies'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 7.0, 8.0, 6.0, 5.0, 7.0, 9.0, 6.0, 6.8], 'remark': 'Footwork looked sharper today'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 9.0, 9.0, 9.0, 10.0, 9.0, 10.0, 10.0, 10.0, 8.0, 9.1], 'remark': 'Serve reception remained steady'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-17', 'attendance': 'Absent', 'reason': 'Mild illness', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Mild illness'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 9.0, 9.0, 9.0, 10.0, 9.0, 10.0, 10.0, 10.0, 7.0, 9.0], 'remark': 'Serve reception remained steady'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 8.0, 7.0, 9.0, 10.0, 9.0, 9.0, 10.0, 10.0, 7.0, 8.7], 'remark': 'Serve reception remained steady'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 8.0, 10.0, 10.0, 10.0, 10.0, 9.0, 10.0, 8.0, 9.0], 'remark': 'Communicated well with teammates'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-21', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 4.0, 4.0, 5.0, 7.0, 6.0, 6.0, 8.0, 10.0, 6.0, 6.1], 'remark': 'Maintained pace well in interval training'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 4.0, 5.0, 5.0, 8.0, 5.0, 4.0, 8.0, 9.0, 5.0, 5.8], 'remark': 'Maintained pace well in interval training'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 5.0, 6.0, 5.0, 7.0, 4.0, 5.0, 9.0, 8.0, 5.0, 5.9], 'remark': 'Needs stronger finish in the final repeat'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 6.0, 5.0, 7.0, 6.0, 5.0, 8.0, 9.0, 5.0, 6.3], 'remark': 'Stride looked more relaxed today'}, {'pid': '104', 'name': 'Meera Das', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'scores': [4.0, 5.0, 6.0, 6.0, 8.0, 4.0, 4.0, 9.0, 9.0, 7.0, 6.2], 'remark': 'Maintained pace well in interval training'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-01', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 6.0, 6.0, 7.0, 6.0, 8.0, 8.0, 8.0, 8.0, 7.0], 'remark': 'Needs more confidence while finishing'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-02', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 6.0, 5.0, 7.0, 7.0, 6.0, 7.0, 9.0, 8.0, 7.0, 7.0], 'remark': 'Needs more confidence while finishing'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-03', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 6.0, 7.0, 7.0, 6.0, 6.0, 8.0, 8.0, 6.0, 6.8], 'remark': 'Needs more confidence while finishing'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-04', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 6.0, 6.0, 7.0, 7.0, 5.0, 6.0, 7.0, 9.0, 6.0, 6.7], 'remark': 'Improved first touch under pressure'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Football', 'coach': 'Rahul Das', 'date': '2026-07-05', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 7.0, 7.0, 7.0, 8.0, 7.0, 7.0, 8.0, 7.0, 8.0, 7.4], 'remark': 'Needs more confidence while finishing'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-06', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 6.0, 8.0, 7.0, 7.0, 7.0, 7.0, 8.0, 7.0, 7.0, 7.2], 'remark': 'Shot selection was more balanced today'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-07', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 8.0, 7.0, 6.0, 6.0, 8.0, 9.0, 8.0, 8.0, 7.4], 'remark': 'Needs stronger defensive stance'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-08', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 7.0, 8.0, 7.0, 6.0, 8.0, 9.0, 7.0, 8.0, 7.5], 'remark': 'Needs stronger defensive stance'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-09', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 7.0, 7.0, 8.0, 6.0, 9.0, 9.0, 8.0, 7.0, 7.4], 'remark': 'Good ball movement during team drill'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Basketball', 'coach': 'Ananya Sen', 'date': '2026-07-10', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 7.0, 7.0, 6.0, 6.0, 8.0, 8.0, 8.0, 7.0, 7.2], 'remark': 'Good ball movement during team drill'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-11', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 8.0, 7.0, 9.0, 4.0, 6.0, 7.0, 8.0, 8.0, 6.9], 'remark': 'Backhand consistency still needs work'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-12', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 8.0, 6.0, 8.0, 8.0, 5.0, 5.0, 9.0, 8.0, 8.0, 7.1], 'remark': 'Footwork looked sharper today'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-13', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 8.0, 6.0, 7.0, 9.0, 6.0, 6.0, 8.0, 8.0, 7.0, 7.2], 'remark': 'Footwork looked sharper today'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-14', 'attendance': 'Absent', 'reason': 'Minor illness', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Minor illness'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Badminton', 'coach': 'Priya Sharma', 'date': '2026-07-15', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 7.0, 8.0, 8.0, 8.0, 4.0, 7.0, 8.0, 8.0, 8.0, 7.1], 'remark': 'Backhand consistency still needs work'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-16', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 7.0, 6.0, 7.0, 7.0, 9.0, 7.0, 7.0, 6.0, 6.9], 'remark': 'Needs quicker movement to the net'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-17', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 6.0, 8.0, 6.0, 7.0, 7.0, 8.0, 8.0, 7.0, 7.0], 'remark': 'Communicated well with teammates'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-18', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 6.0, 6.0, 7.0, 6.0, 8.0, 9.0, 7.0, 8.0, 6.0, 6.8], 'remark': 'Needs quicker movement to the net'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-19', 'attendance': 'Present', 'reason': None, 'scores': [5.0, 6.0, 6.0, 7.0, 7.0, 8.0, 9.0, 7.0, 8.0, 8.0, 7.1], 'remark': 'Communicated well with teammates'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Volleyball', 'coach': 'Rahul Das', 'date': '2026-07-20', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 6.0, 5.0, 7.0, 6.0, 8.0, 7.0, 8.0, 8.0, 7.0, 6.8], 'remark': 'Needs quicker movement to the net'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-21', 'attendance': 'Absent', 'reason': 'Family commitment', 'scores': [None, None, None, None, None, None, None, None, None, None, None], 'remark': 'Absent - Family commitment'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-22', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 7.0, 8.0, 7.0, 10.0, 8.0, 6.0, 10.0, 10.0, 8.0, 8.1], 'remark': 'Stride looked more relaxed today'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-23', 'attendance': 'Present', 'reason': None, 'scores': [8.0, 8.0, 8.0, 7.0, 10.0, 6.0, 8.0, 10.0, 10.0, 9.0, 8.4], 'remark': 'Recovery between repetitions has improved'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-24', 'attendance': 'Present', 'reason': None, 'scores': [6.0, 7.0, 6.0, 7.0, 10.0, 7.0, 6.0, 9.0, 10.0, 8.0, 7.6], 'remark': 'Maintained pace well in interval training'}, {'pid': '105', 'name': 'Rohan Singh', 'sport': 'Athletics', 'coach': 'Ananya Sen', 'date': '2026-07-25', 'attendance': 'Present', 'reason': None, 'scores': [7.0, 6.0, 8.0, 6.0, 10.0, 6.0, 7.0, 10.0, 10.0, 9.0, 7.9], 'remark': 'Maintained pace well in interval training'}]
 
-for a in assignments:
-    cursor.execute("INSERT INTO coach_athletes (coach_id, athlete_id) VALUES (?, ?)", a)
+# PDF player ID -> database user ID
+performance_player_to_user = {
+    "101": 5,
+    "102": 6,  # Riya Roy in pages 3-4 -> ATH002/Sneha Gupta
+    "103": 7,
+    "104": 8,
+    "105": 9,
+}
 
-# ============================================
-# PHYSICAL ASSESSMENTS (From Sample PDF)
-# ============================================
-assessments = [
-    (4, 2, '2026-08-05', 178, 64, 22.1, None, None, None, None, None, None,
-     '7/10', '8/10', 'Good', 'None', None, 'None', '74', '72', '-2kg',
-     'Improved conditioning', '2026-09-05'),
-    (5, 3, '2026-08-05', 170, 69, 22.5, None, None, None, None, None, None,
-     '9/10', '9/10', 'Excellent', 'None', None, 'None', '65', '64', '-1kg',
-     'Recovery progressing well', '2026-09-05'),
-    (6, 2, '2026-08-06', 175, 58, 21.3, None, None, None, None, None, None,
-     '8/10', '7/10', 'Fair', 'Knee soreness', 'Shoulder stiffness', 'Avoid jumping drills for 1 week',
-     '70', '69', '-1kg', 'Mobility improved', '2026-09-06'),
-    (7, 2, '2026-08-06', 165, None, None, None, None, None, None, None, None,
-     None, None, None, None, None, 'Reduce sprint volume', '59', '58', '-1kg',
-     'Needs strengthening work', '2026-09-06'),
-    (8, 3, '2026-08-07', 182, None, None, None, None, None, None, None, None,
-     None, None, None, None, None, 'Avoid overhead presses', '81', '80', '-1kg',
-     'Flexibility needs improvement', '2026-09-07'),
-]
+session_name_to_user = {
+    "Arjun Roy": 5,
+    "Riya Roy": 6,  # PDF ID-102 inconsistency -> ATH002
+    "Kabir Ali": 7,
+    "Meera Das": 8,
+    "Rohan Singh": 9,
+}
 
-for a in assessments:
-    cursor.execute(
-        """INSERT INTO physical_assessments 
-           (athlete_id, coach_id, assessment_date, height_cm, weight_kg, bmi, body_fat_pct,
-            waist_circumference, hip_circumference, chest_circumference, thigh_circumference, arm_circumference,
-            flexibility_score, mobility_score, posture_assessment, injury_status, injury_notes,
-            medical_restrictions, previous_measurement, current_measurement, change_value,
-            assessment_remarks, next_assessment_date)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        a
-    )
+coach_code_to_user = {
+    "C001": 2,
+    "C002": 3,
+    "C003": 4,
+}
 
-# ============================================
-# TRAINING SESSIONS
-# ============================================
-# NOTE: 31 columns total (excluding auto-increment id)
-sessions = [
-    # Session 1: Arjun with Coach Verma
-    (4, 2, '2026-08-01', 'Athletics', 90, 'High', 8,
-     '100m Sprint, Long Jump, Push-ups', 'Sprint: 5x100m, Push-ups: 3x15',
-     None, None, None, None, 25, None, None, None, None, None, None, None,
-     None, None, None, 'Present', 100, None,
-     'Good session. Sprint form improving.', 'Maintain arm drive during acceleration.',
-     'Continue plyometric work.', 'Speed endurance'),
+coach_name_to_user = {
+    "Ananya Sen": 2,
+    "Rahul Das": 3,
+    "Priya Sharma": 4,
+}
 
-    # Session 2: Sneha with Coach Sharma
-    (5, 3, '2026-08-02', 'Basketball', 120, 'Medium', 6,
-     'Dribbling drills, Shooting practice, Defense', 'Dribbling: 10 min, Shooting: 50 attempts',
-     None, None, None, None, None, None, None, None, None, None, None, None,
-     None, None, None, 'Present', 85, None,
-     'Shooting accuracy needs work.', 'Focus on follow-through.',
-     'Increase shooting reps next session.', 'Shooting mechanics'),
 
-    # Session 3: Kabir with Coach Verma
-    (6, 2, '2026-08-03', 'Football', 105, 'High', 9,
-     'Passing drills, Sprint intervals, Ball control', 'Passing: 100 reps, Sprints: 10x50m',
-     None, None, None, None, None, None, None, None, None, None, None, None,
-     None, None, None, 'Present', 95, None,
-     'Excellent intensity. High RPE but maintained form.', 'Monitor fatigue levels.',
-     'Light recovery session tomorrow.', 'Tactical positioning'),
-]
+def clear_data(cursor):
+    # Delete seedable application data only. The database schema is preserved.
+    cursor.execute("PRAGMA foreign_keys = OFF")
 
-for s in sessions:
-    cursor.execute(
-        """INSERT INTO training_sessions
-           (athlete_id, coach_id, session_date, sport_type, duration_minutes, intensity_level, rpe,
-            exercises_performed, sets_reps_weights, squat_load, deadlift_load, bench_press_load,
-            pushups_count, pullups_count, plank_time, running_distance, sprint_time, shuttle_run_time,
-            agility_test_score, vertical_jump_height, broad_jump_distance, sleep_hours, fatigue_level,
-            muscle_soreness_level, attendance, completion_pct, missed_session_reason, session_observation,
-            technical_feedback, training_recommendation, next_session_focus)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        s
-    )
+    for table in [
+        "otp_requests",
+        "coach_feedback",
+        "goals",
+        "performance_records",
+        "training_sessions",
+        "physical_assessments",
+        "coach_athletes",
+        "users",
+    ]:
+        cursor.execute("DELETE FROM " + table)
 
-# ============================================
-# GOALS
-# ============================================
-goals = [
-    (4, 2, '100m Sprint under 12 seconds', 'Fitness', 'Reduce 100m sprint time from 14.2s to under 12s',
-     '14.2s', '12.0s', '13.5s', 45, 'In Progress', '2026-08-01', '2026-12-01', '2026-09-01',
-     'None', None, None, None, 'No', None, None, 7, 'High', 'High', 'Time management with classes',
-     None, None, None),
-    (5, 3, 'Improve 3-point shooting to 70%', 'Skill', 'Increase 3-point shooting accuracy to 70%',
-     '45%', '70%', '52%', 28, 'In Progress', '2026-08-01', '2026-11-01', '2026-09-01',
-     'None', None, None, None, 'No', None, None, 6, 'Medium', 'High', 'Inconsistent release point',
-     None, None, None),
-    (6, 2, 'Complete full 90-min match', 'Fitness', 'Build endurance to play full 90-minute match',
-     '60 min', '90 min', '75 min', 50, 'In Progress', '2026-08-01', '2026-10-01', '2026-09-01',
-     'None', None, None, None, 'No', None, None, 8, 'High', 'High', 'None so far',
-     None, None, None),
-]
+    cursor.execute("DELETE FROM sqlite_sequence")
+    cursor.execute("PRAGMA foreign_keys = ON")
 
-for g in goals:
-    cursor.execute(
-        """INSERT INTO goals
-           (athlete_id, coach_id, goal_title, goal_type, goal_description, baseline_value, target_value,
-            current_value, progress_pct, goal_status, start_date, target_date, review_date,
-            injury_status, injury_area, expected_recovery_date, current_limitation, training_restriction,
-            rehabilitation_exercise, recovery_progress_pct, self_rating, confidence_level, effort_level,
-            challenges_faced, goal_achieved_date, final_result, next_goal)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        g
-    )
 
-# ============================================
-# COACH FEEDBACK
-# ============================================
-feedbacks = [
-    (4, 2, '2026-08-05', 'Session 1 - Sprint Training',
-     'Good starting blocks position, Strong arm drive',
-     'Knee lift could be higher, Landing mechanics need work',
-     7, 'Good baseline fitness, Needs more core strength',
-     'Can maintain pace for 60m then drops', 'Lower body strength adequate',
-     'Hamstring flexibility limiting stride length',
-     'Good tactical awareness', 'Proper lane discipline', 'Understands race strategy',
-     'Punctual and focused', 'Listens well to corrections', 'Steady improvement shown',
-     'Maintains concentration during drills', 'Supports teammates during practice',
-     7, 'Strong work ethic', 'Flexibility and sprint mechanics',
-     'Arjun shows consistent improvement. Focus on flexibility work and knee drive.',
-     'Daily hamstring stretches, Core plank holds 3x60s',
-     'Practice block starts 3x/week', 'Speed endurance + flexibility',
-     '2026-08-12'),
-    (5, 3, '2026-08-05', 'Session 2 - Shooting Practice',
-     'Good footwork on catch-and-shoot, Quick release',
-     'Inconsistent elbow position, Follow-through varies',
-     6, 'Agile and quick, Good lateral movement',
-     'Can run full court without fatigue', 'Upper body strength good for position',
-     'Ankle mobility affecting defensive stance',
-     'Reads screens well', 'Good help defense position', 'Anticipates passes',
-     'Always early to practice', 'Asks questions proactively', 'Growing confidence',
-     'Stays engaged during film sessions', 'Encourages younger players',
-     7, 'Coachable attitude and quick learner', 'Shooting consistency under pressure',
-     'Sneha has great potential. Shooting mechanics need refinement for game situations.',
-     'Form shooting 100 reps daily before practice', 'Film study on shooting form',
-     'Shooting drills + game simulation', '2026-08-12'),
-]
+def main():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
 
-for f in feedbacks:
-    cursor.execute(
-        """INSERT INTO coach_feedback
-           (athlete_id, coach_id, feedback_date, session_reference, technical_strengths,
-            technical_corrections, skill_execution_rating, fitness_observation, endurance_observation,
-            strength_observation, flexibility_mobility_observation, decision_making, positioning,
-            game_awareness, discipline, communication, confidence, focus_concentration, teamwork,
-            overall_rating, key_strength, key_improvement_area, performance_summary, immediate_action,
-            home_practice_task, next_session_focus, follow_up_date)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        f
-    )
+    try:
+        clear_data(cursor)
 
-conn.commit()
-conn.close()
+        # =============================================================
+        # USERS
+        # =============================================================
+        for user_id, code, name, email, role, sport, mobile, gender, dob in users:
+            cursor.execute(
+                """
+                INSERT INTO users
+                (
+                    id, user_code, name, email, password_hash,
+                    email_verified, role, sport, contact_number,
+                    gender, date_of_birth
+                )
+                VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
+                """,
+                (
+                    user_id,
+                    code,
+                    name,
+                    email,
+                    hash_password(TEMP_PASSWORD),
+                    role,
+                    sport,
+                    mobile,
+                    gender,
+                    dob,
+                ),
+            )
 
-print("=" * 60)
-print("✅ DATABASE SEEDED SUCCESSFULLY!")
-print("=" * 60)
-print("\nLogin Credentials for Monday Demo:")
-print("  admin@college.edu  / 1234  →  Admin")
-print("  verma@college.edu  / 1234  →  Coach (Athletics)")
-print("  sharma@college.edu / 1234  →  Coach (Basketball)")
-print("  arjun@college.edu  / 1234  →  Player (Arjun Roy - ATH001)")
-print("  sneha@college.edu  / 1234  →  Player (Sneha Gupta - ATH002)")
-print("  kabir@college.edu  / 1234  →  Player (Kabir Ali - ATH003)")
-print("  meera@college.edu  / 1234  →  Player (Meera Das - ATH004)")
-print("  rohan@college.edu  / 1234  →  Player (Rohan Singh - ATH005)")
-print("\nDatabase contains:")
-print("  • 1 Admin, 2 Coaches, 5 Players")
-print("  • 5 Physical Assessments (from sample PDF)")
-print("  • 3 Training Sessions")
-print("  • 3 Goals")
-print("  • 2 Coach Feedbacks")
-input("\nPress Enter to close...")
+        # =============================================================
+        # COACH-ATHLETE ASSIGNMENTS
+        # =============================================================
+        cursor.executemany(
+            """
+            INSERT INTO coach_athletes (coach_id, athlete_id)
+            VALUES (?, ?)
+            """,
+            coach_athletes,
+        )
+
+        # =============================================================
+        # PHYSICAL ASSESSMENTS
+        # =============================================================
+        for (
+            athlete_id,
+            coach_id,
+            assessment_date,
+            height,
+            weight,
+            bmi,
+            flexibility,
+            mobility,
+            posture,
+            injury_status,
+            injury_notes,
+            medical_restrictions,
+            previous_measurement,
+            current_measurement,
+            change_value,
+            remarks,
+            next_date,
+        ) in assessments:
+            cursor.execute(
+                """
+                INSERT INTO physical_assessments
+                (
+                    athlete_id, coach_id, assessment_date,
+                    height_cm, weight_kg, bmi,
+                    flexibility_score, mobility_score, posture_assessment,
+                    injury_status, injury_notes, medical_restrictions,
+                    previous_measurement, current_measurement, change_value,
+                    assessment_remarks, next_assessment_date
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    athlete_id,
+                    coach_id,
+                    assessment_date,
+                    height,
+                    weight,
+                    bmi,
+                    flexibility,
+                    mobility,
+                    posture,
+                    injury_status,
+                    injury_notes,
+                    medical_restrictions,
+                    previous_measurement,
+                    current_measurement,
+                    change_value,
+                    remarks,
+                    next_date,
+                ),
+            )
+
+        # =============================================================
+        # TRAINING SESSIONS
+        # =============================================================
+        session_db_ids = {}
+
+        for s in sessions:
+            athlete_id = session_name_to_user[s["name"]]
+            coach_id = coach_code_to_user[s["coach_code"]]
+
+            cursor.execute(
+                """
+                INSERT INTO training_sessions
+                (
+                    athlete_id, coach_id, session_date, sport_type,
+                    attendance, completion_pct, missed_session_reason,
+                    session_observation, technical_feedback,
+                    training_recommendation, next_session_focus
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    athlete_id,
+                    coach_id,
+                    s["date"],
+                    s["sport"],
+                    s["attendance"],
+                    100 if s["attendance"] == "Present" else 0,
+                    s["reason"],
+                    s["observation"],
+                    s["technical"],
+                    s["recommendation"],
+                    s["next_focus"],
+                ),
+            )
+
+            session_db_ids[s["sid"]] = cursor.lastrowid
+
+        # =============================================================
+        # DAILY PERFORMANCE
+        # =============================================================
+     
+        session_codes = [s["sid"] for s in sessions]
+
+        for index, p in enumerate(performance):
+            athlete_id = performance_player_to_user[p["pid"]]
+            coach_id = coach_name_to_user[p["coach"]]
+            session_id = session_db_ids[session_codes[index]]
+
+            (
+                passing,
+                dribbling,
+                shooting,
+                ball_control,
+                speed_agility,
+                defensive_positioning,
+                team_coordination,
+                effort,
+                discipline,
+                endurance,
+                daily_score,
+            ) = p["scores"]
+
+            cursor.execute(
+                """
+                INSERT INTO performance_records
+                (
+                    session_id, athlete_id, coach_id,
+                    sport, performance_date,
+                    passing_accuracy, dribbling_control,
+                    shooting_accuracy, ball_control, speed_agility,
+                    defensive_positioning, team_coordination,
+                    effort_level, discipline, endurance_stamina,
+                    daily_sport_score, coach_remark
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    session_id,
+                    athlete_id,
+                    coach_id,
+                    p["sport"],
+                    p["date"],
+                    passing,
+                    dribbling,
+                    shooting,
+                    ball_control,
+                    speed_agility,
+                    defensive_positioning,
+                    team_coordination,
+                    effort,
+                    discipline,
+                    endurance,
+                    daily_score,
+                    p["remark"],
+                ),
+            )
+
+       
+
+        conn.commit()
+
+        # =============================================================
+        # VERIFICATION
+        # =============================================================
+        tables = [
+            "users",
+            "coach_athletes",
+            "physical_assessments",
+            "training_sessions",
+            "performance_records",
+            "goals",
+            "coach_feedback",
+        ]
+
+        print()
+        print("=" * 65)
+        print("FITNESS PDF DATA SEEDED SUCCESSFULLY")
+        print("=" * 65)
+
+        for table in tables:
+            count = cursor.execute(
+                "SELECT COUNT(*) FROM " + table
+            ).fetchone()[0]
+            print("{:<25} : {}".format(table, count))
+
+        print("=" * 65)
+        print("Temporary demo password: 1234")
+        print("Admin : riya.admin@fittrack.com / 1234")
+        print("Coach : ananya.sen@fittrack.com / 1234")
+        print("Coach : rahul.das@fittrack.com / 1234")
+        print("Coach : priya.sharma@fittrack.com / 1234")
+        print("Athletes: ath001@fittrack.com ... ath005@fittrack.com")
+        print("=" * 65)
+
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+if __name__ == "__main__":
+    main()
