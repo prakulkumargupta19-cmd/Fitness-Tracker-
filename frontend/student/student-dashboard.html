@@ -1,1598 +1,5613 @@
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Student Dashboard | Fitness Performance Tracker</title>
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f7f6;
-            color: #222;
-        }
-
-
-        /* =========================================
-           DASHBOARD LAYOUT
-        ========================================= */
-
-        .dashboard {
-            display: flex;
-            min-height: 100vh;
-        }
-
-
-        /* =========================================
-           SIDEBAR
-        ========================================= */
-
-        .sidebar {
-            width: 250px;
-            background: #10251b;
-            color: white;
-            padding: 25px 18px;
-
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-
-        /* LOGO */
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            padding: 5px 10px 30px;
-        }
-
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-
-            border: 2px solid #22c55e;
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 22px;
-        }
-
-        .logo-text {
-            font-size: 13px;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-
-        .logo-text span {
-            color: #22c55e;
-        }
-
-
-        /* NAVIGATION */
-
-        .nav-title {
-            font-size: 11px;
-            color: #8fa69a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-
-            padding: 0 12px 10px;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-menu li {
-            margin-bottom: 7px;
-        }
-
-        .nav-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            padding: 13px 12px;
-
-            color: #d9e5de;
-            text-decoration: none;
-
-            border-radius: 8px;
-
-            font-size: 13px;
-
-            transition: 0.2s;
-        }
-
-        .nav-menu a:hover,
-        .nav-menu a.active {
-            background: #1d402c;
-            color: white;
-        }
-
-        .nav-menu a.active {
-            border-left: 3px solid #22c55e;
-        }
-
-        .nav-icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-
-
-        /* SIDEBAR BOTTOM */
-
-        .sidebar-bottom {
-            margin-top: auto;
-        }
-
-        .logout {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            color: #ffb4b4;
-            text-decoration: none;
-
-            padding: 12px;
-
-            border-radius: 8px;
-
-            font-size: 13px;
-        }
-
-        .logout:hover {
-            background: #3b2020;
-        }
-
-
-        /* =========================================
-           MAIN CONTENT
-        ========================================= */
-
-        .main {
-            margin-left: 250px;
-            width: calc(100% - 250px);
-
-            padding: 25px 30px;
-        }
-
-
-        /* =========================================
-           TOP BAR
-        ========================================= */
-
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-bottom: 28px;
-        }
-
-        .welcome h1 {
-            font-size: 28px;
-            color: #18251e;
-            margin-bottom: 6px;
-        }
-
-        .welcome h1 span {
-            color: #22a852;
-        }
-
-        .welcome p {
-            color: #777;
-            font-size: 13px;
-        }
-
-
-        /* PROFILE */
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .profile-info {
-            text-align: right;
-        }
-
-        .profile-name {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .profile-role {
-            font-size: 11px;
-            color: #777;
-            margin-top: 3px;
-        }
-
-        .profile-avatar {
-            width: 45px;
-            height: 45px;
-
-            border-radius: 50%;
-
-            background: #22c55e;
-
-            color: white;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-
-        /* =========================================
-           QUICK STATS
-        ========================================= */
-
-        .stats {
+<!DOCTYPE html> 
+<html lang="en"> 
+ 
+<head> 
+ 
+    <meta charse,
+
+            attendance:
+                "Track your training attendance and maintain consistency."t="UTF-8"> 
+ 
+    <meta 
+        name="viewport" 
+        content="width=device-width, initial-scale=1.0" 
+    > 
+ 
+    <title>Student Dashboard | Fitness Performance Tracker</title> 
+ 
+    <style> 
+ 
+        /* ========================================================= 
+           GLOBAL 
+        ========================================================= */ 
+ 
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        } 
+ 
+        :root { 
+ 
+            --primary: #22c55e; 
+            --primary-dark: #16a34a; 
+ 
+            --navy: #07152f; 
+            --navy-light: #0d2044; 
+ 
+            --purple: #6366f1; 
+            --purple-light: #8b5cf6; 
+ 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+ 
+            --bg: #f5f7fb; 
+            --card: #ffffff; 
+ 
+            --text: #111b3a; 
+            --muted: #6b7280; 
+ 
+            --border: #e5e7eb; 
+ 
+            --shadow: 
+                0 8px 30px rgba(15, 23, 42, 0.07); 
+ 
+            --sidebar-width: 255px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           DARK MODE 
+        ========================================================= */ 
+ 
+        body.dark-mode { 
+ 
+            --bg: #071225; 
+            --card: #0d1b34; 
+ 
+            --text: #f4f7ff; 
+            --muted: #aeb9ce; 
+ 
+            --border: #1d3154; 
+ 
+            --navy: #040d20; 
+            --navy-light: #0b1a35; 
+ 
+            --shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.30); 
+        } 
+ 
+ 
+        body { 
+ 
+            font-family: 
+                Arial, 
+                Helvetica, 
+                sans-serif; 
+ 
+            background: var(--bg); 
+ 
+            color: var(--text); 
+ 
+            min-height: 100vh; 
+ 
+            transition: 
+                background 0.25s ease, 
+                color 0.25s ease; 
+        } 
+ 
+ 
+        button, 
+        input, 
+        select { 
+ 
+            font-family: inherit; 
+        } 
+ 
+ 
+        button { 
+ 
+            cursor: pointer; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           SIDEBAR 
+        ========================================================= */ 
+ 
+        .sidebar { 
+ 
+            position: fixed; 
+ 
+            left: 0; 
+            top: 0; 
+            bottom: 0; 
+ 
+            width: var(--sidebar-width); 
+ 
+            background: 
+                linear-gradient( 
+                    180deg, 
+                    #06132e 0%, 
+                    #081a3c 55%, 
+                    #06132d 100% 
+                ); 
+ 
+            color: white; 
+ 
+            padding: 25px 15px; 
+ 
+            z-index: 1000; 
+ 
+            display: flex; 
+            flex-direction: column; 
+ 
+            transition: transform 0.3s ease; 
+        } 
+ 
+ 
+        .brand { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 12px; 
+ 
+            padding: 5px 15px 30px; 
+        } 
+ 
+ 
+        .brand-icon { 
+ 
+            width: 42px; 
+            height: 42px; 
+ 
+            border-radius: 12px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 27px; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #22c55e, 
+                    #16a34a 
+                ); 
+        } 
+ 
+ 
+        .brand-text { 
+ 
+            line-height: 1.05; 
+        } 
+ 
+ 
+        .brand-text strong { 
+ 
+            display: block; 
+ 
+            font-size: 20px; 
+ 
+            letter-spacing: 0.5px; 
+        } 
+ 
+ 
+        .brand-text span { 
+ 
+            font-size: 13px; 
+ 
+            color: #b7c4dc; 
+ 
+            letter-spacing: 1px; 
+        } 
+ 
+ 
+        .nav { 
+ 
+            display: flex; 
+ 
+            flex-direction: column; 
+ 
+            gap: 6px; 
+        } 
+ 
+ 
+        .nav-item { 
+ 
+            width: 100%; 
+ 
+            border: none; 
+ 
+            background: transparent; 
+ 
+            color: #d9e2f3; 
+ 
+            padding: 13px 15px; 
+ 
+            border-radius: 10px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 13px; 
+ 
+            font-size: 14px; 
+ 
+            text-align: left; 
+ 
+            transition: 0.2s ease; 
+        } 
+ 
+ 
+        .nav-item:hover { 
+ 
+            background: rgba(255,255,255,0.08); 
+ 
+            color: white; 
+        } 
+ 
+ 
+        .nav-item.active { 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    rgba(99,102,241,0.95), 
+                    rgba(79,70,229,0.95) 
+                ); 
+ 
+            color: white; 
+ 
+            box-shadow: 
+                0 8px 20px rgba(79,70,229,0.25); 
+        } 
+ 
+ 
+        .nav-icon { 
+ 
+            width: 25px; 
+ 
+            text-align: center; 
+ 
+            font-size: 18px; 
+        } 
+ 
+ 
+        .sidebar-bottom { 
+ 
+            margin-top: auto; 
+        } 
+ 
+ 
+        .motivation-card { 
+ 
+            border: 1px solid rgba(34,197,94,0.45); 
+ 
+            border-radius: 14px; 
+ 
+            padding: 17px; 
+ 
+            background: 
+                linear-gradient( 
+                    145deg, 
+                    rgba(15,35,69,0.95), 
+                    rgba(5,22,48,0.95) 
+                ); 
+        } 
+ 
+ 
+        .motivation-card .trophy { 
+ 
+            font-size: 25px; 
+ 
+            margin-bottom: 8px; 
+        } 
+ 
+ 
+        .motivation-card strong { 
+ 
+            display: block; 
+ 
+            font-size: 14px; 
+ 
+            margin-bottom: 7px; 
+        } 
+ 
+ 
+        .motivation-card p { 
+ 
+            color: #bac7dc; 
+ 
+            font-size: 12px; 
+ 
+            line-height: 1.6; 
+ 
+            margin-bottom: 10px; 
+        } 
+ 
+ 
+        .motivation-card span { 
+ 
+            color: #4ade80; 
+ 
+            font-weight: bold; 
+ 
+            font-size: 13px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           MOBILE SIDEBAR 
+        ========================================================= */ 
+ 
+        .mobile-menu { 
+ 
+            display: none; 
+ 
+            position: fixed; 
+ 
+            top: 15px; 
+            left: 15px; 
+ 
+            width: 44px; 
+            height: 44px; 
+ 
+            border: none; 
+ 
+            border-radius: 10px; 
+ 
+            background: var(--navy); 
+ 
+            color: white; 
+ 
+            font-size: 20px; 
+ 
+            z-index: 1100; 
+        } 
+ 
+ 
+        .sidebar-overlay { 
+ 
+            display: none; 
+ 
+            position: fixed; 
+ 
+            inset: 0; 
+ 
+            background: rgba(0,0,0,0.5); 
+ 
+            z-index: 900; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           MAIN 
+        ========================================================= */ 
+ 
+        .main { 
+ 
+            margin-left: var(--sidebar-width); 
+ 
+            min-height: 100vh; 
+ 
+            padding: 25px 30px 45px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           TOP BAR 
+        ========================================================= */ 
+ 
+        .topbar { 
+ 
+            display: flex; 
+ 
+            justify-content: space-between; 
+ 
+            align-items: center; 
+ 
+            gap: 20px; 
+ 
+            margin-bottom: 25px; 
+        } 
+ 
+ 
+        .page-title h1 { 
+ 
+            font-size: 28px; 
+ 
+            margin-bottom: 7px; 
+ 
+            color: var(--text); 
+        } 
+ 
+ 
+        .page-title h1 span { 
+ 
+            color: var(--primary); 
+        } 
+ 
+ 
+        .page-title p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 14px; 
+        } 
+ 
+ 
+        .top-actions { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 15px; 
+        } 
+ 
+ 
+        .date-box { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 8px; 
+ 
+            color: var(--text); 
+ 
+            font-size: 13px; 
+        } 
+ 
+ 
+        .icon-button { 
+ 
+            width: 40px; 
+            height: 40px; 
+ 
+            border: 1px solid var(--border); 
+ 
+            background: var(--card); 
+ 
+            border-radius: 10px; 
+ 
+            color: var(--text); 
+ 
+            font-size: 18px; 
+        } 
+ 
+ 
+        .icon-button:hover { 
+ 
+            border-color: var(--primary); 
+        } 
+ 
+ 
+        .profile-mini { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 10px; 
+ 
+            padding-left: 15px; 
+ 
+            border-left: 1px solid var(--border); 
+        } 
+ 
+ 
+        .avatar { 
+ 
+            width: 44px; 
+            height: 44px; 
+ 
+            border-radius: 50%; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #22c55e, 
+                    #6366f1 
+                ); 
+ 
+            color: white; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-weight: bold; 
+ 
+            font-size: 15px; 
+ 
+            overflow: hidden; 
+        } 
+ 
+ 
+        .profile-mini strong { 
+ 
+            display: block; 
+ 
+            font-size: 14px; 
+ 
+            color: var(--text); 
+        } 
+ 
+ 
+        .profile-mini span { 
+ 
+            display: block; 
+ 
+            color: var(--muted); 
+ 
+            font-size: 12px; 
+ 
+            margin-top: 3px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           CONTENT 
+        ========================================================= */ 
+ 
+        .content-section { 
+ 
+            display: none; 
+ 
+            animation: fadeIn 0.25s ease; 
+        } 
+ 
+ 
+        .content-section.active { 
+ 
+            display: block; 
+        } 
+ 
+ 
+        @keyframes fadeIn { 
+ 
+            from { 
+                opacity: 0; 
+                transform: translateY(5px); 
+            } 
+ 
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            } 
+        } 
+ 
+ 
+        /* ========================================================= 
+           GRID 
+        ========================================================= */ 
+ 
+        .grid-2 { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 
+                minmax(0, 1.25fr) 
+                minmax(0, 0.9fr); 
+ 
+            gap: 22px; 
+        } 
+ 
+ 
+        .grid-3 { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 
+                repeat(3, minmax(0, 1fr)); 
+ 
+            gap: 18px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           CARD 
+        ========================================================= */ 
+ 
+        .card { 
+ 
+            background: var(--card); 
+ 
+            border: 1px solid var(--border); 
+ 
+            border-radius: 15px; 
+ 
+            box-shadow: var(--shadow); 
+ 
+            padding: 20px; 
+ 
+            transition: 
+                background 0.25s ease, 
+                border 0.25s ease; 
+        } 
+ 
+ 
+        .card-header { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            justify-content: space-between; 
+ 
+            gap: 15px; 
+ 
+            margin-bottom: 20px; 
+        } 
+ 
+ 
+        .card-title { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 12px; 
+        } 
+ 
+ 
+        .card-title-icon { 
+ 
+            width: 40px; 
+            height: 40px; 
+ 
+            border-radius: 11px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 20px; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #eef2ff, 
+                    #f5f3ff 
+                ); 
+ 
+            color: var(--purple); 
+        } 
+ 
+ 
+        body.dark-mode .card-title-icon { 
+ 
+            background: rgba(99,102,241,0.15); 
+ 
+            color: #a5b4fc; 
+        } 
+ 
+ 
+        .card-title h2 { 
+ 
+            font-size: 17px; 
+ 
+            color: var(--text); 
+ 
+            margin-bottom: 4px; 
+        } 
+ 
+ 
+        .card-title p { 
+ 
+            font-size: 12px; 
+ 
+            color: var(--muted); 
+        } 
+ 
+ 
+        /* ========================================================= 
+           SCOPE OF IMPROVEMENT 
+        ========================================================= */ 
+ 
+        .performance-row { 
+ 
+            margin-bottom: 21px; 
+        } 
+ 
+ 
+        .performance-row:last-child { 
+ 
+            margin-bottom: 0; 
+        } 
+ 
+ 
+        .performance-top { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            justify-content: space-between; 
+ 
+            margin-bottom: 8px; 
+        } 
+ 
+ 
+        .performance-name { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 9px; 
+ 
+            font-size: 14px; 
+ 
+            font-weight: bold; 
+        } 
+ 
+ 
+        .performance-icon { 
+ 
+            width: 31px; 
+            height: 31px; 
+ 
+            border-radius: 9px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 15px; 
+ 
+            background: #ecfdf3; 
+ 
+            color: #16a34a; 
+        } 
+ 
+ 
+        .performance-score { 
+ 
+            font-weight: bold; 
+ 
+            font-size: 14px; 
+        } 
+ 
+ 
+        .performance-description { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 11px; 
+ 
+            margin: 0 0 8px 40px; 
+        } 
+ 
+ 
+        .priority { 
+ 
+            font-size: 11px; 
+ 
+            font-weight: bold; 
+ 
+            padding: 6px 9px; 
+ 
+            border-radius: 7px; 
+ 
+            white-space: nowrap; 
+        } 
+ 
+ 
+        .priority.high { 
+ 
+            color: #dc2626; 
+ 
+            background: #fee2e2; 
+        } 
+ 
+ 
+        .priority.medium { 
+ 
+            color: #d97706; 
+ 
+            background: #fef3c7; 
+        } 
+ 
+ 
+        .priority.low { 
+ 
+            color: #15803d; 
+ 
+            background: #dcfce7; 
+        } 
+ 
+ 
+        body.dark-mode .priority.high { 
+ 
+            background: rgba(239,68,68,0.15); 
+ 
+            color: #fca5a5; 
+        } 
+ 
+ 
+        body.dark-mode .priority.medium { 
+ 
+            background: rgba(245,158,11,0.15); 
+ 
+            color: #fcd34d; 
+        } 
+ 
+ 
+        body.dark-mode .priority.low { 
+ 
+            background: rgba(34,197,94,0.15); 
+ 
+            color: #86efac; 
+        } 
+ 
+ 
+        .progress-track { 
+ 
+            height: 6px; 
+ 
+            background: #e7ebf2; 
+ 
+            border-radius: 20px; 
+ 
+            overflow: hidden; 
+ 
+            margin-left: 40px; 
+        } 
+ 
+ 
+        body.dark-mode .progress-track { 
+ 
+            background: #1c2c47; 
+        } 
+ 
+ 
+        .progress-fill { 
+ 
+            height: 100%; 
+ 
+            border-radius: inherit; 
+ 
+            transition: width 0.7s ease; 
+        } 
+ 
+ 
+        .progress-fill.high { 
+ 
+            background: #ef3340; 
+        } 
+ 
+ 
+        .progress-fill.medium { 
+ 
+            background: #f59e0b; 
+        } 
+ 
+ 
+        .progress-fill.low { 
+ 
+            background: #16a34a; 
+        } 
+ 
+ 
+        .legend { 
+ 
+            display: flex; 
+ 
+            justify-content: center; 
+ 
+            gap: 20px; 
+ 
+            margin-top: 22px; 
+ 
+            font-size: 11px; 
+ 
+            color: var(--muted); 
+        } 
+ 
+ 
+        .legend span { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 5px; 
+        } 
+ 
+ 
+        .legend-dot { 
+ 
+            width: 8px; 
+            height: 8px; 
+ 
+            border-radius: 50%; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           IMPROVEMENT PRIORITIES 
+        ========================================================= */ 
+ 
+        .priority-item { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 38px 1fr auto; 
+ 
+            gap: 12px; 
+ 
+            align-items: center; 
+ 
+            padding: 15px 0; 
+ 
+            border-bottom: 1px solid var(--border); 
+        } 
+ 
+ 
+        .priority-item:last-child { 
+ 
+            border-bottom: none; 
+ 
+            padding-bottom: 0; 
+        } 
+ 
+ 
+        .priority-number { 
+ 
+            width: 36px; 
+            height: 36px; 
+ 
+            border-radius: 10px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 15px; 
+ 
+            font-weight: bold; 
+ 
+            background: #f3f4ff; 
+ 
+            color: var(--purple); 
+        } 
+ 
+ 
+        body.dark-mode .priority-number { 
+ 
+            background: rgba(99,102,241,0.15); 
+ 
+            color: #a5b4fc; 
+        } 
+ 
+ 
+        .priority-item strong { 
+ 
+            display: block; 
+ 
+            font-size: 14px; 
+ 
+            margin-bottom: 4px; 
+        } 
+ 
+ 
+        .priority-item p { 
+ 
+            font-size: 11px; 
+ 
+            color: var(--muted); 
+ 
+            line-height: 1.4; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           PHYSICAL AREAS 
+        ========================================================= */ 
+ 
+        .physical-card { 
+ 
+            text-align: center; 
+ 
+            padding: 17px 10px; 
+ 
+            border: 1px solid var(--border); 
+ 
+            border-radius: 12px; 
+ 
+            background: 
+                linear-gradient( 
+                    180deg, 
+                    var(--card), 
+                    rgba(99,102,241,0.035) 
+                ); 
+        } 
+ 
+ 
+        .physical-icon { 
+ 
+            width: 48px; 
+            height: 48px; 
+ 
+            margin: 0 auto 10px; 
+ 
+            border-radius: 50%; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            background: #f3e8ff; 
+ 
+            color: #7c3aed; 
+ 
+            font-size: 22px; 
+        } 
+ 
+ 
+        body.dark-mode .physical-icon { 
+ 
+            background: rgba(124,58,237,0.16); 
+ 
+            color: #c4b5fd; 
+        } 
+ 
+ 
+        .physical-card strong { 
+ 
+            display: block; 
+ 
+            font-size: 12px; 
+ 
+            line-height: 1.35; 
+ 
+            margin-bottom: 8px; 
+        } 
+ 
+ 
+        .needs-improvement { 
+ 
+            display: inline-block; 
+ 
+            font-size: 9px; 
+ 
+            font-weight: bold; 
+ 
+            color: #dc2626; 
+ 
+            background: #fee2e2; 
+ 
+            padding: 5px 7px; 
+ 
+            border-radius: 6px; 
+        } 
+ 
+ 
+        body.dark-mode .needs-improvement { 
+ 
+            background: rgba(239,68,68,0.15); 
+ 
+            color: #fca5a5; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           RECOMMENDED FOCUS 
+        ========================================================= */ 
+ 
+        .focus-card { 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #f5f3ff, 
+                    #eef2ff 
+                ); 
+ 
+            border-color: #ddd6fe; 
+        } 
+ 
+ 
+        body.dark-mode .focus-card { 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #111b3c, 
+                    #101b36 
+                ); 
+ 
+            border-color: #27366b; 
+        } 
+ 
+ 
+        .focus-content { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 125px 1fr; 
+ 
+            gap: 18px; 
+ 
+            align-items: center; 
+        } 
+ 
+ 
+        .focus-illustration { 
+ 
+            height: 125px; 
+ 
+            border-radius: 50%; 
+ 
+            background: 
+                radial-gradient( 
+                    circle, 
+                    #e0e7ff, 
+                    #eef2ff 
+                ); 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 62px; 
+        } 
+ 
+ 
+        body.dark-mode .focus-illustration { 
+ 
+            background: 
+                radial-gradient( 
+                    circle, 
+                    #1d2a58, 
+                    #101b36 
+                ); 
+        } 
+ 
+ 
+        .focus-content h3 { 
+ 
+            font-size: 18px; 
+ 
+            margin-bottom: 8px; 
+        } 
+ 
+ 
+        .focus-content p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 12px; 
+ 
+            line-height: 1.6; 
+ 
+            margin-bottom: 12px; 
+        } 
+ 
+ 
+        .focus-list { 
+ 
+            list-style: none; 
+        } 
+ 
+ 
+        .focus-list li { 
+ 
+            font-size: 12px; 
+ 
+            margin-bottom: 7px; 
+ 
+            display: flex; 
+ 
+            gap: 8px; 
+ 
+            align-items: center; 
+        } 
+ 
+ 
+        .focus-list li::before { 
+ 
+            content: "✓"; 
+ 
+            width: 17px; 
+            height: 17px; 
+ 
+            border-radius: 50%; 
+ 
+            background: var(--purple); 
+ 
+            color: white; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            font-size: 10px; 
+ 
+            flex-shrink: 0; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           CALCULATION INFO 
+        ========================================================= */ 
+ 
+        .info-box { 
+ 
+            margin-top: 22px; 
+ 
+            display: flex; 
+ 
+            align-items: flex-start; 
+ 
+            gap: 13px; 
+ 
+            padding: 17px; 
+ 
+            border-radius: 12px; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #eff6ff, 
+                    #f5f7ff 
+                ); 
+ 
+            border: 1px solid #dbeafe; 
+        } 
+ 
+ 
+        body.dark-mode .info-box { 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    #0d1d3b, 
+                    #101b35 
+                ); 
+ 
+            border-color: #213a68; 
+        } 
+ 
+ 
+        .info-icon { 
+ 
+            font-size: 22px; 
+ 
+            color: #2563eb; 
+        } 
+ 
+ 
+        .info-box strong { 
+ 
+            display: block; 
+ 
+            font-size: 13px; 
+ 
+            margin-bottom: 4px; 
+        } 
+ 
+ 
+        .info-box p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 11px; 
+ 
+            line-height: 1.5; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           GOAL PROGRESS 
+        ========================================================= */ 
+ 
+        .goal-card { 
+ 
+            margin-bottom: 18px; 
+        } 
+ 
+ 
+        .goal-card:last-child { 
+ 
+            margin-bottom: 0; 
+        } 
+ 
+ 
+        .goal-top { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            justify-content: space-between; 
+ 
+            margin-bottom: 12px; 
+        } 
+ 
+ 
+        .goal-name { 
+ 
+            font-size: 15px; 
+ 
+            font-weight: bold; 
+        } 
+ 
+ 
+        .status { 
+ 
+            padding: 6px 9px; 
+ 
+            border-radius: 7px; 
+ 
+            font-size: 10px; 
+ 
+            font-weight: bold; 
+        } 
+ 
+ 
+        .status.on-track { 
+ 
+            background: #dcfce7; 
+ 
+            color: #15803d; 
+        } 
+ 
+ 
+        .status.attention { 
+ 
+            background: #fef3c7; 
+ 
+            color: #b45309; 
+        } 
+ 
+ 
+        .status.completed { 
+ 
+            background: #dbeafe; 
+ 
+            color: #1d4ed8; 
+        } 
+ 
+ 
+        body.dark-mode .status.on-track { 
+ 
+            background: rgba(34,197,94,0.14); 
+ 
+            color: #86efac; 
+        } 
+ 
+ 
+        body.dark-mode .status.attention { 
+ 
+            background: rgba(245,158,11,0.14); 
+ 
+            color: #fcd34d; 
+        } 
+ 
+ 
+        body.dark-mode .status.completed { 
+ 
+            background: rgba(59,130,246,0.15); 
+ 
+            color: #93c5fd; 
+        } 
+ 
+ 
+        .goal-stats { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 
+                repeat(4, 1fr); 
+ 
+            gap: 10px; 
+ 
+            margin-bottom: 12px; 
+        } 
+ 
+ 
+        .goal-stat { 
+ 
+            padding: 10px; 
+ 
+            border-radius: 9px; 
+ 
+            background: var(--bg); 
+ 
+            border: 1px solid var(--border); 
+        } 
+ 
+ 
+        .goal-stat span { 
+ 
+            display: block; 
+ 
+            font-size: 10px; 
+ 
+            color: var(--muted); 
+ 
+            margin-bottom: 4px; 
+        } 
+ 
+ 
+        .goal-stat strong { 
+ 
+            font-size: 13px; 
+        } 
+ 
+ 
+        .goal-progress-row { 
+ 
+            display: flex; 
+ 
+            justify-content: space-between; 
+ 
+            font-size: 11px; 
+ 
+            margin-bottom: 5px; 
+ 
+            color: var(--muted); 
+        } 
+ 
+ 
+        .goal-track { 
+ 
+            height: 8px; 
+ 
+            border-radius: 20px; 
+ 
+            background: #e7ebf2; 
+ 
+            overflow: hidden; 
+        } 
+ 
+ 
+        body.dark-mode .goal-track { 
+ 
+            background: #1c2c47; 
+        } 
+ 
+ 
+        .goal-fill { 
+ 
+            height: 100%; 
+ 
+            background: 
+                linear-gradient( 
+                    90deg, 
+                    var(--purple), 
+                    var(--primary) 
+                ); 
+ 
+            border-radius: inherit; 
+ 
+            transition: width 0.7s ease; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           FEEDBACK 
+        ========================================================= */ 
+ 
+        .rating-box { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 16px; 
+ 
+            padding: 18px; 
+ 
+            border-radius: 13px; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    rgba(99,102,241,0.09), 
+                    rgba(34,197,94,0.06) 
+                ); 
+ 
+            margin-bottom: 18px; 
+        } 
+ 
+ 
+        .rating-number { 
+ 
+            font-size: 34px; 
+ 
+            font-weight: bold; 
+ 
+            color: var(--purple); 
+        } 
+ 
+ 
+        .stars { 
+ 
+            color: #f59e0b; 
+ 
+            letter-spacing: 2px; 
+ 
+            font-size: 17px; 
+        } 
+ 
+ 
+        .rating-box p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 11px; 
+ 
+            margin-top: 4px; 
+        } 
+ 
+ 
+        .feedback-block { 
+ 
+            margin-bottom: 20px; 
+        } 
+ 
+ 
+        .feedback-block:last-child { 
+ 
+            margin-bottom: 0; 
+        } 
+ 
+ 
+        .feedback-block h3 { 
+ 
+            font-size: 14px; 
+ 
+            margin-bottom: 9px; 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 8px; 
+        } 
+ 
+ 
+        .feedback-block p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 13px; 
+ 
+            line-height: 1.7; 
+        } 
+ 
+ 
+        .tag-list { 
+ 
+            display: flex; 
+ 
+            flex-wrap: wrap; 
+ 
+            gap: 8px; 
+        } 
+ 
+ 
+        .tag { 
+ 
+            padding: 7px 10px; 
+ 
+            border-radius: 7px; 
+ 
+            font-size: 11px; 
+ 
+            background: var(--bg); 
+ 
+            border: 1px solid var(--border); 
+ 
+            color: var(--text); 
+        } 
+ 
+ 
+        .tag.strength { 
+ 
+            background: #ecfdf3; 
+ 
+            border-color: #bbf7d0; 
+ 
+            color: #15803d; 
+        } 
+ 
+ 
+        .tag.weakness { 
+ 
+            background: #fff1f2; 
+ 
+            border-color: #fecdd3; 
+ 
+            color: #be123c; 
+        } 
+ 
+ 
+        .tag.training { 
+ 
+            background: #eff6ff; 
+ 
+            border-color: #bfdbfe; 
+ 
+            color: #1d4ed8; 
+        } 
+ 
+ 
+        body.dark-mode .tag.strength { 
+ 
+            background: rgba(34,197,94,0.12); 
+ 
+            border-color: #1d5a3a; 
+ 
+            color: #86efac; 
+        } 
+ 
+ 
+        body.dark-mode .tag.weakness { 
+ 
+            background: rgba(239,68,68,0.12); 
+ 
+            border-color: #63303a; 
+ 
+            color: #fca5a5; 
+        } 
+ 
+ 
+        body.dark-mode .tag.training { 
+ 
+            background: rgba(59,130,246,0.12); 
+ 
+            border-color: #254d79; 
+ 
+            color: #93c5fd; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           PHYSICAL SUMMARY 
+        ========================================================= */ 
+ 
+        .physical-summary { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 
+                repeat(4, 1fr); 
+ 
+            gap: 13px; 
+        } 
+ 
+ 
+        .physical-stat { 
+ 
+            padding: 14px; 
+ 
+            border-radius: 11px; 
+ 
+            background: var(--bg); 
+ 
+            border: 1px solid var(--border); 
+        } 
+ 
+ 
+        .physical-stat span { 
+ 
+            display: block; 
+ 
+            color: var(--muted); 
+ 
+            font-size: 10px; 
+ 
+            margin-bottom: 6px; 
+        } 
+ 
+ 
+        .physical-stat strong { 
+ 
+            font-size: 16px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           PROFILE 
+        ========================================================= */ 
+ 
+        .profile-header { 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+ 
+            gap: 20px; 
+ 
+            margin-bottom: 25px; 
+        } 
+ 
+ 
+        .profile-large-avatar { 
+ 
+            width: 90px; 
+            height: 90px; 
+ 
+            border-radius: 50%; 
+ 
+            background: 
+                linear-gradient( 
+                    135deg, 
+                    var(--primary), 
+                    var(--purple) 
+                ); 
+ 
+            display: flex; 
+ 
+            align-items: center; 
+            justify-content: center; 
+ 
+            color: white; 
+ 
+            font-size: 28px; 
+ 
+            font-weight: bold; 
+        } 
+ 
+ 
+        .profile-header h2 { 
+ 
+            font-size: 22px; 
+ 
+            margin-bottom: 5px; 
+        } 
+ 
+ 
+        .profile-header p { 
+ 
+            color: var(--muted); 
+ 
+            font-size: 13px; 
+        } 
+ 
+ 
+        .profile-grid { 
+ 
+            display: grid; 
+ 
+            grid-template-columns: 
+                repeat(2, 1fr); 
+ 
+            gap: 15px; 
+        } 
+ 
+ 
+        .profile-field { 
+ 
+            padding: 14px; 
+ 
+            border: 1px solid var(--border); 
+ 
+            border-radius: 10px; 
+ 
+            background: var(--bg); 
+        } 
+ 
+ 
+        .profile-field span { 
+ 
+            display: block; 
+ 
+            color: var(--muted); 
+ 
+            font-size: 10px; 
+ 
+            margin-bottom: 5px; 
+        } 
+ 
+ 
+        .profile-field strong { 
+ 
+            font-size: 13px; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           SETTINGS 
+        ========================================================= */ 
+ 
+        .settings-list { 
+ 
+            display: flex; 
+ 
+            flex-direction: column; 
+ 
+            gap: 14px; 
+        } 
+ 
+ 
+        .setting-row { 
+ 
+            display: flex; 
+ 
+            justify-content: space-between; 
+ 
+            align-items: center; 
+ 
+            padding: 17px; 
+ 
+            border: 1px solid var(--border); 
+ 
+            border-radius: 12px; 
+ 
+            background: var(--bg); 
+        } 
+ 
+ 
+        .setting-row h3 { 
+ 
+            font-size: 14px; 
+ 
+            margin-bottom: 4px; 
+        } 
+ 
+ 
+        .setting-row p { 
+ 
+            font-size: 11px; 
+ 
+            color: var(--muted); 
+        } 
+ 
+ 
+        .switch { 
+ 
+            position: relative; 
+ 
+            width: 48px; 
+            height: 26px; 
+        } 
+ 
+ 
+        .switch input { 
+ 
+            opacity: 0; 
+ 
+            width: 0; 
+            height: 0; 
+        } 
+ 
+ 
+        .slider { 
+ 
+            position: absolute; 
+ 
+            inset: 0; 
+ 
+            background: #cbd5e1; 
+ 
+            border-radius: 20px; 
+ 
+            transition: 0.25s; 
+ 
+            cursor: pointer; 
+        } 
+ 
+ 
+        .slider::before { 
+ 
+            content: ""; 
+ 
+            position: absolute; 
+ 
+            width: 20px; 
+            height: 20px; 
+ 
+            left: 3px; 
+            top: 3px; 
+ 
+            background: white; 
+ 
+            border-radius: 50%; 
+ 
+            transition: 0.25s; 
+        } 
+ 
+ 
+        .switch input:checked + .slider { 
+ 
+            background: 
+                linear-gradient( 
+                    90deg, 
+                    #6366f1, 
+                    #22c55e 
+                ); 
+        } 
+ 
+ 
+        .switch input:checked + .slider::before { 
+ 
+            transform: translateX(22px); 
+        } 
+ 
+ 
+        /* ========================================================= 
+           EMPTY STATE 
+        ========================================================= */ 
+ 
+        .empty-state { 
+ 
+            text-align: center; 
+ 
+            padding: 35px 15px; 
+ 
+            color: var(--muted); 
+        } 
+ 
+ 
+        .empty-state-icon { 
+ 
+            font-size: 35px; 
+ 
+            margin-bottom: 10px; 
+        } 
+ 
+ 
+        .empty-state h3 { 
+ 
+            color: var(--text); 
+ 
+            font-size: 15px; 
+ 
+            margin-bottom: 6px; 
+        } 
+ 
+ 
+        .empty-state p { 
+ 
+            font-size: 12px; 
+ 
+            line-height: 1.5; 
+        } 
+ 
+ 
+        /* ========================================================= 
+           TOAST 
+        ========================================================= */ 
+ 
+        .toast { 
+ 
+            position: fixed; 
+ 
+            right: 25px; 
+            bottom: 25px; 
+ 
+            padding: 13px 17px; 
+ 
+            background: #0f172a; 
+ 
+            color: white; 
+ 
+            border-radius: 9px; 
+ 
+            font-size: 12px; 
+ 
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.25); 
+ 
+            transform: translateY(100px); 
+ 
+            opacity: 0; 
+ 
+            pointer-events: none; 
+ 
+            transition: 0.3s; 
+ 
+            z-index: 3000; 
+        } 
+ 
+ 
+        .toast.show { 
+ 
+            transform: translateY(0); 
+ 
+            opacity: 1; 
+        } 
+ 
+ 
+                /* =========================================================
+           ATTENDANCE
+        ========================================================= */
+
+        .attendance-stats {
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 18px;
-
-            margin-bottom: 25px;
+            margin-bottom: 22px;
         }
 
-        .stat-card {
-            background: white;
-
-            border-radius: 12px;
-
+        .attendance-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
             padding: 20px;
-
-            border: 1px solid #e7ebe8;
-
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.04);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: .2s;
         }
 
-        .stat-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-bottom: 15px;
+        .attendance-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
 
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-
-            border-radius: 9px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 20px;
-        }
-
-        .green {
-            background: #eaf9ef;
-        }
-
-        .blue {
-            background: #eaf5ff;
-        }
-
-        .purple {
-            background: #f3edff;
-        }
-
-        .orange {
-            background: #fff5e8;
-        }
-
-        .stat-label {
-            color: #777;
-            font-size: 12px;
-        }
-
-        .stat-value {
-            font-size: 25px;
-            font-weight: bold;
-            color: #1d2b22;
-        }
-
-        .stat-sub {
-            color: #999;
-            font-size: 11px;
-            margin-top: 5px;
-        }
-
-
-        /* =========================================
-           SECTION GRID
-        ========================================= */
-
-        .content-grid {
-            display: grid;
-
-            grid-template-columns:
-                1.2fr 0.8fr;
-
-            gap: 20px;
-
-            margin-bottom: 20px;
-        }
-
-
-        /* =========================================
-           COMMON CARD
-        ========================================= */
-
-        .card {
-            background: white;
-
-            border: 1px solid #e7ebe8;
-
-            border-radius: 12px;
-
-            padding: 22px;
-
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 17px;
-            font-weight: bold;
-            color: #1d2b22;
-        }
-
-        .card-subtitle {
-            color: #888;
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-
-        /* =========================================
-           SCOPE OF IMPROVEMENT
-        ========================================= */
-
-        .improvement-item {
-            margin-bottom: 18px;
-        }
-
-        .improvement-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .improvement-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-bottom: 8px;
-        }
-
-        .improvement-name {
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .priority {
-            font-size: 10px;
-
-            padding: 4px 8px;
-
-            border-radius: 20px;
-        }
-
-        .high {
-            background: #fff0f0;
-            color: #d63b3b;
-        }
-
-        .medium {
-            background: #fff6e8;
-            color: #c47b14;
-        }
-
-        .low {
-            background: #eaf9ef;
-            color: #218c49;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 7px;
-
-            background: #edf0ee;
-
-            border-radius: 10px;
-
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-
-            border-radius: 10px;
-
-            background: #22c55e;
-        }
-
-        .improvement-footer {
-            display: flex;
-            justify-content: space-between;
-
-            margin-top: 6px;
-
-            color: #999;
-
-            font-size: 10px;
-        }
-
-
-        /* =========================================
-           NEXT FOCUS
-        ========================================= */
-
-        .focus-box {
-            background: #effaf3;
-
-            border: 1px solid #ccefd7;
-
-            border-radius: 10px;
-
-            padding: 18px;
-
-            margin-top: 20px;
-        }
-
-        .focus-label {
-            color: #25864a;
-            font-size: 11px;
-            font-weight: bold;
-
-            text-transform: uppercase;
-
-            margin-bottom: 7px;
-        }
-
-        .focus-title {
-            font-size: 18px;
-            font-weight: bold;
-
-            margin-bottom: 6px;
-        }
-
-        .focus-text {
-            color: #666;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-
-        /* =========================================
-           GOAL PROGRESS
-        ========================================= */
-
-        .goal {
-            padding-bottom: 18px;
-            margin-bottom: 18px;
-
-            border-bottom: 1px solid #eeeeee;
-        }
-
-        .goal:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            margin-bottom: 8px;
-        }
-
-        .goal-name {
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .goal-percentage {
-            color: #22a852;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .goal-values {
-            display: flex;
-            justify-content: space-between;
-
-            font-size: 11px;
-            color: #888;
-
-            margin-top: 6px;
-        }
-
-
-        /* =========================================
-           FEEDBACK
-        ========================================= */
-
-        .feedback-card {
-            margin-bottom: 20px;
-        }
-
-        .feedback-content {
-            display: flex;
-            gap: 15px;
-        }
-
-        .coach-avatar {
-            min-width: 45px;
-            height: 45px;
-
+        .attendance-stat .stat-circle {
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-
-            background: #e8f6ee;
-
-            color: #178642;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
-            font-weight: bold;
+            font-size: 22px;
+            margin: 0 auto 12px;
         }
 
-        .feedback-name {
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 3px;
+        .attendance-stat.present .stat-circle {
+            background: #ecfdf3;
+            color: #16a34a;
         }
 
-        .feedback-date {
-            font-size: 10px;
-            color: #999;
-            margin-bottom: 10px;
+        .attendance-stat.absent .stat-circle {
+            background: #fee2e2;
+            color: #dc2626;
         }
 
-        .stars {
-            color: #f3a623;
-            letter-spacing: 2px;
-            font-size: 13px;
-            margin-bottom: 9px;
+        .attendance-stat.late .stat-circle {
+            background: #fef3c7;
+            color: #d97706;
         }
 
-        .feedback-text {
-            color: #666;
+        .attendance-stat.rate .stat-circle {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        body.dark-mode .attendance-stat.present .stat-circle {
+            background: rgba(34,197,94,0.15);
+            color: #86efac;
+        }
+
+        body.dark-mode .attendance-stat.absent .stat-circle {
+            background: rgba(239,68,68,0.15);
+            color: #fca5a5;
+        }
+
+        body.dark-mode .attendance-stat.late .stat-circle {
+            background: rgba(245,158,11,0.15);
+            color: #fcd34d;
+        }
+
+        body.dark-mode .attendance-stat.rate .stat-circle {
+            background: rgba(59,130,246,0.15);
+            color: #93c5fd;
+        }
+
+        .attendance-stat h3 {
+            font-size: 26px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .attendance-stat p {
+            color: var(--muted);
             font-size: 12px;
-            line-height: 1.6;
         }
 
-
-        /* =========================================
-           STRENGTH / WEAKNESS
-        ========================================= */
-
-        .feedback-columns {
+        .calendar-grid {
             display: grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap: 15px;
-
-            margin-top: 20px;
-        }
-
-        .feedback-box {
-            border-radius: 9px;
-
-            padding: 15px;
-        }
-
-        .strength-box {
-            background: #effaf3;
-            border: 1px solid #d4f0dc;
-        }
-
-        .weakness-box {
-            background: #fff5f5;
-            border: 1px solid #f5dddd;
-        }
-
-        .feedback-box h4 {
-            font-size: 12px;
-            margin-bottom: 9px;
-        }
-
-        .strength-box h4 {
-            color: #188345;
-        }
-
-        .weakness-box h4 {
-            color: #c54b4b;
-        }
-
-        .feedback-box ul {
-            padding-left: 17px;
-        }
-
-        .feedback-box li {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-
-        /* =========================================
-           TRAINING SUGGESTION
-        ========================================= */
-
-        .suggestion {
-            background: #f5f7f6;
-
-            border-radius: 9px;
-
-            padding: 14px;
-
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
             margin-top: 15px;
         }
 
-        .suggestion-title {
+        .calendar-day-header {
+            text-align: center;
             font-size: 11px;
             font-weight: bold;
-
-            color: #555;
-
-            margin-bottom: 6px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 8px 0;
         }
 
-        .suggestion p {
-            color: #777;
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: .2s;
+        }
+
+        .calendar-day.present {
+            background: #dcfce7;
+            border-color: #bbf7d0;
+            color: #15803d;
+        }
+
+        .calendar-day.absent {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .calendar-day.late {
+            background: #fef3c7;
+            border-color: #fde68a;
+            color: #b45309;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--purple);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
+        }
+
+        body.dark-mode .calendar-day.present {
+            background: rgba(34,197,94,0.14);
+            border-color: #1d5a3a;
+            color: #86efac;
+        }
+
+        body.dark-mode .calendar-day.absent {
+            background: rgba(239,68,68,0.14);
+            border-color: #63303a;
+            color: #fca5a5;
+        }
+
+        body.dark-mode .calendar-day.late {
+            background: rgba(245,158,11,0.14);
+            border-color: #6b4c1e;
+            color: #fcd34d;
+        }
+
+        .attendance-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 18px;
             font-size: 11px;
-            line-height: 1.5;
+            color: var(--muted);
         }
 
-
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
-
-        @media (max-width: 1100px) {
-
-            .stats {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-
+        .attendance-legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-
-        @media (max-width: 800px) {
-
-            .sidebar {
-                width: 70px;
-                padding: 20px 10px;
-            }
-
-            .logo {
-                justify-content: center;
-                padding: 5px 0 25px;
-            }
-
-            .logo-text,
-            .nav-title,
-            .nav-menu span:not(.nav-icon),
-            .logout span {
-                display: none;
-            }
-
-            .nav-menu a,
-            .logout {
-                justify-content: center;
-            }
-
-            .main {
-                margin-left: 70px;
-                width: calc(100% - 70px);
-                padding: 20px;
-            }
-
+        .legend-box {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
         }
 
+        .legend-box.present { background: #dcfce7; border: 1px solid #bbf7d0; }
+        .legend-box.absent { background: #fee2e2; border: 1px solid #fecaca; }
+        .legend-box.late { background: #fef3c7; border: 1px solid #fde68a; }
+        .legend-box.empty { background: var(--bg); border: 1px solid var(--border); }
 
-        @media (max-width: 600px) {
+        body.dark-mode .legend-box.present { background: rgba(34,197,94,0.14); border-color: #1d5a3a; }
+        body.dark-mode .legend-box.absent { background: rgba(239,68,68,0.14); border-color: #63303a; }
+        body.dark-mode .legend-box.late { background: rgba(245,158,11,0.14); border-color: #6b4c1e; }
 
-            .topbar {
-                align-items: flex-start;
-            }
-
-            .welcome h1 {
-                font-size: 22px;
-            }
-
-            .profile-info {
-                display: none;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .feedback-columns {
-                grid-template-columns: 1fr;
-            }
-
-            .main {
-                padding: 15px;
-            }
-
+        .attendance-record {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
         }
 
-    </style>
-
-</head>
-
-
-<body>
-
-
-<div class="dashboard">
-
-
-    <!-- =========================================
-         SIDEBAR
-    ========================================= -->
-
-    <aside class="sidebar">
-
-
-        <!-- LOGO -->
-
-        <div class="logo">
-
-            <div class="logo-icon">
-                🏃
-            </div>
-
-            <div class="logo-text">
-                FITNESS<br>
-                <span>TRACKER</span>
-            </div>
-
-        </div>
-
-
-        <!-- NAVIGATION -->
-
-        <div class="nav-title">
-            Student Menu
-        </div>
-
-        <ul class="nav-menu">
-
-            <li>
-                <a href="#" class="active">
-                    <span class="nav-icon">🏠</span>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#improvement">
-                    <span class="nav-icon">📈</span>
-                    <span>Scope of Improvement</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#goals">
-                    <span class="nav-icon">🎯</span>
-                    <span>Goal Progress</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#feedback">
-                    <span class="nav-icon">💬</span>
-                    <span>Coach Feedback</span>
-                </a>
-            </li>
-
-        </ul>
-
-
-        <!-- SIDEBAR BOTTOM -->
-
-        <div class="sidebar-bottom">
-
-            <a
-                href="student-login.html"
-                class="logout"
-            >
-                <span>🚪</span>
-                <span>Logout</span>
-            </a>
-
-        </div>
-
-    </aside>
-
-
-    <!-- =========================================
-         MAIN CONTENT
-    ========================================= -->
-
-    <main class="main">
-
-
-        <!-- =========================================
-             TOP BAR
-        ========================================= -->
-
-        <div class="topbar">
-
-            <div class="welcome">
-
-                <h1>
-                    Welcome back,
-                    <span>Rahul!</span>
-                </h1>
-
-                <p>
-                    Here's your latest fitness performance overview.
-                </p>
-
-            </div>
-
-
-            <div class="profile">
-
-                <div class="profile-info">
-
-                    <div class="profile-name">
-                        Rahul Sharma
-                    </div>
-
-                    <div class="profile-role">
-                        Student Athlete
-                    </div>
-
-                </div>
-
-                <div class="profile-avatar">
-                    RS
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =========================================
-             QUICK STATS
-        ========================================= -->
-
-        <section class="stats">
-
-
-            <!-- IMPROVEMENT AREAS -->
-
-            <div class="stat-card">
-
-                <div class="stat-top">
-
-                    <div class="stat-label">
-                        Improvement Areas
-                    </div>
-
-                    <div class="stat-icon green">
-                        📈
-                    </div>
-
-                </div>
-
-                <div class="stat-value">
-                    3
-                </div>
-
-                <div class="stat-sub">
-                    Areas requiring attention
-                </div>
-
-            </div>
-
-
-            <!-- GOALS -->
-
-            <div class="stat-card">
-
-                <div class="stat-top">
-
-                    <div class="stat-label">
-                        Active Goals
-                    </div>
-
-                    <div class="stat-icon blue">
-                        🎯
-                    </div>
-
-                </div>
-
-                <div class="stat-value">
-                    4
-                </div>
-
-                <div class="stat-sub">
-                    Goals currently active
-                </div>
-
-            </div>
-
-
-            <!-- AVG PROGRESS -->
-
-            <div class="stat-card">
-
-                <div class="stat-top">
-
-                    <div class="stat-label">
-                        Average Progress
-                    </div>
-
-                    <div class="stat-icon purple">
-                        ⚡
-                    </div>
-
-                </div>
-
-                <div class="stat-value">
-                    72%
-                </div>
-
-                <div class="stat-sub">
-                    Overall goal progress
-                </div>
-
-            </div>
-
-
-            <!-- COACH RATING -->
-
-            <div class="stat-card">
-
-                <div class="stat-top">
-
-                    <div class="stat-label">
-                        Coach Rating
-                    </div>
-
-                    <div class="stat-icon orange">
-                        ⭐
-                    </div>
-
-                </div>
-
-                <div class="stat-value">
-                    4.5/5
-                </div>
-
-                <div class="stat-sub">
-                    Latest feedback rating
-                </div>
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =========================================
-             IMPROVEMENT + GOALS
-        ========================================= -->
-
-        <div class="content-grid">
-
-
-            <!-- =====================================
-                 SCOPE OF IMPROVEMENT
-            ====================================== -->
-
-            <section
-                class="card"
-                id="improvement"
-            >
-
-                <div class="card-header">
-
-                    <div>
-
-                        <div class="card-title">
-                            Scope of Improvement
-                        </div>
-
-                        <div class="card-subtitle">
-                            Your current performance areas
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- IMPROVEMENT 1 -->
-
-                <div class="improvement-item">
-
-                    <div class="improvement-top">
-
-                        <span class="improvement-name">
-                            Endurance
-                        </span>
-
-                        <span class="priority high">
-                            High Priority
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 45%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="improvement-footer">
-
-                        <span>
-                            Current level: 45%
-                        </span>
-
-                        <span>
-                            Needs improvement
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- IMPROVEMENT 2 -->
-
-                <div class="improvement-item">
-
-                    <div class="improvement-top">
-
-                        <span class="improvement-name">
-                            Flexibility
-                        </span>
-
-                        <span class="priority medium">
-                            Medium Priority
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 62%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="improvement-footer">
-
-                        <span>
-                            Current level: 62%
-                        </span>
-
-                        <span>
-                            Improving
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- IMPROVEMENT 3 -->
-
-                <div class="improvement-item">
-
-                    <div class="improvement-top">
-
-                        <span class="improvement-name">
-                            Strength
-                        </span>
-
-                        <span class="priority low">
-                            Low Priority
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 78%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="improvement-footer">
-
-                        <span>
-                            Current level: 78%
-                        </span>
-
-                        <span>
-                            Good progress
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- NEXT FOCUS -->
-
-                <div class="focus-box">
-
-                    <div class="focus-label">
-                        Recommended Next Focus
-                    </div>
-
-                    <div class="focus-title">
-                        Improve Endurance
-                    </div>
-
-                    <div class="focus-text">
-                        Your coach recommends focusing on
-                        cardiovascular endurance during your
-                        next training sessions.
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =====================================
-                 GOAL PROGRESS
-            ====================================== -->
-
-            <section
-                class="card"
-                id="goals"
-            >
-
-                <div class="card-header">
-
-                    <div>
-
-                        <div class="card-title">
-                            Goal Progress
-                        </div>
-
-                        <div class="card-subtitle">
-                            Track your current targets
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- GOAL 1 -->
-
-                <div class="goal">
-
-                    <div class="goal-header">
-
-                        <span class="goal-name">
-                            5 km Running Time
-                        </span>
-
-                        <span class="goal-percentage">
-                            80%
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 80%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="goal-values">
-
-                        <span>
-                            Current: 27 min
-                        </span>
-
-                        <span>
-                            Target: 24 min
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- GOAL 2 -->
-
-                <div class="goal">
-
-                    <div class="goal-header">
-
-                        <span class="goal-name">
-                            Body Fat %
-                        </span>
-
-                        <span class="goal-percentage">
-                            65%
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 65%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="goal-values">
-
-                        <span>
-                            Current: 17%
-                        </span>
-
-                        <span>
-                            Target: 14%
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- GOAL 3 -->
-
-                <div class="goal">
-
-                    <div class="goal-header">
-
-                        <span class="goal-name">
-                            Push-ups
-                        </span>
-
-                        <span class="goal-percentage">
-                            90%
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 90%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="goal-values">
-
-                        <span>
-                            Current: 45 reps
-                        </span>
-
-                        <span>
-                            Target: 50 reps
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- GOAL 4 -->
-
-                <div class="goal">
-
-                    <div class="goal-header">
-
-                        <span class="goal-name">
-                            Flexibility Score
-                        </span>
-
-                        <span class="goal-percentage">
-                            55%
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="width: 55%;"
-                        ></div>
-
-                    </div>
-
-                    <div class="goal-values">
-
-                        <span>
-                            Current: 55
-                        </span>
-
-                        <span>
-                            Target: 75
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-            </section>
-
-        </div>
-
-
-        <!-- =========================================
-             COACH FEEDBACK
-        ========================================= -->
-
-        <section
-            class="card feedback-card"
-            id="feedback"
+        .attendance-record:last-child {
+            border-bottom: none;
+        }
+
+        .attendance-record-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .attendance-record-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .attendance-record-icon.present {
+            background: #ecfdf3;
+            color: #16a34a;
+        }
+
+        .attendance-record-icon.absent {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .attendance-record-icon.late {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        body.dark-mode .attendance-record-icon.present {
+            background: rgba(34,197,94,0.15);
+            color: #86efac;
+        }
+
+        body.dark-mode .attendance-record-icon.absent {
+            background: rgba(239,68,68,0.15);
+            color: #fca5a5;
+        }
+
+        body.dark-mode .attendance-record-icon.late {
+            background: rgba(245,158,11,0.15);
+            color: #fcd34d;
+        }
+
+        .attendance-record-info strong {
+            display: block;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .attendance-record-info span {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .attendance-record-status {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .attendance-record-status.present {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .attendance-record-status.absent {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .attendance-record-status.late {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        body.dark-mode .attendance-record-status.present {
+            background: rgba(34,197,94,0.14);
+            color: #86efac;
+        }
+
+        body.dark-mode .attendance-record-status.absent {
+            background: rgba(239,68,68,0.14);
+            color: #fca5a5;
+        }
+
+        body.dark-mode .attendance-record-status.late {
+            background: rgba(245,158,11,0.14);
+            color: #fcd34d;
+        }
+
+        .streak-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.09), rgba(34,197,94,0.06));
+            margin-bottom: 18px;
+        }
+
+        .streak-number {
+            font-size: 34px;
+            font-weight: bold;
+            color: var(--purple);
+        }
+
+        .streak-box p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .month-selector button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .month-selector button:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .month-selector span {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            min-width: 140px;
+            text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .attendance-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .attendance-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .calendar-grid {
+                gap: 4px;
+            }
+            .calendar-day {
+                font-size: 11px;
+                border-radius: 6px;
+            }
+        }
+
+/* ========================================================= 
+           RESPONSIVE 
+        ========================================================= */ 
+ 
+        @media (max-width: 1200px) { 
+ 
+            .grid-2 { 
+ 
+                grid-template-columns: 1fr; 
+            } 
+ 
+            .physical-summary { 
+ 
+                grid-template-columns: 
+                    repeat(4, 1fr); 
+            } 
+        } 
+ 
+ 
+        @media (max-width: 900px) { 
+ 
+            .sidebar { 
+ 
+                transform: translateX(-100%); 
+            } 
+ 
+ 
+            .sidebar.open { 
+ 
+                transform: translateX(0); 
+            } 
+ 
+ 
+            .sidebar-overlay.active { 
+ 
+                display: block; 
+            } 
+ 
+ 
+            .mobile-menu { 
+ 
+                display: block; 
+            } 
+ 
+ 
+            .main { 
+ 
+                margin-left: 0; 
+ 
+                padding: 
+                    75px 20px 35px; 
+            } 
+ 
+ 
+            .topbar { 
+ 
+                flex-direction: column; 
+ 
+                align-items: flex-start; 
+            } 
+ 
+ 
+            .top-actions { 
+ 
+                width: 100%; 
+ 
+                justify-content: space-between; 
+            } 
+        } 
+ 
+ 
+        @media (max-width: 700px) { 
+ 
+            .grid-3 { 
+ 
+                grid-template-columns: 1fr; 
+            } 
+ 
+ 
+            .goal-stats { 
+ 
+                grid-template-columns: 
+                    repeat(2, 1fr); 
+            } 
+ 
+ 
+            .physical-summary { 
+ 
+                grid-template-columns: 
+                    repeat(2, 1fr); 
+            } 
+ 
+ 
+            .focus-content { 
+ 
+                grid-template-columns: 1fr; 
+ 
+                text-align: center; 
+            } 
+ 
+ 
+            .focus-illustration { 
+ 
+                width: 110px; 
+ 
+                margin: auto; 
+            } 
+ 
+ 
+            .focus-list { 
+ 
+                text-align: left; 
+            } 
+ 
+ 
+            .profile-grid { 
+ 
+                grid-template-columns: 1fr; 
+            } 
+        } 
+ 
+ 
+        @media (max-width: 500px) { 
+ 
+            .main { 
+ 
+                padding: 
+                    70px 13px 30px; 
+            } 
+ 
+ 
+            .page-title h1 { 
+ 
+                font-size: 23px; 
+            } 
+ 
+ 
+            .card { 
+ 
+                padding: 16px; 
+            } 
+ 
+ 
+            .profile-mini { 
+ 
+                padding-left: 8px; 
+            } 
+ 
+ 
+            .profile-mini div { 
+ 
+                display: none; 
+            } 
+ 
+ 
+            .date-box { 
+ 
+                display: none; 
+            } 
+ 
+ 
+            .performance-description, 
+            .progress-track { 
+ 
+                margin-left: 0; 
+            } 
+ 
+ 
+            .performance-top { 
+ 
+                align-items: flex-start; 
+            } 
+ 
+ 
+            .performance-top > div:last-child { 
+ 
+                display: flex; 
+ 
+                flex-direction: column; 
+ 
+                align-items: flex-end; 
+ 
+                gap: 5px; 
+            } 
+ 
+ 
+            .physical-summary { 
+ 
+                grid-template-columns: 1fr 1fr; 
+            } 
+ 
+ 
+            .priority-item { 
+ 
+                grid-template-columns: 34px 1fr; 
+ 
+                position: relative; 
+            } 
+ 
+ 
+            .priority-item .priority { 
+ 
+                grid-column: 2; 
+ 
+                justify-self: start; 
+            } 
+ 
+ 
+            .toast { 
+ 
+                left: 15px; 
+ 
+                right: 15px; 
+ 
+                bottom: 15px; 
+ 
+                text-align: center; 
+            } 
+        } 
+ 
+    </style> 
+ 
+<base target="_blank">
+</head> 
+ 
+ 
+<body> 
+ 
+ 
+<!-- ========================================================= 
+     MOBILE MENU 
+========================================================= --> 
+ 
+<button 
+    class="mobile-menu" 
+    id="mobileMenu" 
+    aria-label="Open menu" 
+> 
+    ☰ 
+</button> 
+ 
+ 
+<div 
+    class="sidebar-overlay" 
+    id="sidebarOverlay" 
+></div> 
+ 
+ 
+<!-- ========================================================= 
+     SIDEBAR 
+========================================================= --> 
+ 
+<aside class="sidebar" id="sidebar"> 
+ 
+    <div class="brand"> 
+ 
+        <div class="brand-icon"> 
+            🏃 
+        </div> 
+ 
+        <div class="brand-text"> 
+ 
+            <strong>FITNESS</strong> 
+ 
+            <span>TRACKER</span> 
+ 
+        </div> 
+ 
+    </div> 
+ 
+ 
+    <nav class="nav"> 
+ 
+        <button 
+            class="nav-item active" 
+            data-section="dashboard" 
+        > 
+            <span class="nav-icon">⌂</span> 
+            Dashboard 
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            data-section="scope" 
+        > 
+            <span class="nav-icon">◎</span> 
+            Scope of Improvement 
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            data-section="goals" 
+        > 
+            <span class="nav-icon">▥</span> 
+            Goal Progress 
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            data-section="feedback" 
+        > 
+            <span class="nav-icon">▰</span> 
+            Coach Feedback 
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            data-section="profile" 
+        > 
+            <span class="nav-icon">●</span> 
+            Profile 
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            data-section="settings" 
+        > 
+            <span class="nav-icon">⚙</span> 
+            Settings 
+        </button>
+
+        <button
+            class="nav-item"
+            data-section="attendance"
         >
+            <span class="nav-icon">📅</span>
+            Attendance
+        </button> 
+ 
+ 
+        <button 
+            class="nav-item" 
+            id="logoutButton" 
+        > 
+            <span class="nav-icon">⇥</span> 
+            Logout 
+        </button> 
+ 
+    </nav> 
+ 
+ 
+    <div class="sidebar-bottom"> 
+ 
+        <div class="motivation-card"> 
+ 
+            <div class="trophy"> 
+                🏆 
+            </div> 
+ 
+            <strong> 
+                Keep Pushing! 
+            </strong> 
+ 
+            <p> 
+                Small steps today, 
+                big results tomorrow. 
+            </p> 
+ 
+            <span> 
+                You've got this! 💪 
+            </span> 
+ 
+        </div> 
+ 
+    </div> 
+ 
+</aside> 
+ 
+ 
+<!-- ========================================================= 
+     MAIN 
+========================================================= --> 
+ 
+<main class="main"> 
+ 
+ 
+    <!-- ===================================================== 
+         TOP BAR 
+    ====================================================== --> 
+ 
+    <header class="topbar"> 
+ 
+        <div class="page-title"> 
+ 
+            <h1> 
+                Welcome back, 
+                <span id="headerStudentName"> 
+                    Student 
+                </span> 
+            </h1> 
+ 
+            <p id="pageSubtitle"> 
+                Understand your performance and focus on areas 
+                that need improvement. 
+            </p> 
+ 
+        </div> 
+ 
+ 
+        <div class="top-actions"> 
+ 
+            <div class="date-box"> 
+ 
+                📅 
+ 
+                <span id="currentDate"> 
+                    Loading... 
+                </span> 
+ 
+            </div> 
+ 
+ 
+            <button 
+                class="icon-button" 
+                id="notificationButton" 
+                title="Notifications" 
+            > 
+                ♧ 
+            </button> 
+ 
+ 
+            <div class="profile-mini"> 
+ 
+                <div 
+                    class="avatar" 
+                    id="studentAvatar" 
+                > 
+                    ST 
+                </div> 
+ 
+                <div> 
+ 
+                    <strong id="topStudentName"> 
+                        Student 
+                    </strong> 
+ 
+                    <span id="topStudentId"> 
+                        ATH001 
+                    </span> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+        </div> 
+ 
+    </header> 
+ 
+ 
+    <!-- ===================================================== 
+         DASHBOARD / SCOPE 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section active" 
+        id="dashboard" 
+    > 
+ 
+        <div class="grid-2"> 
+ 
+ 
+            <!-- PERFORMANCE OVERVIEW --> 
+ 
+            <div class="card"> 
+ 
+                <div class="card-header"> 
+ 
+                    <div class="card-title"> 
+ 
+                        <div class="card-title-icon"> 
+                            ▥ 
+                        </div> 
+ 
+                        <div> 
+ 
+                            <h2> 
+                                Performance Overview 
+                            </h2> 
+ 
+                            <p> 
+                                Your performance in key areas 
+                            </p> 
+ 
+                        </div> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+ 
+                <div id="performanceList"></div> 
+ 
+ 
+                <div class="legend"> 
+ 
+                    <span> 
+                        <i 
+                            class="legend-dot" 
+                            style="background:#ef3340" 
+                        ></i> 
+                        High Priority 
+                    </span> 
+ 
+                    <span> 
+                        <i 
+                            class="legend-dot" 
+                            style="background:#f59e0b" 
+                        ></i> 
+                        Medium Priority 
+                    </span> 
+ 
+                    <span> 
+                        <i 
+                            class="legend-dot" 
+                            style="background:#16a34a" 
+                        ></i> 
+                        Low Priority 
+                    </span> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <!-- IMPROVEMENT PRIORITY --> 
+ 
+            <div class="card"> 
+ 
+                <div class="card-header"> 
+ 
+                    <div class="card-title"> 
+ 
+                        <div class="card-title-icon"> 
+                            ◎ 
+                        </div> 
+ 
+                        <div> 
+ 
+                            <h2> 
+                                Improvement Priority 
+                            </h2> 
+ 
+                            <p> 
+                                Based on your current performance 
+                            </p> 
+ 
+                        </div> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+ 
+                <div id="priorityList"></div> 
+ 
+            </div> 
+ 
+ 
+        </div> 
+ 
+ 
+        <!-- PHYSICAL AREAS + FOCUS --> 
+ 
+        <div 
+            class="grid-2" 
+            style="margin-top:22px;" 
+        > 
+ 
+ 
+            <div class="card"> 
+ 
+                <div class="card-header"> 
+ 
+                    <div class="card-title"> 
+ 
+                        <div class="card-title-icon"> 
+                            ♙ 
+                        </div> 
+ 
+                        <div> 
+ 
+                            <h2> 
+                                Physical Areas Needing Improvement 
+                            </h2> 
+ 
+                            <p> 
+                                Based on your latest assessment 
+                            </p> 
+ 
+                        </div> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+ 
+                <div 
+                    class="grid-3" 
+                    id="physicalAreas" 
+                ></div> 
+ 
+            </div> 
+ 
+ 
+            <div 
+                class="card focus-card" 
+            > 
+ 
+                <div class="card-header"> 
+ 
+                    <div class="card-title"> 
+ 
+                        <div class="card-title-icon"> 
+                            ◎ 
+                        </div> 
+ 
+                        <div> 
+ 
+                            <h2> 
+                                Recommended Next Focus 
+                            </h2> 
+ 
+                            <p> 
+                                Your next performance priority 
+                            </p> 
+ 
+                        </div> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+ 
+                <div class="focus-content"> 
+ 
+                    <div 
+                        class="focus-illustration" 
+                        id="focusEmoji" 
+                    > 
+                        🏃 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h3 id="focusTitle"> 
+                            Build Endurance 
+                        </h3> 
+ 
+                        <p id="focusDescription"> 
+                            Focus on consistent cardio training 
+                            and stamina drills to improve your 
+                            overall performance. 
+                        </p> 
+ 
+                        <ul 
+                            class="focus-list" 
+                            id="focusList" 
+                        ></ul> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+        </div> 
+ 
+ 
+        <!-- CALCULATION INFO --> 
+ 
+        <div class="info-box"> 
+ 
+            <div class="info-icon"> 
+                ⓘ 
+            </div> 
+ 
+            <div> 
+ 
+                <strong> 
+                    How Improvement Scores Are Calculated 
+                </strong> 
+ 
+                <p> 
+                    Scores are based on your latest assessments, 
+                    training performance, and coach observations. 
+                    Focus on high-priority areas for the best results. 
+                </p> 
+ 
+            </div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
+    <!-- ===================================================== 
+         SCOPE SECTION 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section" 
+        id="scope" 
+    > 
+ 
+        <div class="card"> 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ◎ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Scope of Improvement 
+                        </h2> 
+ 
+                        <p> 
+                            Understand which areas need your attention. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div id="scopePerformanceList"></div> 
+ 
+        </div> 
+ 
+ 
+        <div 
+            class="card" 
+            style="margin-top:20px;" 
+        > 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ♙ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Physical Areas Needing Improvement 
+                        </h2> 
+ 
+                        <p> 
+                            Latest physical performance assessment. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div 
+                class="grid-3" 
+                id="scopePhysicalAreas" 
+            ></div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
+    <!-- ===================================================== 
+         GOALS 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section" 
+        id="goals" 
+    > 
+ 
+        <div class="card"> 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ▥ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Goal Progress 
+                        </h2> 
+ 
+                        <p> 
+                            Goals created and maintained by your coach. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div id="goalList"></div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
+    <!-- ===================================================== 
+         COACH FEEDBACK 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section" 
+        id="feedback" 
+    > 
+ 
+        <div class="card"> 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ▰ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Coach Feedback 
+                        </h2> 
+ 
+                        <p> 
+                            Feedback from your coach. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div class="rating-box"> 
+ 
+                <div 
+                    class="rating-number" 
+                    id="feedbackRating" 
+                > 
+                    4.2 
+                </div> 
+ 
+                <div> 
+ 
+                    <div 
+                        class="stars" 
+                        id="feedbackStars" 
+                    > 
+                        ★★★★☆ 
+                    </div> 
+ 
+                    <p> 
+                        Overall Coach Feedback Rating 
+                    </p> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div class="feedback-block"> 
+ 
+                <h3> 
+                    💬 Coach Comment 
+                </h3> 
+ 
+                <p id="coachComment"> 
+                    You are showing good consistency in training. 
+                    Focus more on endurance and flexibility to 
+                    achieve better overall performance. 
+                </p> 
+ 
+            </div> 
+ 
+ 
+            <div class="feedback-block"> 
+ 
+                <h3> 
+                    💪 Strengths 
+                </h3> 
+ 
+                <div 
+                    class="tag-list" 
+                    id="strengthList" 
+                ></div> 
+ 
+            </div> 
+ 
+ 
+            <div class="feedback-block"> 
+ 
+                <h3> 
+                    ⚠ Weaknesses 
+                </h3> 
+ 
+                <div 
+                    class="tag-list" 
+                    id="weaknessList" 
+                ></div> 
+ 
+            </div> 
+ 
+ 
+            <div class="feedback-block"> 
+ 
+                <h3> 
+                    🎯 Training Suggestions 
+                </h3> 
+ 
+                <div 
+                    class="tag-list" 
+                    id="trainingList" 
+                ></div> 
+ 
+            </div> 
+ 
+        </div> 
+ 
+ 
+        <!-- PHYSICAL SUMMARY --> 
+ 
+        <div 
+            class="card" 
+            style="margin-top:20px;" 
+        > 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ♙ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Physical Attributes Summary 
+                        </h2> 
+ 
+                        <p> 
+                            View-only information maintained by your coach. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div 
+                class="physical-summary" 
+                id="physicalSummary" 
+            ></div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
+    <!-- ===================================================== 
+         PROFILE 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section" 
+        id="profile" 
+    > 
+ 
+        <div class="card"> 
+ 
+            <div class="profile-header"> 
+ 
+                <div 
+                    class="profile-large-avatar" 
+                    id="profileAvatar" 
+                > 
+                    ST 
+                </div> 
+ 
+                <div> 
+ 
+                    <h2 id="profileName"> 
+                        Student 
+                    </h2> 
+ 
+                    <p id="profileSport"> 
+                        Athlete 
+                    </p> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div class="profile-grid"> 
+ 
+                <div class="profile-field"> 
+ 
+                    <span> 
+                        Full Name 
+                    </span> 
+ 
+                    <strong id="profileFullName"> 
+                        Student 
+                    </strong> 
+ 
+                </div> 
+ 
+ 
+                <div class="profile-field"> 
+ 
+                    <span> 
+                        Athlete ID 
+                    </span> 
+ 
+                    <strong id="profileId"> 
+                        ATH001 
+                    </strong> 
+ 
+                </div> 
+ 
+ 
+                <div class="profile-field"> 
+ 
+                    <span> 
+                        Email 
+                    </span> 
+ 
+                    <strong id="profileEmail"> 
+                        student@example.com 
+                    </strong> 
+ 
+                </div> 
+ 
+ 
+                <div class="profile-field"> 
+ 
+                    <span> 
+                        Sport 
+                    </span> 
+ 
+                    <strong id="profileSportField"> 
+                        Fitness 
+                    </strong> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
+    <!-- ===================================================== 
+         SETTINGS 
+    ====================================================== --> 
+ 
+    <section 
+        class="content-section" 
+        id="settings" 
+    > 
+ 
+        <div class="card"> 
+ 
+            <div class="card-header"> 
+ 
+                <div class="card-title"> 
+ 
+                    <div class="card-title-icon"> 
+                        ⚙ 
+                    </div> 
+ 
+                    <div> 
+ 
+                        <h2> 
+                            Settings 
+                        </h2> 
+ 
+                        <p> 
+                            Customize your dashboard experience. 
+                        </p> 
+ 
+                    </div> 
+ 
+                </div> 
+ 
+            </div> 
+ 
+ 
+            <div class="settings-list"> 
+ 
+ 
+                <!-- DARK MODE --> 
+ 
+                <div class="setting-row"> 
+ 
+                    <div> 
+ 
+                        <h3> 
+                            Dark Mode 
+                        </h3> 
+ 
+                        <p> 
+                            Use a darker interface that is easier 
+                            on the eyes in low-light environments. 
+                        </p> 
+ 
+                    </div> 
+ 
+ 
+                    <label class="switch"> 
+ 
+                        <input 
+                            type="checkbox" 
+                            id="darkModeToggle" 
+                        > 
+ 
+                        <span class="slider"></span> 
+ 
+                    </label> 
+ 
+                </div> 
+ 
+ 
+                <!-- NOTIFICATIONS --> 
+ 
+                <div class="setting-row"> 
+ 
+                    <div> 
+ 
+                        <h3> 
+                            Dashboard Notifications 
+                        </h3> 
+ 
+                        <p> 
+                            Receive notifications when your coach 
+                            updates your goals or feedback. 
+                        </p> 
+ 
+                    </div> 
+ 
+ 
+                    <label class="switch"> 
+ 
+                        <input 
+                            type="checkbox" 
+                            id="notificationToggle" 
+                            checked 
+                        > 
+ 
+                        <span class="slider"></span> 
+ 
+                    </label> 
+ 
+                </div> 
+ 
+ 
+            </div> 
+ 
+        </div> 
+ 
+    </section> 
+ 
+ 
 
-            <div class="card-header">
+    <!-- =====================================================
+         ATTENDANCE
+    ====================================================== -->
 
-                <div>
+    <section
+        class="content-section"
+        id="attendance"
+    >
 
+        <div class="welcome">
+            <div>
+                <h2>Attendance</h2>
+                <p>Track your training attendance and consistency.</p>
+            </div>
+        </div>
+
+        <!-- ATTENDANCE STATS -->
+        <div class="attendance-stats">
+
+            <div class="attendance-stat present">
+                <div class="stat-circle">✓</div>
+                <h3 id="presentCount">18</h3>
+                <p>Present Days</p>
+            </div>
+
+            <div class="attendance-stat absent">
+                <div class="stat-circle">✕</div>
+                <h3 id="absentCount">2</h3>
+                <p>Absent Days</p>
+            </div>
+
+            <div class="attendance-stat late">
+                <div class="stat-circle">◷</div>
+                <h3 id="lateCount">1</h3>
+                <p>Late Days</p>
+            </div>
+
+            <div class="attendance-stat rate">
+                <div class="stat-circle">%</div>
+                <h3 id="attendanceRate">90%</h3>
+                <p>Attendance Rate</p>
+            </div>
+
+        </div>
+
+        <div class="grid-2">
+
+            <!-- CALENDAR -->
+            <div class="card">
+                <div class="card-header">
                     <div class="card-title">
-                        Coach Feedback
+                        <div class="card-title-icon">📅</div>
+                        <div>
+                            <h2>Monthly Calendar</h2>
+                            <p>Your attendance this month</p>
+                        </div>
+                    </div>
+                    <div class="month-selector">
+                        <button id="prevMonth">◀</button>
+                        <span id="currentMonthLabel">August 2026</span>
+                        <button id="nextMonth">▶</button>
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar generated by JS -->
+                </div>
+
+                <div class="attendance-legend">
+                    <span><i class="legend-box present"></i> Present</span>
+                    <span><i class="legend-box absent"></i> Absent</span>
+                    <span><i class="legend-box late"></i> Late</span>
+                    <span><i class="legend-box empty"></i> No Session</span>
+                </div>
+            </div>
+
+            <!-- RECENT RECORDS + STREAK -->
+            <div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">🔥</div>
+                            <div>
+                                <h2>Current Streak</h2>
+                                <p>Your consistency record</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-subtitle">
-                        Latest feedback from your coach
+                    <div class="streak-box">
+                        <div class="streak-number" id="streakNumber">12</div>
+                        <div>
+                            <strong>Days in a row</strong>
+                            <p>Keep it up! Consistency is key to improvement.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">📋</div>
+                            <div>
+                                <h2>Recent Records</h2>
+                                <p>Last 5 attendance entries</p>
+                            </div>
+                        </div>
                     </div>
 
+                    <div id="attendanceRecords"></div>
                 </div>
 
             </div>
 
+        </div>
 
-            <div class="feedback-content">
+    </section>
 
+</main> 
+ 
+ 
+<!-- ========================================================= 
+     TOAST 
+========================================================= --> 
+ 
+<div 
+    class="toast" 
+    id="toast" 
+></div> 
+ 
+ 
+<script> 
+ 
+    /* ========================================================= 
+       DEFAULT STUDENT DATA 
+       --------------------------------------------------------- 
+       In production this object should be returned by your 
+       backend after the logged-in student has been identified. 
+    ========================================================= */ 
+ 
+    const defaultStudentData = { 
+ 
+        student: { 
+ 
+            name: "Arjun Roy", 
+ 
+            athleteId: "ATH001", 
+ 
+            email: "student@example.com", 
+ 
+            sport: "Fitness" 
+        }, 
+ 
+ 
+        performance: [ 
+ 
+            { 
+                name: "Endurance", 
+                score: 6, 
+                description: "Ability to sustain prolonged effort", 
+                priority: "High", 
+                icon: "♥" 
+            }, 
+ 
+            { 
+                name: "Flexibility", 
+                score: 8, 
+                description: "Range of motion and mobility", 
+                priority: "Medium", 
+                icon: "🏃" 
+            }, 
+ 
+            { 
+                name: "Strength", 
+                score: 7, 
+                description: "Muscular power and strength", 
+                priority: "Medium", 
+                icon: "🏋" 
+            }, 
+ 
+            { 
+                name: "Speed", 
+                score: 7, 
+                description: "Quickness and agility", 
+                priority: "Medium", 
+                icon: "⚡" 
+            }, 
+ 
+            { 
+                name: "Technical Skills", 
+                score: 8, 
+                description: "Sport-specific technical ability", 
+                priority: "Low", 
+                icon: "🎯" 
+            } 
+ 
+        ], 
+ 
+ 
+        physicalAreas: [ 
+ 
+            { 
+                name: "Cardiovascular Endurance", 
+                icon: "♥" 
+            }, 
+ 
+            { 
+                name: "Hamstring Flexibility", 
+                icon: "🏃" 
+            }, 
+ 
+            { 
+                name: "Lower Body Strength", 
+                icon: "🏋" 
+            }, 
+ 
+            { 
+                name: "Explosive Speed", 
+                icon: "⚡" 
+            } 
+ 
+        ], 
+ 
+ 
+        focus: { 
+ 
+            title: "Build Endurance", 
+ 
+            description: 
+                "Your endurance score is currently the lowest. Focus on consistent cardio training and stamina drills to improve your overall performance.", 
+ 
+            emoji: "🏃", 
+ 
+            actions: [ 
+ 
+                "Start with 30–40 mins of cardio", 
+ 
+                "Increase duration gradually", 
+ 
+                "Include interval and stamina drills", 
+ 
+                "Track progress weekly" 
+ 
+            ] 
+        }, 
+ 
+ 
+        goals: [ 
+ 
+            { 
+                name: "Enhance Endurance", 
+ 
+                current: 60, 
+ 
+                target: 80, 
+ 
+                unit: "mins" 
+            }, 
+ 
+            { 
+                name: "Increase Strength", 
+ 
+                current: 65, 
+ 
+                target: 80, 
+ 
+                unit: "kg" 
+            }, 
+ 
+            { 
+                name: "Improve Flexibility", 
+ 
+                current: 72, 
+ 
+                target: 85, 
+ 
+                unit: "%" 
+            } 
+ 
+        ], 
+ 
+ 
+        feedback: { 
+ 
+            rating: 4.2, 
+ 
+            comment: 
+                "You are showing good consistency in training. Focus more on endurance and flexibility to achieve better overall performance.", 
+ 
+            strengths: [ 
+ 
+                "Good passing accuracy", 
+ 
+                "Strong work ethic", 
+ 
+                "Consistent training" 
+ 
+            ], 
+ 
+            weaknesses: [ 
+ 
+                "Endurance needs improvement", 
+ 
+                "Flexibility needs more work" 
+ 
+            ], 
+ 
+            training: [ 
+ 
+                "Add more cardio sessions", 
+ 
+                "Include a daily stretching routine", 
+ 
+                "Track weekly endurance progress" 
+ 
+            ] 
+        }, 
+ 
+ 
+        physical: { 
+ 
+            height: "178 cm", 
+ 
+            weight: "72 kg", 
+ 
+            bodyFat: "14%", 
+ 
+            bmi: "22.7", 
+ 
+            restingHeartRate: "62 bpm", 
+ 
+            bloodPressure: "118/76", 
+ 
+            flexibility: "8/10", 
+ 
+            strength: "72 kg", 
+ 
+            endurance: "60 mins" 
+        } 
+ 
+    }; 
+ 
+ 
+    /* ========================================================= 
+       LOAD STUDENT DATA 
+    ========================================================= */ 
+ 
+    function loadStudentData() { 
+ 
+        let savedData = 
+            localStorage.getItem( 
+                "studentDashboardData" 
+            ); 
+ 
+ 
+        if (savedData) { 
+ 
+            try { 
+ 
+                return JSON.parse(savedData); 
+ 
+            } catch (error) { 
+ 
+                console.warn( 
+                    "Invalid student dashboard data." 
+                ); 
+ 
+            } 
+ 
+        } 
+ 
+ 
+        return defaultStudentData; 
+    } 
+ 
+ 
+    let studentData = loadStudentData(); 
+ 
+ 
+    /* ========================================================= 
+       STUDENT NAME 
+       --------------------------------------------------------- 
+       The name can come from the signup process. 
+ 
+       Supported keys: 
+       studentName 
+       signupName 
+       studentFullName 
+    ========================================================= */ 
+ 
+    function loadStudentIdentity() { 
+ 
+        const possibleNames = [ 
+ 
+            localStorage.getItem("studentName"), 
+ 
+            localStorage.getItem("signupName"), 
+ 
+            localStorage.getItem("studentFullName"), 
+ 
+            sessionStorage.getItem("studentName"), 
+ 
+            sessionStorage.getItem("signupName"), 
+ 
+            sessionStorage.getItem("studentFullName") 
+ 
+        ]; 
+ 
+ 
+        const storedName = 
+            possibleNames.find( 
+                value => 
+                    value && 
+                    value.trim() !== "" 
+            ); 
+ 
+ 
+        if (storedName) { 
+ 
+            studentData.student.name = 
+                storedName; 
+        } 
+ 
+ 
+        const possibleEmails = [ 
+ 
+            localStorage.getItem("studentEmail"), 
+ 
+            sessionStorage.getItem("signupEmail") 
+ 
+        ]; 
+ 
+ 
+        const storedEmail = 
+            possibleEmails.find( 
+                value => 
+                    value && 
+                    value.trim() !== "" 
+            ); 
+ 
+ 
+        if (storedEmail) { 
+ 
+            studentData.student.email = 
+                storedEmail; 
+        } 
+ 
+    } 
+ 
+ 
+    loadStudentIdentity(); 
+ 
+ 
+    /* ========================================================= 
+       INITIALIZE 
+    ========================================================= */ 
+ 
+    document.addEventListener( 
+        "DOMContentLoaded", 
+        function() { 
+ 
+            initializeDate(); 
+ 
+            initializeStudentIdentity(); 
+ 
+            renderPerformance(); 
+ 
+            renderPriorities(); 
+ 
+            renderPhysicalAreas(); 
+ 
+            renderFocus(); 
+ 
+            renderGoals(); 
+ 
+            renderFeedback(); 
+ 
+            renderPhysicalSummary(); 
+ 
+            renderAttendance();
 
-                <!-- COACH AVATAR -->
+            initializeNavigation(); 
+ 
+            initializeSettings(); 
+ 
+            initializeMobileMenu(); 
+ 
+        } 
+    ); 
+ 
+ 
+    /* ========================================================= 
+       DATE 
+    ========================================================= */ 
+ 
+    function initializeDate() { 
+ 
+        const date = 
+            new Date(); 
+ 
+        document.getElementById( 
+            "currentDate" 
+        ).textContent = 
+            date.toLocaleDateString( 
+                "en-GB", 
+                { 
+                    day: "2-digit", 
+                    month: "short", 
+                    year: "numeric" 
+                } 
+            ); 
+    } 
+ 
+ 
+    /* ========================================================= 
+       INITIALIZE STUDENT IDENTITY 
+    ========================================================= */ 
+ 
+    function initializeStudentIdentity() { 
+ 
+        const student = 
+            studentData.student; 
+ 
+ 
+        const name = 
+            student.name || 
+            "Student"; 
+ 
+ 
+        const initials = 
+            getInitials(name); 
+ 
+ 
+        document.getElementById( 
+            "headerStudentName" 
+        ).textContent = name; 
+ 
+ 
+        document.getElementById( 
+            "topStudentName" 
+        ).textContent = name; 
+ 
+ 
+        document.getElementById( 
+            "topStudentId" 
+        ).textContent = 
+            student.athleteId || 
+            "ATH001"; 
+ 
+ 
+        document.getElementById( 
+            "studentAvatar" 
+        ).textContent = 
+            initials; 
+ 
+ 
+        document.getElementById( 
+            "profileAvatar" 
+        ).textContent = 
+            initials; 
+ 
+ 
+        document.getElementById( 
+            "profileName" 
+        ).textContent = 
+            name; 
+ 
+ 
+        document.getElementById( 
+            "profileFullName" 
+        ).textContent = 
+            name; 
+ 
+ 
+        document.getElementById( 
+            "profileId" 
+        ).textContent = 
+            student.athleteId || 
+            "ATH001"; 
+ 
+ 
+        document.getElementById( 
+            "profileEmail" 
+        ).textContent = 
+            student.email || 
+            "student@example.com"; 
+ 
+ 
+        document.getElementById( 
+            "profileSport" 
+        ).textContent = 
+            student.sport || 
+            "Athlete"; 
+ 
+ 
+        document.getElementById( 
+            "profileSportField" 
+        ).textContent = 
+            student.sport || 
+            "Fitness"; 
+ 
+    } 
+ 
+ 
+    function getInitials(name) { 
+ 
+        return name 
+            .split(" ") 
+            .filter(Boolean) 
+            .slice(0, 2) 
+            .map( 
+                word => 
+                    word.charAt(0) 
+                        .toUpperCase() 
+            ) 
+            .join(""); 
+    } 
+ 
+ 
+    /* ========================================================= 
+       PERFORMANCE 
+    ========================================================= */ 
+ 
+    function renderPerformance() { 
+ 
+        const containers = [ 
+ 
+            document.getElementById( 
+                "performanceList" 
+            ), 
+ 
+            document.getElementById( 
+                "scopePerformanceList" 
+            ) 
+ 
+        ]; 
+ 
+ 
+        const html = 
+            studentData.performance 
+                .map( 
+                    item => { 
+ 
+                        const priority = 
+                            item.priority 
+                                .toLowerCase(); 
+ 
+ 
+                        return ` 
+ 
+                            <div class="performance-row"> 
+ 
+                                <div class="performance-top"> 
+ 
+                                    <div class="performance-name"> 
+ 
+                                        <span 
+                                            class="performance-icon" 
+                                        > 
+                                            ${item.icon || "•"} 
+                                        </span> 
+ 
+                                        ${escapeHTML(item.name)} 
+ 
+                                    </div> 
+ 
+ 
+                                    <div> 
+ 
+                                        <span class="performance-score"> 
+                                            ${item.score}/10 
+                                        </span> 
+ 
+                                        <span 
+                                            class="priority ${priority}" 
+                                            style="margin-left:12px;" 
+                                        > 
+                                            ${item.priority} Priority 
+                                        </span> 
+ 
+                                    </div> 
+ 
+                                </div> 
+ 
+ 
+                                <div class="performance-description"> 
+                                    ${escapeHTML(item.description || "")} 
+                                </div> 
+ 
+ 
+                                <div class="progress-track"> 
+ 
+                                    <div 
+                                        class="progress-fill ${priority}" 
+                                        style="width:${Math.min( 
+                                            100, 
+                                            item.score * 10 
+                                        )}%" 
+                                    ></div> 
+ 
+                                </div> 
+ 
+                            </div> 
+ 
+                        `; 
+                    } 
+                ) 
+                .join(""); 
+ 
+ 
+        containers.forEach( 
+            container => { 
+ 
+                if (container) { 
+ 
+                    container.innerHTML = 
+                        html; 
+                } 
+ 
+            } 
+        ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       PRIORITY LIST 
+    ========================================================= */ 
+ 
+    function renderPriorities() { 
+ 
+        const container = 
+            document.getElementById( 
+                "priorityList" 
+            ); 
+ 
+ 
+        const sorted = 
+            [...studentData.performance] 
+                .sort( 
+                    (a, b) => 
+                        a.score - b.score 
+                ); 
+ 
+ 
+        container.innerHTML = 
+            sorted 
+                .map( 
+                    (item, index) => { 
+ 
+                        const priority = 
+                            item.priority 
+                                .toLowerCase(); 
+ 
+ 
+                        return ` 
+ 
+                            <div class="priority-item"> 
+ 
+                                <div class="priority-number"> 
+                                    ${index + 1} 
+                                </div> 
+ 
+ 
+                                <div> 
+ 
+                                    <strong> 
+                                        Improve 
+                                        ${escapeHTML(item.name)} 
+                                    </strong> 
+ 
+                                    <p> 
+                                        Focus on consistent training 
+                                        and measurable improvement. 
+                                    </p> 
+ 
+                                </div> 
+ 
+ 
+                                <span 
+                                    class="priority ${priority}" 
+                                > 
+                                    ${item.priority} Priority 
+                                </span> 
+ 
+                            </div> 
+ 
+                        `; 
+                    } 
+                ) 
+                .join(""); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       PHYSICAL AREAS 
+    ========================================================= */ 
+ 
+    function renderPhysicalAreas() { 
+ 
+        const containers = [ 
+ 
+            document.getElementById( 
+                "physicalAreas" 
+            ), 
+ 
+            document.getElementById( 
+                "scopePhysicalAreas" 
+            ) 
+ 
+        ]; 
+ 
+ 
+        const html = 
+            studentData.physicalAreas 
+                .map( 
+                    item => ` 
+ 
+                        <div class="physical-card"> 
+ 
+                            <div class="physical-icon"> 
+                                ${item.icon || "⚡"} 
+                            </div> 
+ 
+                            <strong> 
+                                ${escapeHTML(item.name)} 
+                            </strong> 
+ 
+                            <span class="needs-improvement"> 
+                                Needs Improvement 
+                            </span> 
+ 
+                        </div> 
+ 
+                    ` 
+                ) 
+                .join(""); 
+ 
+ 
+        containers.forEach( 
+            container => { 
+ 
+                if (container) { 
+ 
+                    container.innerHTML = 
+                        html; 
+                } 
+ 
+            } 
+        ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       RECOMMENDED FOCUS 
+    ========================================================= */ 
+ 
+    function renderFocus() { 
+ 
+        const focus = 
+            studentData.focus; 
+ 
+ 
+        document.getElementById( 
+            "focusTitle" 
+        ).textContent = 
+            focus.title; 
+ 
+ 
+        document.getElementById( 
+            "focusDescription" 
+        ).textContent = 
+            focus.description; 
+ 
+ 
+        document.getElementById( 
+            "focusEmoji" 
+        ).textContent = 
+            focus.emoji || 
+            "🏃"; 
+ 
+ 
+        document.getElementById( 
+            "focusList" 
+        ).innerHTML = 
+            focus.actions 
+                .map( 
+                    action => 
+                        `<li>${escapeHTML(action)}</li>` 
+                ) 
+                .join(""); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       GOAL PROGRESS 
+    ========================================================= */ 
+ 
+    function calculateGoalProgress( 
+        current, 
+        target 
+    ) { 
+ 
+        if ( 
+            typeof current !== "number" || 
+            typeof target !== "number" || 
+            target <= 0 
+        ) { 
+ 
+            return 0; 
+        } 
+ 
+ 
+        return Math.min( 
+            100, 
+            Math.max( 
+                0, 
+                Math.round( 
+                    (current / target) * 100 
+                ) 
+            ) 
+        ); 
+ 
+    } 
+ 
+ 
+    function calculateGoalStatus( 
+        current, 
+        target 
+    ) { 
+ 
+        if (current >= target) { 
+ 
+            return { 
+                label: "Completed", 
+                className: "completed" 
+            }; 
+        } 
+ 
+ 
+        const progress = 
+            calculateGoalProgress( 
+                current, 
+                target 
+            ); 
+ 
+ 
+        if (progress >= 70) { 
+ 
+            return { 
+                label: "On Track", 
+                className: "on-track" 
+            }; 
+        } 
+ 
+ 
+        return { 
+            label: "Needs Attention", 
+            className: "attention" 
+        }; 
+ 
+    } 
+ 
+ 
+    function renderGoals() { 
+ 
+        const container = 
+            document.getElementById( 
+                "goalList" 
+            ); 
+ 
+ 
+        if ( 
+            !studentData.goals || 
+            studentData.goals.length === 0 
+        ) { 
+ 
+            container.innerHTML = ` 
+ 
+                <div class="empty-state"> 
+ 
+                    <div class="empty-state-icon"> 
+                        🎯 
+                    </div> 
+ 
+                    <h3> 
+                        No goals available 
+                    </h3> 
+ 
+                    <p> 
+                        Your coach has not created any goals yet. 
+                    </p> 
+ 
+                </div> 
+ 
+            `; 
+ 
+            return; 
+        } 
+ 
+ 
+        container.innerHTML = 
+            studentData.goals 
+                .map( 
+                    goal => { 
+ 
+                        const progress = 
+                            calculateGoalProgress( 
+                                goal.current, 
+                                goal.target 
+                            ); 
+ 
+ 
+                        const status = 
+                            calculateGoalStatus( 
+                                goal.current, 
+                                goal.target 
+                            ); 
+ 
+ 
+                        const remaining = 
+                            Math.max( 
+                                0, 
+                                goal.target - 
+                                goal.current 
+                            ); 
+ 
+ 
+                        return ` 
+ 
+                            <div class="goal-card"> 
+ 
+                                <div class="goal-top"> 
+ 
+                                    <div class="goal-name"> 
+                                        ${escapeHTML( 
+                                            goal.name 
+                                        )} 
+                                    </div> 
+ 
+                                    <span 
+                                        class="status ${status.className}" 
+                                    > 
+                                        ${status.label} 
+                                    </span> 
+ 
+                                </div> 
+ 
+ 
+                                <div class="goal-stats"> 
+ 
+                                    <div class="goal-stat"> 
+ 
+                                        <span> 
+                                            Current Value 
+                                        </span> 
+ 
+                                        <strong> 
+                                            ${goal.current} 
+                                            ${escapeHTML( 
+                                                goal.unit || "" 
+                                            )} 
+                                        </strong> 
+ 
+                                    </div> 
+ 
+ 
+                                    <div class="goal-stat"> 
+ 
+                                        <span> 
+                                            Target Value 
+                                        </span> 
+ 
+                                        <strong> 
+                                            ${goal.target} 
+                                            ${escapeHTML( 
+                                                goal.unit || "" 
+                                            )} 
+                                        </strong> 
+ 
+                                    </div> 
+ 
+ 
+                                    <div class="goal-stat"> 
+ 
+                                        <span> 
+                                            Progress 
+                                        </span> 
+ 
+                                        <strong> 
+                                            ${progress}% 
+                                        </strong> 
+ 
+                                    </div> 
+ 
+ 
+                                    <div class="goal-stat"> 
+ 
+                                        <span> 
+                                            Remaining 
+                                        </span> 
+ 
+                                        <strong> 
+                                            ${remaining} 
+                                            ${escapeHTML( 
+                                                goal.unit || "" 
+                                            )} 
+                                        </strong> 
+ 
+                                    </div> 
+ 
+                                </div> 
+ 
+ 
+                                <div class="goal-progress-row"> 
+ 
+                                    <span> 
+                                        Goal progress 
+                                    </span> 
+ 
+                                    <span> 
+                                        ${progress}% 
+                                    </span> 
+ 
+                                </div> 
+ 
+ 
+                                <div class="goal-track"> 
+ 
+                                    <div 
+                                        class="goal-fill" 
+                                        style="width:${progress}%" 
+                                    ></div> 
+ 
+                                </div> 
+ 
+                            </div> 
+ 
+                        `; 
+                    } 
+                ) 
+                .join(""); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       FEEDBACK 
+    ========================================================= */ 
+ 
+    function renderFeedback() { 
+ 
+        const feedback = 
+            studentData.feedback; 
+ 
+ 
+        document.getElementById( 
+            "feedbackRating" 
+        ).textContent = 
+            Number(feedback.rating || 0) 
+                .toFixed(1); 
+ 
+ 
+        document.getElementById( 
+            "feedbackStars" 
+        ).textContent = 
+            createStars( 
+                feedback.rating 
+            ); 
+ 
+ 
+        document.getElementById( 
+            "coachComment" 
+        ).textContent = 
+            feedback.comment || 
+            "No coach comment has been added yet."; 
+ 
+ 
+        document.getElementById( 
+            "strengthList" 
+        ).innerHTML = 
+            createTags( 
+                feedback.strengths, 
+                "strength" 
+            ); 
+ 
+ 
+        document.getElementById( 
+            "weaknessList" 
+        ).innerHTML = 
+            createTags( 
+                feedback.weaknesses, 
+                "weakness" 
+            ); 
+ 
+ 
+        document.getElementById( 
+            "trainingList" 
+        ).innerHTML = 
+            createTags( 
+                feedback.training, 
+                "training" 
+            ); 
+ 
+    } 
+ 
+ 
+    function createStars(rating) { 
+ 
+        const rounded = 
+            Math.round( 
+                Number(rating) 
+            ); 
+ 
+ 
+        let stars = ""; 
+ 
+ 
+        for ( 
+            let i = 1; 
+            i <= 5; 
+            i++ 
+        ) { 
+ 
+            stars += 
+                i <= rounded 
+                    ? "★" 
+                    : "☆"; 
+        } 
+ 
+ 
+        return stars; 
+    } 
+ 
+ 
+    function createTags( 
+        items, 
+        type 
+    ) { 
+ 
+        if ( 
+            !items || 
+            items.length === 0 
+        ) { 
+ 
+            return ` 
+                <span class="tag"> 
+                    No information available 
+                </span> 
+            `; 
+        } 
+ 
+ 
+        return items 
+            .map( 
+                item => 
+                    `<span class="tag ${type}"> 
+                        ${escapeHTML(item)} 
+                    </span>` 
+            ) 
+            .join(""); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       PHYSICAL SUMMARY 
+    ========================================================= */ 
+ 
+    function renderPhysicalSummary() { 
+ 
+        const physical = 
+            studentData.physical; 
+ 
+ 
+        const fields = [ 
+ 
+            [ 
+                "Height", 
+                physical.height 
+            ], 
+ 
+            [ 
+                "Weight", 
+                physical.weight 
+            ], 
+ 
+            [ 
+                "Body Fat", 
+                physical.bodyFat 
+            ], 
+ 
+            [ 
+                "BMI", 
+                physical.bmi 
+            ], 
+ 
+            [ 
+                "Resting Heart Rate", 
+                physical.restingHeartRate 
+            ], 
+ 
+            [ 
+                "Blood Pressure", 
+                physical.bloodPressure 
+            ], 
+ 
+            [ 
+                "Flexibility", 
+                physical.flexibility 
+            ], 
+ 
+            [ 
+                "Strength", 
+                physical.strength 
+            ], 
+ 
+            [ 
+                "Endurance", 
+                physical.endurance 
+            ] 
+ 
+        ]; 
+ 
+ 
+        document.getElementById( 
+            "physicalSummary" 
+        ).innerHTML = 
+            fields 
+                .map( 
+                    field => ` 
+ 
+                        <div class="physical-stat"> 
+ 
+                            <span> 
+                                ${field[0]} 
+                            </span> 
+ 
+                            <strong> 
+                                ${escapeHTML( 
+                                    field[1] || "—" 
+                                )} 
+                            </strong> 
+ 
+                        </div> 
+ 
+                    ` 
+                ) 
+                .join(""); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       NAVIGATION 
+    ========================================================= */ 
+ 
+    function initializeNavigation() { 
+ 
+        const navItems = 
+            document.querySelectorAll( 
+                ".nav-item[data-section]" 
+            ); 
+ 
+ 
+        navItems.forEach( 
+            item => { 
+ 
+                item.addEventListener( 
+                    "click", 
+                    function() { 
+ 
+                        const sectionId = 
+                            this.dataset.section; 
+ 
+ 
+                        navItems.forEach( 
+                            nav => 
+                                nav.classList.remove( 
+                                    "active" 
+                                ) 
+                        ); 
+ 
+ 
+                        this.classList.add( 
+                            "active" 
+                        ); 
+ 
+ 
+                        document 
+                            .querySelectorAll( 
+                                ".content-section" 
+                            ) 
+                            .forEach( 
+                                section => 
+                                    section.classList.remove( 
+                                        "active" 
+                                    ) 
+                            ); 
+ 
+ 
+                        const section = 
+                            document.getElementById( 
+                                sectionId 
+                            ); 
+ 
+ 
+                        if (section) { 
+ 
+                            section.classList.add( 
+                                "active" 
+                            ); 
+                        } 
+ 
+ 
+                        updatePageSubtitle( 
+                            sectionId 
+                        ); 
+ 
+ 
+                        closeMobileMenu(); 
+ 
+                    } 
+                ); 
+ 
+            } 
+        ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       PAGE SUBTITLE 
+    ========================================================= */ 
+ 
+    function updatePageSubtitle( 
+        section 
+    ) { 
+ 
+        const subtitles = { 
+ 
+            dashboard: 
+                "Understand your performance and focus on areas that need improvement.", 
+ 
+            scope: 
+                "Identify your weakest areas and understand your next improvement priorities.", 
+ 
+            goals: 
+                "Monitor your progress toward the goals created by your coach.", 
+ 
+            feedback: 
+                "Review your coach's comments, strengths, weaknesses and training suggestions.", 
+ 
+            profile: 
+                "View your athlete profile and account information.", 
+ 
+            settings: 
+                "Customize your dashboard experience." 
+ 
+        }; 
+ 
+ 
+        document.getElementById( 
+            "pageSubtitle" 
+        ).textContent = 
+            subtitles[section] || 
+            subtitles.dashboard; 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       SETTINGS 
+    ========================================================= */ 
+ 
+    function initializeSettings() { 
+ 
+        const darkToggle = 
+            document.getElementById( 
+                "darkModeToggle" 
+            ); 
+ 
+ 
+        const notificationToggle = 
+            document.getElementById( 
+                "notificationToggle" 
+            ); 
+ 
+ 
+        const savedTheme = 
+            localStorage.getItem( 
+                "studentDashboardTheme" 
+            ); 
+ 
+ 
+        if ( 
+            savedTheme === "dark" 
+        ) { 
+ 
+            document.body.classList.add( 
+                "dark-mode" 
+            ); 
+ 
+            darkToggle.checked = true; 
+ 
+        } 
+ 
+ 
+        darkToggle.addEventListener( 
+            "change", 
+            function() { 
+ 
+                if (this.checked) { 
+ 
+                    document.body.classList.add( 
+                        "dark-mode" 
+                    ); 
+ 
+                    localStorage.setItem( 
+                        "studentDashboardTheme", 
+                        "dark" 
+                    ); 
+ 
+                    showToast( 
+                        "Dark mode enabled." 
+                    ); 
+ 
+                } else { 
+ 
+                    document.body.classList.remove( 
+                        "dark-mode" 
+                    ); 
+ 
+                    localStorage.setItem( 
+                        "studentDashboardTheme", 
+                        "light" 
+                    ); 
+ 
+                    showToast( 
+                        "Light mode enabled." 
+                    ); 
+ 
+                } 
+ 
+            } 
+        ); 
+ 
+ 
+        notificationToggle.addEventListener( 
+            "change", 
+            function() { 
+ 
+                localStorage.setItem( 
+                    "studentNotifications", 
+                    this.checked 
+                        ? "enabled" 
+                        : "disabled" 
+                ); 
+ 
+ 
+                showToast( 
+                    this.checked 
+                        ? "Notifications enabled." 
+                        : "Notifications disabled." 
+                ); 
+ 
+            } 
+        ); 
+ 
+ 
+        const savedNotifications = 
+            localStorage.getItem( 
+                "studentNotifications" 
+            ); 
+ 
+ 
+        if ( 
+            savedNotifications === "disabled" 
+        ) { 
+ 
+            notificationToggle.checked = 
+                false; 
+        } 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       MOBILE MENU 
+    ========================================================= */ 
+ 
+    function initializeMobileMenu() { 
+ 
+        const menu = 
+            document.getElementById( 
+                "mobileMenu" 
+            ); 
+ 
+ 
+        const sidebar = 
+            document.getElementById( 
+                "sidebar" 
+            ); 
+ 
+ 
+        const overlay = 
+            document.getElementById( 
+                "sidebarOverlay" 
+            ); 
+ 
+ 
+        menu.addEventListener( 
+            "click", 
+            function() { 
+ 
+                sidebar.classList.toggle( 
+                    "open" 
+                ); 
+ 
+                overlay.classList.toggle( 
+                    "active" 
+                ); 
+ 
+            } 
+        ); 
+ 
+ 
+        overlay.addEventListener( 
+            "click", 
+            closeMobileMenu 
+        ); 
+ 
+    } 
+ 
+ 
+    function closeMobileMenu() { 
+ 
+        document 
+            .getElementById("sidebar") 
+            .classList.remove( 
+                "open" 
+            ); 
+ 
+ 
+        document 
+            .getElementById("sidebarOverlay") 
+            .classList.remove( 
+                "active" 
+            ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       NOTIFICATIONS 
+    ========================================================= */ 
+ 
+    document 
+        .getElementById( 
+            "notificationButton" 
+        ) 
+        .addEventListener( 
+            "click", 
+            function() { 
+ 
+                showToast( 
+                    "You're all caught up!" 
+                ); 
+ 
+            } 
+        ); 
+ 
+ 
+    /* ========================================================= 
+       LOGOUT 
+    ========================================================= */ 
+ 
+    document 
+        .getElementById( 
+            "logoutButton" 
+        ) 
+        .addEventListener( 
+            "click", 
+            function() { 
+ 
+                const confirmed = 
+                    confirm( 
+                        "Are you sure you want to logout?" 
+                    ); 
+ 
+ 
+                if (!confirmed) { 
+ 
+                    return; 
+                } 
+ 
+ 
+                /* 
+                 * Keep dashboard preferences, 
+                 * remove only login/session information. 
+                 */ 
+ 
+                sessionStorage.removeItem( 
+                    "studentLoggedIn" 
+                ); 
+ 
+ 
+                sessionStorage.removeItem( 
+                    "signupEmail" 
+                ); 
+ 
+ 
+                localStorage.removeItem( 
+                    "studentLoggedIn" 
+                ); 
+ 
+ 
+                /* 
+                 * Change this filename if your 
+                 * actual login page has another name. 
+                 */ 
+ 
+                window.location.href = 
+                    "student-login.html"; 
+ 
+            } 
+        ); 
+ 
+ 
+    /* ========================================================= 
+       TOAST 
+    ========================================================= */ 
+ 
+    let toastTimer; 
+ 
+ 
+    function showToast(text) { 
+ 
+        const toast = 
+            document.getElementById( 
+                "toast" 
+            ); 
+ 
+ 
+        toast.textContent = 
+            text; 
+ 
+ 
+        toast.classList.add( 
+            "show" 
+        ); 
+ 
+ 
+        clearTimeout( 
+            toastTimer 
+        ); 
+ 
+ 
+        toastTimer = 
+            setTimeout( 
+                function() { 
+ 
+                    toast.classList.remove( 
+                        "show" 
+                    ); 
+ 
+                }, 
+                2500 
+            ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       HTML ESCAPE 
+       Prevents dashboard data from injecting HTML. 
+    ========================================================= */ 
+ 
+    function escapeHTML(value) { 
+ 
+        return String( 
+            value ?? "" 
+        ) 
+            .replace( 
+                /&/g, 
+                "&amp;" 
+            ) 
+            .replace( 
+                /</g, 
+                "&lt;" 
+            ) 
+            .replace( 
+                />/g, 
+                "&gt;" 
+            ) 
+            .replace( 
+                /"/g, 
+                "&quot;" 
+            ) 
+            .replace( 
+                /'/g, 
+                "&#039;" 
+            ); 
+ 
+    } 
+ 
+ 
+    /* ========================================================= 
+       OPTIONAL BACKEND LOADING 
+       --------------------------------------------------------- 
+       When your backend is ready, you can replace the local 
+       storage demo with an API request. 
+ 
+       Example endpoint: 
+ 
+       GET /api/student/dashboard 
+ 
+       The backend should identify the logged-in student and 
+       return: 
+ 
+       { 
+           student: {...}, 
+           performance: [...], 
+           physicalAreas: [...], 
+           focus: {...}, 
+           goals: [...], 
+           feedback: {...}, 
+           physical: {...} 
+       } 
+ 
+       After receiving the data: 
+ 
+       studentData = await response.json(); 
+ 
+       Then call: 
+ 
+       renderPerformance(); 
+       renderPriorities(); 
+       renderPhysicalAreas(); 
+       renderFocus(); 
+       renderGoals(); 
+       renderFeedback(); 
+       renderPhysicalSummary(); 
+       initializeStudentIdentity(); 
+    ========================================================= */ 
+ 
+ 
 
-                <div class="coach-avatar">
-                    AK
-                </div>
+    /* =========================================================
+       ATTENDANCE DATA
+    ========================================================= */
 
+    let attendanceData = {
+        currentMonth: new Date().getMonth(),
+        currentYear: new Date().getFullYear(),
+        records: [
+            { date: "2026-08-18", status: "present", note: "Morning training session" },
+            { date: "2026-08-17", status: "present", note: "Evening cardio & strength" },
+            { date: "2026-08-16", status: "present", note: "Full body workout" },
+            { date: "2026-08-15", status: "present", note: "Endurance training" },
+            { date: "2026-08-14", status: "late", note: "Arrived 15 mins late" },
+            { date: "2026-08-13", status: "present", note: "Morning session" },
+            { date: "2026-08-12", status: "present", note: "Strength training" },
+            { date: "2026-08-11", status: "absent", note: "Medical leave" },
+            { date: "2026-08-10", status: "present", note: "Cardio & flexibility" },
+            { date: "2026-08-09", status: "present", note: "Technical skills" },
+            { date: "2026-08-08", status: "present", note: "Rest day - light stretch" },
+            { date: "2026-08-07", status: "present", note: "Morning conditioning" },
+            { date: "2026-08-06", status: "present", note: "Full session completed" },
+            { date: "2026-08-05", status: "present", note: "Speed & agility drills" },
+            { date: "2026-08-04", status: "absent", note: "Personal reasons" },
+            { date: "2026-08-03", status: "present", note: "Strength & conditioning" },
+            { date: "2026-08-02", status: "present", note: "Morning training" },
+            { date: "2026-08-01", status: "present", note: "Monthly assessment day" }
+        ]
+    };
 
-                <!-- FEEDBACK -->
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
-                <div>
+    /* =========================================================
+       ATTENDANCE RENDER
+    ========================================================= */
 
-                    <div class="feedback-name">
-                        Coach Arjun Kumar
-                    </div>
+    function renderAttendance() {
+        renderAttendanceStats();
+        renderCalendar();
+        renderAttendanceRecords();
+        renderStreak();
+    }
 
-                    <div class="feedback-date">
-                        Last updated: 10 August 2026
-                    </div>
+    function renderAttendanceStats() {
+        const records = attendanceData.records;
+        const present = records.filter(r => r.status === "present").length;
+        const absent = records.filter(r => r.status === "absent").length;
+        const late = records.filter(r => r.status === "late").length;
+        const total = records.length;
+        const rate = total > 0 ? Math.round((present / total) * 100) : 0;
 
-                    <div class="stars">
-                        ★ ★ ★ ★ ☆
-                    </div>
+        document.getElementById("presentCount").textContent = present;
+        document.getElementById("absentCount").textContent = absent;
+        document.getElementById("lateCount").textContent = late;
+        document.getElementById("attendanceRate").textContent = rate + "%";
+    }
 
-                    <p class="feedback-text">
+    function renderCalendar() {
+        const grid = document.getElementById("calendarGrid");
+        const year = attendanceData.currentYear;
+        const month = attendanceData.currentMonth;
 
-                        Good improvement in your overall
-                        strength and training consistency.
-                        Your attendance has been excellent.
-                        Focus more on cardiovascular endurance
-                        and maintain a consistent running routine
-                        over the next few weeks.
+        document.getElementById("currentMonthLabel").textContent =
+            monthNames[month] + " " + year;
 
-                    </p>
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
 
-                </div>
+        const dayHeaders = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        let html = "";
 
-            </div>
+        dayHeaders.forEach(d => {
+            html += `<div class="calendar-day-header">${d}</div>`;
+        });
 
-
-            <!-- STRENGTHS AND WEAKNESSES -->
-
-            <div class="feedback-columns">
-
-
-                <!-- STRENGTHS -->
-
-                <div class="feedback-box strength-box">
-
-                    <h4>
-                        💪 Strengths
-                    </h4>
-
-                    <ul>
-
-                        <li>
-                            Consistent training attendance
-                        </li>
-
-                        <li>
-                            Good strength development
-                        </li>
-
-                        <li>
-                            Positive training attitude
-                        </li>
-
-                    </ul>
-
-                </div>
-
-
-                <!-- WEAKNESSES -->
-
-                <div class="feedback-box weakness-box">
-
-                    <h4>
-                        📌 Areas to Improve
-                    </h4>
-
-                    <ul>
-
-                        <li>
-                            Cardiovascular endurance
-                        </li>
-
-                        <li>
-                            Flexibility
-                        </li>
-
-                        <li>
-                            Running pace consistency
-                        </li>
-
-                    </ul>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- TRAINING SUGGESTION -->
-
-            <div class="suggestion">
-
-                <div class="suggestion-title">
-                    🏋️ Training Suggestion
-                </div>
-
-                <p>
-                    Include 20–30 minutes of moderate
-                    cardiovascular training 3 times per week.
-                    Gradually increase your running distance
-                    while maintaining a consistent pace.
-                </p>
-
-            </div>
-
-
-        </section>
-
-
-    </main>
-
-</div>
-
-
-<script>
-
-    /*
-     * Simple active navigation behavior.
-     * Later, these sections can be connected
-     * to separate pages or backend APIs.
-     */
-
-    const navLinks =
-        document.querySelectorAll(
-            ".nav-menu a"
-        );
-
-    navLinks.forEach(
-        link => {
-
-            link.addEventListener(
-                "click",
-                function() {
-
-                    navLinks.forEach(
-                        item =>
-                            item.classList.remove(
-                                "active"
-                            )
-                    );
-
-                    this.classList.add(
-                        "active"
-                    );
-
-                }
-            );
-
+        for (let i = 0; i < firstDay; i++) {
+            html += `<div class="calendar-day empty"></div>`;
         }
-    );
 
-</script>
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const record = attendanceData.records.find(r => r.date === dateStr);
+            const status = record ? record.status : "";
+            const isToday = isCurrentMonth && day === today.getDate();
+            const todayClass = isToday ? "today" : "";
 
+            html += `<div class="calendar-day ${status} ${todayClass}" title="${record ? record.note : ""}">${day}</div>`;
+        }
 
-</body>
+        grid.innerHTML = html;
+    }
 
-</html>
+    function renderAttendanceRecords() {
+        const container = document.getElementById("attendanceRecords");
+        const recent = [...attendanceData.records].slice(0, 5);
+
+        container.innerHTML = recent.map(record => {
+            const dateObj = new Date(record.date);
+            const dateStr = dateObj.toLocaleDateString("en-GB", {
+                day: "2-digit", month: "short", year: "numeric"
+            });
+            const statusLabel = record.status.charAt(0).toUpperCase() + record.status.slice(1);
+            const icons = { present: "✓", absent: "✕", late: "◷" };
+
+            return `
+                <div class="attendance-record">
+                    <div class="attendance-record-info">
+                        <div class="attendance-record-icon ${record.status}">${icons[record.status]}</div>
+                        <div>
+                            <strong>${dateStr}</strong>
+                            <span>${escapeHTML(record.note)}</span>
+                        </div>
+                    </div>
+                    <span class="attendance-record-status ${record.status}">${statusLabel}</span>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderStreak() {
+        let streak = 0;
+        for (const record of attendanceData.records) {
+            if (record.status === "present") {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        document.getElementById("streakNumber").textContent = streak;
+    }
+
+    /* =========================================================
+       CALENDAR NAVIGATION
+    ========================================================= */
+
+    document.getElementById("prevMonth").addEventListener("click", function() {
+        attendanceData.currentMonth--;
+        if (attendanceData.currentMonth < 0) {
+            attendanceData.currentMonth = 11;
+            attendanceData.currentYear--;
+        }
+        renderCalendar();
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", function() {
+        attendanceData.currentMonth++;
+        if (attendanceData.currentMonth > 11) {
+            attendanceData.currentMonth = 0;
+            attendanceData.currentYear++;
+        }
+        renderCalendar();
+    });
+
+</script> 
+ 
+</body> 
+ 
+</html> Please add an attendance section in the student-dashboard
