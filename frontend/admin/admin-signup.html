@@ -29,10 +29,11 @@ body {
 
     background:
         linear-gradient(
-            135deg,
-            #071827,
-            #102c40
-        );
+            rgba(12, 25, 42, 0.88),
+            rgba(12, 25, 42, 0.94)
+        ),
+        url("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=2000&q=80")
+        center/cover no-repeat;
 
     display: flex;
     align-items: center;
@@ -53,7 +54,7 @@ body {
 
     box-shadow:
         0 25px 70px
-        rgba(0,0,0,.28);
+        rgba(0,0,0,.45);
 }
 
 .logo {
@@ -64,13 +65,14 @@ body {
 
     border-radius: 16px;
 
-    background: #22c55e;
+    background: #f0f9ff;
+    border: 2px solid #62bbe8;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    color: white;
+    color: #62bbe8;
 
     font-size: 27px;
 }
@@ -86,7 +88,7 @@ h1 {
 }
 
 h1 span {
-    color: #22c55e;
+    color: #62bbe8;
 }
 
 .subtitle {
@@ -138,11 +140,11 @@ input {
 
 input:focus {
     border-color:
-        #22c55e;
+        #62bbe8;
 
     box-shadow:
         0 0 0 3px
-        rgba(34,197,94,.10);
+        rgba(98,187,232,.18);
 }
 
 .password-box {
@@ -156,7 +158,7 @@ input:focus {
 .eye {
     position: absolute;
 
-    right: 10px;
+    right: 12px;
 
     top: 50%;
 
@@ -169,7 +171,14 @@ input:focus {
 
     cursor: pointer;
 
-    font-size: 17px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eye:hover {
+    color: #62bbe8;
 }
 
 .terms {
@@ -190,6 +199,7 @@ input:focus {
 .terms input {
     width: 15px;
     height: 15px;
+    accent-color: #62bbe8;
 }
 
 .message {
@@ -218,12 +228,12 @@ input:focus {
 .message.success {
     display: block;
 
-    background: #ecfdf5;
+    background: #f0f9ff;
 
     border:
-        1px solid #bbf7d0;
+        1px solid #bae6fd;
 
-    color: #15803d;
+    color: #0369a1;
 }
 
 #signupButton {
@@ -235,7 +245,7 @@ input:focus {
 
     border-radius: 9px;
 
-    background: #22c55e;
+    background: #62bbe8;
 
     color: white;
 
@@ -244,16 +254,19 @@ input:focus {
     font-weight: 700;
 
     cursor: pointer;
+    transition: 0.25s;
+    box-shadow: 0 4px 14px rgba(98, 187, 232, 0.35);
 }
 
 #signupButton:hover {
-    background: #16a34a;
+    background: #4ea8d5;
 }
 
 #signupButton:disabled {
     background: #94a3b8;
 
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .login {
@@ -267,11 +280,15 @@ input:focus {
 }
 
 .login a {
-    color: #16a34a;
+    color: #62bbe8;
 
     font-weight: 700;
 
     text-decoration: none;
+}
+
+.login a:hover {
+    text-decoration: underline;
 }
 
 </style>
@@ -361,8 +378,12 @@ input:focus {
                     type="button"
                     class="eye"
                     id="togglePassword"
+                    aria-label="Toggle password visibility"
                 >
-                    👁
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
                 </button>
 
             </div>
@@ -389,8 +410,12 @@ input:focus {
                     type="button"
                     class="eye"
                     id="toggleConfirmPassword"
+                    aria-label="Toggle confirm password visibility"
                 >
-                    👁
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
                 </button>
 
             </div>
@@ -518,16 +543,24 @@ document
             input.type =
                 "text";
 
-            this.textContent =
-                "🙈";
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            `;
 
         } else {
 
             input.type =
                 "password";
 
-            this.textContent =
-                "👁";
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            `;
 
         }
 
@@ -556,16 +589,24 @@ document
             input.type =
                 "text";
 
-            this.textContent =
-                "🙈";
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            `;
 
         } else {
 
             input.type =
                 "password";
 
-            this.textContent =
-                "👁";
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            `;
 
         }
 

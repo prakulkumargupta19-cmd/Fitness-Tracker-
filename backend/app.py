@@ -18,18 +18,53 @@ def get_db():
     db = sqlite3.connect(DATABASE); db.row_factory = sqlite3.Row; return db
 def now(): return datetime.now(timezone.utc)
 def generate_otp(): return f"{secrets.randbelow(1_000_000):06d}"
+
+def print_otp_to_terminal(email, otp, purpose):
+    print("\n" + "=" * 70)
+    print("🔐 ATHLETE TRACKER OTP")
+    print(f"📌 Purpose : {purpose}")
+    print(f"📧 Email   : {email}")
+    print(f"🔢 OTP     : {otp}")
+    print(f"⏱️ Expires : {OTP_MINUTES} minutes")
+    print("=" * 70 + "\n")
 def canonical_role(role): return "player" if str(role or "").lower() == "student" else str(role or "").lower()
 def display_role(role): return "Student" if role == "player" else role.capitalize()
 def valid_password(password): return len(password) >= 8
-
 def init_db():
-    db=get_db()
+    """
+    Initialize the database using schema.sql.
+
+    The schema file is the single source of truth for database
+    structure. It uses CREATE TABLE IF NOT EXISTS, so restarting
+    Flask will NOT delete existing data.
+    """
+
+    db = get_db()
+
     try:
-        if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'").fetchone():
-            db.execute("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT,user_code TEXT UNIQUE NOT NULL,name TEXT NOT NULL,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,email_verified INTEGER DEFAULT 0,role TEXT NOT NULL CHECK(role IN ('admin','coach','player')),sport TEXT,contact_number TEXT UNIQUE,gender TEXT,date_of_birth TEXT,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        db.execute("CREATE TABLE IF NOT EXISTS otp_requests (id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL,purpose TEXT NOT NULL,otp_hash TEXT NOT NULL,payload TEXT,expires_at TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,verified INTEGER NOT NULL DEFAULT 0,used INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL)")
-        db.execute("CREATE INDEX IF NOT EXISTS idx_otp_requests_lookup ON otp_requests(email,purpose,used)"); db.commit()
-    finally: db.close()
+        # Keep SQLite foreign-key enforcement enabled.
+        db.execute("PRAGMA foreign_keys = ON")
+
+        # Locate schema.sql in the same backend directory.
+        schema_path = os.path.join(BASE_DIR, "schema.sql")
+
+        # Read and execute the complete schema.
+        with open(schema_path, "r", encoding="utf-8") as schema_file:
+            schema_sql = schema_file.read()
+
+        db.executescript(schema_sql)
+        db.commit()
+
+        app.logger.info("Database schema initialized successfully.")
+
+    except (OSError, sqlite3.Error) as error:
+        db.rollback()
+        app.logger.error("Database initialization failed: %s", error)
+        raise
+
+    finally:
+        db.close()
+
 
 def send_email(recipient, subject, body):
     username,password=os.getenv("MAIL_USERNAME"),os.getenv("MAIL_PASSWORD")
@@ -95,7 +130,7 @@ def signup(data,forced_role=None):
         if db.execute("SELECT 1 FROM users WHERE lower(email)=?",(email,)).fetchone():return None,(jsonify(success=False,message="Email already registered"),400)
     finally:db.close()
     payload=json.dumps({"name":name,"email":email,"password_hash":generate_password_hash(password),"role":role,"sport":data.get("sport") or None,"contact_number":data.get("contact_number") or None,"gender":data.get("gender") or None,"date_of_birth":data.get("date_of_birth") or None})
-    otp=generate_otp();save_otp(email,"signup",otp,payload)
+    otp=generate_otp(); print_otp_to_terminal(email, otp, "Account Signup"); save_otp(email,"signup",otp,payload)
     if not send_otp_email(email,name,"signup",otp):return None,(jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503)
     return email,None
 @app.post("/api/register")
@@ -108,7 +143,7 @@ def admin_signup():
 def resend_signup():
     data=request.get_json(silent=True) or {};email=str(data.get("email","")).strip().lower();record=get_otp(email,"signup")
     if not record:return jsonify(success=False,message="Signup session expired. Please register again."),400
-    payload=json.loads(record["payload"]);otp=generate_otp();save_otp(email,"signup",otp,record["payload"])
+    payload=json.loads(record["payload"]);otp=generate_otp(); print_otp_to_terminal(email, otp, "Signup OTP Resend"); save_otp(email,"signup",otp,record["payload"])
     if not send_otp_email(email,payload["name"],"signup",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
     return jsonify(success=True,message="New OTP sent to your email")
 @app.post("/api/account-verification/send")
@@ -147,7 +182,7 @@ def admin_login():
     try:user=db.execute("SELECT * FROM users WHERE lower(email)=? AND role='admin'",(email,)).fetchone()
     finally:db.close()
     if not user or not check_password_hash(user["password_hash"],password):return jsonify(success=False,message="Invalid admin email or password"),401
-    otp=generate_otp();save_otp(email,"admin_login",otp,str(user["id"]))
+    otp=generate_otp(); print_otp_to_terminal(email, otp, "Admin Login"); save_otp(email,"admin_login",otp,str(user["id"]))
     if not send_otp_email(email,user["name"],"admin login",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
     return jsonify(success=True,message="OTP sent to your email")
 @app.post("/api/admin-login/verify-otp")
@@ -166,7 +201,7 @@ def resend_admin_login():
     db=get_db()
     try:user=db.execute("SELECT * FROM users WHERE id=?",(record["payload"],)).fetchone()
     finally:db.close()
-    otp=generate_otp();save_otp(email,"admin_login",otp,record["payload"])
+    otp=generate_otp(); print_otp_to_terminal(email, otp, "Admin Login OTP Resend"); save_otp(email,"admin_login",otp,record["payload"])
     if not user or not send_otp_email(email,user["name"],"admin login",otp):return jsonify(success=False,message="Email delivery failed."),503
     return jsonify(success=True,message="New OTP sent to your email")
 
@@ -176,7 +211,7 @@ def forgot_password():
     try:user=db.execute("SELECT * FROM users WHERE lower(email)=?",(email,)).fetchone()
     finally:db.close()
     if not user:return jsonify(success=False,message="No account exists for this email."),404
-    otp=generate_otp();save_otp(email,"password_reset",otp,str(user["id"]))
+    otp=generate_otp(); print_otp_to_terminal(email, otp, "Password Reset"); save_otp(email,"password_reset",otp,str(user["id"]))
     if not send_otp_email(email,user["name"],"password_reset",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
     return jsonify(success=True,message="OTP sent to your email")
 @app.post("/api/forgot-password/resend-otp")
@@ -186,7 +221,7 @@ def resend_reset():
     db=get_db()
     try:user=db.execute("SELECT * FROM users WHERE id=?",(record["payload"],)).fetchone()
     finally:db.close()
-    otp=generate_otp();save_otp(email,"password_reset",otp,record["payload"])
+    otp=generate_otp(); print_otp_to_terminal(email, otp, "Password Reset OTP Resend"); save_otp(email,"password_reset",otp,record["payload"])
     if not user or not send_otp_email(email,user["name"],"password_reset",otp):return jsonify(success=False,message="Email delivery failed."),503
     return jsonify(success=True,message="New OTP sent to your email")
 @app.post("/api/forgot-password/verify-otp")
@@ -227,4 +262,10 @@ def users():
     return jsonify([dict(row) for row in rows])
 
 init_db()
-if __name__=="__main__":app.run(host="0.0.0.0",port=5000,debug=True)
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
