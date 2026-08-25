@@ -1,1074 +1,2721 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Fitness Performance Tracker</title>
-    
-    <!-- Tailwind CSS & Plugins -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <!-- Google Fonts & Material Symbols -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <script id="tailwind-config">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "inverse-surface": "#e2e2e2",
-                        "error-container": "#93000a",
-                        "surface-dim": "#121414",
-                        "on-primary-fixed-variant": "#3d4d00",
-                        "on-tertiary-fixed-variant": "#43474e",
-                        "on-tertiary-container": "#61646c",
-                        "secondary-container": "#4a4b4f",
-                        "on-surface-variant": "#c5c9ac",
-                        "on-surface": "#e2e2e2",
-                        "on-primary-container": "#576c00",
-                        "secondary-fixed-dim": "#c6c6ca",
-                        "primary-fixed-dim": "#aed500",
-                        "outline": "#8e9378",
-                        "outline-variant": "#444933",
-                        "on-secondary": "#2f3034",
-                        "primary-container": "#c7f300",
-                        "background": "#121414",
-                        "tertiary": "#ffffff",
-                        "on-secondary-container": "#bbbbbf",
-                        "primary-fixed": "#c7f300",
-                        "error": "#ffb4ab",
-                        "surface-tint": "#aed500",
-                        "on-primary": "#293500",
-                        "on-secondary-fixed": "#1a1c1f",
-                        "surface-container-highest": "#333535",
-                        "on-error-container": "#ffdad6",
-                        "on-primary-fixed": "#171e00",
-                        "on-tertiary": "#2d3138",
-                        "secondary": "#c6c6ca",
-                        "surface-container-low": "#1a1c1c",
-                        "tertiary-fixed-dim": "#c3c6cf",
-                        "on-tertiary-fixed": "#181c22",
-                        "tertiary-container": "#dfe2ec",
-                        "tertiary-fixed": "#dfe2ec",
-                        "inverse-on-surface": "#2f3131",
-                        "secondary-fixed": "#e2e2e6",
-                        "surface-variant": "#333535",
-                        "surface": "#121414",
-                        "surface-container-high": "#282a2b",
-                        "inverse-primary": "#526600",
-                        "surface-bright": "#37393a",
-                        "surface-container": "#1e2020",
-                        "on-secondary-fixed-variant": "#45474a",
-                        "on-error": "#690005",
-                        "surface-container-lowest": "#0c0f0f",
-                        "primary": "#ffffff",
-                        "on-background": "#e2e2e2"
+                        primary: "#2563eb",
+                        "primary-dark": "#1d4ed8",
+                        "primary-light": "#dbeafe",
+                        secondary: "#6366f1",
+                        success: "#10b981",
+                        warning: "#f59e0b",
+                        danger: "#ef4444",
+
+                        background: "#f8fafc",
+                        surface: "#ffffff",
+                        "surface-muted": "#f1f5f9",
+                        "surface-hover": "#f8fafc",
+
+                        text: "#0f172a",
+                        muted: "#64748b",
+                        border: "#e2e8f0"
                     },
+
                     fontFamily: {
-                        "body-lg": ["Hanken Grotesk", "sans-serif"],
-                        "label-sm": ["JetBrains Mono", "monospace"],
-                        "headline-lg-mobile": ["Anybody", "sans-serif"],
-                        "headline-xl": ["Anybody", "sans-serif"],
-                        "body-md": ["Hanken Grotesk", "sans-serif"],
-                        "data-display": ["Anybody", "sans-serif"],
-                        "title-md": ["Hanken Grotesk", "sans-serif"],
-                        "headline-lg": ["Anybody", "sans-serif"]
+                        heading: ["Anybody", "sans-serif"],
+                        body: ["Hanken Grotesk", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
                     }
                 }
             }
-        }
+        };
     </script>
 
     <style>
-        .glass-card {
-            background-color: rgba(30, 32, 32, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            border-left: 1px solid rgba(255, 255, 255, 0.08);
-            border-right: 1px solid rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        
-        .progress-track {
-            background-color: rgba(199, 243, 0, 0.12);
-        }
-        
-        .progress-fill-lime {
-            background: linear-gradient(90deg, #c7f300 0%, #aed500 100%);
+        * {
+            box-sizing: border-box;
         }
 
-        .glow-hover:hover {
-            box-shadow: 0 0 20px 2px rgba(199, 243, 0, 0.15);
-            border-color: rgba(199, 243, 0, 0.3);
+        body {
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: "Hanken Grotesk", sans-serif;
         }
 
-        .custom-scrollbar::-webkit-scrollbar {
+        .sidebar {
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+        }
+
+        .nav-active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .nav-item {
+            color: #64748b;
+        }
+
+        .nav-item:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .scrollbar::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
+
+        .scrollbar::-webkit-scrollbar-track {
+            background: transparent;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(199, 243, 0, 0.25);
-            border-radius: 4px;
+
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .progress-track {
+            background: #dbeafe;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #2563eb, #6366f1);
+        }
+
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+        }
+
+        .toast {
+            transform: translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md min-h-screen flex selection:bg-primary-fixed selection:text-on-primary-fixed overflow-x-hidden">
 
-<!-- Mobile Menu Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
+<body class="min-h-screen bg-background">
 
-<!-- SideNav (Fixed Left) -->
-<nav id="sidebar" class="bg-surface-container-low/95 backdrop-blur-xl h-screen w-64 fixed left-0 top-0 border-r border-white/10 shadow-2xl flex flex-col py-6 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-    <!-- User Profile Area -->
-    <div class="px-6 mb-8 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed/40 p-0.5 relative flex-shrink-0">
-            <div id="sideNavAvatar" class="w-full h-full object-cover rounded-full bg-surface-bright flex items-center justify-center font-data-display text-primary-fixed font-bold text-base">AD</div>
-        </div>
-        <div class="overflow-hidden">
-            <div id="sideNavName" class="font-headline-lg text-[18px] leading-tight text-primary-fixed font-bold tracking-tight truncate">Administrator</div>
-            <div id="sideNavTier" class="font-label-sm text-[11px] text-on-surface-variant uppercase mt-1">Admin Portal</div>
-        </div>
-    </div>
+<!-- MOBILE OVERLAY -->
+<div id="sidebarOverlay"
+     class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden">
+</div>
 
-    <!-- Navigation Links -->
-    <div class="flex-1 flex flex-col gap-1.5 px-4 overflow-y-auto custom-scrollbar">
-        <button class="nav-btn active w-full bg-primary-container text-on-primary-container rounded-lg font-bold flex items-center gap-3 px-4 py-3 active:scale-[0.98] transition-all text-left cursor-pointer" data-section="dashboard">
-            <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-            <span class="font-body-md text-sm font-semibold">Dashboard</span>
-        </button>
-        <button class="nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer" data-section="students">
-            <span class="material-symbols-outlined text-[22px]">school</span>
-            <span class="font-body-md text-sm font-semibold">Students</span>
-        </button>
-        <button class="nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer" data-section="coaches">
-            <span class="material-symbols-outlined text-[22px]">sports</span>
-            <span class="font-body-md text-sm font-semibold">Coaches</span>
-        </button>
-        <button class="nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer" data-section="performance">
-            <span class="material-symbols-outlined text-[22px]">monitoring</span>
-            <span class="font-body-md text-sm font-semibold">Performance</span>
-        </button>
-        <button class="nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer" data-section="reports">
-            <span class="material-symbols-outlined text-[22px]">description</span>
-            <span class="font-body-md text-sm font-semibold">Reports</span>
-        </button>
-        <button class="nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer" data-section="settings">
-            <span class="material-symbols-outlined text-[22px]">settings</span>
-            <span class="font-body-md text-sm font-semibold">Settings</span>
-        </button>
-    </div>
+<!-- SIDEBAR -->
+<aside id="sidebar"
+       class="sidebar fixed left-0 top-0 z-50 h-screen w-64 bg-white border-r border-border
+              -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
 
-    <!-- CTA Button -->
-    <div class="px-4 mt-auto mb-3 pt-3 border-t border-white/5">
-        <button id="quickAddUserBtn" type="button" class="w-full bg-primary-fixed text-on-primary-fixed font-title-md text-sm font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-colors active:scale-[0.98] shadow-[0_0_15px_rgba(199,243,0,0.25)] cursor-pointer">
-            <span class="material-symbols-outlined font-bold text-lg">person_add</span>
-            + Add New User
-        </button>
-    </div>
-
-    <!-- Footer Logout -->
-    <div class="px-4">
-        <button id="logoutBtn" type="button" class="w-full text-error/80 flex items-center gap-3 px-4 py-2 hover:bg-error-container/20 hover:text-error transition-all rounded-lg text-sm cursor-pointer">
-            <span class="material-symbols-outlined text-lg">logout</span>
-            <span class="font-label-sm text-xs uppercase tracking-wider">Logout</span>
-        </button>
-    </div>
-</nav>
-
-<!-- Main Content Area -->
-<main class="flex-1 ml-0 md:ml-64 flex flex-col min-h-screen relative w-full">
-    <!-- TopAppBar -->
-    <header class="bg-surface/85 backdrop-blur-xl w-full h-20 sticky top-0 border-b border-white/10 z-40 flex justify-between items-center px-6 md:px-10">
+    <!-- Logo -->
+    <div class="h-20 px-6 flex items-center border-b border-border">
         <div class="flex items-center gap-3">
-            <button id="mobileMenuBtn" class="md:hidden text-on-surface-variant hover:text-primary-fixed transition-colors p-1 cursor-pointer">
-                <span class="material-symbols-outlined text-3xl">menu</span>
-            </button>
-            <div>
-                <h1 class="font-headline-lg text-lg md:text-[22px] text-primary-fixed font-bold tracking-tight">Admin <span class="text-on-surface">Dashboard</span></h1>
-                <p id="pageSubtitle" class="font-body-md text-xs text-on-surface-variant hidden sm:block">System overview, access control, and organization management.</p>
+
+            <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-white text-2xl">
+                    fitness_center
+                </span>
             </div>
+
+            <div>
+                <!-- CHANGED: FitTrack -> Fitness Tracker -->
+                <h1 class="font-heading font-bold text-lg text-slate-900">
+                    Fitness Tracker
+                </h1>
+
+                <p class="text-[10px] uppercase tracking-widest text-slate-400 font-mono">
+                    Admin Portal
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Admin Profile -->
+    <div class="px-5 py-5 border-b border-border">
+        <div class="flex items-center gap-3">
+
+            <div class="w-11 h-11 rounded-full bg-primary-light border border-blue-200
+                        flex items-center justify-center text-primary font-bold">
+                AD
+            </div>
+
+            <div class="min-w-0">
+                <div id="sideNavName"
+                     class="font-semibold text-sm text-slate-900 truncate">
+                    Administrator
+                </div>
+
+                <div class="text-xs text-slate-500">
+                    System Administrator
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-4 py-5 overflow-y-auto scrollbar">
+
+        <p class="px-3 mb-3 text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            Management
+        </p>
+
+        <div class="space-y-1">
+
+            <button
+                class="nav-btn nav-active w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="dashboard">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    dashboard
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Dashboard
+                </span>
+
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="students">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    school
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Students
+                </span>
+
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="coaches">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    sports
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Coaches
+                </span>
+
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="performance">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    monitoring
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Performance
+                </span>
+
+            </button>
+
         </div>
 
-        <div class="flex items-center gap-4 md:gap-6">
-            <!-- Global Search -->
-            <div class="hidden lg:flex items-center bg-surface-container-high rounded-full px-4 py-1.5 border border-white/5 focus-within:border-primary-fixed/50 transition-colors w-60">
-                <span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
-                <input id="globalSearch" class="bg-transparent border-none text-on-surface focus:ring-0 p-0 text-xs w-full placeholder:text-on-surface-variant/50 font-body-md" placeholder="Search users, logs..." type="text"/>
+        <p class="px-3 mt-8 mb-3 text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            System
+        </p>
+
+        <div class="space-y-1">
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="reports">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    description
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Reports
+                </span>
+
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="settings">
+
+                <span class="material-symbols-outlined text-[21px]">
+                    settings
+                </span>
+
+                <span class="text-sm font-semibold">
+                    Settings
+                </span>
+
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- Add User -->
+    <div class="px-4 pb-3">
+
+        <button id="quickAddUserBtn"
+                class="w-full rounded-lg bg-primary hover:bg-primary-dark text-white
+                       font-semibold text-sm py-3 flex items-center justify-center gap-2
+                       transition-colors shadow-sm">
+
+            <span class="material-symbols-outlined text-lg">
+                person_add
+            </span>
+
+            Add New User
+
+        </button>
+
+    </div>
+
+    <!-- Logout -->
+    <div class="px-4 pb-5">
+
+        <button id="logoutBtn"
+                class="w-full rounded-lg px-3 py-2.5 flex items-center gap-3
+                       text-red-500 hover:bg-red-50 transition-colors text-sm">
+
+            <span class="material-symbols-outlined text-lg">
+                logout
+            </span>
+
+            <span>
+                Logout
+            </span>
+
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- MAIN -->
+<main class="md:ml-64 min-h-screen">
+
+    <!-- TOP BAR -->
+    <header class="h-20 bg-white border-b border-border sticky top-0 z-30
+                   flex items-center justify-between px-5 md:px-8">
+
+        <div class="flex items-center gap-4">
+
+            <button id="mobileMenuBtn"
+                    class="md:hidden text-slate-500 hover:text-primary">
+
+                <span class="material-symbols-outlined text-3xl">
+                    menu
+                </span>
+
+            </button>
+
+            <div>
+                <h2 id="pageTitle"
+                    class="font-heading font-bold text-xl text-slate-900">
+                    Admin Dashboard
+                </h2>
+
+                <p id="pageSubtitle"
+                   class="hidden sm:block text-xs text-slate-500">
+                    System overview, access control, and organization management.
+                </p>
             </div>
 
-            <!-- Live Date Display -->
-            <div class="hidden sm:flex items-center gap-2 bg-surface-container-high px-3.5 py-1.5 rounded-full border border-white/5 font-label-sm text-xs text-on-surface-variant">
-                <span class="material-symbols-outlined text-sm text-primary-fixed">calendar_today</span>
-                <span id="currentDate">21 Aug 2026</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+
+            <!-- Search -->
+            <div class="hidden lg:flex items-center w-64
+                        bg-slate-50 border border-border rounded-lg px-3">
+
+                <span class="material-symbols-outlined text-slate-400 text-lg">
+                    search
+                </span>
+
+                <input id="globalSearch"
+                       type="text"
+                       placeholder="Search users..."
+                       class="ml-2 w-full bg-transparent border-0 outline-none
+                              focus:ring-0 text-sm text-slate-700 placeholder:text-slate-400">
+
             </div>
 
-            <!-- Trailing Actions -->
-            <div class="flex items-center gap-3 relative">
-                <button id="notificationTrigger" class="text-on-surface-variant hover:text-primary-fixed transition-colors relative p-2 rounded-full hover:bg-white/5 active:scale-95 cursor-pointer">
-                    <span class="material-symbols-outlined text-[26px]">notifications</span>
-                    <span id="notificationDot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-primary-fixed rounded-full border-2 border-surface"></span>
+            <!-- Date -->
+            <div class="hidden md:flex items-center gap-2 px-3 py-2
+                        bg-slate-50 border border-border rounded-lg">
+
+                <span class="material-symbols-outlined text-primary text-lg">
+                    calendar_today
+                </span>
+
+                <span id="currentDate"
+                      class="text-xs font-mono text-slate-600">
+                    25 Aug 2026
+                </span>
+
+            </div>
+
+            <!-- Notifications -->
+            <div class="relative">
+
+                <button id="notificationTrigger"
+                        class="relative w-10 h-10 rounded-lg hover:bg-slate-50
+                               flex items-center justify-center text-slate-500">
+
+                    <span class="material-symbols-outlined">
+                        notifications
+                    </span>
+
+                    <span id="notificationDot"
+                          class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500">
+                    </span>
+
                 </button>
 
-                <!-- Notifications Tray -->
-                <div id="notificationTray" class="hidden absolute right-0 top-12 w-80 bg-surface-container-low border border-white/10 rounded-xl p-4 shadow-2xl z-50">
-                    <div class="flex items-center justify-between pb-2 border-b border-white/5">
-                        <span class="font-title-md text-sm font-bold text-primary-fixed">System Notifications</span>
-                        <span class="font-label-sm text-[10px] text-on-surface-variant">3 New</span>
+                <div id="notificationTray"
+                     class="hidden absolute right-0 top-12 w-80 bg-white border border-border
+                            rounded-xl shadow-xl p-4">
+
+                    <div class="flex justify-between pb-3 border-b border-border">
+
+                        <strong class="text-sm text-slate-900">
+                            Notifications
+                        </strong>
+
+                        <span class="text-xs text-primary font-semibold">
+                            3 New
+                        </span>
+
                     </div>
-                    <div class="flex flex-col gap-2 mt-3 text-xs">
-                        <div class="p-2.5 rounded-lg bg-surface-container-high/60 border border-white/5">
-                            <strong class="text-on-surface block">New Student Registered</strong>
-                            <span class="text-on-surface-variant text-[11px]">Sarah Johnson created an athlete account.</span>
+
+                    <div class="space-y-2 mt-3">
+
+                        <div class="p-3 rounded-lg bg-blue-50">
+                            <strong class="block text-sm text-slate-800">
+                                New Student Registered
+                            </strong>
+
+                            <span class="text-xs text-slate-500">
+                                Sarah Johnson created an athlete account.
+                            </span>
                         </div>
-                        <div class="p-2.5 rounded-lg bg-surface-container-high/60 border border-white/5">
-                            <strong class="text-primary-fixed block">Coach Assessment Synced</strong>
-                            <span class="text-on-surface-variant text-[11px]">Coach Miller submitted division performance logs.</span>
+
+                        <div class="p-3 rounded-lg bg-slate-50">
+                            <strong class="block text-sm text-slate-800">
+                                Coach Assessment Synced
+                            </strong>
+
+                            <span class="text-xs text-slate-500">
+                                Coach Miller submitted performance logs.
+                            </span>
                         </div>
+
+                        <div class="p-3 rounded-lg bg-slate-50">
+                            <strong class="block text-sm text-slate-800">
+                                Performance Updated
+                            </strong>
+
+                            <span class="text-xs text-slate-500">
+                                A new athlete benchmark was recorded.
+                            </span>
+                        </div>
+
                     </div>
                 </div>
 
-                <!-- Mini Profile Dropdown Trigger -->
-                <div class="relative">
-                    <button id="profileMenuToggle" class="w-10 h-10 rounded-full overflow-hidden border border-primary-fixed/30 flex items-center justify-center bg-surface-container-high text-primary-fixed font-bold font-data-display cursor-pointer hover:border-primary-fixed transition-colors">
-                        <span id="topAvatar">AD</span>
+            </div>
+
+            <!-- Profile -->
+            <div class="relative">
+
+                <button id="profileMenuToggle"
+                        class="w-10 h-10 rounded-full bg-blue-50
+                               border border-blue-100 text-primary font-bold">
+                    AD
+                </button>
+
+                <div id="profileDropdown"
+                     class="hidden absolute right-0 top-12 w-48 bg-white
+                            border border-border rounded-xl shadow-xl p-2">
+
+                    <button onclick="switchTab('settings')"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-slate-50
+                                   text-left flex items-center gap-2 text-sm">
+
+                        <span class="material-symbols-outlined text-primary text-lg">
+                            account_circle
+                        </span>
+
+                        Admin Profile
+
                     </button>
-                    <div id="profileDropdown" class="hidden absolute right-0 top-12 w-48 bg-surface-container-low border border-white/10 rounded-xl p-2 shadow-2xl z-50 text-xs">
-                        <button onclick="switchTab('settings')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-high text-on-surface flex items-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-sm text-primary-fixed">account_circle</span> Admin Profile
-                        </button>
-                        <button onclick="switchTab('settings')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-container-high text-on-surface flex items-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-sm text-primary-fixed">settings</span> Settings
-                        </button>
-                        <div class="border-t border-white/5 my-1"></div>
-                        <button id="profileLogoutBtn" class="w-full text-left px-3 py-2 rounded-lg hover:bg-error-container/20 text-error flex items-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">logout</span> Logout
-                        </button>
-                    </div>
+
+                    <button onclick="switchTab('settings')"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-slate-50
+                                   text-left flex items-center gap-2 text-sm">
+
+                        <span class="material-symbols-outlined text-primary text-lg">
+                            settings
+                        </span>
+
+                        Settings
+
+                    </button>
+
+                    <div class="border-t border-border my-1"></div>
+
+                    <button id="profileLogoutBtn"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-red-50
+                                   text-left flex items-center gap-2 text-sm text-red-500">
+
+                        <span class="material-symbols-outlined text-lg">
+                            logout
+                        </span>
+
+                        Logout
+
+                    </button>
+
                 </div>
             </div>
+
         </div>
+
     </header>
 
-    <!-- Main Content Body -->
-    <div class="p-6 md:p-10 flex-1 flex flex-col gap-8 relative z-10">
 
-        <!-- =================== 1. DASHBOARD VIEW =================== -->
-        <section id="section-dashboard" class="content-section flex flex-col gap-8">
-            <!-- Stat Cards Row -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-primary-fixed glow-hover transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Total Students</span>
-                        <span class="material-symbols-outlined text-primary-fixed text-2xl">school</span>
+    <!-- CONTENT -->
+    <div class="p-5 md:p-8 space-y-8">
+
+        <!-- DASHBOARD -->
+        <section id="section-dashboard"
+                 class="content-section space-y-8">
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <div class="card rounded-xl p-5">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">
+                            Total Students
+                        </span>
+
+                        <div class="w-10 h-10 rounded-lg bg-blue-50
+                                    flex items-center justify-center">
+
+                            <span class="material-symbols-outlined text-primary">
+                                school
+                            </span>
+
+                        </div>
+
                     </div>
-                    <h3 id="studentCount" class="font-data-display text-3xl text-on-surface font-bold">248</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Registered athletes</p>
+
+                    <h3 id="studentCount"
+                        class="mt-4 text-3xl font-heading font-bold text-slate-900">
+                        248
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Registered athletes
+                    </p>
+
                 </div>
 
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-400 glow-hover transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Total Coaches</span>
-                        <span class="material-symbols-outlined text-blue-400 text-2xl">sports</span>
+
+                <div class="card rounded-xl p-5">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">
+                            Total Coaches
+                        </span>
+
+                        <div class="w-10 h-10 rounded-lg bg-indigo-50
+                                    flex items-center justify-center">
+
+                            <span class="material-symbols-outlined text-indigo-600">
+                                sports
+                            </span>
+
+                        </div>
+
                     </div>
-                    <h3 id="coachCount" class="font-data-display text-3xl text-on-surface font-bold">24</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Active instructors</p>
+
+                    <h3 id="coachCount"
+                        class="mt-4 text-3xl font-heading font-bold text-slate-900">
+                        24
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Active instructors
+                    </p>
+
                 </div>
 
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400 glow-hover transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Performance Records</span>
-                        <span class="material-symbols-outlined text-amber-400 text-2xl">monitoring</span>
+
+                <div class="card rounded-xl p-5">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">
+                            Performance Records
+                        </span>
+
+                        <div class="w-10 h-10 rounded-lg bg-amber-50
+                                    flex items-center justify-center">
+
+                            <span class="material-symbols-outlined text-amber-500">
+                                monitoring
+                            </span>
+
+                        </div>
+
                     </div>
-                    <h3 class="font-data-display text-3xl text-on-surface font-bold">1,426</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Recorded assessments</p>
+
+                    <h3 class="mt-4 text-3xl font-heading font-bold text-slate-900">
+                        1,426
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Recorded assessments
+                    </p>
+
                 </div>
 
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-400 glow-hover transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Pending Accounts</span>
-                        <span class="material-symbols-outlined text-emerald-400 text-2xl">pending</span>
+
+                <div class="card rounded-xl p-5">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">
+                            Pending Accounts
+                        </span>
+
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50
+                                    flex items-center justify-center">
+
+                            <span class="material-symbols-outlined text-emerald-500">
+                                pending
+                            </span>
+
+                        </div>
+
                     </div>
-                    <h3 id="pendingCount" class="font-data-display text-3xl text-on-surface font-bold">7</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Awaiting activation</p>
+
+                    <h3 id="pendingCount"
+                        class="mt-4 text-3xl font-heading font-bold text-slate-900">
+                        7
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Awaiting activation
+                    </p>
+
                 </div>
+
             </div>
 
-            <!-- Two Columns: Recent Users & Live System Feed -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                <!-- Left: Recent Users Table -->
-                <div class="glass-card rounded-xl p-6 lg:col-span-2 flex flex-col">
-                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary-fixed text-2xl">group</span>
-                            <div>
-                                <h3 class="font-title-md text-lg text-on-surface font-bold">Recent Registered Users</h3>
-                                <p class="font-body-md text-xs text-on-surface-variant">Latest system enrollments and credentials</p>
-                            </div>
+
+            <!-- Recent Users + Activity -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                <!-- Users -->
+                <div class="card rounded-xl xl:col-span-2">
+
+                    <div class="p-6 border-b border-border flex items-center justify-between">
+
+                        <div>
+
+                            <h3 class="font-heading font-bold text-lg text-slate-900">
+                                Recent Registered Users
+                            </h3>
+
+                            <p class="text-xs text-slate-500 mt-1">
+                                Latest system enrollments and credentials
+                            </p>
+
                         </div>
-                        <button onclick="switchTab('students')" class="text-primary-fixed hover:underline text-xs font-label-sm uppercase font-semibold flex items-center gap-1 cursor-pointer">
-                            View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+
+                        <button onclick="switchTab('students')"
+                                class="text-primary text-xs font-semibold hover:underline">
+                            View All
                         </button>
+
                     </div>
 
-                    <div class="overflow-x-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left text-xs font-body-md">
+                    <div class="overflow-x-auto scrollbar">
+
+                        <table class="w-full text-left">
+
                             <thead>
-                                <tr class="text-on-surface-variant uppercase font-label-sm border-b border-white/10">
-                                    <th class="pb-3 px-2">User Profile</th>
-                                    <th class="pb-3 px-2">Role</th>
-                                    <th class="pb-3 px-2">Status</th>
-                                    <th class="pb-3 px-2 text-right">Action</th>
+                                <tr class="border-b border-border text-xs uppercase text-slate-400">
+
+                                    <th class="px-6 py-3 font-mono">
+                                        User
+                                    </th>
+
+                                    <th class="px-4 py-3 font-mono">
+                                        Role
+                                    </th>
+
+                                    <th class="px-4 py-3 font-mono">
+                                        Status
+                                    </th>
+
+                                    <th class="px-6 py-3 text-right font-mono">
+                                        Action
+                                    </th>
+
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-white/5" id="dashboardRecentUsers"></tbody>
+
+                            <tbody id="dashboardRecentUsers"
+                                   class="divide-y divide-slate-100">
+                            </tbody>
+
                         </table>
+
                     </div>
+
                 </div>
 
-                <!-- Right: Recent System Activity -->
-                <div class="glass-card rounded-xl p-6 lg:col-span-1 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-white/5">
-                            <span class="material-symbols-outlined text-primary-fixed text-2xl">history</span>
-                            <h3 class="font-title-md text-lg text-on-surface font-bold">System Audit Activity</h3>
+
+                <!-- Activity -->
+                <div class="card rounded-xl p-6">
+
+                    <div class="flex items-center gap-3 mb-5">
+
+                        <div class="w-10 h-10 rounded-lg bg-blue-50
+                                    flex items-center justify-center">
+
+                            <span class="material-symbols-outlined text-primary">
+                                history
+                            </span>
+
                         </div>
-                        <div class="space-y-3.5 text-xs">
-                            <div class="p-3 rounded-lg bg-surface-container-lowest/60 border border-white/5 flex gap-3">
-                                <span class="material-symbols-outlined text-primary-fixed text-lg mt-0.5">school</span>
-                                <div>
-                                    <strong class="text-on-surface block font-semibold">New student registered</strong>
-                                    <p class="text-on-surface-variant text-[11px]">Sarah Johnson created an account.</p>
-                                    <span class="text-on-surface-variant/60 text-[10px]">10 minutes ago</span>
-                                </div>
-                            </div>
-                            <div class="p-3 rounded-lg bg-surface-container-lowest/60 border border-white/5 flex gap-3">
-                                <span class="material-symbols-outlined text-amber-400 text-lg mt-0.5">monitoring</span>
-                                <div>
-                                    <strong class="text-on-surface block font-semibold">Performance updated</strong>
-                                    <p class="text-on-surface-variant text-[11px]">Coach Miller updated athlete benchmark.</p>
-                                    <span class="text-on-surface-variant/60 text-[10px]">35 minutes ago</span>
-                                </div>
-                            </div>
-                            <div class="p-3 rounded-lg bg-surface-container-lowest/60 border border-white/5 flex gap-3">
-                                <span class="material-symbols-outlined text-blue-400 text-lg mt-0.5">sports</span>
-                                <div>
-                                    <strong class="text-on-surface block font-semibold">New coach added</strong>
-                                    <p class="text-on-surface-variant text-[11px]">James Wilson joined the system.</p>
-                                    <span class="text-on-surface-variant/60 text-[10px]">1 hour ago</span>
-                                </div>
-                            </div>
+
+                        <div>
+
+                            <h3 class="font-heading font-bold text-lg">
+                                Recent Activity
+                            </h3>
+
+                            <p class="text-xs text-slate-500">
+                                System audit feed
+                            </p>
+
                         </div>
+
                     </div>
 
-                    <button onclick="showToast('Showing all recent system activity.')" class="w-full mt-4 bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors text-primary-fixed text-xs font-label-sm uppercase font-bold py-2.5 rounded-lg text-center cursor-pointer">
+                    <div class="space-y-3">
+
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+
+                            <div class="flex gap-3">
+
+                                <span class="material-symbols-outlined text-primary">
+                                    school
+                                </span>
+
+                                <div>
+
+                                    <strong class="block text-sm">
+                                        New student registered
+                                    </strong>
+
+                                    <p class="text-xs text-slate-500">
+                                        Sarah Johnson created an account.
+                                    </p>
+
+                                    <span class="text-[10px] text-slate-400">
+                                        10 minutes ago
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+
+                            <div class="flex gap-3">
+
+                                <span class="material-symbols-outlined text-amber-500">
+                                    monitoring
+                                </span>
+
+                                <div>
+
+                                    <strong class="block text-sm">
+                                        Performance updated
+                                    </strong>
+
+                                    <p class="text-xs text-slate-500">
+                                        Coach Miller updated an athlete benchmark.
+                                    </p>
+
+                                    <span class="text-[10px] text-slate-400">
+                                        35 minutes ago
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+
+                            <div class="flex gap-3">
+
+                                <span class="material-symbols-outlined text-indigo-500">
+                                    sports
+                                </span>
+
+                                <div>
+
+                                    <strong class="block text-sm">
+                                        New coach added
+                                    </strong>
+
+                                    <p class="text-xs text-slate-500">
+                                        James Wilson joined the system.
+                                    </p>
+
+                                    <span class="text-[10px] text-slate-400">
+                                        1 hour ago
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <button onclick="showToast('Audit log opened.')"
+                            class="w-full mt-5 py-2.5 rounded-lg
+                                   bg-slate-100 hover:bg-primary hover:text-white
+                                   text-primary text-xs font-semibold transition-colors">
                         View Audit Log
                     </button>
+
                 </div>
+
             </div>
 
-            <!-- Quick Actions Grid -->
-            <div class="glass-card rounded-xl p-6">
-                <div class="flex items-center gap-3 mb-5 pb-3 border-b border-white/5">
-                    <span class="material-symbols-outlined text-primary-fixed text-2xl">bolt</span>
-                    <h3 class="font-title-md text-lg text-on-surface font-bold">Admin Management Shortcuts</h3>
+
+            <!-- Quick Actions -->
+            <div class="card rounded-xl p-6">
+
+                <div class="mb-5">
+
+                    <h3 class="font-heading font-bold text-lg">
+                        Admin Management Shortcuts
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Quickly manage users and system operations.
+                    </p>
+
                 </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button onclick="openAddUserModal('Student')" class="p-4 rounded-xl bg-surface-container-lowest/70 border border-white/5 hover:border-primary-fixed/40 transition-all text-left group cursor-pointer">
-                        <span class="material-symbols-outlined text-primary-fixed text-2xl mb-2 group-hover:scale-110 transition-transform">school</span>
-                        <strong class="block text-sm text-on-surface font-bold font-title-md">+ Add Student</strong>
-                        <span class="text-xs text-on-surface-variant mt-0.5 block">Create athlete account & assign division</span>
+
+                    <button onclick="openAddUserModal('Student')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all">
+
+                        <span class="material-symbols-outlined text-primary text-2xl">
+                            school
+                        </span>
+
+                        <strong class="block mt-3 text-sm">
+                            Add Student
+                        </strong>
+
+                        <span class="block mt-1 text-xs text-slate-500">
+                            Create athlete account
+                        </span>
+
                     </button>
-                    <button onclick="openAddUserModal('Coach')" class="p-4 rounded-xl bg-surface-container-lowest/70 border border-white/5 hover:border-primary-fixed/40 transition-all text-left group cursor-pointer">
-                        <span class="material-symbols-outlined text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">sports</span>
-                        <strong class="block text-sm text-on-surface font-bold font-title-md">+ Add Coach</strong>
-                        <span class="text-xs text-on-surface-variant mt-0.5 block">Create instructor account & credentials</span>
+
+
+                    <button onclick="openAddUserModal('Coach')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-indigo-300 hover:bg-indigo-50/50 text-left transition-all">
+
+                        <span class="material-symbols-outlined text-indigo-600 text-2xl">
+                            sports
+                        </span>
+
+                        <strong class="block mt-3 text-sm">
+                            Add Coach
+                        </strong>
+
+                        <span class="block mt-1 text-xs text-slate-500">
+                            Create instructor account
+                        </span>
+
                     </button>
-                    <button onclick="switchTab('reports')" class="p-4 rounded-xl bg-surface-container-lowest/70 border border-white/5 hover:border-primary-fixed/40 transition-all text-left group cursor-pointer">
-                        <span class="material-symbols-outlined text-amber-400 text-2xl mb-2 group-hover:scale-110 transition-transform">description</span>
-                        <strong class="block text-sm text-on-surface font-bold font-title-md">Generate Report</strong>
-                        <span class="text-xs text-on-surface-variant mt-0.5 block">System overview & performance analytics</span>
+
+
+                    <button onclick="switchTab('reports')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-amber-300 hover:bg-amber-50/50 text-left transition-all">
+
+                        <span class="material-symbols-outlined text-amber-500 text-2xl">
+                            description
+                        </span>
+
+                        <strong class="block mt-3 text-sm">
+                            Generate Report
+                        </strong>
+
+                        <span class="block mt-1 text-xs text-slate-500">
+                            Export system analytics
+                        </span>
+
                     </button>
-                    <button onclick="switchTab('settings')" class="p-4 rounded-xl bg-surface-container-lowest/70 border border-white/5 hover:border-primary-fixed/40 transition-all text-left group cursor-pointer">
-                        <span class="material-symbols-outlined text-emerald-400 text-2xl mb-2 group-hover:scale-110 transition-transform">tune</span>
-                        <strong class="block text-sm text-on-surface font-bold font-title-md">System Settings</strong>
-                        <span class="text-xs text-on-surface-variant mt-0.5 block">Configure preferences & notifications</span>
+
+
+                    <button onclick="switchTab('settings')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-emerald-300 hover:bg-emerald-50/50 text-left transition-all">
+
+                        <span class="material-symbols-outlined text-emerald-500 text-2xl">
+                            tune
+                        </span>
+
+                        <strong class="block mt-3 text-sm">
+                            System Settings
+                        </strong>
+
+                        <span class="block mt-1 text-xs text-slate-500">
+                            Configure preferences
+                        </span>
+
                     </button>
+
                 </div>
+
             </div>
+
         </section>
 
-        <!-- =================== 2. STUDENTS VIEW =================== -->
-        <section id="section-students" class="content-section hidden flex flex-col gap-8">
-            <div class="glass-card rounded-xl p-6 md:p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-white/5">
-                    <div>
-                        <h2 class="font-title-md text-2xl text-on-surface font-bold">Registered Students</h2>
-                        <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Manage and inspect all student athlete accounts.</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center bg-surface-container-high rounded-full px-4 py-2 border border-white/10 w-64">
-                            <span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
-                            <input id="studentSearchInput" class="bg-transparent border-none text-on-surface focus:ring-0 p-0 text-xs w-full placeholder:text-on-surface-variant/50 font-body-md" placeholder="Search students..." type="text"/>
+
+        <!-- STUDENTS -->
+        <section id="section-students"
+                 class="content-section hidden space-y-6">
+
+            <div class="card rounded-xl">
+
+                <div class="p-6 border-b border-border">
+
+                    <div class="flex flex-wrap justify-between gap-4">
+
+                        <div>
+
+                            <h2 class="font-heading font-bold text-2xl">
+                                Registered Students
+                            </h2>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Manage all student athlete accounts.
+                            </p>
+
                         </div>
-                        <button onclick="openAddUserModal('Student')" class="bg-primary-fixed text-on-primary-fixed font-label-sm text-xs uppercase px-4 py-2 rounded-lg font-bold hover:bg-primary-fixed-dim transition-colors flex items-center gap-1.5 cursor-pointer">
-                            <span class="material-symbols-outlined text-base">add</span> Add Student
+
+                        <div class="flex gap-3">
+
+                            <div class="flex items-center bg-slate-50
+                                        border border-border rounded-lg px-3 w-60">
+
+                                <span class="material-symbols-outlined text-slate-400">
+                                    search
+                                </span>
+
+                                <input id="studentSearchInput"
+                                       class="ml-2 w-full border-0 bg-transparent
+                                              focus:ring-0 text-sm"
+                                       placeholder="Search students...">
+
+                            </div>
+
+                            <button onclick="openAddUserModal('Student')"
+                                    class="px-4 py-2 bg-primary hover:bg-primary-dark
+                                           text-white rounded-lg text-sm font-semibold">
+                                + Add Student
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="overflow-x-auto scrollbar">
+
+                    <table class="w-full text-left">
+
+                        <thead>
+
+                            <tr class="border-b border-border text-xs uppercase text-slate-400">
+
+                                <th class="px-6 py-3 font-mono">
+                                    Student
+                                </th>
+
+                                <th class="px-4 py-3 font-mono">
+                                    Email
+                                </th>
+
+                                <th class="px-4 py-3 font-mono">
+                                    Status
+                                </th>
+
+                                <th class="px-6 py-3 text-right font-mono">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="studentTableBody"
+                               class="divide-y divide-slate-100">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- COACHES -->
+        <section id="section-coaches"
+                 class="content-section hidden space-y-6">
+
+            <div class="card rounded-xl">
+
+                <div class="p-6 border-b border-border">
+
+                    <div class="flex justify-between items-center">
+
+                        <div>
+
+                            <h2 class="font-heading font-bold text-2xl">
+                                Coach Accounts
+                            </h2>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Manage coaching staff and training divisions.
+                            </p>
+
+                        </div>
+
+                        <button onclick="openAddUserModal('Coach')"
+                                class="px-4 py-2 bg-primary hover:bg-primary-dark
+                                       text-white rounded-lg text-sm font-semibold">
+                            + Add Coach
                         </button>
+
                     </div>
+
                 </div>
 
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-xs font-body-md">
+                <div class="overflow-x-auto scrollbar">
+
+                    <table class="w-full text-left">
+
                         <thead>
-                            <tr class="text-on-surface-variant uppercase font-label-sm border-b border-white/10">
-                                <th class="pb-3 px-3">Student Name</th>
-                                <th class="pb-3 px-3">Email</th>
-                                <th class="pb-3 px-3">Status</th>
-                                <th class="pb-3 px-3 text-right">Action</th>
+
+                            <tr class="border-b border-border text-xs uppercase text-slate-400">
+
+                                <th class="px-6 py-3 font-mono">
+                                    Coach
+                                </th>
+
+                                <th class="px-4 py-3 font-mono">
+                                    Email
+                                </th>
+
+                                <th class="px-4 py-3 font-mono">
+                                    Status
+                                </th>
+
+                                <th class="px-6 py-3 text-right font-mono">
+                                    Action
+                                </th>
+
                             </tr>
+
                         </thead>
-                        <tbody id="studentTableBody" class="divide-y divide-white/5"></tbody>
+
+                        <tbody id="coachTableBody"
+                               class="divide-y divide-slate-100">
+                        </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </section>
 
-        <!-- =================== 3. COACHES VIEW =================== -->
-        <section id="section-coaches" class="content-section hidden flex flex-col gap-8">
-            <div class="glass-card rounded-xl p-6 md:p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-white/5">
-                    <div>
-                        <h2 class="font-title-md text-2xl text-on-surface font-bold">Coach Accounts</h2>
-                        <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Manage coaching staff and assigned training divisions.</p>
-                    </div>
-                    <button onclick="openAddUserModal('Coach')" class="bg-primary-fixed text-on-primary-fixed font-label-sm text-xs uppercase px-4 py-2 rounded-lg font-bold hover:bg-primary-fixed-dim transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">add</span> Add Coach
-                    </button>
+
+        <!-- PERFORMANCE -->
+        <section id="section-performance"
+                 class="content-section hidden space-y-6">
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">
+                        Average Performance
+                    </span>
+
+                    <h3 class="text-3xl font-heading font-bold mt-3">
+                        82%
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Overall athlete metric
+                    </p>
                 </div>
 
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-xs font-body-md">
-                        <thead>
-                            <tr class="text-on-surface-variant uppercase font-label-sm border-b border-white/10">
-                                <th class="pb-3 px-3">Coach Name</th>
-                                <th class="pb-3 px-3">Email</th>
-                                <th class="pb-3 px-3">Status</th>
-                                <th class="pb-3 px-3 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="coachTableBody" class="divide-y divide-white/5"></tbody>
-                    </table>
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">
+                        Goals Completed
+                    </span>
+
+                    <h3 class="text-3xl font-heading font-bold mt-3">
+                        64
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Successfully cleared targets
+                    </p>
                 </div>
+
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">
+                        Goals Needing Attention
+                    </span>
+
+                    <h3 class="text-3xl font-heading font-bold mt-3">
+                        31
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Under target performance
+                    </p>
+                </div>
+
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">
+                        Monthly Assessments
+                    </span>
+
+                    <h3 class="text-3xl font-heading font-bold mt-3">
+                        146
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Completed this month
+                    </p>
+                </div>
+
             </div>
+
+
+            <div class="card rounded-xl p-6 md:p-8">
+
+                <h2 class="font-heading font-bold text-xl">
+                    System Performance Analytics
+                </h2>
+
+                <p class="text-sm text-slate-500 mt-1 mb-8">
+                    Live benchmark tracking across all departments.
+                </p>
+
+
+                <div class="space-y-7">
+
+                    <div>
+
+                        <div class="flex justify-between text-sm mb-2">
+
+                            <span class="font-semibold">
+                                Cardiovascular Readiness
+                            </span>
+
+                            <span class="font-mono text-primary">
+                                82%
+                            </span>
+
+                        </div>
+
+                        <div class="h-2.5 rounded-full progress-track">
+
+                            <div class="h-full rounded-full progress-fill"
+                                 style="width:82%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="flex justify-between text-sm mb-2">
+
+                            <span class="font-semibold">
+                                Strength & Power Index
+                            </span>
+
+                            <span class="font-mono text-primary">
+                                78%
+                            </span>
+
+                        </div>
+
+                        <div class="h-2.5 rounded-full progress-track">
+
+                            <div class="h-full rounded-full progress-fill"
+                                 style="width:78%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="flex justify-between text-sm mb-2">
+
+                            <span class="font-semibold">
+                                Training Consistency
+                            </span>
+
+                            <span class="font-mono text-primary">
+                                91%
+                            </span>
+
+                        </div>
+
+                        <div class="h-2.5 rounded-full progress-track">
+
+                            <div class="h-full rounded-full progress-fill"
+                                 style="width:91%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </section>
 
-        <!-- =================== 4. PERFORMANCE VIEW =================== -->
-        <section id="section-performance" class="content-section hidden flex flex-col gap-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-primary-fixed">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Average Performance</span>
-                        <span class="material-symbols-outlined text-primary-fixed text-2xl">bar_chart</span>
+
+        <!-- REPORTS -->
+        <section id="section-reports"
+                 class="content-section hidden space-y-6">
+
+            <div class="card rounded-xl p-6 md:p-8">
+
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-7">
+
+                    <div>
+
+                        <h2 class="font-heading font-bold text-2xl">
+                            System Reports & Exports
+                        </h2>
+
+                        <p class="text-sm text-slate-500 mt-1">
+                            Export operational metrics and user records.
+                        </p>
+
                     </div>
-                    <h3 class="font-data-display text-3xl text-on-surface font-bold">82%</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Overall athlete metric tier</p>
+
+                    <button onclick="generateReport('System Overview')"
+                            class="bg-primary hover:bg-primary-dark text-white
+                                   px-4 py-2 rounded-lg text-sm font-semibold">
+                        Generate Master Report
+                    </button>
+
                 </div>
 
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-400">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Goals Completed</span>
-                        <span class="material-symbols-outlined text-blue-400 text-2xl">verified</span>
-                    </div>
-                    <h3 class="font-data-display text-3xl text-on-surface font-bold">64</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Successfully cleared targets</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <button onclick="generateReport('Student Performance')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-blue-300 hover:bg-blue-50 text-left">
+
+                        <span class="material-symbols-outlined text-primary text-3xl">
+                            bar_chart
+                        </span>
+
+                        <strong class="block mt-3">
+                            Student Performance Report
+                        </strong>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Aggregated progress metrics and score distributions.
+                        </p>
+
+                    </button>
+
+
+                    <button onclick="generateReport('Coach Activity')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-indigo-300 hover:bg-indigo-50 text-left">
+
+                        <span class="material-symbols-outlined text-indigo-600 text-3xl">
+                            sports
+                        </span>
+
+                        <strong class="block mt-3">
+                            Coach Activity Report
+                        </strong>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Assessment frequency and session logs.
+                        </p>
+
+                    </button>
+
+
+                    <button onclick="generateReport('System Usage')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-amber-300 hover:bg-amber-50 text-left">
+
+                        <span class="material-symbols-outlined text-amber-500 text-3xl">
+                            analytics
+                        </span>
+
+                        <strong class="block mt-3">
+                            System Usage Report
+                        </strong>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Platform engagement and active logins.
+                        </p>
+
+                    </button>
+
+
+                    <button onclick="generateReport('Account Report')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-emerald-300 hover:bg-emerald-50 text-left">
+
+                        <span class="material-symbols-outlined text-emerald-500 text-3xl">
+                            badge
+                        </span>
+
+                        <strong class="block mt-3">
+                            User Account Audit
+                        </strong>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Roles, emails, and active credentials.
+                        </p>
+
+                    </button>
+
                 </div>
 
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Goals Needing Attention</span>
-                        <span class="material-symbols-outlined text-amber-400 text-2xl">warning</span>
-                    </div>
-                    <h3 class="font-data-display text-3xl text-on-surface font-bold">31</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Under target performance</p>
-                </div>
-
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-400">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-label-sm text-xs text-on-surface-variant uppercase">Monthly Assessments</span>
-                        <span class="material-symbols-outlined text-emerald-400 text-2xl">trending_up</span>
-                    </div>
-                    <h3 class="font-data-display text-3xl text-on-surface font-bold">146</h3>
-                    <p class="font-body-md text-[11px] text-on-surface-variant mt-1">Completed this month</p>
-                </div>
             </div>
 
-            <div class="glass-card rounded-xl p-6 md:p-8">
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
-                    <div>
-                        <h2 class="font-title-md text-2xl text-on-surface font-bold">System Performance Analytics</h2>
-                        <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Live benchmark tracking across all departments.</p>
-                    </div>
-                    <span class="material-symbols-outlined text-primary-fixed text-3xl">insights</span>
-                </div>
-                <div class="space-y-6">
-                    <div>
-                        <div class="flex justify-between text-xs font-label-sm mb-1.5">
-                            <span class="text-on-surface uppercase">Cardiovascular Readiness</span>
-                            <span class="text-primary-fixed font-bold">82%</span>
-                        </div>
-                        <div class="h-2.5 w-full rounded-full progress-track overflow-hidden">
-                            <div class="h-full progress-fill-lime rounded-full" style="width: 82%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs font-label-sm mb-1.5">
-                            <span class="text-on-surface uppercase">Strength & Power Index</span>
-                            <span class="text-primary-fixed font-bold">78%</span>
-                        </div>
-                        <div class="h-2.5 w-full rounded-full progress-track overflow-hidden">
-                            <div class="h-full progress-fill-lime rounded-full" style="width: 78%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
 
-        <!-- =================== 5. REPORTS VIEW =================== -->
-        <section id="section-reports" class="content-section hidden flex flex-col gap-8">
-            <div class="glass-card rounded-xl p-6 md:p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-white/5">
-                    <div>
-                        <h2 class="font-title-md text-2xl text-on-surface font-bold">System Reports & Exports</h2>
-                        <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Export operational metrics, user records, and attendance data.</p>
-                    </div>
-                    <button onclick="generateReport('System Overview')" class="bg-primary-fixed text-on-primary-fixed font-label-sm text-xs uppercase px-4 py-2 rounded-lg font-bold hover:bg-primary-fixed-dim transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">download</span> Generate Master Report
-                    </button>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button onclick="generateReport('Student Performance')" class="p-5 rounded-xl bg-surface-container-lowest/80 border border-white/5 hover:border-primary-fixed/40 transition-all text-left flex items-start gap-4 group cursor-pointer">
-                        <div class="p-3 rounded-lg bg-surface-container-high text-primary-fixed group-hover:bg-primary-fixed group-hover:text-on-primary-fixed transition-colors">
-                            <span class="material-symbols-outlined text-2xl">bar_chart</span>
-                        </div>
+        <!-- SETTINGS -->
+        <section id="section-settings"
+                 class="content-section hidden space-y-6">
+
+            <div class="card rounded-xl p-6 md:p-8">
+
+                <h2 class="font-heading font-bold text-2xl">
+                    Admin Preferences & Security
+                </h2>
+
+                <p class="text-sm text-slate-500 mt-1 mb-7">
+                    Manage administrative controls and interface configurations.
+                </p>
+
+
+                <div class="space-y-4">
+
+                    <!-- Notifications -->
+                    <div class="p-5 rounded-xl bg-slate-50 border border-border
+                                flex items-center justify-between gap-4">
+
                         <div>
-                            <strong class="font-title-md text-base text-on-surface block font-bold">Student Performance Report</strong>
-                            <p class="font-body-md text-xs text-on-surface-variant mt-1">Aggregated progress metrics and score distributions.</p>
-                        </div>
-                    </button>
 
-                    <button onclick="generateReport('Coach Activity')" class="p-5 rounded-xl bg-surface-container-lowest/80 border border-white/5 hover:border-primary-fixed/40 transition-all text-left flex items-start gap-4 group cursor-pointer">
-                        <div class="p-3 rounded-lg bg-surface-container-high text-blue-400 group-hover:bg-blue-400 group-hover:text-black transition-colors">
-                            <span class="material-symbols-outlined text-2xl">sports</span>
-                        </div>
-                        <div>
-                            <strong class="font-title-md text-base text-on-surface block font-bold">Coach Activity Report</strong>
-                            <p class="font-body-md text-xs text-on-surface-variant mt-1">Assessment frequency and session log volume.</p>
-                        </div>
-                    </button>
+                            <h3 class="font-semibold">
+                                System Notifications
+                            </h3>
 
-                    <button onclick="generateReport('System Usage')" class="p-5 rounded-xl bg-surface-container-lowest/80 border border-white/5 hover:border-primary-fixed/40 transition-all text-left flex items-start gap-4 group cursor-pointer">
-                        <div class="p-3 rounded-lg bg-surface-container-high text-amber-400 group-hover:bg-amber-400 group-hover:text-black transition-colors">
-                            <span class="material-symbols-outlined text-2xl">analytics</span>
-                        </div>
-                        <div>
-                            <strong class="font-title-md text-base text-on-surface block font-bold">System Usage Report</strong>
-                            <p class="font-body-md text-xs text-on-surface-variant mt-1">Platform engagement, daily active logins, and logs.</p>
-                        </div>
-                    </button>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Receive live alerts for registrations and system events.
+                            </p>
 
-                    <button onclick="generateReport('Account Report')" class="p-5 rounded-xl bg-surface-container-lowest/80 border border-white/5 hover:border-primary-fixed/40 transition-all text-left flex items-start gap-4 group cursor-pointer">
-                        <div class="p-3 rounded-lg bg-surface-container-high text-emerald-400 group-hover:bg-emerald-400 group-hover:text-black transition-colors">
-                            <span class="material-symbols-outlined text-2xl">badge</span>
                         </div>
-                        <div>
-                            <strong class="font-title-md text-base text-on-surface block font-bold">User Account Audit</strong>
-                            <p class="font-body-md text-xs text-on-surface-variant mt-1">Full breakdown of all roles, emails, and active credentials.</p>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
 
-        <!-- =================== 6. SETTINGS VIEW =================== -->
-        <section id="section-settings" class="content-section hidden flex flex-col gap-8">
-            <div class="glass-card rounded-xl p-6 md:p-8">
-                <div class="mb-6 pb-4 border-b border-white/5">
-                    <h2 class="font-title-md text-2xl text-on-surface font-bold">Admin Preferences & Security</h2>
-                    <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Manage administrative controls and interface configurations.</p>
-                </div>
+                        <label class="relative inline-flex cursor-pointer">
 
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between p-5 rounded-xl bg-surface-container-high border border-white/5">
-                        <div>
-                            <h3 class="font-title-md text-base text-on-surface font-bold">System Notifications</h3>
-                            <p class="font-body-md text-xs text-on-surface-variant">Receive live alerts when new accounts register or fail authorization.</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="settingNotifToggle" checked class="sr-only peer">
-                            <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-fixed"></div>
+                            <input id="settingNotifToggle"
+                                   type="checkbox"
+                                   checked
+                                   class="sr-only peer">
+
+                            <div class="w-11 h-6 rounded-full bg-slate-300
+                                        peer-checked:bg-primary
+                                        after:absolute after:top-[2px] after:left-[2px]
+                                        after:h-5 after:w-5 after:bg-white after:rounded-full
+                                        after:transition-all
+                                        peer-checked:after:translate-x-full">
+                            </div>
+
                         </label>
+
                     </div>
 
-                    <div class="flex items-center justify-between p-5 rounded-xl bg-surface-container-high border border-white/5">
+
+                    <!-- Theme -->
+                    <div class="p-5 rounded-xl bg-slate-50 border border-border
+                                flex items-center justify-between gap-4">
+
                         <div>
-                            <h3 class="font-title-md text-base text-on-surface font-bold">High Contrast Neon Theme</h3>
-                            <p class="font-body-md text-xs text-on-surface-variant">Electric lime primary accents locked on dark background[cite: 1].</p>
+
+                            <h3 class="font-semibold">
+                                Student Dashboard Theme
+                            </h3>
+
+                            <p class="text-xs text-slate-500 mt-1">
+                                Clean blue and white interface theme.
+                            </p>
+
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked disabled class="sr-only peer">
-                            <div class="w-11 h-6 bg-primary-fixed rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:rounded-full after:h-5 after:w-5"></div>
-                        </label>
+
+                        <span class="px-3 py-1.5 rounded-full bg-blue-100
+                                     text-blue-700 text-xs font-semibold">
+                            Active
+                        </span>
+
                     </div>
 
-                    <!-- Deactivate Admin Account -->
-                    <div class="flex items-center justify-between p-5 rounded-xl bg-surface-container-high border border-white/5">
+
+                    <!-- Deactivate -->
+                    <div class="p-5 rounded-xl bg-amber-50 border border-amber-200
+                                flex items-center justify-between gap-4">
+
                         <div>
-                            <h3 class="font-title-md text-base text-on-surface font-bold">Deactivate Admin Account</h3>
-                            <p class="font-body-md text-xs text-on-surface-variant">Temporarily lock master console access and mute system alerts.</p>
+
+                            <h3 class="font-semibold text-amber-900">
+                                Deactivate Admin Account
+                            </h3>
+
+                            <p class="text-xs text-amber-700 mt-1">
+                                Temporarily lock administrator console access.
+                            </p>
+
                         </div>
-                        <button id="deactivateBtn" type="button" class="px-4 py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-label-sm uppercase font-bold hover:bg-amber-500/30 transition-colors cursor-pointer">
+
+                        <button id="deactivateBtn"
+                                class="px-4 py-2 rounded-lg bg-amber-500
+                                       hover:bg-amber-600 text-white text-xs font-semibold">
                             Deactivate
                         </button>
+
                     </div>
 
-                    <!-- Delete Admin Account -->
-                    <div class="flex items-center justify-between p-5 rounded-xl bg-surface-container-high border border-error/20">
+
+                    <!-- Delete -->
+                    <div class="p-5 rounded-xl bg-red-50 border border-red-200
+                                flex items-center justify-between gap-4">
+
                         <div>
-                            <h3 class="font-title-md text-base text-error font-bold">Delete Administrator Account</h3>
-                            <p class="font-body-md text-xs text-on-surface-variant">Permanently wipe master credentials, audit profiles, and system privileges.</p>
+
+                            <h3 class="font-semibold text-red-700">
+                                Delete Administrator Account
+                            </h3>
+
+                            <p class="text-xs text-red-500 mt-1">
+                                Permanently remove administrator credentials.
+                            </p>
+
                         </div>
-                        <button id="deleteAccountBtn" type="button" class="px-4 py-2 rounded-lg bg-error-container/30 text-error border border-error/50 text-xs font-label-sm uppercase font-bold hover:bg-error transition-colors hover:text-white cursor-pointer">
+
+                        <button id="deleteAccountBtn"
+                                class="px-4 py-2 rounded-lg bg-red-500
+                                       hover:bg-red-600 text-white text-xs font-semibold">
                             Delete Account
                         </button>
+
                     </div>
+
                 </div>
+
             </div>
+
         </section>
 
     </div>
+
 </main>
 
-<!-- ================= MODALS & POPUPS ================= -->
 
-<!-- 1. ADD USER MODAL -->
-<div id="userModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="bg-surface-container-low border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-5 pb-3 border-b border-white/10">
+<!-- ADD USER MODAL -->
+<div id="userModal"
+     class="fixed inset-0 z-[60] hidden items-center justify-center p-4 modal-backdrop">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-border p-6">
+
+        <div class="flex items-center justify-between pb-4 border-b border-border">
+
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary-fixed">person_add</span>
-                <h3 id="modalTitle" class="font-title-md text-lg text-primary-fixed font-bold">Add User</h3>
+
+                <div class="w-9 h-9 rounded-lg bg-blue-50
+                            flex items-center justify-center">
+
+                    <span class="material-symbols-outlined text-primary">
+                        person_add
+                    </span>
+
+                </div>
+
+                <h3 id="modalTitle"
+                    class="font-heading font-bold text-lg">
+                    Add New Student
+                </h3>
+
             </div>
-            <button id="closeModal" class="text-on-surface-variant hover:text-white cursor-pointer"><span class="material-symbols-outlined text-xl">close</span></button>
+
+            <button id="closeModal"
+                    class="text-slate-400 hover:text-slate-700">
+
+                <span class="material-symbols-outlined">
+                    close
+                </span>
+
+            </button>
+
         </div>
 
-        <form id="userForm" class="space-y-4 text-xs font-body-md">
-            <div>
-                <label class="block font-label-sm uppercase text-on-surface-variant mb-1">Full Name</label>
-                <input type="text" id="newUserName" required placeholder="Enter full name" class="w-full bg-surface-container-high border border-white/10 rounded-lg text-on-surface px-3 py-2.5 focus:border-primary-fixed focus:ring-0 placeholder:text-on-surface-variant/40"/>
-            </div>
+
+        <form id="userForm" class="space-y-4 mt-5">
 
             <div>
-                <label class="block font-label-sm uppercase text-on-surface-variant mb-1">Email Address</label>
-                <input type="email" id="newUserEmail" required placeholder="Enter email address" class="w-full bg-surface-container-high border border-white/10 rounded-lg text-on-surface px-3 py-2.5 focus:border-primary-fixed focus:ring-0 placeholder:text-on-surface-variant/40"/>
+
+                <label class="block text-xs font-mono uppercase
+                              tracking-wide text-slate-500 mb-1">
+                    Full Name
+                </label>
+
+                <input id="newUserName"
+                       required
+                       type="text"
+                       placeholder="Enter full name"
+                       class="w-full rounded-lg border-border bg-slate-50
+                              focus:border-primary focus:ring-primary">
+
             </div>
 
+
             <div>
-                <label class="block font-label-sm uppercase text-on-surface-variant mb-1">Assign Role</label>
-                <select id="newUserRole" class="w-full bg-surface-container-high border border-white/10 rounded-lg text-on-surface px-3 py-2.5 focus:border-primary-fixed focus:ring-0">
-                    <option value="Student">Student Athlete</option>
-                    <option value="Coach">Performance Coach</option>
-                    <option value="Admin">Administrator</option>
+
+                <label class="block text-xs font-mono uppercase
+                              tracking-wide text-slate-500 mb-1">
+                    Email Address
+                </label>
+
+                <input id="newUserEmail"
+                       required
+                       type="email"
+                       placeholder="Enter email address"
+                       class="w-full rounded-lg border-border bg-slate-50
+                              focus:border-primary focus:ring-primary">
+
+            </div>
+
+
+            <div>
+
+                <label class="block text-xs font-mono uppercase
+                              tracking-wide text-slate-500 mb-1">
+                    Assign Role
+                </label>
+
+                <select id="newUserRole"
+                        class="w-full rounded-lg border-border bg-slate-50
+                               focus:border-primary focus:ring-primary">
+
+                    <option value="Student">
+                        Student Athlete
+                    </option>
+
+                    <option value="Coach">
+                        Performance Coach
+                    </option>
+
+                    <option value="Admin">
+                        Administrator
+                    </option>
+
                 </select>
+
             </div>
 
-            <div class="flex justify-end gap-2 pt-4 border-t border-white/10">
-                <button type="button" id="cancelModal" class="px-4 py-2 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-xs uppercase cursor-pointer">Cancel</button>
-                <button type="submit" class="px-5 py-2 rounded-lg bg-primary-fixed text-on-primary-fixed font-bold font-label-sm text-xs uppercase hover:bg-primary-fixed-dim shadow-[0_0_12px_rgba(199,243,0,0.3)] cursor-pointer">Create User</button>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-border">
+
+                <button type="button"
+                        id="cancelModal"
+                        class="px-4 py-2 rounded-lg bg-slate-100
+                               text-slate-700 text-sm font-semibold">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="px-5 py-2 rounded-lg bg-primary
+                               hover:bg-primary-dark text-white
+                               text-sm font-semibold">
+                    Create User
+                </button>
+
             </div>
+
         </form>
+
     </div>
+
 </div>
 
-<!-- 2. USER DETAIL MODAL -->
-<div id="userDetailModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="bg-surface-container-low border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-5 pb-3 border-b border-white/10">
-            <h3 id="modalUserName" class="font-title-md text-lg text-primary-fixed font-bold">User Information</h3>
-            <button id="userDetailClose" class="text-on-surface-variant hover:text-white cursor-pointer"><span class="material-symbols-outlined text-xl">close</span></button>
+
+<!-- USER DETAIL MODAL -->
+<div id="userDetailModal"
+     class="fixed inset-0 z-[60] hidden items-center justify-center p-4 modal-backdrop">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-border p-6">
+
+        <div class="flex justify-between items-center pb-4 border-b border-border">
+
+            <h3 id="modalUserName"
+                class="font-heading font-bold text-lg">
+                User Profile
+            </h3>
+
+            <button id="userDetailClose"
+                    class="text-slate-400 hover:text-slate-700">
+
+                <span class="material-symbols-outlined">
+                    close
+                </span>
+
+            </button>
+
         </div>
-        <div class="space-y-4 text-xs font-body-md" id="userDetailBody"></div>
-        <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-white/10">
-            <button id="userDetailOk" class="px-4 py-2 rounded-lg bg-primary-fixed text-on-primary-fixed font-bold font-label-sm text-xs uppercase hover:bg-primary-fixed-dim cursor-pointer">Close</button>
+
+        <div id="userDetailBody"
+             class="space-y-4 mt-5">
         </div>
+
+        <div class="flex justify-end mt-6 pt-4 border-t border-border">
+
+            <button id="userDetailOk"
+                    class="px-5 py-2 rounded-lg bg-primary
+                           text-white text-sm font-semibold">
+                Close
+            </button>
+
+        </div>
+
     </div>
+
 </div>
 
-<!-- TOAST CONTAINER -->
-<div id="toast" class="fixed right-6 bottom-6 bg-surface-container-lowest border border-primary-fixed/40 text-on-surface px-4 py-3 rounded-xl shadow-2xl text-xs font-label-sm transform translate-y-24 opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
-    <span class="material-symbols-outlined text-primary-fixed text-sm">check_circle</span>
-    <span id="toastMessage">Success</span>
+
+<!-- TOAST -->
+<div id="toast"
+     class="toast fixed right-5 bottom-5 z-[70]
+            bg-slate-900 text-white px-5 py-3 rounded-xl
+            shadow-xl flex items-center gap-3 transition-all duration-300">
+
+    <span class="material-symbols-outlined text-emerald-400">
+        check_circle
+    </span>
+
+    <span id="toastMessage"
+          class="text-sm">
+        Success
+    </span>
+
 </div>
 
-<!-- JAVASCRIPT APPLICATION CORE -->
+
 <script>
     const adminState = {
         users: [
-            { id: "USR001", name: "John Doe", email: "john@example.com", role: "Student", status: "Active" },
-            { id: "USR002", name: "Alex Smith", email: "alex@example.com", role: "Coach", status: "Active" },
-            { id: "USR003", name: "Mike Brown", email: "mike@example.com", role: "Student", status: "Pending" },
-            { id: "USR004", name: "Sarah Johnson", email: "sarah@example.com", role: "Student", status: "Active" },
-            { id: "USR005", name: "James Wilson", email: "james@example.com", role: "Coach", status: "Active" }
+            {
+                id: "USR001",
+                name: "John Doe",
+                email: "john@example.com",
+                role: "Student",
+                status: "Active"
+            },
+            {
+                id: "USR002",
+                name: "Alex Smith",
+                email: "alex@example.com",
+                role: "Coach",
+                status: "Active"
+            },
+            {
+                id: "USR003",
+                name: "Mike Brown",
+                email: "mike@example.com",
+                role: "Student",
+                status: "Pending"
+            },
+            {
+                id: "USR004",
+                name: "Sarah Johnson",
+                email: "sarah@example.com",
+                role: "Student",
+                status: "Active"
+            },
+            {
+                id: "USR005",
+                name: "James Wilson",
+                email: "james@example.com",
+                role: "Coach",
+                status: "Active"
+            }
         ],
+
         studentCount: 248,
         coachCount: 24,
         pendingCount: 7
     };
 
+
     document.addEventListener("DOMContentLoaded", () => {
+
         setupDate();
         renderAllTables();
         setupNavigation();
         setupModals();
         setupAccountActions();
+
     });
 
+
+    /* DATE */
+
     function setupDate() {
+
         const today = new Date();
-        document.getElementById("currentDate").textContent = today.toLocaleDateString("en-GB", {
-            day: "2-digit", month: "short", year: "numeric"
-        });
+
+        document.getElementById("currentDate").textContent =
+            today.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+
     }
 
+
+    /* TABLES */
+
     function renderAllTables() {
+
         renderDashboardRecentUsers();
         renderStudentTable();
         renderCoachTable();
+
     }
+
+
+    function avatarLetters(name) {
+
+        return name
+            .split(" ")
+            .map(word => word[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+
+    }
+
+
+    function statusBadge(status) {
+
+        if (status === "Active") {
+
+            return `
+                <span class="inline-flex px-2.5 py-1 rounded-full
+                             bg-emerald-50 text-emerald-700
+                             border border-emerald-200
+                             text-[10px] font-mono uppercase font-bold">
+                    Active
+                </span>
+            `;
+
+        }
+
+        return `
+            <span class="inline-flex px-2.5 py-1 rounded-full
+                         bg-amber-50 text-amber-700
+                         border border-amber-200
+                         text-[10px] font-mono uppercase font-bold">
+                Pending
+            </span>
+        `;
+
+    }
+
 
     function renderDashboardRecentUsers() {
-        const tbody = document.getElementById("dashboardRecentUsers");
-        tbody.innerHTML = adminState.users.slice(0, 4).map(user => `
-            <tr class="hover:bg-white/5 transition-colors">
-                <td class="py-3 px-2">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-surface-container-high text-primary-fixed font-bold font-data-display flex items-center justify-center text-xs">
-                            ${user.name.split(" ").map(w => w[0]).join("")}
+
+        const tbody =
+            document.getElementById("dashboardRecentUsers");
+
+        tbody.innerHTML =
+            adminState.users.slice(0, 5).map(user => `
+
+                <tr class="hover:bg-slate-50 transition-colors">
+
+                    <td class="px-6 py-4">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-9 h-9 rounded-full
+                                        bg-blue-50 text-primary
+                                        flex items-center justify-center
+                                        font-bold text-xs">
+
+                                ${avatarLetters(user.name)}
+
+                            </div>
+
+                            <div>
+
+                                <strong class="block text-sm text-slate-800">
+                                    ${escapeHTML(user.name)}
+                                </strong>
+
+                                <span class="text-xs text-slate-400">
+                                    ${escapeHTML(user.email)}
+                                </span>
+
+                            </div>
+
                         </div>
-                        <div>
-                            <strong class="text-on-surface block font-semibold">${escapeHTML(user.name)}</strong>
-                            <span class="text-on-surface-variant text-[10px]">${escapeHTML(user.email)}</span>
-                        </div>
-                    </div>
-                </td>
-                <td class="py-3 px-2 font-label-sm text-on-surface-variant">${user.role}</td>
-                <td class="py-3 px-2">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-label-sm font-bold uppercase ${user.status === 'Active' ? 'bg-primary-container/20 text-primary-fixed border border-primary-fixed/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">
-                        ${user.status}
-                    </span>
-                </td>
-                <td class="py-3 px-2 text-right">
-                    <button onclick="viewUser('${user.name}')" class="px-3 py-1 rounded bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors text-on-surface text-[11px] font-label-sm uppercase font-bold cursor-pointer">
-                        View
-                    </button>
-                </td>
-            </tr>
-        `).join("");
+
+                    </td>
+
+
+                    <td class="px-4 py-4 text-sm text-slate-500">
+                        ${escapeHTML(user.role)}
+                    </td>
+
+
+                    <td class="px-4 py-4">
+                        ${statusBadge(user.status)}
+                    </td>
+
+
+                    <td class="px-6 py-4 text-right">
+
+                        <button
+                            onclick="viewUser('${escapeAttribute(user.name)}')"
+                            class="px-3 py-1.5 rounded-lg
+                                   bg-slate-100 hover:bg-primary
+                                   hover:text-white text-xs
+                                   font-semibold transition-colors">
+
+                            View
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `).join("");
+
     }
+
 
     function renderStudentTable() {
-        const tbody = document.getElementById("studentTableBody");
-        const students = adminState.users.filter(u => u.role === "Student");
-        tbody.innerHTML = students.map(st => `
-            <tr class="hover:bg-white/5 transition-colors">
-                <td class="py-3.5 px-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-surface-container-high border border-white/5 text-primary-fixed font-bold font-data-display flex items-center justify-center text-xs">
-                            ${st.name.split(" ").map(w => w[0]).join("")}
+
+        const tbody =
+            document.getElementById("studentTableBody");
+
+        const students =
+            adminState.users.filter(
+                user => user.role === "Student"
+            );
+
+        tbody.innerHTML =
+            students.map(student => `
+
+                <tr class="hover:bg-slate-50 transition-colors">
+
+                    <td class="px-6 py-4">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-9 h-9 rounded-full
+                                        bg-blue-50 text-primary
+                                        flex items-center justify-center
+                                        font-bold text-xs">
+
+                                ${avatarLetters(student.name)}
+
+                            </div>
+
+                            <strong class="text-sm">
+                                ${escapeHTML(student.name)}
+                            </strong>
+
                         </div>
-                        <strong class="text-on-surface block font-semibold">${escapeHTML(st.name)}</strong>
-                    </div>
-                </td>
-                <td class="py-3.5 px-3 text-on-surface-variant">${escapeHTML(st.email)}</td>
-                <td class="py-3.5 px-3">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-label-sm font-bold uppercase ${st.status === 'Active' ? 'bg-primary-container/20 text-primary-fixed border border-primary-fixed/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">
-                        ${st.status}
-                    </span>
-                </td>
-                <td class="py-3.5 px-3 text-right">
-                    <button onclick="viewUser('${st.name}')" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors text-on-surface font-label-sm text-xs uppercase font-bold cursor-pointer">
-                        View
-                    </button>
-                </td>
-            </tr>
-        `).join("");
+
+                    </td>
+
+                    <td class="px-4 py-4 text-sm text-slate-500">
+                        ${escapeHTML(student.email)}
+                    </td>
+
+                    <td class="px-4 py-4">
+                        ${statusBadge(student.status)}
+                    </td>
+
+                    <td class="px-6 py-4 text-right">
+
+                        <button
+                            onclick="viewUser('${escapeAttribute(student.name)}')"
+                            class="px-3 py-1.5 rounded-lg bg-slate-100
+                                   hover:bg-primary hover:text-white
+                                   text-xs font-semibold">
+
+                            View
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `).join("");
+
     }
+
 
     function renderCoachTable() {
-        const tbody = document.getElementById("coachTableBody");
-        const coaches = adminState.users.filter(u => u.role === "Coach");
-        tbody.innerHTML = coaches.map(ch => `
-            <tr class="hover:bg-white/5 transition-colors">
-                <td class="py-3.5 px-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-surface-container-high border border-white/5 text-primary-fixed font-bold font-data-display flex items-center justify-center text-xs">
-                            ${ch.name.split(" ").map(w => w[0]).join("")}
+
+        const tbody =
+            document.getElementById("coachTableBody");
+
+        const coaches =
+            adminState.users.filter(
+                user => user.role === "Coach"
+            );
+
+        tbody.innerHTML =
+            coaches.map(coach => `
+
+                <tr class="hover:bg-slate-50 transition-colors">
+
+                    <td class="px-6 py-4">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-9 h-9 rounded-full
+                                        bg-indigo-50 text-indigo-600
+                                        flex items-center justify-center
+                                        font-bold text-xs">
+
+                                ${avatarLetters(coach.name)}
+
+                            </div>
+
+                            <strong class="text-sm">
+                                ${escapeHTML(coach.name)}
+                            </strong>
+
                         </div>
-                        <strong class="text-on-surface block font-semibold">${escapeHTML(ch.name)}</strong>
-                    </div>
-                </td>
-                <td class="py-3.5 px-3 text-on-surface-variant">${escapeHTML(ch.email)}</td>
-                <td class="py-3.5 px-3">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-label-sm font-bold uppercase ${ch.status === 'Active' ? 'bg-primary-container/20 text-primary-fixed border border-primary-fixed/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">
-                        ${ch.status}
-                    </span>
-                </td>
-                <td class="py-3.5 px-3 text-right">
-                    <button onclick="viewUser('${ch.name}')" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors text-on-surface font-label-sm text-xs uppercase font-bold cursor-pointer">
-                        View
-                    </button>
-                </td>
-            </tr>
-        `).join("");
+
+                    </td>
+
+                    <td class="px-4 py-4 text-sm text-slate-500">
+                        ${escapeHTML(coach.email)}
+                    </td>
+
+                    <td class="px-4 py-4">
+                        ${statusBadge(coach.status)}
+                    </td>
+
+                    <td class="px-6 py-4 text-right">
+
+                        <button
+                            onclick="viewUser('${escapeAttribute(coach.name)}')"
+                            class="px-3 py-1.5 rounded-lg bg-slate-100
+                                   hover:bg-primary hover:text-white
+                                   text-xs font-semibold">
+
+                            View
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `).join("");
+
     }
+
+
+    /* NAVIGATION */
 
     function setupNavigation() {
-        const navBtns = document.querySelectorAll(".nav-btn[data-section]");
-        navBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const target = btn.dataset.section;
-                switchTab(target);
+
+        document.querySelectorAll(".nav-btn").forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                switchTab(button.dataset.section);
+
             });
+
         });
 
-        // Mobile drawer toggles
-        const mobileBtn = document.getElementById("mobileMenuBtn");
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("sidebarOverlay");
+
+        const mobileBtn =
+            document.getElementById("mobileMenuBtn");
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("sidebarOverlay");
+
 
         mobileBtn.addEventListener("click", () => {
+
             sidebar.classList.remove("-translate-x-full");
             overlay.classList.remove("hidden");
+
         });
+
 
         overlay.addEventListener("click", () => {
+
             sidebar.classList.add("-translate-x-full");
             overlay.classList.add("hidden");
+
         });
 
-        // Notifications & profile dropdowns
-        const notifTrigger = document.getElementById("notificationTrigger");
-        const notifTray = document.getElementById("notificationTray");
-        notifTrigger.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notifTray.classList.toggle("hidden");
-            document.getElementById("notificationDot").classList.add("hidden");
+
+        /* Notifications */
+
+        const notificationTrigger =
+            document.getElementById("notificationTrigger");
+
+        const notificationTray =
+            document.getElementById("notificationTray");
+
+
+        notificationTrigger.addEventListener("click", event => {
+
+            event.stopPropagation();
+
+            notificationTray.classList.toggle("hidden");
+
+            document
+                .getElementById("notificationDot")
+                .classList.add("hidden");
+
         });
 
-        const profileToggle = document.getElementById("profileMenuToggle");
-        const profileDropdown = document.getElementById("profileDropdown");
-        profileToggle.addEventListener("click", (e) => {
-            e.stopPropagation();
+
+        /* Profile */
+
+        const profileToggle =
+            document.getElementById("profileMenuToggle");
+
+        const profileDropdown =
+            document.getElementById("profileDropdown");
+
+
+        profileToggle.addEventListener("click", event => {
+
+            event.stopPropagation();
+
             profileDropdown.classList.toggle("hidden");
+
         });
+
 
         document.addEventListener("click", () => {
-            notifTray.classList.add("hidden");
+
+            notificationTray.classList.add("hidden");
             profileDropdown.classList.add("hidden");
+
         });
 
-        // Search Handlers
-        document.getElementById("globalSearch").addEventListener("input", function() {
-            const q = this.value.toLowerCase().trim();
-            document.querySelectorAll("#dashboardRecentUsers tr, #studentTableBody tr, #coachTableBody tr").forEach(row => {
-                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? "" : "none";
-            });
-        });
 
-        document.getElementById("studentSearchInput").addEventListener("input", function() {
-            const q = this.value.toLowerCase().trim();
-            document.querySelectorAll("#studentTableBody tr").forEach(row => {
-                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? "" : "none";
+        /* Global Search */
+
+        document
+            .getElementById("globalSearch")
+            .addEventListener("input", function () {
+
+                const query =
+                    this.value.toLowerCase().trim();
+
+                document
+                    .querySelectorAll(
+                        "#dashboardRecentUsers tr, #studentTableBody tr, #coachTableBody tr"
+                    )
+                    .forEach(row => {
+
+                        row.style.display =
+                            !query ||
+                            row.textContent
+                                .toLowerCase()
+                                .includes(query)
+                                ? ""
+                                : "none";
+
+                    });
+
             });
-        });
+
+
+        /* Student Search */
+
+        document
+            .getElementById("studentSearchInput")
+            .addEventListener("input", function () {
+
+                const query =
+                    this.value.toLowerCase().trim();
+
+                document
+                    .querySelectorAll("#studentTableBody tr")
+                    .forEach(row => {
+
+                        row.style.display =
+                            !query ||
+                            row.textContent
+                                .toLowerCase()
+                                .includes(query)
+                                ? ""
+                                : "none";
+
+                    });
+
+            });
+
     }
+
 
     function switchTab(sectionId) {
-        document.querySelectorAll(".nav-btn[data-section]").forEach(b => {
-            if (b.dataset.section === sectionId) {
-                b.className = "nav-btn active w-full bg-primary-container text-on-primary-container rounded-lg font-bold flex items-center gap-3 px-4 py-3 active:scale-[0.98] transition-all text-left cursor-pointer";
-            } else {
-                b.className = "nav-btn w-full text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high hover:text-primary-fixed transition-all rounded-lg active:scale-[0.98] text-left cursor-pointer";
-            }
+
+        document
+            .querySelectorAll(".nav-btn")
+            .forEach(button => {
+
+                if (button.dataset.section === sectionId) {
+
+                    button.classList.remove(
+                        "nav-item"
+                    );
+
+                    button.classList.add(
+                        "nav-active"
+                    );
+
+                } else {
+
+                    button.classList.remove(
+                        "nav-active"
+                    );
+
+                    button.classList.add(
+                        "nav-item"
+                    );
+
+                }
+
+            });
+
+
+        document
+            .querySelectorAll(".content-section")
+            .forEach(section => {
+
+                section.classList.add("hidden");
+
+            });
+
+
+        const activeSection =
+            document.getElementById(
+                `section-${sectionId}`
+            );
+
+        if (activeSection) {
+
+            activeSection.classList.remove("hidden");
+
+        }
+
+
+        const titles = {
+
+            dashboard: [
+                "Admin Dashboard",
+                "System overview, access control, and organization management."
+            ],
+
+            students: [
+                "Students",
+                "Manage and inspect all student athlete accounts."
+            ],
+
+            coaches: [
+                "Coaches",
+                "Manage coaching staff and assigned training divisions."
+            ],
+
+            performance: [
+                "Performance",
+                "System-wide performance analytics and benchmarks."
+            ],
+
+            reports: [
+                "Reports",
+                "Export operational metrics, user records, and analytics."
+            ],
+
+            settings: [
+                "Settings",
+                "Manage administrative controls and interface configurations."
+            ]
+
+        };
+
+
+        document.getElementById("pageTitle").textContent =
+            titles[sectionId]?.[0] || "Admin Dashboard";
+
+        document.getElementById("pageSubtitle").textContent =
+            titles[sectionId]?.[1] || "";
+
+
+        document
+            .getElementById("sidebar")
+            .classList.add("-translate-x-full");
+
+        document
+            .getElementById("sidebarOverlay")
+            .classList.add("hidden");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
         });
 
-        document.querySelectorAll(".content-section").forEach(sec => sec.classList.add("hidden"));
-        const activeSec = document.getElementById(`section-${sectionId}`);
-        if (activeSec) activeSec.classList.remove("hidden");
-
-        const subtitles = {
-            dashboard: "System overview, access control, and organization management.",
-            students: "Manage and inspect all student athlete accounts.",
-            coaches: "Manage coaching staff and assigned training divisions.",
-            performance: "System-wide performance analytics and department benchmarks.",
-            reports: "Export operational metrics, user records, and attendance data.",
-            settings: "Manage administrative controls and interface configurations."
-        };
-        document.getElementById("pageSubtitle").textContent = subtitles[sectionId] || subtitles.dashboard;
-
-        document.getElementById("sidebar").classList.add("-translate-x-full");
-        document.getElementById("sidebarOverlay").classList.add("hidden");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+
+    /* MODALS */
 
     function setupModals() {
-        const userModal = document.getElementById("userModal");
-        const quickAddBtn = document.getElementById("quickAddUserBtn");
-        const closeModal = () => userModal.classList.add("hidden");
 
-        quickAddBtn.onclick = () => openAddUserModal("Student");
-        document.getElementById("closeModal").onclick = closeModal;
-        document.getElementById("cancelModal").onclick = closeModal;
+        const modal =
+            document.getElementById("userModal");
 
-        document.getElementById("userForm").onsubmit = (e) => {
-            e.preventDefault();
-            const name = document.getElementById("newUserName").value.trim();
-            const email = document.getElementById("newUserEmail").value.trim();
-            const role = document.getElementById("newUserRole").value;
+        document
+            .getElementById("quickAddUserBtn")
+            .onclick = () =>
+                openAddUserModal("Student");
 
-            if (!name || !email) return;
 
-            adminState.users.unshift({
-                id: `USR00${adminState.users.length + 1}`,
-                name,
-                email,
-                role,
-                status: "Active"
+        document
+            .getElementById("closeModal")
+            .onclick = closeUserModal;
+
+
+        document
+            .getElementById("cancelModal")
+            .onclick = closeUserModal;
+
+
+        document
+            .getElementById("userForm")
+            .addEventListener("submit", event => {
+
+                event.preventDefault();
+
+                const name =
+                    document
+                        .getElementById("newUserName")
+                        .value
+                        .trim();
+
+                const email =
+                    document
+                        .getElementById("newUserEmail")
+                        .value
+                        .trim();
+
+                const role =
+                    document
+                        .getElementById("newUserRole")
+                        .value;
+
+
+                if (!name || !email) return;
+
+
+                adminState.users.unshift({
+
+                    id:
+                        "USR" +
+                        String(Date.now()).slice(-6),
+
+                    name,
+                    email,
+                    role,
+                    status: "Active"
+
+                });
+
+
+                if (role === "Student") {
+
+                    adminState.studentCount++;
+
+                    document
+                        .getElementById("studentCount")
+                        .textContent =
+                        adminState.studentCount;
+
+                }
+
+
+                if (role === "Coach") {
+
+                    adminState.coachCount++;
+
+                    document
+                        .getElementById("coachCount")
+                        .textContent =
+                        adminState.coachCount;
+
+                }
+
+
+                renderAllTables();
+
+                closeUserModal();
+
+                document
+                    .getElementById("userForm")
+                    .reset();
+
+                showToast(
+                    `${role} "${name}" created successfully.`
+                );
+
             });
 
-            if (role === "Student") {
-                adminState.studentCount++;
-                document.getElementById("studentCount").textContent = adminState.studentCount;
-            } else if (role === "Coach") {
-                adminState.coachCount++;
-                document.getElementById("coachCount").textContent = adminState.coachCount;
-            }
 
-            renderAllTables();
-            closeModal();
-            document.getElementById("userForm").reset();
-            showToast(`${role} "${name}" created successfully.`);
-        };
+        document
+            .getElementById("userDetailClose")
+            .onclick = closeDetailModal;
 
-        const detailModal = document.getElementById("userDetailModal");
-        document.getElementById("userDetailClose").onclick = () => detailModal.classList.add("hidden");
-        document.getElementById("userDetailOk").onclick = () => detailModal.classList.add("hidden");
+
+        document
+            .getElementById("userDetailOk")
+            .onclick = closeDetailModal;
+
     }
+
 
     function openAddUserModal(role = "Student") {
-        const modal = document.getElementById("userModal");
-        document.getElementById("modalTitle").textContent = `Add New ${role}`;
-        document.getElementById("newUserRole").value = role;
+
+        const modal =
+            document.getElementById("userModal");
+
+        document
+            .getElementById("modalTitle")
+            .textContent =
+            `Add New ${role}`;
+
+        document
+            .getElementById("newUserRole")
+            .value = role;
+
         modal.classList.remove("hidden");
         modal.classList.add("flex");
+
     }
+
+
+    function closeUserModal() {
+
+        const modal =
+            document.getElementById("userModal");
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+    }
+
 
     function viewUser(name) {
-        const user = adminState.users.find(u => u.name === name) || { name, email: "user@example.com", role: "Athlete", status: "Active" };
-        document.getElementById("modalUserName").textContent = `${user.name} Profile`;
-        document.getElementById("userDetailBody").innerHTML = `
-            <div class="p-3 rounded-lg bg-surface-container-high border border-white/5 space-y-1">
-                <span class="text-on-surface-variant text-[10px] uppercase block">Email Address</span>
-                <strong class="text-on-surface">${user.email}</strong>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="p-3 rounded-lg bg-surface-container-high border border-white/5">
-                    <span class="text-on-surface-variant text-[10px] uppercase block">Assigned Role</span>
-                    <strong class="text-primary-fixed">${user.role}</strong>
+
+        const user =
+            adminState.users.find(
+                item => item.name === name
+            );
+
+
+        if (!user) return;
+
+
+        document
+            .getElementById("modalUserName")
+            .textContent =
+            `${user.name} Profile`;
+
+
+        document
+            .getElementById("userDetailBody")
+            .innerHTML = `
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-border">
+
+                    <span class="block text-xs font-mono uppercase
+                                 text-slate-400 mb-1">
+                        Email Address
+                    </span>
+
+                    <strong class="text-sm">
+                        ${escapeHTML(user.email)}
+                    </strong>
+
                 </div>
-                <div class="p-3 rounded-lg bg-surface-container-high border border-white/5">
-                    <span class="text-on-surface-variant text-[10px] uppercase block">Account Status</span>
-                    <strong class="text-primary-fixed">${user.status}</strong>
+
+
+                <div class="grid grid-cols-2 gap-4">
+
+                    <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+
+                        <span class="block text-xs font-mono uppercase
+                                     text-slate-400 mb-1">
+                            Role
+                        </span>
+
+                        <strong class="text-primary">
+                            ${escapeHTML(user.role)}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+
+                        <span class="block text-xs font-mono uppercase
+                                     text-slate-400 mb-1">
+                            Status
+                        </span>
+
+                        <strong class="text-emerald-600">
+                            ${escapeHTML(user.status)}
+                        </strong>
+
+                    </div>
+
                 </div>
-            </div>
-        `;
-        const modal = document.getElementById("userDetailModal");
+
+            `;
+
+
+        const modal =
+            document.getElementById("userDetailModal");
+
         modal.classList.remove("hidden");
         modal.classList.add("flex");
+
     }
+
+
+    function closeDetailModal() {
+
+        const modal =
+            document.getElementById("userDetailModal");
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+    }
+
+
+    /* REPORTS */
 
     function generateReport(type) {
-        showToast(`Report '${type}' generated and ready for export.`);
+
+        showToast(
+            `${type} report generated and ready for export.`
+        );
+
     }
+
+
+    /* ACCOUNT ACTIONS */
 
     function setupAccountActions() {
-        const logoutHandler = (e) => {
-            if (e) e.preventDefault();
-            if (confirm("Are you sure you want to log out of the Admin Portal?")) {
+
+        const logoutHandler = event => {
+
+            event.preventDefault();
+
+            if (
+                confirm(
+                    "Are you sure you want to log out of the Admin Portal?"
+                )
+            ) {
+
                 sessionStorage.clear();
-                localStorage.removeItem("admin_auth_token");
-                showToast("Signing out Administrator session...");
-                setTimeout(() => window.location.href = "admin-login.html", 800);
+
+                localStorage.removeItem(
+                    "admin_auth_token"
+                );
+
+                showToast(
+                    "Signing out Administrator session..."
+                );
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "admin-login.html";
+
+                }, 800);
+
             }
+
         };
 
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) logoutBtn.addEventListener("click", logoutHandler);
 
-        const profileLogoutBtn = document.getElementById("profileLogoutBtn");
-        if (profileLogoutBtn) profileLogoutBtn.addEventListener("click", logoutHandler);
+        document
+            .getElementById("logoutBtn")
+            .addEventListener(
+                "click",
+                logoutHandler
+            );
 
-        const deactivateBtn = document.getElementById("deactivateBtn");
-        if (deactivateBtn) {
-            deactivateBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                if (confirm("Temporarily deactivate administrator console access? You will be logged out.")) {
-                    localStorage.setItem("admin_account_status", "deactivated");
+
+        document
+            .getElementById("profileLogoutBtn")
+            .addEventListener(
+                "click",
+                logoutHandler
+            );
+
+
+        document
+            .getElementById("deactivateBtn")
+            .addEventListener("click", () => {
+
+                if (
+                    confirm(
+                        "Temporarily deactivate administrator console access?"
+                    )
+                ) {
+
+                    localStorage.setItem(
+                        "admin_account_status",
+                        "deactivated"
+                    );
+
                     sessionStorage.clear();
-                    showToast("Admin account deactivated.");
-                    setTimeout(() => window.location.href = "admin-login.html", 1000);
-                }
-            });
-        }
 
-        const deleteAccountBtn = document.getElementById("deleteAccountBtn");
-        if (deleteAccountBtn) {
-            deleteAccountBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                const confirmation = prompt("This action will permanently wipe all administrator credentials and access logs! Type 'DELETE' to confirm:");
+                    showToast(
+                        "Admin account deactivated."
+                    );
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "admin-login.html";
+
+                    }, 1000);
+
+                }
+
+            });
+
+
+        document
+            .getElementById("deleteAccountBtn")
+            .addEventListener("click", () => {
+
+                const confirmation =
+                    prompt(
+                        "This action permanently removes administrator access. Type DELETE to confirm:"
+                    );
+
+
                 if (confirmation === "DELETE") {
+
                     localStorage.clear();
                     sessionStorage.clear();
-                    showToast("Administrator account permanently deleted.");
-                    setTimeout(() => window.location.href = "admin-login.html", 1000);
+
+                    showToast(
+                        "Administrator account deleted."
+                    );
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "admin-login.html";
+
+                    }, 1000);
+
                 } else if (confirmation !== null) {
-                    showToast("Deletion cancelled: confirmation mismatch.");
+
+                    showToast(
+                        "Deletion cancelled."
+                    );
+
                 }
+
             });
-        }
+
     }
 
-    function showToast(msg) {
-        const toast = document.getElementById("toast");
-        document.getElementById("toastMessage").textContent = msg;
-        toast.classList.remove("translate-y-24", "opacity-0", "pointer-events-none");
-        toast.classList.add("translate-y-0", "opacity-100");
-        setTimeout(() => {
-            toast.classList.add("translate-y-24", "opacity-0", "pointer-events-none");
-            toast.classList.remove("translate-y-0", "opacity-100");
-        }, 2800);
+
+    /* TOAST */
+
+    let toastTimer;
+
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById("toast");
+
+        document
+            .getElementById("toastMessage")
+            .textContent = message;
+
+
+        clearTimeout(toastTimer);
+
+        toast.classList.add("show");
+
+
+        toastTimer =
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 2800);
+
     }
 
-    function escapeHTML(str) {
-        return String(str || "").replace(/[&<>'"]/g, tag => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-        }[tag] || tag));
+
+    /* SECURITY */
+
+    function escapeHTML(value) {
+
+        return String(value || "")
+            .replace(/[&<>'"]/g, character => ({
+
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "'": "&#39;",
+                '"': "&quot;"
+
+            })[character]);
+
+    }
+
+
+    function escapeAttribute(value) {
+
+        return String(value || "")
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'");
+
     }
 </script>
+
 </body>
 </html>
