@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 import json, os, secrets, smtplib, sqlite3, ssl
+from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -13,6 +14,7 @@ OTP_MINUTES = 10
 app = Flask(__name__)
 app.config.update(SECRET_KEY=os.getenv("SECRET_KEY", "athlete-tracker-development-secret-change-me"), PERMANENT_SESSION_LIFETIME=timedelta(days=7), SESSION_COOKIE_SAMESITE="Lax")
 CORS(app, supports_credentials=True)
+email_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="athlete-email")
 
 def get_db():
     db = sqlite3.connect(DATABASE); db.row_factory = sqlite3.Row; return db
@@ -21,11 +23,12 @@ def generate_otp(): return f"{secrets.randbelow(1_000_000):06d}"
 
 def print_otp_to_terminal(email, otp, purpose):
     print("\n" + "=" * 70)
-    print("🔐 ATHLETE TRACKER OTP")
-    print(f"📌 Purpose : {purpose}")
-    print(f"📧 Email   : {email}")
-    print(f"🔢 OTP     : {otp}")
-    print(f"⏱️ Expires : {OTP_MINUTES} minutes")
+    # Keep local development usable in Windows terminals configured for cp1252.
+    print("ATHLETE TRACKER OTP")
+    print(f"Purpose : {purpose}")
+    print(f"Email   : {email}")
+    print(f"OTP     : {otp}")
+    print(f"Expires : {OTP_MINUTES} minutes")
     print("=" * 70 + "\n")
 def canonical_role(role): return "player" if str(role or "").lower() == "student" else str(role or "").lower()
 def display_role(role): return "Student" if role == "player" else role.capitalize()
@@ -117,6 +120,52 @@ def establish_session(user):
     session.clear();session.permanent=True;session.update(user_id=user["id"],user_code=user["user_code"],user_name=user["name"],user_email=user["email"],role=user["role"])
     if user["role"]=="admin":session.update(admin_id=user["id"],admin_name=user["name"],admin_email=user["email"],admin_user_code=user["user_code"])
 
+def public_user(user):
+    return {k: user[k] for k in ("id", "name", "email", "role", "user_code")}
+
+def start_login(data, forced_role=None):
+    """Validate credentials and issue exactly one short-lived login OTP.
+
+    A password alone never establishes a session; that only happens after the
+    matching OTP has been consumed by ``complete_login``.
+    """
+    email = str(data.get("email", "")).strip().lower()
+    password = str(data.get("password", ""))
+    role = forced_role or canonical_role(data.get("role", "player"))
+    if role not in {"player", "coach", "admin"}:
+        return None, (jsonify(success=False, message="Invalid account role"), 400)
+    db = get_db()
+    try:
+        user = db.execute("SELECT * FROM users WHERE lower(email)=? AND role=?", (email, role)).fetchone()
+    finally:
+        db.close()
+    if not user or not check_password_hash(user["password_hash"], password):
+        return None, (jsonify(success=False, message="Invalid email or password"), 401)
+    otp = generate_otp()
+    print_otp_to_terminal(email, otp, f"{display_role(role)} Login")
+    save_otp(email, "login", otp, str(user["id"]))
+    if not send_otp_email(email, user["name"], "login", otp):
+        return None, (jsonify(success=False, message="Email service is not configured or OTP delivery failed."), 503)
+    return user, None
+
+def complete_login():
+    data = request.get_json(silent=True) or {}
+    email, otp = str(data.get("email", "")).strip().lower(), str(data.get("otp", "")).strip()
+    if not email or len(otp) != 6:
+        return jsonify(success=False, message="Email and a 6-digit OTP are required"), 400
+    record, error = verify_otp(email, "login", otp, True)
+    if error:
+        return jsonify(success=False, message=error), 400
+    db = get_db()
+    try:
+        user = db.execute("SELECT * FROM users WHERE id=?", (record["payload"],)).fetchone()
+    finally:
+        db.close()
+    if not user:
+        return jsonify(success=False, message="User account not found"), 401
+    establish_session(user)
+    return jsonify(success=True, message="Login verified", role=user["role"], user=public_user(user))
+
 @app.get("/")
 def home():return send_from_directory(FRONTEND_DIR,"index.html")
 @app.get("/<path:asset_path>")
@@ -135,17 +184,17 @@ def signup(data,forced_role=None):
     return email,None
 @app.post("/api/register")
 def register():
-    _,error=signup(request.get_json(silent=True) or {});return error or (jsonify(success=True,message="OTP sent to your email"),201)
+    _,error=signup(request.get_json(silent=True) or {});return error or (jsonify(success=True,message="OTP sent to your email",expires_in=OTP_MINUTES * 60),201)
 @app.post("/api/admin-signup")
 def admin_signup():
-    _,error=signup(request.get_json(silent=True) or {},"admin");return error or (jsonify(success=True,message="OTP sent to your email"),201)
+    _,error=signup(request.get_json(silent=True) or {},"admin");return error or (jsonify(success=True,message="OTP sent to your email",expires_in=OTP_MINUTES * 60),201)
 
 def resend_signup():
     data=request.get_json(silent=True) or {};email=str(data.get("email","")).strip().lower();record=get_otp(email,"signup")
     if not record:return jsonify(success=False,message="Signup session expired. Please register again."),400
     payload=json.loads(record["payload"]);otp=generate_otp(); print_otp_to_terminal(email, otp, "Signup OTP Resend"); save_otp(email,"signup",otp,record["payload"])
     if not send_otp_email(email,payload["name"],"signup",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
-    return jsonify(success=True,message="New OTP sent to your email")
+    return jsonify(success=True,message="New OTP sent to your email",expires_in=OTP_MINUTES * 60)
 @app.post("/api/account-verification/send")
 @app.post("/api/admin-signup/resend-otp")
 def resend_signup_otp():return resend_signup()
@@ -162,48 +211,55 @@ def finish_signup():
     except sqlite3.Error as error:
         db.rollback();app.logger.error("Signup database error: %s",error);return jsonify(success=False,message="Unable to create account"),500
     finally:db.close()
-    establish_session(user);send_account_created_email(email,user["name"],user["role"])
-    return jsonify(success=True,message="Account verified successfully",user_code=user["user_code"],user={k:user[k] for k in ("id","name","email","role","user_code")})
+    establish_session(user)
+    # The account and session are durable before this is queued; SMTP latency
+    # cannot hold up the authenticated redirect.
+    email_executor.submit(send_account_created_email, email, user["name"], user["role"])
+    return jsonify(success=True,message="Account verified successfully",role=user["role"],user_code=user["user_code"],user=public_user(user))
 @app.post("/api/account-verification/verify")
 @app.post("/api/admin-signup/verify-otp")
 def verify_signup_otp():return finish_signup()
 
 @app.post("/api/login")
 def login():
-    data=request.get_json(silent=True) or {};email,password=str(data.get("email","")).strip().lower(),str(data.get("password",""));role=canonical_role(data.get("role","player"));db=get_db()
-    try:user=db.execute("SELECT * FROM users WHERE lower(email)=? AND role=?",(email,role)).fetchone()
-    finally:db.close()
-    if not user or not check_password_hash(user["password_hash"],password):return jsonify(success=False,message="Invalid email or password"),401
-    establish_session(user);return jsonify(success=True,message="Login successful",user={k:user[k] for k in ("id","name","email","role","user_code")})
+    _, error = start_login(request.get_json(silent=True) or {})
+    return error or jsonify(success=True, message="OTP sent to your email", expires_in=OTP_MINUTES * 60)
+
+@app.post("/api/login/verify-otp")
+def verify_login():
+    return complete_login()
+
+@app.post("/api/login/resend-otp")
+def resend_login():
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    record = get_otp(email, "login")
+    if not record:
+        return jsonify(success=False, message="Login session expired. Please log in again."), 400
+    db = get_db()
+    try:
+        user = db.execute("SELECT * FROM users WHERE id=?", (record["payload"],)).fetchone()
+    finally:
+        db.close()
+    if not user:
+        return jsonify(success=False, message="User account not found"), 401
+    otp = generate_otp()
+    print_otp_to_terminal(email, otp, f"{display_role(user['role'])} Login OTP Resend")
+    save_otp(email, "login", otp, str(user["id"]))
+    if not send_otp_email(email, user["name"], "login", otp):
+        return jsonify(success=False, message="Email delivery failed."), 503
+    return jsonify(success=True, message="New OTP sent to your email", expires_in=OTP_MINUTES * 60)
 
 @app.post("/api/admin-login")
 def admin_login():
-    data=request.get_json(silent=True) or {};email,password=str(data.get("email","")).strip().lower(),str(data.get("password",""));db=get_db()
-    try:user=db.execute("SELECT * FROM users WHERE lower(email)=? AND role='admin'",(email,)).fetchone()
-    finally:db.close()
-    if not user or not check_password_hash(user["password_hash"],password):return jsonify(success=False,message="Invalid admin email or password"),401
-    otp=generate_otp(); print_otp_to_terminal(email, otp, "Admin Login"); save_otp(email,"admin_login",otp,str(user["id"]))
-    if not send_otp_email(email,user["name"],"admin login",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
-    return jsonify(success=True,message="OTP sent to your email")
+    _, error = start_login(request.get_json(silent=True) or {}, "admin")
+    return error or jsonify(success=True, message="OTP sent to your email", expires_in=OTP_MINUTES * 60)
 @app.post("/api/admin-login/verify-otp")
 def verify_admin_login():
-    data=request.get_json(silent=True) or {};email,otp=str(data.get("email","")).strip().lower(),str(data.get("otp","")).strip();record,error=verify_otp(email,"admin_login",otp,True)
-    if error:return jsonify(success=False,message=error),400
-    db=get_db()
-    try:user=db.execute("SELECT * FROM users WHERE id=? AND role='admin'",(record["payload"],)).fetchone()
-    finally:db.close()
-    if not user:return jsonify(success=False,message="Admin account not found"),401
-    establish_session(user);return jsonify(success=True,message="Admin login successful",admin={k:user[k] for k in ("id","name","email","role","user_code")})
+    return complete_login()
 @app.post("/api/admin-login/resend-otp")
 def resend_admin_login():
-    data=request.get_json(silent=True) or {};email=str(data.get("email","")).strip().lower();record=get_otp(email,"admin_login")
-    if not record:return jsonify(success=False,message="Login OTP expired. Please log in again."),400
-    db=get_db()
-    try:user=db.execute("SELECT * FROM users WHERE id=?",(record["payload"],)).fetchone()
-    finally:db.close()
-    otp=generate_otp(); print_otp_to_terminal(email, otp, "Admin Login OTP Resend"); save_otp(email,"admin_login",otp,record["payload"])
-    if not user or not send_otp_email(email,user["name"],"admin login",otp):return jsonify(success=False,message="Email delivery failed."),503
-    return jsonify(success=True,message="New OTP sent to your email")
+    return resend_login()
 
 @app.post("/api/forgot-password")
 def forgot_password():
@@ -213,7 +269,7 @@ def forgot_password():
     if not user:return jsonify(success=False,message="No account exists for this email."),404
     otp=generate_otp(); print_otp_to_terminal(email, otp, "Password Reset"); save_otp(email,"password_reset",otp,str(user["id"]))
     if not send_otp_email(email,user["name"],"password_reset",otp):return jsonify(success=False,message="Email service is not configured or OTP delivery failed."),503
-    return jsonify(success=True,message="OTP sent to your email")
+    return jsonify(success=True,message="OTP sent to your email",expires_in=OTP_MINUTES * 60)
 @app.post("/api/forgot-password/resend-otp")
 def resend_reset():
     data=request.get_json(silent=True) or {};email=str(data.get("email","")).strip().lower();record=get_otp(email,"password_reset")
@@ -223,7 +279,7 @@ def resend_reset():
     finally:db.close()
     otp=generate_otp(); print_otp_to_terminal(email, otp, "Password Reset OTP Resend"); save_otp(email,"password_reset",otp,record["payload"])
     if not user or not send_otp_email(email,user["name"],"password_reset",otp):return jsonify(success=False,message="Email delivery failed."),503
-    return jsonify(success=True,message="New OTP sent to your email")
+    return jsonify(success=True,message="New OTP sent to your email",expires_in=OTP_MINUTES * 60)
 @app.post("/api/forgot-password/verify-otp")
 @app.post("/api/verify-otp")
 def verify_reset():
@@ -256,6 +312,8 @@ def admin_session():
 def logout():session.clear();return jsonify(success=True,message="Logged out successfully")
 @app.get("/api/users")
 def users():
+    if session.get("role") != "admin":
+        return jsonify(success=False, message="Administrator authentication required"), 403
     db=get_db()
     try:rows=db.execute("SELECT id,user_code,name,email,role,sport,contact_number,gender,date_of_birth,created_at,email_verified FROM users ORDER BY id DESC").fetchall()
     finally:db.close()
