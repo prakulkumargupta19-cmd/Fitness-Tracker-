@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coach Dashboard | Fitness Performance Tracker</title>
 
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 
 /* =====================================================
@@ -56,7 +59,8 @@ body.dark-mode .stat-card,
 body.dark-mode .info-card,
 body.dark-mode .profile-mini,
 body.dark-mode .metric,
-body.dark-mode .modal-content{
+body.dark-mode .modal-content,
+body.dark-mode .chart-container-box{
     background:#111827;
     border-color:#263449;
     color:#f8fafc;
@@ -460,7 +464,7 @@ body.dark-mode .setting-row{
 }
 
 /* =====================================================
-   PANELS
+   PANELS & CHARTS
 ===================================================== */
 
 .panel{
@@ -503,6 +507,19 @@ body.dark-mode .setting-row{
     display:grid;
     grid-template-columns:2fr 1fr;
     gap:18px;
+}
+
+.charts-row{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.chart-container-box{
+    position:relative;
+    width:100%;
+    height:280px;
 }
 
 /* =====================================================
@@ -1087,7 +1104,8 @@ textarea{
         grid-template-columns:repeat(2,1fr);
     }
 
-    .grid-2{
+    .grid-2,
+    .charts-row{
         grid-template-columns:1fr;
     }
 
@@ -1328,6 +1346,35 @@ textarea{
         </div>
 
     </section>
+
+    <!-- INTERACTIVE CHARTS ROW -->
+    <div class="charts-row">
+        
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Squad Performance Breakdown</h2>
+                    <p>Comparison of student scores across key sports competencies</p>
+                </div>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="squadPerformanceChart"></canvas>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Sports Distribution</h2>
+                    <p>Student athlete enrollment by discipline</p>
+                </div>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="sportsDistributionChart"></canvas>
+            </div>
+        </section>
+
+    </div>
 
     <div class="grid-2">
 
@@ -2627,8 +2674,15 @@ textarea{
    DATA
 ===================================================== */
 
+let defaultStudents = [
+    { id: "STU001", name: "Alex Hunter", sport: "Football", age: 16, gender: "Male", bmi: 21.5, score: 8.5, remarks: "Excellent ball control", injury: "None", restriction: "None" },
+    { id: "STU002", name: "Marcus Reed", sport: "Basketball", age: 17, gender: "Male", bmi: 22.8, score: 7.9, remarks: "Needs vertical stamina", injury: "Ankle Sprain", restriction: "No jumping drills" },
+    { id: "STU003", name: "Sophia Taylor", sport: "Athletics", age: 15, gender: "Female", bmi: 19.8, score: 9.1, remarks: "Top sprint pace", injury: "None", restriction: "None" },
+    { id: "STU004", name: "Liam Davies", sport: "Tennis", age: 16, gender: "Male", bmi: 20.4, score: 8.0, remarks: "Improve backhand reach", injury: "None", restriction: "None" }
+];
+
 let students =
-    JSON.parse(localStorage.getItem("coachStudents")) || [];
+    JSON.parse(localStorage.getItem("coachStudents")) || defaultStudents;
 
 let sessions =
     JSON.parse(localStorage.getItem("trainingSessions")) || [];
@@ -2641,6 +2695,11 @@ let activities =
 
 let feedback =
     JSON.parse(localStorage.getItem("coachFeedback")) || {};
+
+/* Save initial dataset if first time */
+if (!localStorage.getItem("coachStudents")) {
+    localStorage.setItem("coachStudents", JSON.stringify(students));
+}
 
 /* =====================================================
    HELPERS
@@ -2733,6 +2792,160 @@ function addActivity(title,message){
 }
 
 /* =====================================================
+   CHART.JS CONFIGURATIONS & INITIALIZATION
+===================================================== */
+
+let squadBarChart = null;
+let sportsDoughnutChart = null;
+
+function initCoachCharts() {
+    const isDark = document.body.classList.contains("dark-mode");
+    const textColor = isDark ? "#94a3b8" : "#64748b";
+    const gridColor = isDark ? "#263449" : "#f1f5f9";
+
+    Chart.defaults.color = textColor;
+    Chart.defaults.font.family = "Arial, Helvetica, sans-serif";
+
+    // 1. Squad Performance Bar Chart
+    const ctxBar = $("squadPerformanceChart");
+    if (ctxBar) {
+        const studentNames = students.map(s => s.name.split(" ")[0]);
+        const scores = students.map(s => Number(s.score || 0));
+
+        squadBarChart = new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: studentNames.length ? studentNames : ["No Athletes"],
+                datasets: [
+                    {
+                        label: "Overall Score (/10)",
+                        data: scores.length ? scores : [0],
+                        backgroundColor: "#2563eb",
+                        borderRadius: 6,
+                        barPercentage: 0.5
+                    },
+                    {
+                        label: "Benchmark Target",
+                        data: studentNames.map(() => 8.5),
+                        backgroundColor: "#93c5fd",
+                        borderRadius: 6,
+                        barPercentage: 0.5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top",
+                        align: "end",
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? "#111827" : "#0f172a",
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: { color: gridColor },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Sports Distribution Doughnut Chart
+    const ctxDoughnut = $("sportsDistributionChart");
+    if (ctxDoughnut) {
+        const sportCounts = {};
+        students.forEach(s => {
+            const sport = s.sport || "Other";
+            sportCounts[sport] = (sportCounts[sport] || 0) + 1;
+        });
+
+        const labels = Object.keys(sportCounts);
+        const data = Object.values(sportCounts);
+
+        sportsDoughnutChart = new Chart(ctxDoughnut, {
+            type: "doughnut",
+            data: {
+                labels: labels.length ? labels : ["None"],
+                datasets: [{
+                    data: data.length ? data : [1],
+                    backgroundColor: ["#2563eb", "#6366f1", "#10b981", "#f59e0b", "#ec4899"],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "70%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: { boxWidth: 10, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? "#111827" : "#0f172a",
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+    }
+}
+
+function updateCoachChartsTheme() {
+    const isDark = document.body.classList.contains("dark-mode");
+    const textColor = isDark ? "#94a3b8" : "#64748b";
+    const gridColor = isDark ? "#263449" : "#f1f5f9";
+
+    if (squadBarChart) {
+        squadBarChart.options.scales.x.ticks.color = textColor;
+        squadBarChart.options.scales.y.ticks.color = textColor;
+        squadBarChart.options.scales.y.grid.color = gridColor;
+        squadBarChart.update();
+    }
+    if (sportsDoughnutChart) {
+        sportsDoughnutChart.update();
+    }
+}
+
+function refreshCoachCharts() {
+    if (!squadBarChart || !sportsDoughnutChart) return;
+
+    const studentNames = students.map(s => s.name.split(" ")[0]);
+    const scores = students.map(s => Number(s.score || 0));
+
+    squadBarChart.data.labels = studentNames.length ? studentNames : ["No Athletes"];
+    squadBarChart.data.datasets[0].data = scores.length ? scores : [0];
+    squadBarChart.data.datasets[1].data = studentNames.map(() => 8.5);
+    squadBarChart.update();
+
+    const sportCounts = {};
+    students.forEach(s => {
+        const sport = s.sport || "Other";
+        sportCounts[sport] = (sportCounts[sport] || 0) + 1;
+    });
+
+    sportsDoughnutChart.data.labels = Object.keys(sportCounts);
+    sportsDoughnutChart.data.datasets[0].data = Object.values(sportCounts);
+    sportsDoughnutChart.update();
+}
+
+/* =====================================================
    NAVIGATION
 ===================================================== */
 
@@ -2754,6 +2967,13 @@ function showPage(page){
         );
 
     $("sidebar").classList.remove("open");
+
+    if(page === "dashboard"){
+        setTimeout(() => {
+            if (squadBarChart) squadBarChart.resize();
+            if (sportsDoughnutChart) sportsDoughnutChart.resize();
+        }, 50);
+    }
 
     if(page === "physical"){
         loadPhysicalData();
@@ -2806,6 +3026,7 @@ function populateSelects(){
     ].forEach(id => {
 
         const select = $(id);
+        if(!select) return;
 
         const old = select.value;
 
@@ -3105,6 +3326,8 @@ function renderDashboard(){
             </td>
         </tr>
         `;
+
+    refreshCoachCharts();
 }
 
 /* =====================================================
@@ -3515,6 +3738,10 @@ $("trainingForm")
                 }
             };
 
+            if (record.assessment.dailyScore) {
+                a.score = Number(record.assessment.dailyScore);
+            }
+
             sessions.unshift(record);
 
             saveAll();
@@ -3875,6 +4102,8 @@ function applyTheme(){
         "dark-mode",
         dark
     );
+
+    updateCoachChartsTheme();
 }
 
 $("darkToggle")
@@ -3896,6 +4125,8 @@ $("darkToggle")
                 "darkMode",
                 dark
             );
+
+            updateCoachChartsTheme();
 
             showToast(
                 dark
@@ -4241,6 +4472,8 @@ $("notificationBell")
 populateSelects();
 
 loadProfile();
+
+initCoachCharts();
 
 renderDashboard();
 

@@ -7,6 +7,9 @@
 
 <title>Student Performance Dashboard</title>
 
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 
 /* =====================================================
@@ -356,11 +359,6 @@ body.dark-mode .modal-overlay {
     z-index: 500;
 }
 
-
-/*
-   Student name replaces "Student Dashboard"
-*/
-
 .top-student-name {
     font-size: 20px;
     font-weight: 800;
@@ -533,6 +531,44 @@ body.dark-mode .modal-overlay {
     color: #64748b;
 
     margin-top: 3px;
+}
+
+
+/* =====================================================
+   CHARTS GRID
+===================================================== */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    gap: 16px;
+    margin-top: 15px;
+}
+
+.chart-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.chart-title {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
 }
 
 
@@ -1464,6 +1500,10 @@ body.dark-mode .modal-overlay {
 
 @media (max-width: 1100px) {
 
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
     .improvement-grid {
         grid-template-columns:
             repeat(2, 1fr);
@@ -1605,6 +1645,14 @@ body.dark-mode .modal-overlay {
         >
             <span class="nav-icon">📊</span>
             Dashboard
+        </button>
+
+        <button
+            class="nav-item"
+            data-section="analytics"
+        >
+            <span class="nav-icon">📈</span>
+            Performance Analytics
         </button>
 
         <button
@@ -1793,6 +1841,100 @@ body.dark-mode .modal-overlay {
                 Overall Performance
             </div>
 
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CHARTS & ANALYTICS
+===================================================== -->
+
+<section id="analytics">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Performance Analytics
+            </div>
+
+            <div class="section-description">
+                Interactive metrics and visual performance tracking
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="charts-grid">
+
+        <!-- Bar Graph: Category Comparison -->
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Skill & Fitness Benchmark Comparison
+                </div>
+
+                <div style="font-size: 11px; color: #64748b;">
+                    Score / 100
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="categoryBarChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Radar / Doughnut: Fitness Balance -->
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Attribute Balance
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="attributeRadarChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Weekly Progression Line Chart -->
+    <div class="chart-card" style="margin-top: 16px;">
+
+        <div class="chart-header">
+
+            <div>
+
+                <div class="chart-title">
+                    Weekly Performance Progression
+                </div>
+
+                <div class="section-description" style="margin-top: 2px;">
+                    Track improvements over the last 8 weeks
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="chart-container" style="height: 260px;">
+            <canvas id="progressionLineChart"></canvas>
         </div>
 
     </div>
@@ -2884,6 +3026,10 @@ body.dark-mode .modal-overlay {
                 Dashboard
             </option>
 
+            <option value="analytics">
+                Analytics
+            </option>
+
             <option value="improvement">
                 Improvement
             </option>
@@ -3272,6 +3418,185 @@ document.getElementById(
 
 
 /* =====================================================
+   CHART.JS CONFIGURATIONS & INITIALIZATION
+===================================================== */
+
+let categoryBarChartInstance = null;
+let attributeRadarChartInstance = null;
+let progressionLineChartInstance = null;
+
+function initCharts() {
+    const isDark = document.body.classList.contains("dark-mode");
+    const textColor = isDark ? "#94a3b8" : "#64748b";
+    const gridColor = isDark ? "#263449" : "#f1f5f9";
+
+    Chart.defaults.color = textColor;
+    Chart.defaults.font.family = "Arial, Helvetica, sans-serif";
+
+    // 1. Skill & Fitness Bar Chart
+    const ctxBar = document.getElementById("categoryBarChart");
+    if (ctxBar) {
+        categoryBarChartInstance = new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: ["Speed", "Endurance", "Ball Control", "Lower Strength", "Agility", "Tactical"],
+                datasets: [
+                    {
+                        label: "Current Score",
+                        data: [84, 62, 70, 68, 88, 76],
+                        backgroundColor: "#2563eb",
+                        borderRadius: 6,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: "Target Score",
+                        data: [90, 80, 85, 80, 90, 85],
+                        backgroundColor: "#93c5fd",
+                        borderRadius: 6,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top",
+                        align: "end",
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? "#111827" : "#0f172a",
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: gridColor },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Attribute Radar Chart
+    const ctxRadar = document.getElementById("attributeRadarChart");
+    if (ctxRadar) {
+        attributeRadarChartInstance = new Chart(ctxRadar, {
+            type: "radar",
+            data: {
+                labels: ["Speed", "Endurance", "Control", "Strength", "Agility", "Tactical"],
+                datasets: [{
+                    label: "Performance Level",
+                    data: [84, 62, 70, 68, 88, 76],
+                    backgroundColor: "rgba(37, 99, 235, 0.2)",
+                    borderColor: "#2563eb",
+                    borderWidth: 2,
+                    pointBackgroundColor: "#2563eb",
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: gridColor },
+                        grid: { color: gridColor },
+                        suggestedMin: 40,
+                        suggestedMax: 100,
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. Weekly Progression Line Chart
+    const ctxLine = document.getElementById("progressionLineChart");
+    if (ctxLine) {
+        progressionLineChartInstance = new Chart(ctxLine, {
+            type: "line",
+            data: {
+                labels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"],
+                datasets: [{
+                    label: "Overall Index",
+                    data: [68, 70, 71, 74, 73, 76, 77, 78],
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#2563eb"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? "#111827" : "#0f172a",
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        min: 50,
+                        max: 95,
+                        grid: { color: gridColor },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function updateChartsTheme() {
+    const isDark = document.body.classList.contains("dark-mode");
+    const textColor = isDark ? "#94a3b8" : "#64748b";
+    const gridColor = isDark ? "#263449" : "#f1f5f9";
+
+    [categoryBarChartInstance, attributeRadarChartInstance, progressionLineChartInstance].forEach(chart => {
+        if (!chart) return;
+        if (chart.options.scales?.x) {
+            chart.options.scales.x.ticks.color = textColor;
+        }
+        if (chart.options.scales?.y) {
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.scales.y.grid.color = gridColor;
+        }
+        if (chart.options.scales?.r) {
+            chart.options.scales.r.angleLines.color = gridColor;
+            chart.options.scales.r.grid.color = gridColor;
+            chart.options.scales.r.pointLabels.color = textColor;
+        }
+        chart.update();
+    });
+}
+
+
+/* =====================================================
    SETTINGS STORAGE
 ===================================================== */
 
@@ -3342,6 +3667,8 @@ function applyTheme(isDark) {
             ? "dark"
             : "light"
     );
+
+    updateChartsTheme();
 }
 
 
@@ -3591,7 +3918,7 @@ function applyCompactView(enabled) {
 
     document
         .querySelectorAll(
-            ".card, .attendance-card, .feedback-card"
+            ".card, .chart-card, .attendance-card, .feedback-card"
         )
         .forEach(
             card => {
@@ -4025,36 +4352,40 @@ document.querySelectorAll(
 
 
 /* =====================================================
-   DEFAULT OPEN SECTION
+   DEFAULT OPEN SECTION & CHART INITIALIZATION
 ===================================================== */
 
-if (
-    savedDefaultSection &&
-    savedDefaultSection !== "dashboard"
-) {
+document.addEventListener("DOMContentLoaded", () => {
+    initCharts();
 
-    setTimeout(
-        function() {
+    if (
+        savedDefaultSection &&
+        savedDefaultSection !== "dashboard"
+    ) {
 
-            const section =
-                document.getElementById(
-                    savedDefaultSection
-                );
+        setTimeout(
+            function() {
+
+                const section =
+                    document.getElementById(
+                        savedDefaultSection
+                    );
 
 
-            if (section) {
+                if (section) {
 
-                section.scrollIntoView({
-                    behavior: "smooth"
-                });
+                    section.scrollIntoView({
+                        behavior: "smooth"
+                    });
 
-            }
+                }
 
-        },
-        300
-    );
+            },
+            300
+        );
 
-}
+    }
+});
 
 </script>
 
