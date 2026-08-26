@@ -29,7 +29,7 @@
 
                     colors: {
                         brand: {
-                            DEFAULT: '#22c55e',
+                            DEFAULT: '#62bbe8',
                             hover: '#16a34a',
                             light: '#f0fdf4',
                         }
@@ -358,25 +358,18 @@
 
                                 <svg
                                     id="passwordEye"
-                                    class="w-5 h-5"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
                                 >
 
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                    />
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
 
                                 </svg>
 
@@ -421,25 +414,18 @@
 
                                 <svg
                                     id="confirmPasswordEye"
-                                    class="w-5 h-5"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
                                 >
 
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7z"
-                                    />
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
 
                                 </svg>
 
@@ -494,7 +480,7 @@
                     <button
                         type="submit"
                         id="signupButton"
-                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2"
+                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
 
                         <span id="buttonText">
@@ -606,12 +592,8 @@
                 );
 
                 passwordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
                 `;
 
             } else {
@@ -624,19 +606,8 @@
                 );
 
                 passwordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
                 `;
 
             }
@@ -671,12 +642,8 @@
                 );
 
                 confirmPasswordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
                 `;
 
             } else {
@@ -689,19 +656,8 @@
                 );
 
                 confirmPasswordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7z"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
                 `;
 
             }
@@ -727,7 +683,7 @@
             document.getElementById("errorMessage");
 
 
-        signupForm.addEventListener("submit", async function (event) {
+        signupForm.addEventListener("submit", function (event) {
 
             event.preventDefault();
 
@@ -785,10 +741,10 @@
 
             /* Check password length */
 
-            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            if (password.length < 6) {
 
                 errorMessage.textContent =
-                    "Use 8+ characters with uppercase, lowercase, a number, and a special character.";
+                    "Password must contain at least 6 characters.";
 
                 errorMessage.classList.remove("hidden");
 
@@ -820,30 +776,58 @@
 
             buttonText.textContent =
                 "Creating Account...";
-            try {
-                const response = await fetch("/api/register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: fullName,
-                        email: email,
-                        password: password,
-                        role: "player"
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok || result.success !== true) {
-                    throw new Error(result.message || "Unable to create your account.");
-                }
-                sessionStorage.setItem("signupEmail", email);
-                window.location.href = "student-signup-verify.html";
-            } catch (error) {
-                errorMessage.textContent = error.message;
-                errorMessage.classList.remove("hidden");
-                signupButton.disabled = false;
-                signupButton.classList.remove("opacity-70", "cursor-not-allowed");
-                buttonText.textContent = "Create Student Account";
-            }
+
+
+            /*
+             * Save account information
+             * for frontend testing.
+             */
+
+            localStorage.setItem(
+                "studentName",
+                fullName
+            );
+
+            localStorage.setItem(
+                "studentEmail",
+                email
+            );
+
+
+            /*
+             * Save the email for the
+             * Student Signup OTP page.
+             */
+
+            sessionStorage.setItem(
+                "studentSignupEmail",
+                email
+            );
+
+
+            /*
+             * Save the name as well so
+             * the verification page can
+             * use it if needed.
+             */
+
+            sessionStorage.setItem(
+                "studentSignupName",
+                fullName
+            );
+
+
+            /*
+             * Redirect to the Student
+             * Signup OTP verification page.
+             */
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "student-signup-verify.html";
+
+            }, 1000);
 
         });
 

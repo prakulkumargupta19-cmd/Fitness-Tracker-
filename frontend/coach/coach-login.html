@@ -7,297 +7,737 @@
 
     <title>Coach Login | Fitness Performance Tracker</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-    >
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
 
-    <script src="https://cdn.tailwindcss.com"></script>
+            background:
+                linear-gradient(
+                    rgba(12, 25, 42, 0.88),
+                    rgba(12, 25, 42, 0.94)
+                ),
+                url("https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=2000&q=80")
+                center/cover no-repeat;
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    },
-                    colors: {
-                        brand: {
-                            DEFAULT: '#22c55e',
-                            hover: '#16a34a',
-                            light: '#f0fdf4'
-                        }
-                    }
-                }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #ffffff;
+        }
+
+        /* ==============================
+           MAIN CONTAINER
+        ============================== */
+
+        .page-container {
+            width: 100%;
+            max-width: 1150px;
+            min-height: 650px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            border-radius: 24px;
+            overflow: hidden;
+
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.45);
+        }
+
+        /* ==============================
+           LEFT BRANDING
+        ============================== */
+
+        .brand-section {
+            padding: 55px;
+
+            background:
+                linear-gradient(
+                    rgba(12, 25, 42, 0.65),
+                    rgba(12, 25, 42, 0.94)
+                ),
+                url("https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1200&q=80")
+                center/cover no-repeat;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* LOGO */
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin-bottom: 70px;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+
+            border: 2px solid #62bbe8;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 25px;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 700;
+
+            line-height: 1.25;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: #62bbe8;
+        }
+
+        /* BRAND TITLE */
+
+        .brand-section h1 {
+            font-size: 55px;
+            line-height: 1.05;
+
+            margin-bottom: 25px;
+        }
+
+        .brand-section h1 span {
+            color: #62bbe8;
+        }
+
+        .brand-section p {
+            max-width: 400px;
+
+            font-size: 17px;
+            line-height: 1.7;
+
+            color: #d7d7d7;
+        }
+
+        .brand-line {
+            width: 50px;
+            height: 4px;
+
+            background: #62bbe8;
+
+            margin-top: 35px;
+
+            border-radius: 10px;
+        }
+
+        /* ==============================
+           LOGIN SECTION
+        ============================== */
+
+        .login-section {
+            background: #ffffff;
+            color: #151515;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 50px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 410px;
+        }
+
+        /* COACH ICON */
+
+        .coach-icon {
+            width: 70px;
+            height: 70px;
+
+            border-radius: 50%;
+
+            background: #ecfdf3;
+
+            border: 2px solid #62bbe8;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 32px;
+
+            margin-bottom: 25px;
+        }
+
+        /* TITLE */
+
+        .login-card h2 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .login-card h2 span {
+            color: #62bbe8;
+        }
+
+        .subtitle {
+            color: #666;
+
+            line-height: 1.6;
+
+            margin-bottom: 35px;
+        }
+
+        /* ==============================
+           FORM
+        ============================== */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            margin-bottom: 9px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+
+            padding: 15px 45px 15px 16px;
+
+            border: 1px solid #d9d9d9;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+
+            outline: none;
+
+            transition: 0.25s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #62bbe8;
+
+            box-shadow:
+                0 0 0 3px rgba(98, 187, 232, 0.18);
+        }
+
+        .input-icon {
+            position: absolute;
+
+            right: 15px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #777;
+
+            cursor: pointer;
+
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==============================
+           REMEMBER / FORGOT
+        ============================== */
+
+        .form-options {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin: 8px 0 28px;
+
+            font-size: 13px;
+        }
+
+        .remember {
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: #555;
+
+            cursor: pointer;
+        }
+
+        .remember input {
+            width: 15px;
+            height: 15px;
+
+            accent-color: #62bbe8;
+
+            cursor: pointer;
+        }
+
+        .forgot {
+            color: #62bbe8;
+
+            text-decoration: none;
+
+            font-weight: 500;
+        }
+
+        .forgot:hover {
+            text-decoration: underline;
+        }
+
+        /* ==============================
+           LOGIN BUTTON
+        ============================== */
+
+        .login-button {
+            width: 100%;
+
+            border: none;
+
+            background: #62bbe8;
+
+            color: #ffffff;
+
+            padding: 16px;
+
+            border-radius: 9px;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .login-button:hover {
+            background: #4ea8d5;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 20px rgba(98, 187, 232, 0.35);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==============================
+           SIGN UP
+        ============================== */
+
+        .signup-section {
+            text-align: center;
+
+            margin-top: 25px;
+
+            font-size: 14px;
+
+            color: #666;
+        }
+
+        .signup-link {
+            color: #62bbe8;
+
+            text-decoration: none;
+
+            font-weight: 700;
+
+            margin-left: 4px;
+        }
+
+        .signup-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ==============================
+           BACK TO ROLE SELECTION
+        ============================== */
+
+        .back-link {
+            display: block;
+
+            text-align: center;
+
+            margin-top: 18px;
+
+            color: #555;
+
+            text-decoration: none;
+
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            color: #62bbe8;
+        }
+
+        /* ==============================
+           SECURITY MESSAGE
+        ============================== */
+
+        .security-note {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 25px;
+
+            color: #777;
+
+            font-size: 12px;
+        }
+
+        .security-icon {
+            color: #62bbe8;
+
+            font-size: 17px;
+        }
+
+        /* ==============================
+           ERROR MESSAGE
+        ============================== */
+
+        .error-message {
+            display: none;
+
+            background: #fff1f2;
+
+            color: #be123c;
+
+            border: 1px solid #fecdd3;
+
+            border-radius: 8px;
+
+            padding: 11px;
+
+            margin-bottom: 20px;
+
+            font-size: 13px;
+        }
+
+        /* ==============================
+           RESPONSIVE
+        ============================== */
+
+        @media (max-width: 850px) {
+
+            .page-container {
+                grid-template-columns: 1fr;
+
+                max-width: 550px;
+
+                margin: 25px;
+            }
+
+            .brand-section {
+                min-height: 320px;
+
+                padding: 40px;
+            }
+
+            .logo {
+                margin-bottom: 35px;
+            }
+
+            .brand-section h1 {
+                font-size: 42px;
+            }
+
+            .login-section {
+                padding: 40px;
             }
         }
-    </script>
+
+        @media (max-width: 500px) {
+
+            .page-container {
+                margin: 0;
+
+                min-height: 100vh;
+
+                border-radius: 0;
+            }
+
+            .brand-section {
+                padding: 30px;
+            }
+
+            .brand-section h1 {
+                font-size: 36px;
+            }
+
+            .login-section {
+                padding: 30px 25px;
+            }
+
+            .login-card h2 {
+                font-size: 32px;
+            }
+
+            .form-options {
+                align-items: flex-start;
+
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 
+<body>
 
-<body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans relative overflow-x-hidden">
+    <div class="page-container">
 
-    <!-- Background -->
-    <div
-        class="fixed inset-0 bg-cover bg-center blur-xl opacity-30 scale-105 pointer-events-none"
-        style="background-image:url('https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=1920&auto=format&fit=crop');">
-    </div>
+        <!-- ==================================
+             LEFT BRANDING SECTION
+        =================================== -->
 
+        <section class="brand-section">
 
-    <!-- Main Card -->
-    <div class="relative z-10 w-full max-w-5xl bg-white rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-2">
+            <div class="logo">
 
-
-        <!-- LEFT SIDE -->
-
-        <section class="relative min-h-[500px] lg:min-h-[620px] p-8 sm:p-12 flex flex-col justify-between overflow-hidden bg-slate-950">
-
-            <img
-                src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=1200&auto=format&fit=crop"
-                alt="Coach training"
-                class="absolute inset-0 w-full h-full object-cover opacity-40"
-            >
-
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/80"></div>
-
-
-            <!-- Logo -->
-
-            <div class="relative z-10 flex items-center gap-3">
-
-                <div class="w-11 h-11 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80">
-
-                    <span class="text-xl">🏆</span>
-
+                <div class="logo-icon">
+                    🏃
                 </div>
 
-                <div class="leading-tight">
-
-                    <span class="block text-[11px] font-extrabold tracking-wider text-white">
-                        FITNESS
-                    </span>
-
-                    <span class="block text-[11px] font-extrabold tracking-wider text-brand">
-                        PERFORMANCE TRACKER
-                    </span>
-
+                <div class="logo-text">
+                    FITNESS<br>
+                    <span>PERFORMANCE</span><br>
+                    TRACKER
                 </div>
 
             </div>
 
+            <h1>
+                Lead.<br>
+                Track.<br>
+                <span>Develop.</span>
+            </h1>
 
-            <!-- Hero -->
+            <p>
+                Manage your athletes, monitor performance,
+                provide feedback, and help every player
+                reach their full potential.
+            </p>
 
-            <div class="relative z-10 my-auto py-10">
-
-                <h1 class="text-4xl sm:text-5xl font-black text-white leading-none tracking-tight mb-5">
-
-                    Lead.<br>
-                    Track.<br>
-
-                    <span class="text-brand">
-                        Develop.
-                    </span>
-
-                </h1>
-
-                <p class="text-slate-300 text-sm leading-relaxed max-w-sm">
-
-                    Manage your athletes, monitor performance,
-                    provide feedback, and help every player
-                    reach their full potential.
-
-                </p>
-
-                <div class="w-12 h-1 bg-brand rounded-full mt-7"></div>
-
-            </div>
-
-
-            <div class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
-
-                Coach Performance Platform
-
-            </div>
+            <div class="brand-line"></div>
 
         </section>
 
 
+        <!-- ==================================
+             LOGIN SECTION
+        =================================== -->
 
-        <!-- RIGHT SIDE -->
+        <section class="login-section">
 
-        <section class="bg-white p-8 sm:p-12 flex items-center">
+            <div class="login-card">
 
-            <div class="w-full max-w-md mx-auto">
+                <!-- COACH ICON -->
 
-
-                <!-- Icon -->
-
-                <div class="w-16 h-16 rounded-full bg-brand-light border-2 border-brand/40 flex items-center justify-center mb-6">
-
-                    <span class="text-3xl">🏆</span>
-
+                <div class="coach-icon">
+                    📋
                 </div>
 
 
-                <!-- Heading -->
+                <!-- TITLE -->
 
-                <h2 class="text-3xl font-black text-slate-900">
-
-                    <span class="text-brand">Coach</span> Login
-
+                <h2>
+                    <span>Coach</span> Login
                 </h2>
 
-                <p class="text-sm text-slate-500 mt-2 mb-7">
-
+                <p class="subtitle">
                     Sign in to manage athletes, track performance,
                     and provide coaching feedback.
-
                 </p>
 
 
-                <!-- Error -->
+                <!-- ERROR MESSAGE -->
 
                 <div
+                    class="error-message"
                     id="errorMessage"
-                    class="hidden mb-5 bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-xs">
+                >
+                    Please enter your email and password.
                 </div>
 
 
-                <!-- Form -->
+                <!-- LOGIN FORM -->
 
-                <form id="loginForm" class="space-y-5">
+                <form id="loginForm">
 
+                    <!-- EMAIL -->
 
-                    <!-- Email -->
+                    <div class="form-group">
 
-                    <div>
-
-                        <label
-                            for="email"
-                            class="block text-xs font-bold text-slate-800 mb-2">
+                        <label for="email">
                             Coach Email
                         </label>
 
-                        <input
-                            type="email"
-                            id="email"
-                            required
-                            autocomplete="email"
-                            placeholder="Enter your coach email"
-                            class="w-full px-4 py-3 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand transition"
-                        >
-
-                    </div>
-
-
-                    <!-- Password -->
-
-                    <div>
-
-                        <label
-                            for="password"
-                            class="block text-xs font-bold text-slate-800 mb-2">
-                            Password
-                        </label>
-
-                        <div class="relative">
+                        <div class="input-wrapper">
 
                             <input
-                                type="password"
-                                id="password"
+                                type="email"
+                                id="email"
+                                placeholder="Enter your coach email"
+                                autocomplete="email"
                                 required
-                                autocomplete="current-password"
-                                placeholder="Enter your password"
-                                class="w-full px-4 py-3 pr-12 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand transition"
                             >
 
-                            <button
-                                type="button"
-                                id="togglePassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand"
-                                aria-label="Show password">
-                                👁
-                            </button>
+                            <span class="input-icon">
+                                ✉
+                            </span>
 
                         </div>
 
                     </div>
 
 
-                    <!-- Options -->
+                    <!-- PASSWORD -->
 
-                    <div class="flex items-center justify-between text-xs">
+                    <div class="form-group">
 
-                        <label class="flex items-center gap-2 text-slate-500">
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <span
+                                class="input-icon"
+                                id="togglePassword"
+                                aria-label="Show password"
+                            >
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REMEMBER ME / FORGOT PASSWORD -->
+
+                    <div class="form-options">
+
+                        <label class="remember">
 
                             <input
                                 type="checkbox"
                                 id="remember"
-                                class="accent-green-500">
+                            >
 
                             Remember Me
 
                         </label>
 
-
                         <a
                             href="forgot-password.html"
-                            class="text-brand font-bold hover:underline">
+                            class="forgot"
+                        >
                             Forgot Password?
                         </a>
 
                     </div>
 
 
-                    <!-- Button -->
+                    <!-- LOGIN BUTTON -->
 
                     <button
                         type="submit"
+                        class="login-button"
                         id="loginButton"
-                        class="w-full py-3.5 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl transition shadow-lg">
-
+                    >
                         Login as Coach →
-
                     </button>
 
                 </form>
 
 
-                <!-- Signup -->
+                <!-- SIGN UP -->
 
-                <p class="text-center text-sm text-slate-500 mt-7">
+                <div class="signup-section">
 
                     Don't have a coach account?
 
                     <a
                         href="coach-signup.html"
-                        class="text-brand font-bold hover:underline">
+                        class="signup-link"
+                    >
                         Sign Up
                     </a>
 
-                </p>
+                </div>
 
 
-                <!-- Back -->
+                <!-- BACK LINK -->
 
                 <a
                     href="../index.html"
-                    class="block text-center mt-4 text-xs text-slate-400 hover:text-brand">
-
+                    class="back-link"
+                >
                     ← Back to role selection
-
                 </a>
 
 
-                <!-- Security -->
+                <!-- SECURITY MESSAGE -->
 
-                <div class="border-t border-slate-100 mt-7 pt-5 text-center text-xs text-slate-400">
+                <div class="security-note">
 
-                    🔒 Coach account information is securely protected.
+                    <span class="security-icon">
+                        🔒
+                    </span>
+
+                    <span>
+                        Coach account information is securely protected.
+                    </span>
 
                 </div>
 
@@ -308,76 +748,90 @@
     </div>
 
 
+    <!-- ==================================
+         JAVASCRIPT
+    =================================== -->
 
-<script>
+    <script>
 
-const password = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
+        const password = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
 
-togglePassword.addEventListener("click", function () {
+        togglePassword.addEventListener("click", function () {
 
-    if (password.type === "password") {
+            if (password.type === "password") {
 
-        password.type = "text";
-        togglePassword.textContent = "🙈";
-        togglePassword.setAttribute("aria-label", "Hide password");
+                password.type = "text";
+                togglePassword.setAttribute("aria-label", "Hide password");
+                togglePassword.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
 
-    } else {
+            } else {
 
-        password.type = "password";
-        togglePassword.textContent = "👁";
-        togglePassword.setAttribute("aria-label", "Show password");
+                password.type = "password";
+                togglePassword.setAttribute("aria-label", "Show password");
+                togglePassword.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
 
-    }
+            }
 
-});
-
-
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    const email = document.getElementById("email").value.trim();
-    const passwordValue = password.value;
-
-    const errorMessage = document.getElementById("errorMessage");
-    const loginButton = document.getElementById("loginButton");
-
-    errorMessage.classList.add("hidden");
-
-    if (!email || !passwordValue) {
-
-        errorMessage.textContent =
-            "Please enter your email and password.";
-
-        errorMessage.classList.remove("hidden");
-
-        return;
-    }
-
-    loginButton.disabled = true;
-    loginButton.textContent = "Signing in...";
-    try {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email, password: passwordValue, role: "coach" })
         });
-        const result = await response.json();
-        if (!response.ok || result.success !== true) {
-            throw new Error(result.message || "Unable to log in.");
-        }
-        window.location.href = "coach-dashboard.html";
-    } catch (error) {
-        errorMessage.textContent = error.message;
-        errorMessage.classList.remove("hidden");
-        loginButton.disabled = false;
-        loginButton.textContent = "Login as Coach →";
-    }
 
-});
 
-</script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const passwordValue = password.value;
+
+            const errorMessage = document.getElementById("errorMessage");
+            const loginButton = document.getElementById("loginButton");
+
+            errorMessage.style.display = "none";
+
+            if (!email || !passwordValue) {
+
+                errorMessage.textContent =
+                    "Please enter your email and password.";
+
+                errorMessage.style.display = "block";
+
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Signing in...";
+
+
+            setTimeout(function() {
+
+                loginButton.disabled = false;
+                loginButton.textContent = "Login as Coach →";
+
+                /*
+                 * Demo login.
+                 *
+                 * Replace this with your backend
+                 * authentication when available.
+                 */
+
+                window.location.href = "coach-dashboard.html";
+
+            }, 1000);
+
+        });
+
+    </script>
 
 </body>
+
 </html>

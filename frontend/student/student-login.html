@@ -86,7 +86,7 @@
             width: 52px;
             height: 52px;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #62bbe8;
             border-radius: 50%;
 
             display: flex;
@@ -105,7 +105,7 @@
         }
 
         .logo-text span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         /* BRAND TITLE */
@@ -118,7 +118,7 @@
         }
 
         .brand-section h1 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .brand-section p {
@@ -134,7 +134,7 @@
             width: 50px;
             height: 4px;
 
-            background: #22c55e;
+            background: #62bbe8;
 
             margin-top: 35px;
 
@@ -171,7 +171,7 @@
 
             background: #ecfdf3;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #62bbe8;
 
             display: flex;
             align-items: center;
@@ -190,7 +190,7 @@
         }
 
         .login-card h2 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .subtitle {
@@ -239,7 +239,7 @@
         }
 
         .input-wrapper input:focus {
-            border-color: #22c55e;
+            border-color:#62bbe8 ;
 
             box-shadow:
                 0 0 0 3px rgba(34, 197, 94, 0.12);
@@ -258,6 +258,9 @@
             cursor: pointer;
 
             user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* ==============================
@@ -291,13 +294,13 @@
             width: 15px;
             height: 15px;
 
-            accent-color: #22c55e;
+            accent-color: #62bbe8;
 
             cursor: pointer;
         }
 
         .forgot {
-            color: #16a34a;
+            color: #62bbe8;
 
             text-decoration: none;
 
@@ -317,7 +320,7 @@
 
             border: none;
 
-            background: #22c55e;
+            background:#62bbe8;
 
             color: #ffffff;
 
@@ -335,12 +338,12 @@
         }
 
         .login-button:hover {
-            background: #16a34a;
+            background: #62bbe8;
 
             transform: translateY(-1px);
 
             box-shadow:
-                0 8px 20px rgba(34, 197, 94, 0.25);
+                0 8px 20px rgba(227, 242, 242, 0.641);
         }
 
         .login-button:active {
@@ -368,7 +371,7 @@
         }
 
         .signup-link {
-            color: #16a34a;
+            color: #62bbe8;
 
             text-decoration: none;
 
@@ -400,7 +403,7 @@
         }
 
         .back-link:hover {
-            color: #22c55e;
+            color:#62bbe8 ;
         }
 
         /* ==============================
@@ -422,7 +425,7 @@
         }
 
         .security-icon {
-            color: #22c55e;
+            color: #62bbe8;
 
             font-size: 17px;
         }
@@ -649,8 +652,12 @@
                                 class="input-icon"
                                 id="togglePassword"
                                 onclick="togglePassword()"
+                                aria-label="Toggle password visibility"
                             >
-                                👁
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
                             </span>
 
                         </div>
@@ -765,13 +772,23 @@
 
                 password.type = "text";
 
-                toggle.textContent = "🙈";
+                toggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
 
             } else {
 
                 password.type = "password";
 
-                toggle.textContent = "👁";
+                toggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
 
             }
         }
@@ -785,7 +802,7 @@
             .getElementById("studentLoginForm")
             .addEventListener(
                 "submit",
-                async function(event) {
+                function(event) {
 
                     event.preventDefault();
 
@@ -840,23 +857,48 @@
 
                     loginButton.textContent =
                         "Signing in...";
-                    try {
-                        const response = await fetch("/api/login", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ email: email, password: password, role: "player" })
-                        });
-                        const result = await response.json();
-                        if (!response.ok || result.success !== true) {
-                            throw new Error(result.message || "Unable to log in.");
-                        }
-                        window.location.href = "student-dashboard.html";
-                    } catch (error) {
-                        errorMessage.textContent = error.message;
-                        errorMessage.style.display = "block";
+
+
+                    /*
+                     * DEMO LOGIN
+                     *
+                     * This currently simulates a
+                     * successful login.
+                     *
+                     * When your backend is connected,
+                     * replace this section with your
+                     * real authentication API.
+                     */
+
+                    setTimeout(function() {
+
                         loginButton.disabled = false;
-                        loginButton.textContent = "Login as Student →";
-                    }
+
+                        loginButton.textContent =
+                            "Login as Student →";
+
+
+                        /* SUCCESS MESSAGE */
+
+                        alert(
+                            "Student login submitted successfully!"
+                        );
+
+
+                        /*
+                         * REDIRECT TO STUDENT DASHBOARD
+                         *
+                         * student-login.html and
+                         * student-dashboard.html
+                         * are inside the same
+                         * frontend/student/ folder.
+                         */
+
+                        window.location.href =
+                            "student-dashboard.html";
+
+
+                    }, 1000);
 
                 }
             );
