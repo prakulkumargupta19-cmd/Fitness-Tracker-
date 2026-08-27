@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Create Account | Fitness Performance Tracker</title>
+    <title>Coach Create Account | Fitness Performance Tracker</title>
 
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
         rel="stylesheet"
     >
 
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -29,9 +29,9 @@
 
                     colors: {
                         brand: {
-                            DEFAULT: '#22c55e',
-                            hover: '#16a34a',
-                            light: '#f0fdf4',
+                            DEFAULT: '#62bbe8',
+                            hover: '#4ea8d5',
+                            light: '#f0f9ff',
                         }
                     }
                 }
@@ -43,38 +43,48 @@
 
 <body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans relative overflow-x-hidden">
 
-    <!-- Background -->
+
+    <!-- BACKGROUND -->
+
     <div
         class="fixed inset-0 bg-cover bg-center blur-xl opacity-30 scale-105 pointer-events-none"
         style="background-image: url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1920&auto=format&fit=crop');">
     </div>
 
 
-    <!-- Main Card -->
-    <div class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10">
+    <!-- MAIN CARD -->
+
+    <div
+        class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10"
+    >
 
 
-        <!-- ==============================
+        <!-- =================================
              LEFT COLUMN
-        ============================== -->
+        ================================== -->
 
-        <div class="relative bg-slate-950 p-8 sm:p-12 flex flex-col justify-between overflow-hidden min-h-[450px] lg:min-h-[620px]">
+        <div
+            class="relative bg-slate-950 p-8 sm:p-12 flex flex-col justify-between overflow-hidden min-h-[450px] lg:min-h-[620px]"
+        >
 
-            <!-- Background Image -->
             <img
                 src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1000&auto=format&fit=crop"
                 alt="Fitness"
                 class="absolute inset-0 w-full h-full object-cover object-center opacity-40"
             >
 
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"></div>
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"
+            ></div>
 
 
-            <!-- Logo -->
+            <!-- LOGO -->
+
             <div class="relative z-10 flex items-center gap-3">
 
-                <div class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80">
+                <div
+                    class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80"
+                >
 
                     <svg
                         class="w-5 h-5 text-brand"
@@ -97,11 +107,15 @@
 
                 <div class="leading-tight">
 
-                    <span class="block text-[11px] font-extrabold tracking-wider text-white uppercase">
+                    <span
+                        class="block text-[11px] font-extrabold tracking-wider text-white uppercase"
+                    >
                         FITNESS
                     </span>
 
-                    <span class="block text-[11px] font-extrabold tracking-wider text-brand uppercase">
+                    <span
+                        class="block text-[11px] font-extrabold tracking-wider text-brand uppercase"
+                    >
                         PERFORMANCE TRACKER
                     </span>
 
@@ -110,13 +124,16 @@
             </div>
 
 
-            <!-- Hero Content -->
+            <!-- HERO -->
+
             <div class="relative z-10 my-auto py-8">
 
-                <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4">
+                <h1
+                    class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4"
+                >
 
-                    Track.<br>
-                    Improve.<br>
+                    Coach.<br>
+                    Guide.<br>
 
                     <span class="text-brand">
                         Perform.
@@ -125,11 +142,13 @@
                 </h1>
 
 
-                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm">
+                <p
+                    class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm"
+                >
 
-                    Stay connected with your fitness journey,
-                    monitor your goals, understand your improvement
-                    areas, and receive feedback from your coach.
+                    Manage athlete performance,
+                    monitor progress, provide feedback,
+                    and help your players reach their goals.
 
                 </p>
 
@@ -139,8 +158,11 @@
             </div>
 
 
-            <!-- Footer -->
-            <div class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+            <!-- FOOTER -->
+
+            <div
+                class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold"
+            >
 
                 PerformX Engine Platform
 
@@ -149,20 +171,24 @@
         </div>
 
 
-
-        <!-- ==============================
+        <!-- =================================
              RIGHT COLUMN
-        ============================== -->
+        ================================== -->
 
-        <div class="bg-white p-8 sm:p-12 flex flex-col justify-between">
+        <div
+            class="bg-white p-8 sm:p-12 flex flex-col justify-between"
+        >
 
             <div>
 
 
-                <!-- Top Icon -->
+                <!-- ICON -->
+
                 <div class="flex justify-center mb-4">
 
-                    <div class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light">
+                    <div
+                        class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light"
+                    >
 
                         <svg
                             class="w-7 h-7 text-slate-700"
@@ -192,14 +218,16 @@
                 </div>
 
 
+                <!-- TITLE -->
 
-                <!-- Title -->
                 <div class="text-center mb-6">
 
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">
+                    <h2
+                        class="text-2xl font-black text-slate-900 tracking-tight"
+                    >
 
                         <span class="text-brand">
-                            Student
+                            Coach
                         </span>
 
                         Create Account
@@ -209,18 +237,15 @@
 
                     <p class="text-xs text-slate-500 mt-1">
 
-                        Sign up to track your fitness performance,
-                        goals, and feedback.
+                        Create your coach account to manage
+                        athlete performance and feedback.
 
                     </p>
 
                 </div>
 
 
-
-                <!-- ==============================
-                     REGISTRATION FORM
-                ============================== -->
+                <!-- REGISTRATION FORM -->
 
                 <form
                     id="signupForm"
@@ -228,7 +253,8 @@
                 >
 
 
-                    <!-- Full Name -->
+                    <!-- FULL NAME -->
+
                     <div>
 
                         <label
@@ -238,7 +264,6 @@
                             Full Name
                         </label>
 
-
                         <div class="relative">
 
                             <input
@@ -246,9 +271,9 @@
                                 id="fullName"
                                 required
                                 placeholder="Enter your full name"
+                                autocomplete="name"
                                 class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
-
 
                             <span class="absolute right-3.5 top-2.5 text-slate-400">
 
@@ -275,29 +300,27 @@
                     </div>
 
 
+                    <!-- COACH EMAIL -->
 
-                    <!-- Student Email -->
                     <div>
 
                         <label
-                            for="studentEmail"
+                            for="coachEmail"
                             class="block text-xs font-bold text-slate-800 mb-1"
                         >
-                            Student Email
+                            Coach Email
                         </label>
-
 
                         <div class="relative">
 
                             <input
                                 type="email"
-                                id="studentEmail"
+                                id="coachEmail"
                                 required
-                                placeholder="Enter your student email"
+                                placeholder="Enter your coach email"
                                 autocomplete="email"
                                 class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
-
 
                             <span class="absolute right-3.5 top-2.5 text-slate-400">
 
@@ -324,8 +347,8 @@
                     </div>
 
 
-
                     <!-- PASSWORD -->
+
                     <div>
 
                         <label
@@ -334,7 +357,6 @@
                         >
                             Password
                         </label>
-
 
                         <div class="relative">
 
@@ -348,38 +370,26 @@
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
 
-
                             <button
                                 type="button"
                                 id="togglePassword"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand cursor-pointer"
                                 aria-label="Show password"
                             >
-
                                 <svg
                                     id="passwordEye"
-                                    class="w-5 h-5"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
                                 >
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                    />
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
-
                             </button>
 
                         </div>
@@ -387,8 +397,8 @@
                     </div>
 
 
-
                     <!-- CONFIRM PASSWORD -->
+
                     <div>
 
                         <label
@@ -397,7 +407,6 @@
                         >
                             Confirm Password
                         </label>
-
 
                         <div class="relative">
 
@@ -411,38 +420,26 @@
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
                             >
 
-
                             <button
                                 type="button"
                                 id="toggleConfirmPassword"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand cursor-pointer"
                                 aria-label="Show confirm password"
                             >
-
                                 <svg
                                     id="confirmPasswordEye"
-                                    class="w-5 h-5"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
                                 >
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7z"
-                                    />
-
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
-
                             </button>
 
                         </div>
@@ -450,11 +447,13 @@
                     </div>
 
 
+                    <!-- TERMS -->
 
-                    <!-- Terms -->
                     <div class="flex items-center text-xs py-1">
 
-                        <label class="flex items-center text-slate-600 cursor-pointer">
+                        <label
+                            class="flex items-center text-slate-600 cursor-pointer"
+                        >
 
                             <input
                                 type="checkbox"
@@ -481,20 +480,20 @@
                     </div>
 
 
+                    <!-- ERROR -->
 
-                    <!-- Error Message -->
                     <div
                         id="errorMessage"
                         class="hidden bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-xs"
                     ></div>
 
 
+                    <!-- BUTTON -->
 
-                    <!-- Submit Button -->
                     <button
                         type="submit"
                         id="signupButton"
-                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2"
+                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
 
                         <span id="buttonText">
@@ -510,8 +509,8 @@
                 </form>
 
 
+                <!-- NAVIGATION -->
 
-                <!-- Navigation Links -->
                 <div class="mt-5 text-center space-y-2 text-xs">
 
                     <p class="text-slate-500">
@@ -519,7 +518,7 @@
                         Already have an account?
 
                         <a
-                            href="student-login.html"
+                            href="coach-login.html"
                             class="text-brand font-bold hover:underline"
                         >
                             Sign In
@@ -544,26 +543,26 @@
             </div>
 
 
+            <!-- SECURITY NOTICE -->
 
-            <!-- Security Notice -->
-            <div class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100">
+            <div
+                class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100"
+            >
 
                 <svg
                     class="w-3.5 h-3.5 text-amber-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                 >
-
                     <path
                         fill-rule="evenodd"
                         d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                         clip-rule="evenodd"
                     />
-
                 </svg>
 
                 <span>
-                    Your personal performance data is securely protected.
+                    Your account information is securely protected.
                 </span>
 
             </div>
@@ -574,14 +573,14 @@
 
 
 
-    <!-- ==============================
+    <!-- =================================
          JAVASCRIPT
-    ============================== -->
+    ================================== -->
 
     <script>
 
         /* =================================
-           SHOW / HIDE PASSWORD
+           PASSWORD VISIBILITY
         ================================= */
 
         const passwordInput =
@@ -606,12 +605,8 @@
                 );
 
                 passwordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
                 `;
 
             } else {
@@ -624,19 +619,8 @@
                 );
 
                 passwordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
                 `;
 
             }
@@ -646,7 +630,7 @@
 
 
         /* =================================
-           SHOW / HIDE CONFIRM PASSWORD
+           CONFIRM PASSWORD VISIBILITY
         ================================= */
 
         const confirmPasswordInput =
@@ -671,12 +655,8 @@
                 );
 
                 confirmPasswordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.508-4.073M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7 9.542 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
                 `;
 
             } else {
@@ -689,19 +669,8 @@
                 );
 
                 confirmPasswordEye.innerHTML = `
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7z"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
                 `;
 
             }
@@ -727,10 +696,12 @@
             document.getElementById("errorMessage");
 
 
-        signupForm.addEventListener("submit", async function (event) {
+        signupForm.addEventListener("submit", function (event) {
 
             event.preventDefault();
 
+
+            /* GET VALUES */
 
             const fullName =
                 document
@@ -740,7 +711,7 @@
 
             const email =
                 document
-                    .getElementById("studentEmail")
+                    .getElementById("coachEmail")
                     .value
                     .trim();
 
@@ -750,14 +721,19 @@
             const confirmPassword =
                 confirmPasswordInput.value;
 
+            const terms =
+                document.getElementById("terms").checked;
 
-            /* Clear previous error */
+
+
+            /* CLEAR ERROR */
 
             errorMessage.classList.add("hidden");
             errorMessage.textContent = "";
 
 
-            /* Check name */
+
+            /* VALIDATE NAME */
 
             if (!fullName) {
 
@@ -770,7 +746,8 @@
             }
 
 
-            /* Check email */
+
+            /* VALIDATE EMAIL */
 
             if (!email) {
 
@@ -783,12 +760,13 @@
             }
 
 
-            /* Check password length */
 
-            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            /* VALIDATE PASSWORD */
+
+            if (password.length < 6) {
 
                 errorMessage.textContent =
-                    "Use 8+ characters with uppercase, lowercase, a number, and a special character.";
+                    "Password must contain at least 6 characters.";
 
                 errorMessage.classList.remove("hidden");
 
@@ -796,7 +774,8 @@
             }
 
 
-            /* Check password match */
+
+            /* VALIDATE PASSWORD MATCH */
 
             if (password !== confirmPassword) {
 
@@ -809,7 +788,22 @@
             }
 
 
-            /* Loading state */
+
+            /* VALIDATE TERMS */
+
+            if (!terms) {
+
+                errorMessage.textContent =
+                    "Please agree to the Terms & Privacy Policy.";
+
+                errorMessage.classList.remove("hidden");
+
+                return;
+            }
+
+
+
+            /* LOADING STATE */
 
             signupButton.disabled = true;
 
@@ -820,35 +814,51 @@
 
             buttonText.textContent =
                 "Creating Account...";
-            try {
-                const response = await fetch("/api/register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: fullName,
-                        email: email,
-                        password: password,
-                        role: "player"
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok || result.success !== true) {
-                    throw new Error(result.message || "Unable to create your account.");
-                }
-                sessionStorage.setItem("signupEmail", email);
-                window.location.href = "student-signup-verify.html";
-            } catch (error) {
-                errorMessage.textContent = error.message;
-                errorMessage.classList.remove("hidden");
-                signupButton.disabled = false;
-                signupButton.classList.remove("opacity-70", "cursor-not-allowed");
-                buttonText.textContent = "Create Student Account";
-            }
+
+
+
+            /* =================================
+               SAVE COACH INFORMATION
+            ================================= */
+
+            localStorage.setItem(
+                "coachName",
+                fullName
+            );
+
+            localStorage.setItem(
+                "coachEmail",
+                email
+            );
+
+            localStorage.setItem(
+                "coachPassword",
+                password
+            );
+
+            localStorage.setItem(
+                "coachVerified",
+                "false"
+            );
+
+
+
+            /* =================================
+               REDIRECT TO OTP PAGE
+            ================================= */
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "coach-signup-verify.html";
+
+            }, 800);
 
         });
 
     </script>
 
+<script src="../js/auth-flow.js"></script>
 </body>
 
 </html>

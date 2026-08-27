@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Fitness Performance Tracker</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563eb",
+                        "primary-dark": "#1d4ed8",
+                        "primary-light": "#dbeafe",
+                        secondary: "#6366f1",
+                        success: "#10b981",
+                        warning: "#f59e0b",
+                        danger: "#ef4444",
+
+                        background: "#f8fafc",
+                        surface: "#ffffff",
+                        "surface-muted": "#f1f5f9",
+                        "surface-hover": "#f8fafc",
+
+                        text: "#0f172a",
+                        muted: "#64748b",
+                        border: "#e2e8f0"
+                    },
+
+                    fontFamily: {
+                        heading: ["Anybody", "sans-serif"],
+                        body: ["Hanken Grotesk", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: "Hanken Grotesk", sans-serif;
+        }
+
+        .sidebar {
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+        }
+
+        .nav-active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .nav-item {
+            color: #64748b;
+        }
+
+        .nav-item:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .progress-track {
+            background: #dbeafe;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #2563eb, #6366f1);
+        }
+
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+        }
+
+        .toast {
+            transform: translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-background">
+
+<!-- MOBILE OVERLAY -->
+<div id="sidebarOverlay"
+     class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden">
+</div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar"
+       class="sidebar fixed left-0 top-0 z-50 h-screen w-64 bg-white border-r border-border
+              -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+
+    <!-- Logo -->
+    <div class="h-20 px-6 flex items-center border-b border-border">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-white text-2xl">
+                    fitness_center
+                </span>
+            </div>
+            <div>
+                <h1 class="font-heading font-bold text-lg text-slate-900">
+                    Fitness Tracker
+                </h1>
+                <p class="text-[10px] uppercase tracking-widest text-slate-400 font-mono">
+                    Admin Portal
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Profile -->
+    <div class="px-5 py-5 border-b border-border">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-primary-light border border-blue-200
+                        flex items-center justify-center text-primary font-bold">
+                AD
+            </div>
+            <div class="min-w-0">
+                <div id="sideNavName"
+                     class="font-semibold text-sm text-slate-900 truncate">
+                    Administrator
+                </div>
+                <div class="text-xs text-slate-500">
+                    System Administrator
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-4 py-5 overflow-y-auto scrollbar">
+        <p class="px-3 mb-3 text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            Management
+        </p>
+
+        <div class="space-y-1">
+            <button
+                class="nav-btn nav-active w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="dashboard">
+                <span class="material-symbols-outlined text-[21px]">dashboard</span>
+                <span class="text-sm font-semibold">Dashboard</span>
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="students">
+                <span class="material-symbols-outlined text-[21px]">school</span>
+                <span class="text-sm font-semibold">Students</span>
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="coaches">
+                <span class="material-symbols-outlined text-[21px]">sports</span>
+                <span class="text-sm font-semibold">Coaches</span>
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="performance">
+                <span class="material-symbols-outlined text-[21px]">monitoring</span>
+                <span class="text-sm font-semibold">Performance</span>
+            </button>
+        </div>
+
+        <p class="px-3 mt-8 mb-3 text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            System
+        </p>
+
+        <div class="space-y-1">
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="reports">
+                <span class="material-symbols-outlined text-[21px]">description</span>
+                <span class="text-sm font-semibold">Reports</span>
+            </button>
+
+            <button
+                class="nav-btn nav-item w-full rounded-lg px-3 py-3 flex items-center gap-3 text-left"
+                data-section="settings">
+                <span class="material-symbols-outlined text-[21px]">settings</span>
+                <span class="text-sm font-semibold">Settings</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Add User -->
+    <div class="px-4 pb-3">
+        <button id="quickAddUserBtn"
+                class="w-full rounded-lg bg-primary hover:bg-primary-dark text-white
+                       font-semibold text-sm py-3 flex items-center justify-center gap-2
+                       transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-lg">person_add</span>
+            Add New User
+        </button>
+    </div>
+
+    <!-- Logout -->
+    <div class="px-4 pb-5">
+        <button id="logoutBtn"
+                class="w-full rounded-lg px-3 py-2.5 flex items-center gap-3
+                       text-red-500 hover:bg-red-50 transition-colors text-sm">
+            <span class="material-symbols-outlined text-lg">logout</span>
+            <span>Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="md:ml-64 min-h-screen">
+
+    <!-- TOP BAR -->
+    <header class="h-20 bg-white border-b border-border sticky top-0 z-30
+                   flex items-center justify-between px-5 md:px-8">
+
+        <div class="flex items-center gap-4">
+            <button id="mobileMenuBtn"
+                    class="md:hidden text-slate-500 hover:text-primary">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+
+            <div>
+                <h2 id="pageTitle"
+                    class="font-heading font-bold text-xl text-slate-900">
+                    Admin Dashboard
+                </h2>
+                <p id="pageSubtitle"
+                   class="hidden sm:block text-xs text-slate-500">
+                    System overview, access control, and organization management.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Search -->
+            <div class="hidden lg:flex items-center w-64
+                        bg-slate-50 border border-border rounded-lg px-3">
+                <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+                <input id="globalSearch"
+                       type="text"
+                       placeholder="Search users..."
+                       class="ml-2 w-full bg-transparent border-0 outline-none
+                              focus:ring-0 text-sm text-slate-700 placeholder:text-slate-400">
+            </div>
+
+            <!-- Date -->
+            <div class="hidden md:flex items-center gap-2 px-3 py-2
+                        bg-slate-50 border border-border rounded-lg">
+                <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
+                <span id="currentDate"
+                      class="text-xs font-mono text-slate-600">
+                    25 Aug 2026
+                </span>
+            </div>
+
+            <!-- Notifications -->
+            <div class="relative">
+                <button id="notificationTrigger"
+                        class="relative w-10 h-10 rounded-lg hover:bg-slate-50
+                               flex items-center justify-center text-slate-500">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span id="notificationDot"
+                          class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500">
+                    </span>
+                </button>
+
+                <div id="notificationTray"
+                     class="hidden absolute right-0 top-12 w-80 bg-white border border-border
+                            rounded-xl shadow-xl p-4">
+                    <div class="flex justify-between pb-3 border-b border-border">
+                        <strong class="text-sm text-slate-900">Notifications</strong>
+                        <span class="text-xs text-primary font-semibold">3 New</span>
+                    </div>
+
+                    <div class="space-y-2 mt-3">
+                        <div class="p-3 rounded-lg bg-blue-50">
+                            <strong class="block text-sm text-slate-800">New Student Registered</strong>
+                            <span class="text-xs text-slate-500">Sarah Johnson created an athlete account.</span>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50">
+                            <strong class="block text-sm text-slate-800">Coach Assessment Synced</strong>
+                            <span class="text-xs text-slate-500">Coach Miller submitted performance logs.</span>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50">
+                            <strong class="block text-sm text-slate-800">Performance Updated</strong>
+                            <span class="text-xs text-slate-500">A new athlete benchmark was recorded.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile -->
+            <div class="relative">
+                <button id="profileMenuToggle"
+                        class="w-10 h-10 rounded-full bg-blue-50
+                               border border-blue-100 text-primary font-bold">
+                    AD
+                </button>
+
+                <div id="profileDropdown"
+                     class="hidden absolute right-0 top-12 w-48 bg-white
+                            border border-border rounded-xl shadow-xl p-2">
+                    <button onclick="switchTab('settings')"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-slate-50
+                                   text-left flex items-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-primary text-lg">account_circle</span>
+                        Admin Profile
+                    </button>
+
+                    <button onclick="switchTab('settings')"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-slate-50
+                                   text-left flex items-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-primary text-lg">settings</span>
+                        Settings
+                    </button>
+
+                    <div class="border-t border-border my-1"></div>
+
+                    <button id="profileLogoutBtn"
+                            class="w-full px-3 py-2.5 rounded-lg hover:bg-red-50
+                                   text-left flex items-center gap-2 text-sm text-red-500">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="p-5 md:p-8 space-y-8">
+
+        <!-- DASHBOARD -->
+        <section id="section-dashboard" class="content-section space-y-8">
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">Total Students</span>
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary">school</span>
+                        </div>
+                    </div>
+                    <h3 id="studentCount" class="mt-4 text-3xl font-heading font-bold text-slate-900">248</h3>
+                    <p class="mt-1 text-xs text-slate-500">Registered athletes</p>
+                </div>
+
+                <div class="card rounded-xl p-5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">Total Coaches</span>
+                        <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-indigo-600">sports</span>
+                        </div>
+                    </div>
+                    <h3 id="coachCount" class="mt-4 text-3xl font-heading font-bold text-slate-900">24</h3>
+                    <p class="mt-1 text-xs text-slate-500">Active instructors</p>
+                </div>
+
+                <div class="card rounded-xl p-5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">Performance Records</span>
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-amber-500">monitoring</span>
+                        </div>
+                    </div>
+                    <h3 class="mt-4 text-3xl font-heading font-bold text-slate-900">1,426</h3>
+                    <p class="mt-1 text-xs text-slate-500">Recorded assessments</p>
+                </div>
+
+                <div class="card rounded-xl p-5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs uppercase tracking-wide text-slate-500 font-mono">Pending Accounts</span>
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-emerald-500">pending</span>
+                        </div>
+                    </div>
+                    <h3 id="pendingCount" class="mt-4 text-3xl font-heading font-bold text-slate-900">7</h3>
+                    <p class="mt-1 text-xs text-slate-500">Awaiting activation</p>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CHARTS ROW (New) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Bar Graph: Registrations Trend -->
+                <div class="card rounded-xl p-6 lg:col-span-2">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                        <div>
+                            <h3 class="font-heading font-bold text-lg text-slate-900">User Growth &amp; Registrations</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Monthly enrollments for students and coaches</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Students
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 ml-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Coaches
+                            </span>
+                        </div>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="registrationBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart: Account Status Distribution -->
+                <div class="card rounded-xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-heading font-bold text-lg text-slate-900">User Ratio &amp; Status</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Distribution across system roles</p>
+                    </div>
+                    <div class="relative h-60 w-full my-auto flex items-center justify-center">
+                        <canvas id="userStatusDoughnutChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 pt-4 border-t border-border text-center">
+                        <div>
+                            <span class="block text-[10px] font-mono uppercase text-slate-400">Students</span>
+                            <span class="text-sm font-bold text-blue-600">89%</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-mono uppercase text-slate-400">Coaches</span>
+                            <span class="text-sm font-bold text-indigo-600">8.5%</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-mono uppercase text-slate-400">Pending</span>
+                            <span class="text-sm font-bold text-amber-500">2.5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Users + Activity -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <!-- Users -->
+                <div class="card rounded-xl xl:col-span-2">
+                    <div class="p-6 border-b border-border flex items-center justify-between">
+                        <div>
+                            <h3 class="font-heading font-bold text-lg text-slate-900">Recent Registered Users</h3>
+                            <p class="text-xs text-slate-500 mt-1">Latest system enrollments and credentials</p>
+                        </div>
+                        <button onclick="switchTab('students')"
+                                class="text-primary text-xs font-semibold hover:underline">
+                            View All
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto scrollbar">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-border text-xs uppercase text-slate-400">
+                                    <th class="px-6 py-3 font-mono">User</th>
+                                    <th class="px-4 py-3 font-mono">Role</th>
+                                    <th class="px-4 py-3 font-mono">Status</th>
+                                    <th class="px-6 py-3 text-right font-mono">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardRecentUsers" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Activity -->
+                <div class="card rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary">history</span>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-bold text-lg">Recent Activity</h3>
+                            <p class="text-xs text-slate-500">System audit feed</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+                            <div class="flex gap-3">
+                                <span class="material-symbols-outlined text-primary">school</span>
+                                <div>
+                                    <strong class="block text-sm">New student registered</strong>
+                                    <p class="text-xs text-slate-500">Sarah Johnson created an account.</p>
+                                    <span class="text-[10px] text-slate-400">10 minutes ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+                            <div class="flex gap-3">
+                                <span class="material-symbols-outlined text-amber-500">monitoring</span>
+                                <div>
+                                    <strong class="block text-sm">Performance updated</strong>
+                                    <p class="text-xs text-slate-500">Coach Miller updated an athlete benchmark.</p>
+                                    <span class="text-[10px] text-slate-400">35 minutes ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-slate-50 border border-border">
+                            <div class="flex gap-3">
+                                <span class="material-symbols-outlined text-indigo-500">sports</span>
+                                <div>
+                                    <strong class="block text-sm">New coach added</strong>
+                                    <p class="text-xs text-slate-500">James Wilson joined the system.</p>
+                                    <span class="text-[10px] text-slate-400">1 hour ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="showToast('Audit log opened.')"
+                            class="w-full mt-5 py-2.5 rounded-lg
+                                   bg-slate-100 hover:bg-primary hover:text-white
+                                   text-primary text-xs font-semibold transition-colors">
+                        View Audit Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card rounded-xl p-6">
+                <div class="mb-5">
+                    <h3 class="font-heading font-bold text-lg">Admin Management Shortcuts</h3>
+                    <p class="text-xs text-slate-500 mt-1">Quickly manage users and system operations.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="openAddUserModal('Student')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all">
+                        <span class="material-symbols-outlined text-primary text-2xl">school</span>
+                        <strong class="block mt-3 text-sm">Add Student</strong>
+                        <span class="block mt-1 text-xs text-slate-500">Create athlete account</span>
+                    </button>
+
+                    <button onclick="openAddUserModal('Coach')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-indigo-300 hover:bg-indigo-50/50 text-left transition-all">
+                        <span class="material-symbols-outlined text-indigo-600 text-2xl">sports</span>
+                        <strong class="block mt-3 text-sm">Add Coach</strong>
+                        <span class="block mt-1 text-xs text-slate-500">Create instructor account</span>
+                    </button>
+
+                    <button onclick="switchTab('reports')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-amber-300 hover:bg-amber-50/50 text-left transition-all">
+                        <span class="material-symbols-outlined text-amber-500 text-2xl">description</span>
+                        <strong class="block mt-3 text-sm">Generate Report</strong>
+                        <span class="block mt-1 text-xs text-slate-500">Export system analytics</span>
+                    </button>
+
+                    <button onclick="switchTab('settings')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border
+                                   hover:border-emerald-300 hover:bg-emerald-50/50 text-left transition-all">
+                        <span class="material-symbols-outlined text-emerald-500 text-2xl">tune</span>
+                        <strong class="block mt-3 text-sm">System Settings</strong>
+                        <span class="block mt-1 text-xs text-slate-500">Configure preferences</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- STUDENTS -->
+        <section id="section-students" class="content-section hidden space-y-6">
+            <div class="card rounded-xl">
+                <div class="p-6 border-b border-border">
+                    <div class="flex flex-wrap justify-between gap-4">
+                        <div>
+                            <h2 class="font-heading font-bold text-2xl">Registered Students</h2>
+                            <p class="text-sm text-slate-500 mt-1">Manage all student athlete accounts.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="flex items-center bg-slate-50 border border-border rounded-lg px-3 w-60">
+                                <span class="material-symbols-outlined text-slate-400">search</span>
+                                <input id="studentSearchInput"
+                                       class="ml-2 w-full border-0 bg-transparent focus:ring-0 text-sm"
+                                       placeholder="Search students...">
+                            </div>
+                            <button onclick="openAddUserModal('Student')"
+                                    class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">
+                                + Add Student
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto scrollbar">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-border text-xs uppercase text-slate-400">
+                                <th class="px-6 py-3 font-mono">Student</th>
+                                <th class="px-4 py-3 font-mono">Email</th>
+                                <th class="px-4 py-3 font-mono">Status</th>
+                                <th class="px-6 py-3 text-right font-mono">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- COACHES -->
+        <section id="section-coaches" class="content-section hidden space-y-6">
+            <div class="card rounded-xl">
+                <div class="p-6 border-b border-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="font-heading font-bold text-2xl">Coach Accounts</h2>
+                            <p class="text-sm text-slate-500 mt-1">Manage coaching staff and training divisions.</p>
+                        </div>
+                        <button onclick="openAddUserModal('Coach')"
+                                class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">
+                            + Add Coach
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto scrollbar">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-border text-xs uppercase text-slate-400">
+                                <th class="px-6 py-3 font-mono">Coach</th>
+                                <th class="px-4 py-3 font-mono">Email</th>
+                                <th class="px-4 py-3 font-mono">Status</th>
+                                <th class="px-6 py-3 text-right font-mono">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coachTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PERFORMANCE -->
+        <section id="section-performance" class="content-section hidden space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">Average Performance</span>
+                    <h3 class="text-3xl font-heading font-bold mt-3">82%</h3>
+                    <p class="text-xs text-slate-500 mt-1">Overall athlete metric</p>
+                </div>
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">Goals Completed</span>
+                    <h3 class="text-3xl font-heading font-bold mt-3">64</h3>
+                    <p class="text-xs text-slate-500 mt-1">Successfully cleared targets</p>
+                </div>
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">Goals Needing Attention</span>
+                    <h3 class="text-3xl font-heading font-bold mt-3">31</h3>
+                    <p class="text-xs text-slate-500 mt-1">Under target performance</p>
+                </div>
+                <div class="card rounded-xl p-5">
+                    <span class="text-xs uppercase font-mono text-slate-500">Monthly Assessments</span>
+                    <h3 class="text-3xl font-heading font-bold mt-3">146</h3>
+                    <p class="text-xs text-slate-500 mt-1">Completed this month</p>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="card rounded-xl p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="font-heading font-bold text-xl">Weekly Fitness Metrics Trend</h2>
+                        <p class="text-sm text-slate-500 mt-1">Cardio, strength, and consistency tracked over the last 7 weeks</p>
+                    </div>
+                </div>
+                <div class="relative h-80 w-full">
+                    <canvas id="performanceLineChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card rounded-xl p-6 md:p-8">
+                <h2 class="font-heading font-bold text-xl">System Performance Analytics</h2>
+                <p class="text-sm text-slate-500 mt-1 mb-8">Live benchmark tracking across all departments.</p>
+
+                <div class="space-y-7">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-semibold">Cardiovascular Readiness</span>
+                            <span class="font-mono text-primary">82%</span>
+                        </div>
+                        <div class="h-2.5 rounded-full progress-track">
+                            <div class="h-full rounded-full progress-fill" style="width:82%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-semibold">Strength &amp; Power Index</span>
+                            <span class="font-mono text-primary">78%</span>
+                        </div>
+                        <div class="h-2.5 rounded-full progress-track">
+                            <div class="h-full rounded-full progress-fill" style="width:78%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-semibold">Training Consistency</span>
+                            <span class="font-mono text-primary">91%</span>
+                        </div>
+                        <div class="h-2.5 rounded-full progress-track">
+                            <div class="h-full rounded-full progress-fill" style="width:91%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section id="section-reports" class="content-section hidden space-y-6">
+            <div class="card rounded-xl p-6 md:p-8">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-7">
+                    <div>
+                        <h2 class="font-heading font-bold text-2xl">System Reports &amp; Exports</h2>
+                        <p class="text-sm text-slate-500 mt-1">Export operational metrics and user records.</p>
+                    </div>
+                    <button onclick="generateReport('System Overview')"
+                            class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        Generate Master Report
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="generateReport('Student Performance')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border hover:border-blue-300 hover:bg-blue-50 text-left">
+                        <span class="material-symbols-outlined text-primary text-3xl">bar_chart</span>
+                        <strong class="block mt-3">Student Performance Report</strong>
+                        <p class="text-xs text-slate-500 mt-1">Aggregated progress metrics and score distributions.</p>
+                    </button>
+
+                    <button onclick="generateReport('Coach Activity')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border hover:border-indigo-300 hover:bg-indigo-50 text-left">
+                        <span class="material-symbols-outlined text-indigo-600 text-3xl">sports</span>
+                        <strong class="block mt-3">Coach Activity Report</strong>
+                        <p class="text-xs text-slate-500 mt-1">Assessment frequency and session logs.</p>
+                    </button>
+
+                    <button onclick="generateReport('System Usage')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border hover:border-amber-300 hover:bg-amber-50 text-left">
+                        <span class="material-symbols-outlined text-amber-500 text-3xl">analytics</span>
+                        <strong class="block mt-3">System Usage Report</strong>
+                        <p class="text-xs text-slate-500 mt-1">Platform engagement and active logins.</p>
+                    </button>
+
+                    <button onclick="generateReport('Account Report')"
+                            class="p-5 rounded-xl bg-slate-50 border border-border hover:border-emerald-300 hover:bg-emerald-50 text-left">
+                        <span class="material-symbols-outlined text-emerald-500 text-3xl">badge</span>
+                        <strong class="block mt-3">User Account Audit</strong>
+                        <p class="text-xs text-slate-500 mt-1">Roles, emails, and active credentials.</p>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="section-settings" class="content-section hidden space-y-6">
+            <div class="card rounded-xl p-6 md:p-8">
+                <h2 class="font-heading font-bold text-2xl">Admin Preferences &amp; Security</h2>
+                <p class="text-sm text-slate-500 mt-1 mb-7">Manage administrative controls and interface configurations.</p>
+
+                <div class="space-y-4">
+                    <!-- Notifications -->
+                    <div class="p-5 rounded-xl bg-slate-50 border border-border flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-semibold">System Notifications</h3>
+                            <p class="text-xs text-slate-500 mt-1">Receive live alerts for registrations and system events.</p>
+                        </div>
+                        <label class="relative inline-flex cursor-pointer">
+                            <input id="settingNotifToggle" type="checkbox" checked class="sr-only peer">
+                            <div class="w-11 h-6 rounded-full bg-slate-300 peer-checked:bg-primary
+                                        after:absolute after:top-[2px] after:left-[2px]
+                                        after:h-5 after:w-5 after:bg-white after:rounded-full
+                                        after:transition-all peer-checked:after:translate-x-full">
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Theme -->
+                    <div class="p-5 rounded-xl bg-slate-50 border border-border flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-semibold">Student Dashboard Theme</h3>
+                            <p class="text-xs text-slate-500 mt-1">Clean blue and white interface theme.</p>
+                        </div>
+                        <span class="px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                            Active
+                        </span>
+                    </div>
+
+                    <!-- Deactivate -->
+                    <div class="p-5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-semibold text-amber-900">Deactivate Admin Account</h3>
+                            <p class="text-xs text-amber-700 mt-1">Temporarily lock administrator console access.</p>
+                        </div>
+                        <button id="deactivateBtn"
+                                class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold">
+                            Deactivate
+                        </button>
+                    </div>
+
+                    <!-- Delete -->
+                    <div class="p-5 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-semibold text-red-700">Delete Administrator Account</h3>
+                            <p class="text-xs text-red-500 mt-1">Permanently remove administrator credentials.</p>
+                        </div>
+                        <button id="deleteAccountBtn"
+                                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold">
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<!-- ADD USER MODAL -->
+<div id="userModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 modal-backdrop">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-border p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-border">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">person_add</span>
+                </div>
+                <h3 id="modalTitle" class="font-heading font-bold text-lg">Add New Student</h3>
+            </div>
+            <button id="closeModal" class="text-slate-400 hover:text-slate-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="userForm" class="space-y-4 mt-5">
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wide text-slate-500 mb-1">Full Name</label>
+                <input id="newUserName" required type="text" placeholder="Enter full name"
+                       class="w-full rounded-lg border-border bg-slate-50 focus:border-primary focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wide text-slate-500 mb-1">Email Address</label>
+                <input id="newUserEmail" required type="email" placeholder="Enter email address"
+                       class="w-full rounded-lg border-border bg-slate-50 focus:border-primary focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wide text-slate-500 mb-1">Assign Role</label>
+                <select id="newUserRole" class="w-full rounded-lg border-border bg-slate-50 focus:border-primary focus:ring-primary">
+                    <option value="Student">Student Athlete</option>
+                    <option value="Coach">Performance Coach</option>
+                    <option value="Admin">Administrator</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <button type="button" id="cancelModal"
+                        class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-semibold">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white text-sm font-semibold">
+                    Create User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- USER DETAIL MODAL -->
+<div id="userDetailModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 modal-backdrop">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-border p-6">
+        <div class="flex justify-between items-center pb-4 border-b border-border">
+            <h3 id="modalUserName" class="font-heading font-bold text-lg">User Profile</h3>
+            <button id="userDetailClose" class="text-slate-400 hover:text-slate-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="userDetailBody" class="space-y-4 mt-5"></div>
+        <div class="flex justify-end mt-6 pt-4 border-t border-border">
+            <button id="userDetailOk" class="px-5 py-2 rounded-lg bg-primary text-white text-sm font-semibold">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"
+     class="toast fixed right-5 bottom-5 z-[70] bg-slate-900 text-white px-5 py-3 rounded-xl
+            shadow-xl flex items-center gap-3 transition-all duration-300">
+    <span class="material-symbols-outlined text-emerald-400">check_circle</span>
+    <span id="toastMessage" class="text-sm">Success</span>
+</div>
+
+<script>
+    const adminState = {
+        users: [
+            { id: "USR001", name: "John Doe", email: "john@example.com", role: "Student", status: "Active" },
+            { id: "USR002", name: "Alex Smith", email: "alex@example.com", role: "Coach", status: "Active" },
+            { id: "USR003", name: "Mike Brown", email: "mike@example.com", role: "Student", status: "Pending" },
+            { id: "USR004", name: "Sarah Johnson", email: "sarah@example.com", role: "Student", status: "Active" },
+            { id: "USR005", name: "James Wilson", email: "james@example.com", role: "Coach", status: "Active" }
+        ],
+        studentCount: 248,
+        coachCount: 24,
+        pendingCount: 7
+    };
+
+    let regBarChart = null;
+    let statusDoughnutChart = null;
+    let perfLineChart = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        setupDate();
+        renderAllTables();
+        setupNavigation();
+        setupModals();
+        setupAccountActions();
+        initCharts();
+    });
+
+    /* CHARTS INITIALIZATION */
+    function initCharts() {
+        Chart.defaults.font.family = "'Hanken Grotesk', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // 1. Registrations Bar Chart (Monthly)
+        const ctxBar = document.getElementById('registrationBarChart');
+        if (ctxBar) {
+            regBarChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [
+                        {
+                            label: 'Students',
+                            data: [32, 45, 28, 52, 60, 48],
+                            backgroundColor: '#2563eb',
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        },
+                        {
+                            label: 'Coaches',
+                            data: [4, 6, 3, 7, 8, 5],
+                            backgroundColor: '#6366f1',
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        },
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            border: { display: false },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. User Ratio Doughnut Chart
+        const ctxDoughnut = document.getElementById('userStatusDoughnutChart');
+        if (ctxDoughnut) {
+            statusDoughnutChart = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Students', 'Coaches', 'Pending'],
+                    datasets: [{
+                        data: [adminState.studentCount, adminState.coachCount, adminState.pendingCount],
+                        backgroundColor: ['#2563eb', '#6366f1', '#f59e0b'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Performance Trend Line Chart
+        const ctxLine = document.getElementById('performanceLineChart');
+        if (ctxLine) {
+            perfLineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'],
+                    datasets: [
+                        {
+                            label: 'Cardiovascular Readiness (%)',
+                            data: [68, 72, 75, 78, 80, 81, 82],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Strength & Power Index (%)',
+                            data: [65, 69, 70, 74, 76, 75, 78],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Training Consistency (%)',
+                            data: [82, 85, 87, 88, 90, 89, 91],
+                            borderColor: '#10b981',
+                            backgroundColor: 'transparent',
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                boxWidth: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        },
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            border: { display: false },
+                            min: 50,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /* DATE */
+    function setupDate() {
+        const today = new Date();
+        document.getElementById("currentDate").textContent =
+            today.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+    }
+
+    /* TABLES */
+    function renderAllTables() {
+        renderDashboardRecentUsers();
+        renderStudentTable();
+        renderCoachTable();
+    }
+
+    function avatarLetters(name) {
+        return name
+            .split(" ")
+            .map(word => word[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+    }
+
+    function statusBadge(status) {
+        if (status === "Active") {
+            return `
+                <span class="inline-flex px-2.5 py-1 rounded-full
+                             bg-emerald-50 text-emerald-700
+                             border border-emerald-200
+                             text-[10px] font-mono uppercase font-bold">
+                    Active
+                </span>
+            `;
+        }
+        return `
+            <span class="inline-flex px-2.5 py-1 rounded-full
+                         bg-amber-50 text-amber-700
+                         border border-amber-200
+                         text-[10px] font-mono uppercase font-bold">
+                Pending
+            </span>
+        `;
+    }
+
+    function renderDashboardRecentUsers() {
+        const tbody = document.getElementById("dashboardRecentUsers");
+        tbody.innerHTML = adminState.users.slice(0, 5).map(user => `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full
+                                    bg-blue-50 text-primary
+                                    flex items-center justify-center
+                                    font-bold text-xs">
+                            ${avatarLetters(user.name)}
+                        </div>
+                        <div>
+                            <strong class="block text-sm text-slate-800">
+                                ${escapeHTML(user.name)}
+                            </strong>
+                            <span class="text-xs text-slate-400">
+                                ${escapeHTML(user.email)}
+                            </span>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-4 py-4 text-sm text-slate-500">
+                    ${escapeHTML(user.role)}
+                </td>
+                <td class="px-4 py-4">
+                    ${statusBadge(user.status)}
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <button onclick="viewUser('${escapeAttribute(user.name)}')"
+                            class="px-3 py-1.5 rounded-lg
+                                   bg-slate-100 hover:bg-primary
+                                   hover:text-white text-xs
+                                   font-semibold transition-colors">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    function renderStudentTable() {
+        const tbody = document.getElementById("studentTableBody");
+        const students = adminState.users.filter(user => user.role === "Student");
+        tbody.innerHTML = students.map(student => `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-xs">
+                            ${avatarLetters(student.name)}
+                        </div>
+                        <strong class="text-sm">${escapeHTML(student.name)}</strong>
+                    </div>
+                </td>
+                <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(student.email)}</td>
+                <td class="px-4 py-4">${statusBadge(student.status)}</td>
+                <td class="px-6 py-4 text-right">
+                    <button onclick="viewUser('${escapeAttribute(student.name)}')"
+                            class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-primary hover:text-white text-xs font-semibold">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    function renderCoachTable() {
+        const tbody = document.getElementById("coachTableBody");
+        const coaches = adminState.users.filter(user => user.role === "Coach");
+        tbody.innerHTML = coaches.map(coach => `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                            ${avatarLetters(coach.name)}
+                        </div>
+                        <strong class="text-sm">${escapeHTML(coach.name)}</strong>
+                    </div>
+                </td>
+                <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(coach.email)}</td>
+                <td class="px-4 py-4">${statusBadge(coach.status)}</td>
+                <td class="px-6 py-4 text-right">
+                    <button onclick="viewUser('${escapeAttribute(coach.name)}')"
+                            class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-primary hover:text-white text-xs font-semibold">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    /* NAVIGATION */
+    function setupNavigation() {
+        document.querySelectorAll(".nav-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                switchTab(button.dataset.section);
+            });
+        });
+
+        const mobileBtn = document.getElementById("mobileMenuBtn");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        mobileBtn.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+            overlay.classList.remove("hidden");
+        });
+
+        overlay.addEventListener("click", () => {
+            sidebar.classList.add("-translate-x-full");
+            overlay.classList.add("hidden");
+        });
+
+        /* Notifications */
+        const notificationTrigger = document.getElementById("notificationTrigger");
+        const notificationTray = document.getElementById("notificationTray");
+
+        notificationTrigger.addEventListener("click", event => {
+            event.stopPropagation();
+            notificationTray.classList.toggle("hidden");
+            document.getElementById("notificationDot").classList.add("hidden");
+        });
+
+        /* Profile */
+        const profileToggle = document.getElementById("profileMenuToggle");
+        const profileDropdown = document.getElementById("profileDropdown");
+
+        profileToggle.addEventListener("click", event => {
+            event.stopPropagation();
+            profileDropdown.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", () => {
+            notificationTray.classList.add("hidden");
+            profileDropdown.classList.add("hidden");
+        });
+
+        /* Global Search */
+        document.getElementById("globalSearch").addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            document.querySelectorAll("#dashboardRecentUsers tr, #studentTableBody tr, #coachTableBody tr").forEach(row => {
+                row.style.display = !query || row.textContent.toLowerCase().includes(query) ? "" : "none";
+            });
+        });
+
+        /* Student Search */
+        document.getElementById("studentSearchInput").addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            document.querySelectorAll("#studentTableBody tr").forEach(row => {
+                row.style.display = !query || row.textContent.toLowerCase().includes(query) ? "" : "none";
+            });
+        });
+    }
+
+    function switchTab(sectionId) {
+        document.querySelectorAll(".nav-btn").forEach(button => {
+            if (button.dataset.section === sectionId) {
+                button.classList.remove("nav-item");
+                button.classList.add("nav-active");
+            } else {
+                button.classList.remove("nav-active");
+                button.classList.add("nav-item");
+            }
+        });
+
+        document.querySelectorAll(".content-section").forEach(section => {
+            section.classList.add("hidden");
+        });
+
+        const activeSection = document.getElementById(`section-${sectionId}`);
+        if (activeSection) {
+            activeSection.classList.remove("hidden");
+        }
+
+        // Trigger chart resize if needed
+        if (sectionId === 'dashboard' && regBarChart && statusDoughnutChart) {
+            regBarChart.resize();
+            statusDoughnutChart.resize();
+        } else if (sectionId === 'performance' && perfLineChart) {
+            perfLineChart.resize();
+        }
+
+        const titles = {
+            dashboard: ["Admin Dashboard", "System overview, access control, and organization management."],
+            students: ["Students", "Manage and inspect all student athlete accounts."],
+            coaches: ["Coaches", "Manage coaching staff and assigned training divisions."],
+            performance: ["Performance", "System-wide performance analytics and benchmarks."],
+            reports: ["Reports", "Export operational metrics, user records, and analytics."],
+            settings: ["Settings", "Manage administrative controls and interface configurations."]
+        };
+
+        document.getElementById("pageTitle").textContent = titles[sectionId]?.[0] || "Admin Dashboard";
+        document.getElementById("pageSubtitle").textContent = titles[sectionId]?.[1] || "";
+
+        document.getElementById("sidebar").classList.add("-translate-x-full");
+        document.getElementById("sidebarOverlay").classList.add("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* MODALS */
+    function setupModals() {
+        const modal = document.getElementById("userModal");
+        document.getElementById("quickAddUserBtn").onclick = () => openAddUserModal("Student");
+        document.getElementById("closeModal").onclick = closeUserModal;
+        document.getElementById("cancelModal").onclick = closeUserModal;
+
+        document.getElementById("userForm").addEventListener("submit", event => {
+            event.preventDefault();
+
+            const name = document.getElementById("newUserName").value.trim();
+            const email = document.getElementById("newUserEmail").value.trim();
+            const role = document.getElementById("newUserRole").value;
+
+            if (!name || !email) return;
+
+            adminState.users.unshift({
+                id: "USR" + String(Date.now()).slice(-6),
+                name,
+                email,
+                role,
+                status: "Active"
+            });
+
+            if (role === "Student") {
+                adminState.studentCount++;
+                document.getElementById("studentCount").textContent = adminState.studentCount;
+            }
+
+            if (role === "Coach") {
+                adminState.coachCount++;
+                document.getElementById("coachCount").textContent = adminState.coachCount;
+            }
+
+            // Update Doughnut Chart dynamically
+            if (statusDoughnutChart) {
+                statusDoughnutChart.data.datasets[0].data = [
+                    adminState.studentCount,
+                    adminState.coachCount,
+                    adminState.pendingCount
+                ];
+                statusDoughnutChart.update();
+            }
+
+            renderAllTables();
+            closeUserModal();
+            document.getElementById("userForm").reset();
+            showToast(`${role} "${name}" created successfully.`);
+        });
+
+        document.getElementById("userDetailClose").onclick = closeDetailModal;
+        document.getElementById("userDetailOk").onclick = closeDetailModal;
+    }
+
+    function openAddUserModal(role = "Student") {
+        const modal = document.getElementById("userModal");
+        document.getElementById("modalTitle").textContent = `Add New ${role}`;
+        document.getElementById("newUserRole").value = role;
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+
+    function closeUserModal() {
+        const modal = document.getElementById("userModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+
+    function viewUser(name) {
+        const user = adminState.users.find(item => item.name === name);
+        if (!user) return;
+
+        document.getElementById("modalUserName").textContent = `${user.name} Profile`;
+        document.getElementById("userDetailBody").innerHTML = `
+            <div class="p-4 rounded-xl bg-slate-50 border border-border">
+                <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Email Address</span>
+                <strong class="text-sm">${escapeHTML(user.email)}</strong>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                    <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Role</span>
+                    <strong class="text-primary">${escapeHTML(user.role)}</strong>
+                </div>
+                <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Status</span>
+                    <strong class="text-emerald-600">${escapeHTML(user.status)}</strong>
+                </div>
+            </div>
+        `;
+
+        const modal = document.getElementById("userDetailModal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+
+    function closeDetailModal() {
+        const modal = document.getElementById("userDetailModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+
+    /* REPORTS */
+    function generateReport(type) {
+        showToast(`${type} report generated and ready for export.`);
+    }
+
+    /* ACCOUNT ACTIONS */
+    function setupAccountActions() {
+        const logoutHandler = event => {
+            event.preventDefault();
+            if (confirm("Are you sure you want to log out of the Admin Portal?")) {
+                sessionStorage.clear();
+                localStorage.removeItem("admin_auth_token");
+                showToast("Signing out Administrator session...");
+                setTimeout(() => {
+                    window.location.href = "admin-login.html";
+                }, 800);
+            }
+        };
+
+        document.getElementById("logoutBtn").addEventListener("click", logoutHandler);
+        document.getElementById("profileLogoutBtn").addEventListener("click", logoutHandler);
+
+        document.getElementById("deactivateBtn").addEventListener("click", () => {
+            if (confirm("Temporarily deactivate administrator console access?")) {
+                localStorage.setItem("admin_account_status", "deactivated");
+                sessionStorage.clear();
+                showToast("Admin account deactivated.");
+                setTimeout(() => {
+                    window.location.href = "admin-login.html";
+                }, 1000);
+            }
+        });
+
+        document.getElementById("deleteAccountBtn").addEventListener("click", () => {
+            const confirmation = prompt("This action permanently removes administrator access. Type DELETE to confirm:");
+            if (confirmation === "DELETE") {
+                localStorage.clear();
+                sessionStorage.clear();
+                showToast("Administrator account deleted.");
+                setTimeout(() => {
+                    window.location.href = "admin-login.html";
+                }, 1000);
+            } else if (confirmation !== null) {
+                showToast("Deletion cancelled.");
+            }
+        });
+    }
+
+    /* TOAST */
+    let toastTimer;
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        document.getElementById("toastMessage").textContent = message;
+        clearTimeout(toastTimer);
+        toast.classList.add("show");
+        toastTimer = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2800);
+    }
+
+    /* SECURITY */
+    function escapeHTML(value) {
+        return String(value || "").replace(/[&<>'"]/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;"
+        })[character]);
+    }
+
+    function escapeAttribute(value) {
+        return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+</script>
+
+<script src="../js/auth-flow.js"></script>
+</body>
+</html>

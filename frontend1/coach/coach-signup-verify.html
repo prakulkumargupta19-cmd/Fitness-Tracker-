@@ -8,6 +8,7 @@
     <title>Verify OTP | Fitness Performance Tracker</title>
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +17,7 @@
 
         body {
             font-family: Arial, Helvetica, sans-serif;
+
             min-height: 100vh;
 
             display: flex;
@@ -26,15 +28,15 @@
 
             background:
                 linear-gradient(
-                    rgba(5, 15, 25, 0.80),
-                    rgba(5, 15, 25, 0.90)
+                    rgba(12, 25, 42, 0.88),
+                    rgba(12, 25, 42, 0.94)
                 ),
-                url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2000&q=85")
-                center center / cover no-repeat;
+                url("https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=2000&q=80")
+                center/cover no-repeat;
         }
 
         /* ==============================
-           MAIN CARD
+           OTP CARD
         ============================== */
 
         .otp-card {
@@ -65,9 +67,9 @@
 
             border-radius: 50%;
 
-            background: #ecfdf3;
+            background: #f0f9ff;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #62bbe8;
 
             display: flex;
             align-items: center;
@@ -89,7 +91,7 @@
         }
 
         h1 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .description {
@@ -158,10 +160,10 @@
         }
 
         .otp-input:focus {
-            border-color: #22c55e;
+            border-color: #62bbe8;
 
             box-shadow:
-                0 0 0 3px rgba(34, 197, 94, 0.12);
+                0 0 0 3px rgba(98, 187, 232, 0.18);
         }
 
         /* ==============================
@@ -177,7 +179,7 @@
 
             border-radius: 8px;
 
-            background: #22c55e;
+            background: #62bbe8;
 
             color: white;
 
@@ -191,9 +193,12 @@
         }
 
         .verify-button:hover {
-            background: #16a34a;
+            background: #4ea8d5;
 
             transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 20px rgba(98, 187, 232, 0.35);
         }
 
         .verify-button:disabled {
@@ -217,13 +222,13 @@
         }
 
         .timer span {
-            color: #16a34a;
+            color: #62bbe8;
 
             font-weight: bold;
         }
 
         /* ==============================
-           RESEND OTP
+           RESEND
         ============================== */
 
         .resend {
@@ -239,7 +244,7 @@
 
             background: none;
 
-            color: #16a34a;
+            color: #62bbe8;
 
             font-size: 13px;
 
@@ -275,7 +280,7 @@
         }
 
         .change-email:hover {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         /* ==============================
@@ -299,11 +304,11 @@
         .success {
             display: block;
 
-            background: #ecfdf3;
+            background: #f0f9ff;
 
-            color: #15803d;
+            color: #0369a1;
 
-            border: 1px solid #bbf7d0;
+            border: 1px solid #bae6fd;
         }
 
         .error {
@@ -364,14 +369,19 @@
 
                 font-size: 20px;
             }
+
         }
+
     </style>
 
 </head>
 
+
 <body>
 
-    <!-- OTP CARD -->
+    <!-- ==============================
+         OTP CARD
+    ============================== -->
 
     <div class="otp-card">
 
@@ -381,16 +391,20 @@
             🔐
         </div>
 
+
         <!-- HEADING -->
 
         <h1>
             Verify <span>OTP</span>
         </h1>
 
+
         <p class="description">
             Enter the 6-digit verification code
-            sent to your registered email address.
+            sent to your email address to complete
+            your coach account registration.
         </p>
+
 
         <!-- EMAIL -->
 
@@ -399,10 +413,11 @@
             OTP sent to:
 
             <strong id="userEmail">
-                student@example.com
+                coach@example.com
             </strong>
 
         </div>
+
 
         <!-- OTP INPUTS -->
 
@@ -422,6 +437,7 @@
                 class="otp-input"
                 maxlength="1"
                 inputmode="numeric"
+                autocomplete="one-time-code"
             >
 
             <input
@@ -429,6 +445,7 @@
                 class="otp-input"
                 maxlength="1"
                 inputmode="numeric"
+                autocomplete="one-time-code"
             >
 
             <input
@@ -436,6 +453,7 @@
                 class="otp-input"
                 maxlength="1"
                 inputmode="numeric"
+                autocomplete="one-time-code"
             >
 
             <input
@@ -443,6 +461,7 @@
                 class="otp-input"
                 maxlength="1"
                 inputmode="numeric"
+                autocomplete="one-time-code"
             >
 
             <input
@@ -450,9 +469,11 @@
                 class="otp-input"
                 maxlength="1"
                 inputmode="numeric"
+                autocomplete="one-time-code"
             >
 
         </div>
+
 
         <!-- VERIFY BUTTON -->
 
@@ -463,6 +484,7 @@
         >
             Verify OTP
         </button>
+
 
         <!-- TIMER -->
 
@@ -475,6 +497,7 @@
             </span>
 
         </div>
+
 
         <!-- RESEND -->
 
@@ -492,6 +515,7 @@
 
         </div>
 
+
         <!-- MESSAGE -->
 
         <div
@@ -499,14 +523,16 @@
             class="message"
         ></div>
 
+
         <!-- CHANGE EMAIL -->
 
         <a
-            href="forgot-password.html"
+            href="coach-signup.html"
             class="change-email"
         >
             ← Change Email Address
         </a>
+
 
         <!-- SECURITY -->
 
@@ -543,17 +569,17 @@
 
 
         /* ==============================
-           GET EMAIL FROM PREVIOUS PAGE
+           GET COACH EMAIL
         ============================== */
 
-        const email =
-            sessionStorage.getItem("resetEmail");
+        const coachEmail =
+            localStorage.getItem("coachEmail");
 
 
-        if (email) {
+        if (coachEmail) {
 
             document.getElementById("userEmail")
-                .textContent = maskEmail(email);
+                .textContent = maskEmail(coachEmail);
 
         }
 
@@ -568,7 +594,9 @@
                 email.split("@");
 
             if (parts.length !== 2) {
+
                 return email;
+
             }
 
             const username =
@@ -577,6 +605,7 @@
             const domain =
                 parts[1];
 
+
             if (username.length <= 2) {
 
                 return "*".repeat(username.length)
@@ -584,6 +613,7 @@
                     + domain;
 
             }
+
 
             return username.charAt(0)
                 + "*".repeat(username.length - 2)
@@ -610,12 +640,15 @@
                                 .replace(/\D/g, "")
                                 .slice(0, 1);
 
+
                         if (
                             this.value &&
                             index < otpInputs.length - 1
                         ) {
 
-                            otpInputs[index + 1].focus();
+                            otpInputs[
+                                index + 1
+                            ].focus();
 
                         }
 
@@ -633,7 +666,9 @@
                             index > 0
                         ) {
 
-                            otpInputs[index - 1].focus();
+                            otpInputs[
+                                index - 1
+                            ].focus();
 
                         }
 
@@ -647,11 +682,13 @@
 
                         event.preventDefault();
 
+
                         const pastedData =
                             event.clipboardData
                                 .getData("text")
                                 .replace(/\D/g, "")
                                 .slice(0, 6);
+
 
                         pastedData
                             .split("")
@@ -668,7 +705,10 @@
                                 }
                             );
 
-                        if (pastedData.length === 6) {
+
+                        if (
+                            pastedData.length === 6
+                        ) {
 
                             otpInputs[5].focus();
 
@@ -723,10 +763,11 @@
 
         verifyButton.addEventListener(
             "click",
-            async function() {
+            function() {
 
                 const otp =
                     getOTP();
+
 
                 if (otp.length !== 6) {
 
@@ -739,27 +780,57 @@
 
                 }
 
-                verifyButton.disabled = true;
+
+                verifyButton.disabled =
+                    true;
 
                 verifyButton.textContent =
                     "Verifying...";
 
 
-                try {
-                    const response = await fetch("/api/forgot-password/verify-otp", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email, otp })
-                    });
-                    const result = await response.json();
-                    if (!response.ok || !result.success) throw new Error(result.message || "Invalid OTP.");
-                    sessionStorage.setItem("resetOtp", otp);
-                    showMessage("OTP verified successfully.", "success");
-                    setTimeout(() => window.location.href = "reset-password.html", 500);
-                } catch (error) {
-                    showMessage(error.message, "error");
-                    verifyButton.disabled = false;
-                    verifyButton.textContent = "Verify OTP";
-                }
+                /*
+                 * FRONT-END DEMO VERIFICATION
+                 *
+                 * Any 6-digit number is accepted.
+                 *
+                 * For real OTP security, the OTP
+                 * must be generated and verified
+                 * by a backend/server.
+                 */
+
+                setTimeout(
+                    function() {
+
+                        localStorage.setItem(
+                            "coachVerified",
+                            "true"
+                        );
+
+
+                        showMessage(
+                            "OTP verified successfully. Your coach account has been created!",
+                            "success"
+                        );
+
+
+                        sessionStorage.removeItem(
+                            "coachEmail"
+                        );
+
+
+                        setTimeout(
+                            function() {
+
+                                window.location.href =
+                                    "coach-dashboard.html";
+
+                            },
+                            1000
+                        );
+
+                    },
+                    1000
+                );
 
             }
         );
@@ -771,39 +842,66 @@
 
         let timeLeft = 120;
 
-        const countdown =
-            setInterval(
-                function() {
-
-                    const minutes =
-                        Math.floor(timeLeft / 60);
-
-                    const seconds =
-                        timeLeft % 60;
-
-                    timerElement.textContent =
-                        String(minutes).padStart(2, "0")
-                        + ":"
-                        + String(seconds).padStart(2, "0");
+        let countdown;
 
 
-                    if (timeLeft <= 0) {
+        function startCountdown() {
 
-                        clearInterval(countdown);
+            clearInterval(countdown);
+
+
+            countdown =
+                setInterval(
+                    function() {
+
+                        const minutes =
+                            Math.floor(
+                                timeLeft / 60
+                            );
+
+                        const seconds =
+                            timeLeft % 60;
+
 
                         timerElement.textContent =
-                            "Expired";
+                            String(minutes)
+                                .padStart(2, "0")
+                            + ":"
+                            +
+                            String(seconds)
+                                .padStart(2, "0");
 
-                        resendButton.disabled =
-                            false;
 
-                    }
+                        if (timeLeft <= 0) {
 
-                    timeLeft--;
+                            clearInterval(
+                                countdown
+                            );
 
-                },
-                1000
-            );
+
+                            timerElement.textContent =
+                                "Expired";
+
+
+                            resendButton.disabled =
+                                false;
+
+
+                            return;
+
+                        }
+
+
+                        timeLeft--;
+
+                    },
+                    1000
+                );
+
+        }
+
+
+        startCountdown();
 
 
         /* ==============================
@@ -812,7 +910,7 @@
 
         resendButton.addEventListener(
             "click",
-            async function() {
+            function() {
 
                 resendButton.disabled =
                     true;
@@ -821,28 +919,46 @@
                     "Sending...";
 
 
-                try {
-                    const response = await fetch("/api/forgot-password/resend-otp", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email })
-                    });
-                    const result = await response.json();
-                    if (!response.ok || !result.success) throw new Error(result.message || "Unable to resend OTP.");
-                    showMessage("A new OTP has been sent to your email.", "success");
-                    timeLeft = 120;
-                    timerElement.textContent = "02:00";
-                } catch (error) {
-                    showMessage(error.message, "error");
-                } finally {
-                    resendButton.disabled = false;
-                    resendButton.textContent = "Resend OTP";
-                }
+                /*
+                 * Demo resend.
+                 *
+                 * In a real application,
+                 * generate a new OTP on the
+                 * backend and send it by email.
+                 */
+
+                setTimeout(
+                    function() {
+
+                        timeLeft = 120;
+
+
+                        timerElement.textContent =
+                            "02:00";
+
+
+                        resendButton.textContent =
+                            "Resend OTP";
+
+
+                        showMessage(
+                            "A new OTP has been sent to your email.",
+                            "success"
+                        );
+
+
+                        startCountdown();
+
+                    },
+                    1000
+                );
 
             }
         );
 
     </script>
 
+<script src="../js/auth-flow.js"></script>
 </body>
 
 </html>

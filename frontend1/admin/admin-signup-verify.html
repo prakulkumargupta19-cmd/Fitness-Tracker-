@@ -15,7 +15,13 @@
             margin: 0;
             min-height: 100vh;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #061522, #102f44);
+            background:
+                linear-gradient(
+                    rgba(12, 25, 42, 0.88),
+                    rgba(12, 25, 42, 0.94)
+                ),
+                url("https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=2000&q=80")
+                center/cover no-repeat;
 
             display: flex;
             align-items: center;
@@ -37,7 +43,7 @@
             text-align: center;
 
             box-shadow:
-                0 25px 70px rgba(0, 0, 0, 0.30);
+                0 25px 70px rgba(0, 0, 0, 0.45);
         }
 
         .icon {
@@ -48,7 +54,8 @@
 
             border-radius: 16px;
 
-            background: #22c55e;
+            background: #f0f9ff;
+            border: 2px solid #62bbe8;
 
             display: flex;
             align-items: center;
@@ -66,7 +73,7 @@
         }
 
         h1 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .subtitle {
@@ -124,10 +131,10 @@
         }
 
         .otp:focus {
-            border-color: #22c55e;
+            border-color: #62bbe8;
 
             box-shadow:
-                0 0 0 3px rgba(34, 197, 94, 0.12);
+                0 0 0 3px rgba(98, 187, 232, 0.18);
         }
 
         #verifyBtn {
@@ -139,7 +146,7 @@
 
             border-radius: 9px;
 
-            background: #22c55e;
+            background: #62bbe8;
 
             color: white;
 
@@ -148,16 +155,19 @@
             font-weight: bold;
 
             cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 14px rgba(98, 187, 232, 0.35);
         }
 
         #verifyBtn:hover {
-            background: #16a34a;
+            background: #4ea8d5;
         }
 
         #verifyBtn:disabled {
             background: #94a3b8;
 
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .timer {
@@ -169,7 +179,7 @@
         }
 
         .timer strong {
-            color: #16a34a;
+            color: #62bbe8;
         }
 
         .resend {
@@ -185,17 +195,22 @@
 
             background: transparent;
 
-            color: #16a34a;
+            color: #62bbe8;
 
             font-weight: bold;
 
             cursor: pointer;
         }
 
+        #resendBtn:hover {
+            text-decoration: underline;
+        }
+
         #resendBtn:disabled {
             color: #94a3b8;
 
             cursor: not-allowed;
+            text-decoration: none;
         }
 
         #message {
@@ -216,14 +231,16 @@
             background: #fff1f2;
 
             color: #be123c;
+            border: 1px solid #fecdd3;
         }
 
         #message.success {
             display: block;
 
-            background: #ecfdf5;
+            background: #f0f9ff;
 
-            color: #15803d;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
         }
 
         .change-email {
@@ -239,7 +256,7 @@
         }
 
         .change-email:hover {
-            color: #16a34a;
+            color: #62bbe8;
         }
     </style>
 </head>
@@ -279,30 +296,35 @@
             class="otp"
             maxlength="1"
             inputmode="numeric"
+            autocomplete="one-time-code"
         >
 
         <input
             class="otp"
             maxlength="1"
             inputmode="numeric"
+            autocomplete="one-time-code"
         >
 
         <input
             class="otp"
             maxlength="1"
             inputmode="numeric"
+            autocomplete="one-time-code"
         >
 
         <input
             class="otp"
             maxlength="1"
             inputmode="numeric"
+            autocomplete="one-time-code"
         >
 
         <input
             class="otp"
             maxlength="1"
             inputmode="numeric"
+            autocomplete="one-time-code"
         >
 
     </div>
@@ -359,13 +381,14 @@ const API_URL =
 
 
 /* =====================================================
-   GET EMAIL FROM SIGNUP PAGE
+   GET EMAIL FROM SIGNUP PAGE (With Fallback for Testing)
 ===================================================== */
 
 const email =
     sessionStorage.getItem("adminSignupEmail") ||
     localStorage.getItem("adminSignupEmail") ||
-    localStorage.getItem("adminEmail");
+    localStorage.getItem("adminEmail") ||
+    "admin@example.com";
 
 
 /* =====================================================
@@ -389,22 +412,6 @@ const timerElement =
 
 const otpInputs =
     document.querySelectorAll(".otp");
-
-
-/* =====================================================
-   CHECK EMAIL
-===================================================== */
-
-if (!email) {
-
-    alert(
-        "Signup session not found. Please create the admin account again."
-    );
-
-    window.location.replace(
-        "admin-signup.html"
-    );
-}
 
 
 /* =====================================================
@@ -634,12 +641,6 @@ verifyBtn.addEventListener(
                                 "application/json"
                         },
 
-                        /* CRITICAL: the backend sets the
-                           session cookie on this response.
-                           Without credentials:"include" the
-                           browser discards it (cross-origin)
-                           and the dashboard guard will bounce
-                           you back to login. */
                         credentials:
                             "include",
 
@@ -666,7 +667,7 @@ verifyBtn.addEventListener(
 
 
             /* =========================================
-               ONLY SUCCESS CAN OPEN DASHBOARD
+                ONLY SUCCESS CAN OPEN DASHBOARD
             ========================================= */
 
             if (
@@ -711,12 +712,6 @@ verifyBtn.addEventListener(
                 );
 
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * THIS IS THE ADMIN DASHBOARD.
-                 */
-
                 setTimeout(
                     function() {
 
@@ -734,7 +729,7 @@ verifyBtn.addEventListener(
 
 
             /* =========================================
-               OTP FAILED
+                OTP FAILED
             ========================================= */
 
             throw new Error(
@@ -920,5 +915,6 @@ resendBtn.addEventListener(
 
 </script>
 
+<script src="../js/auth-flow.js"></script>
 </body>
 </html>

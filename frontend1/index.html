@@ -22,15 +22,9 @@
             justify-content: center;
             padding: 20px;
 
-            background:
-                linear-gradient(
-                    rgba(5, 15, 25, 0.85),
-                    rgba(5, 15, 25, 0.95)
-                ),
-                url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2000&q=85")
-                center center / cover no-repeat;
+            background: #ffffff;
 
-            color: #ffffff;
+            color: #151515;
         }
 
         .landing-container {
@@ -51,7 +45,7 @@
             width: 55px;
             height: 55px;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #62bbe8;
             border-radius: 50%;
 
             display: flex;
@@ -59,6 +53,7 @@
             justify-content: center;
 
             font-size: 26px;
+            background: #f0f9ff;
         }
 
         .landing-logo .title {
@@ -69,23 +64,25 @@
             text-align: left;
 
             letter-spacing: 1px;
+            color: #151515;
         }
 
         .landing-logo .title span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .landing-header h1 {
             font-size: 42px;
             margin-bottom: 12px;
+            color: #151515;
         }
 
         .landing-header h1 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .landing-header p {
-            color: #b0c4b8;
+            color: #666666;
             font-size: 15px;
             margin-bottom: 45px;
         }
@@ -102,9 +99,9 @@
         }
 
         .role-card {
-            background: rgba(16, 37, 27, 0.75);
+            background: #62bbe8;
 
-            border: 1px solid #1d402c;
+            border: 1px solid #4ea8d5;
 
             border-radius: 20px;
 
@@ -120,18 +117,18 @@
             flex-direction: column;
             align-items: center;
 
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(98, 187, 232, 0.3);
         }
 
         .role-card:hover {
             transform: translateY(-6px);
 
-            border-color: #22c55e;
+            border-color: #ffffff;
 
-            background: rgba(29, 64, 44, 0.85);
+            background: #4ea8d5;
 
             box-shadow:
-                0 15px 35px rgba(34, 197, 94, 0.2);
+                0 15px 35px rgba(98, 187, 232, 0.45);
         }
 
         .role-icon {
@@ -140,9 +137,9 @@
 
             border-radius: 50%;
 
-            background: #ecfdf3;
+            background: #ffffff;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #ffffff;
 
             display: flex;
             align-items: center;
@@ -151,11 +148,14 @@
             font-size: 32px;
 
             margin-bottom: 20px;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .role-title {
             font-size: 22px;
             font-weight: bold;
+            color: #ffffff;
 
             margin-bottom: 10px;
         }
@@ -163,7 +163,7 @@
         .role-desc {
             font-size: 13px;
 
-            color: #9cb5a8;
+            color: #f0f9ff;
 
             line-height: 1.5;
         }
@@ -175,7 +175,15 @@
 
             font-weight: bold;
 
-            color: #22c55e;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.2s ease;
+        }
+
+        .role-card:hover .role-action {
+            background: rgba(255, 255, 255, 0.35);
         }
 
         /* RESPONSIVE */

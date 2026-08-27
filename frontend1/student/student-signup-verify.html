@@ -71,7 +71,7 @@
 
             background: #ecfdf3;
 
-            border: 2px solid #22c55e;
+            border: 2px solid #62bbe8;
 
             display: flex;
             align-items: center;
@@ -94,7 +94,7 @@
         }
 
         h1 span {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
         .description {
@@ -165,7 +165,7 @@
         }
 
         .otp-input:focus {
-            border-color: #22c55e;
+            border-color: #62bbe8;
 
             box-shadow:
                 0 0 0 3px rgba(34, 197, 94, 0.12);
@@ -185,7 +185,7 @@
 
             border-radius: 8px;
 
-            background: #22c55e;
+            background: #62bbe8;
 
             color: white;
 
@@ -199,7 +199,7 @@
         }
 
         .verify-button:hover {
-            background: #16a34a;
+            background: #62bbe8;
 
             transform: translateY(-1px);
         }
@@ -226,7 +226,7 @@
         }
 
         .timer span {
-            color: #16a34a;
+            color: #62bbe8;
 
             font-weight: bold;
         }
@@ -249,7 +249,7 @@
 
             background: none;
 
-            color: #16a34a;
+            color: #62bbe8;
 
             font-size: 13px;
 
@@ -286,7 +286,7 @@
         }
 
         .change-email:hover {
-            color: #22c55e;
+            color: #62bbe8;
         }
 
 
@@ -313,7 +313,7 @@
 
             background: #ecfdf3;
 
-            color: #15803d;
+            color: #62bbe8;
 
             border: 1px solid #bbf7d0;
         }
@@ -861,11 +861,8 @@
         let timeLeft = 120;
 
 
-        let countdown;
-
-        function startCountdown() {
-            clearInterval(countdown);
-            countdown = setInterval(
+        const countdown =
+            setInterval(
                 function() {
 
                     const minutes =
@@ -908,9 +905,6 @@
                 },
                 1000
             );
-        }
-
-        startCountdown();
 
 
         /* ==============================
@@ -919,7 +913,7 @@
 
         resendButton.addEventListener(
             "click",
-            async function() {
+            function() {
 
                 resendButton.disabled =
                     true;
@@ -928,70 +922,47 @@
                     "Sending...";
 
 
-                const email = sessionStorage.getItem("signupEmail");
-                if (!email) {
-                    showMessage("Signup session expired. Please register again.", "error");
-                    resendButton.disabled = false;
-                    resendButton.textContent = "Resend OTP";
-                    return;
-                }
+                /*
+                 * Demo resend.
+                 * Connect this to your
+                 * backend later.
+                 */
 
-                try {
-                    const response = await fetch("/api/account-verification/send", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email: email })
-                    });
-                    const result = await response.json();
-                    if (!response.ok || result.success !== true) {
-                        throw new Error(result.message || "Unable to resend OTP.");
-                    }
-                    timeLeft = 120;
-                    timerElement.textContent = "02:00";
-                    startCountdown();
-                    showMessage("A new OTP has been sent to your email.", "success");
-                } catch (error) {
-                    showMessage(error.message, "error");
-                    resendButton.disabled = false;
-                } finally {
-                    resendButton.textContent = "Resend OTP";
-                }
+                setTimeout(
+                    function() {
+
+                        resendButton.textContent =
+                            "Resend OTP";
+
+
+                        showMessage(
+                            "A new OTP has been sent to your email.",
+                            "success"
+                        );
+
+
+                        timeLeft = 120;
+
+
+                        timerElement.textContent =
+                            "02:00";
+
+
+                        /*
+                         * Start allowing resend
+                         * again after expiry.
+                         */
+
+                    },
+                    1000
+                );
 
             }
         );
 
-    
-        const realVerifyButton = verifyButton.cloneNode(true);
-        verifyButton.replaceWith(realVerifyButton);
-        realVerifyButton.addEventListener("click", async function () {
-            const otp = getOTP();
-            const email = sessionStorage.getItem("signupEmail");
-            if (!email || otp.length !== 6) {
-                showMessage("Enter the 6-digit OTP sent to your email.", "error");
-                return;
-            }
-            realVerifyButton.disabled = true;
-            realVerifyButton.textContent = "Verifying...";
-            try {
-                const response = await fetch("/api/account-verification/verify", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: email, otp: otp })
-                });
-                const result = await response.json();
-                if (!response.ok || result.success !== true) {
-                    throw new Error(result.message || "OTP verification failed.");
-                }
-                sessionStorage.removeItem("signupEmail");
-                showMessage("Account verified successfully.", "success");
-                window.location.href = "student-dashboard.html";
-            } catch (error) {
-                showMessage(error.message, "error");
-                realVerifyButton.disabled = false;
-                realVerifyButton.textContent = "Verify OTP";
-            }
-        });</script>
+    </script>
 
+<script src="../js/auth-flow.js"></script>
 </body>
 
 </html>
