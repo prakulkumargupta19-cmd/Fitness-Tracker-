@@ -1180,4 +1180,2047 @@ init_db()
 if __name__ == "__main__":
     # SECURITY: debug only when explicitly enabled
     debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=debug)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=debug)   "date_of_birth": data.get("date_of_birth") or None,
+        }
+    )
+
+    otp = generate_otp()
+
+    save_otp(
+        email,
+        "signup",
+        otp,
+        payload,
+    )
+
+    if not send_otp_email(
+        email,
+        name,
+        "signup",
+        otp,
+    ):
+        return None, (
+            jsonify(
+                success=False,
+                message=(
+                    "Email service unavailable. "
+                    "OTP delivery failed."
+                ),
+            ),
+            503,
+        )
+
+    return email, None
+
+
+# =============================================================================
+# PUBLIC STUDENT / COACH SIGNUP
+# =============================================================================
+
+@app.post("/api/register")
+def register():
+    _, error = signup(
+        request.get_json(silent=True) or {}
+    )
+
+    return error or (
+        jsonify(
+            success=True,
+            message="OTP sent to your email.",
+        ),
+        201,
+    )
+
+
+# =============================================================================
+# ADMIN ACCOUNT PROVISIONING
+# =============================================================================
+
+@app.post("/api/admin/users")
+@role_required("admin")
+def provision_admin():
+    """
+    Create an administrator account through an authenticated admin.
+
+    The new administrator is not created in the users table until the
+    signup OTP is verified through the existing signup verification route.
+    Public administrator registration remains disabled.
+    """
+
+    data = request.get_json(silent=True) or {}
+
+    # Force the role to admin so a caller cannot provision another role
+    # through this administrator-only endpoint.
+    _, error = signup(
+        data,
+        forced_role="admin",
+        allow_admin=True,
+    )
+
+    return error or (
+        jsonify(
+            success=True,
+            message=(
+                "Administrator verification OTP sent to the "
+                "provided email."
+            ),
+        ),
+        201,
+    )
+
+
+# =============================================================================
+# ADMIN SIGNUP
+# =============================================================================
+
+@app.post("/api/admin-signup")
+def admin_signup():
+    """Public administrator registration is intentionally disabled."""
+
+    return jsonify(
+        success=False,
+        message=(
+            "Admin accounts cannot be created through public registration."
+        ),
+    ), 403
+
+
+# =============================================================================
+# SIGNUP OTP RESEND / VERIFICATION
+# =============================================================================
+
+@app.post("/api/account-verification/send")
+@app.post("/api/admin-signup/resend-otp")
+def resend_signup_otp():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    allowed, record = can_resend_otp(
+        email,
+        "signup",
+    )
+
+    if not record:
+        return jsonify(
+            success=False,
+            message=(
+                "Signup session expired. "
+                "Please register again."
+            ),
+        ), 400
+
+    if not allowed:
+        return jsonify(
+            success=False,
+            message=(
+                f"Please wait {OTP_RESEND_SECONDS} seconds "
+                "before requesting another OTP."
+            ),
+        ), 429
+
+    try:
+        payload = json.loads(record["payload"])
+    except (TypeError, json.JSONDecodeError):
+        return jsonify(
+            success=False,
+            message="Signup session is invalid.",
+        ), 400
+
+    otp = generate_otp()
+
+    save_otp(
+        email,
+        "signup",
+        otp,
+        record["payload"],
+    )
+
+    if not send_otp_email(
+        email,
+        payload["name"],
+        "signup",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message="Email service unavailable.",
+        ), 503
+
+    return jsonify(
+        success=True,
+        message="New OTP sent to your email.",
+    )
+
+
+@app.post("/api/account-verification/verify")
+@app.post("/api/admin-signup/verify-otp")
+def verify_signup_otp():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    otp = str(
+        data.get("otp", "")
+    ).strip()
+
+    if not email or len(otp) != 6:
+        return jsonify(
+            success=False,
+            message="Email and 6-digit OTP are required.",
+        ), 400
+
+    record, error = verify_otp(
+        email,
+        "signup",
+        otp,
+        True,
+    )
+
+    if error:
+        return jsonify(
+            success=False,
+            message=error,
+        ), 400
+
+    try:
+        payload = json.loads(
+            record["payload"]
+        )
+    except (TypeError, json.JSONDecodeError):
+        return jsonify(
+            success=False,
+            message="Signup data is invalid.",
+        ), 400
+
+    role = canonical_role(
+        payload.get("role")
+    )
+
+    # Admin signup verification:
+    # - first admin is allowed
+    # - later admins require an existing admin session
+    if role == "admin":
+        db = get_db()
+
+        try:
+            admin_exists = db.execute(
+                """
+                SELECT 1
+                FROM users
+                WHERE role='admin'
+                LIMIT 1
+                """
+            ).fetchone()
+
+        finally:
+            db.close()
+
+        if admin_exists:
+            if not session.get("user_id"):
+                return jsonify(
+                    success=False,
+                    message=(
+                        "An existing administrator "
+                        "must authorize this admin account."
+                    ),
+                ), 403
+
+            db = get_db()
+
+            try:
+                current_admin = db.execute(
+                    """
+                    SELECT role,email_verified,account_status
+                    FROM users
+                    WHERE id=?
+                    """,
+                    (session["user_id"],),
+                ).fetchone()
+
+            finally:
+                db.close()
+
+            if (
+                not current_admin
+                or current_admin["role"] != "admin"
+                or not current_admin["email_verified"]
+                or current_admin["account_status"] != "active"
+            ):
+                return jsonify(
+                    success=False,
+                    message="Administrator privileges required.",
+                ), 403
+
+    elif role not in {"player", "coach"}:
+        return jsonify(
+            success=False,
+            message="Invalid account role.",
+        ), 400
+
+    db = get_db()
+
+    try:
+        if db.execute(
+            """
+            SELECT 1
+            FROM users
+            WHERE lower(email)=?
+            """,
+            (email,),
+        ).fetchone():
+            return jsonify(
+                success=False,
+                message="Email already registered.",
+            ), 400
+
+        code = new_code(
+            db,
+            role,
+        )
+
+        cursor = db.execute(
+            """
+            INSERT INTO users
+            (
+                user_code,
+                name,
+                email,
+                password_hash,
+                role,
+                sport,
+                contact_number,
+                gender,
+                date_of_birth,
+                email_verified,
+                account_status
+            )
+            VALUES
+            (?,?,?,?,?,?,?,?,?,1,'active')
+            """,
+            (
+                code,
+                payload["name"],
+                email,
+                payload["password_hash"],
+                role,
+                payload.get("sport"),
+                payload.get("contact_number"),
+                payload.get("gender"),
+                payload.get("date_of_birth"),
+            ),
+        )
+
+        db.commit()
+
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE id=?
+            """,
+            (cursor.lastrowid,),
+        ).fetchone()
+
+    except sqlite3.Error as db_error:
+        db.rollback()
+
+        app.logger.error(
+            "Signup database error: %s",
+            db_error,
+        )
+
+        return jsonify(
+            success=False,
+            message="Unable to create account.",
+        ), 500
+
+    finally:
+        db.close()
+
+    establish_session(user)
+
+    confirmation_sent = send_account_created_email(
+        email,
+        user["name"],
+        user["role"],
+    )
+
+    if confirmation_sent:
+        message = (
+            "Account verified successfully. "
+            "A confirmation email has been sent."
+        )
+    else:
+        message = (
+            "Account verified successfully, but the "
+            "confirmation email could not be sent."
+        )
+
+    return jsonify(
+        success=True,
+        message=message,
+        user_code=user["user_code"],
+        user={
+            key: user[key]
+            for key in (
+                "id",
+                "name",
+                "email",
+                "role",
+                "user_code",
+            )
+        },
+    )
+
+
+# =============================================================================
+# STUDENT / COACH LOGIN
+# =============================================================================
+
+@app.post("/api/login")
+def login():
+    """
+    Student/coach login.
+
+    Student flow:
+        email + password -> login OTP -> /api/login/verify-otp
+
+    Coach flow:
+        email + password -> authenticated Flask session -> dashboard
+
+    Administrators must use the dedicated Admin Login flow.
+    """
+
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    password = str(
+        data.get("password", "")
+    )
+
+    if not email or not password:
+        return jsonify(
+            success=False,
+            message="Email and password are required.",
+        ), 400
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE lower(email)=?
+            """,
+            (email,),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    if not user or not check_password_hash(
+        user["password_hash"],
+        password,
+    ):
+        return jsonify(
+            success=False,
+            message="Invalid email or password.",
+        ), 401
+
+    if not user["email_verified"]:
+        return jsonify(
+            success=False,
+            message=(
+                "Email verification is required "
+                "before login."
+            ),
+        ), 403
+
+    if user["account_status"] != "active":
+        return jsonify(
+            success=False,
+            message=(
+                "Account has been deactivated "
+                "or is unavailable."
+            ),
+        ), 403
+
+    # Administrators use the dedicated Admin Login page.
+    if user["role"] == "admin":
+        return jsonify(
+            success=False,
+            message=(
+                "Use the Administrator Login page "
+                "for an administrator account."
+            ),
+        ), 403
+
+    # Coaches do NOT use a separate OTP page.
+    # A valid email + password creates the Flask session immediately.
+    if user["role"] == "coach":
+        establish_session(user)
+
+        return jsonify(
+            success=True,
+            authenticated=True,
+            message="Coach login successful.",
+            user={
+                key: user[key]
+                for key in (
+                    "id",
+                    "name",
+                    "email",
+                    "role",
+                    "user_code",
+                )
+            },
+        )
+
+    # Students continue to use the email OTP verification flow.
+    otp = generate_otp()
+
+    save_otp(
+        email,
+        "login",
+        otp,
+        str(user["id"]),
+    )
+
+    if not send_otp_email(
+        email,
+        user["name"],
+        "login",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message=(
+                "Email service unavailable. "
+                "Please try again later."
+            ),
+        ), 503
+
+    return jsonify(
+        success=True,
+        message=(
+            "A verification code has been sent "
+            "to your email."
+        ),
+        role=user["role"],
+        expires_in=OTP_MINUTES * 60,
+    )
+
+
+@app.post("/api/login/verify-otp")
+def verify_login_otp():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    otp = str(
+        data.get("otp", "")
+    ).strip()
+
+    if not email or len(otp) != 6:
+        return jsonify(
+            success=False,
+            message="Email and 6-digit OTP are required.",
+        ), 400
+
+    record, error = verify_otp(
+        email,
+        "login",
+        otp,
+        True,
+    )
+
+    if error:
+        return jsonify(
+            success=False,
+            message=error,
+        ), 400
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE id=?
+            """,
+            (record["payload"],),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="Account not found.",
+        ), 401
+
+    if user["role"] == "admin":
+        return jsonify(
+            success=False,
+            message=(
+                "Administrator accounts use "
+                "the dedicated Admin Login page."
+            ),
+        ), 403
+
+    if (
+        not user["email_verified"]
+        or user["account_status"] != "active"
+    ):
+        return jsonify(
+            success=False,
+            message="Account is unavailable.",
+        ), 401
+
+    establish_session(user)
+
+    return jsonify(
+        success=True,
+        message="Login successful.",
+        user={
+            key: user[key]
+            for key in (
+                "id",
+                "name",
+                "email",
+                "role",
+                "user_code",
+            )
+        },
+    )
+
+
+# =============================================================================
+# ADMIN LOGIN — PASSWORD + OTP
+# =============================================================================
+
+@app.post("/api/admin-login")
+def admin_login():
+    """
+    Administrator login step 1.
+
+    Accepts:
+    - administrator email, OR
+    - administrator user code
+    - password
+
+    A successful password check sends a login OTP.
+    The authenticated Flask session is NOT created until the OTP
+    is verified through /api/admin-login/verify-otp.
+    """
+
+    data = request.get_json(silent=True) or {}
+
+    identifier = str(
+        data.get(
+            "email",
+            data.get("user_code", ""),
+        )
+    ).strip()
+
+    password = str(data.get("password", ""))
+
+    if not identifier or not password:
+        return jsonify(
+            success=False,
+            message=(
+                "Admin email/user code and password are required."
+            ),
+        ), 400
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE role='admin'
+              AND (
+                    lower(email)=lower(?)
+                    OR lower(user_code)=lower(?)
+                  )
+            LIMIT 1
+            """,
+            (identifier, identifier),
+        ).fetchone()
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="Invalid admin email/user code or password.",
+        ), 401
+
+    try:
+        password_valid = check_password_hash(
+            user["password_hash"],
+            password,
+        )
+    except (ValueError, TypeError):
+        password_valid = False
+
+    if not password_valid:
+        return jsonify(
+            success=False,
+            message="Invalid admin email/user code or password.",
+        ), 401
+
+    if not user["email_verified"]:
+        return jsonify(
+            success=False,
+            message="Administrator email verification is required.",
+        ), 403
+
+    if user["account_status"] != "active":
+        return jsonify(
+            success=False,
+            message="Administrator account is deactivated or unavailable.",
+        ), 403
+
+    otp = generate_otp()
+
+    save_otp(
+        user["email"].lower(),
+        "login",
+        otp,
+        str(user["id"]),
+    )
+
+    if not send_otp_email(
+        user["email"],
+        user["name"],
+        "login",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message="Email service unavailable. Please try again later.",
+        ), 503
+
+    return jsonify(
+        success=True,
+        message="A verification code has been sent to your administrator email.",
+        email=user["email"],
+        role="admin",
+        expires_in=OTP_MINUTES * 60,
+    )
+
+
+# =============================================================================
+# ADMIN LOGIN OTP VERIFICATION
+# =============================================================================
+
+@app.post("/api/admin-login/verify-otp")
+def verify_admin_login_otp():
+    """Verify the administrator login OTP and establish the session."""
+
+    data = request.get_json(silent=True) or {}
+
+    identifier = str(data.get("email", "")).strip()
+    otp = str(data.get("otp", "")).strip()
+
+    if not identifier or not otp.isdigit() or len(otp) != 6:
+        return jsonify(
+            success=False,
+            message="Email and 6-digit OTP are required.",
+        ), 400
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE role='admin'
+              AND (
+                    lower(email)=lower(?)
+                    OR lower(user_code)=lower(?)
+                  )
+            LIMIT 1
+            """,
+            (identifier, identifier),
+        ).fetchone()
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="Administrator account not found.",
+        ), 401
+
+    if not user["email_verified"]:
+        return jsonify(
+            success=False,
+            message="Administrator email is not verified.",
+        ), 403
+
+    if user["account_status"] != "active":
+        return jsonify(
+            success=False,
+            message="Administrator account is unavailable.",
+        ), 403
+
+    record, error = verify_otp(
+        user["email"].lower(),
+        "login",
+        otp,
+        True,
+    )
+
+    if error:
+        return jsonify(
+            success=False,
+            message=error,
+        ), 400
+
+    if str(record["payload"]) != str(user["id"]):
+        return jsonify(
+            success=False,
+            message="Invalid login verification request.",
+        ), 401
+
+    establish_session(user)
+
+    return jsonify(
+        success=True,
+        authenticated=True,
+        message="Administrator login successful.",
+        user={
+            key: user[key]
+            for key in (
+                "id",
+                "name",
+                "email",
+                "role",
+                "user_code",
+            )
+        },
+    )
+
+
+# =============================================================================
+# ADMIN LOGIN OTP RESEND
+# =============================================================================
+
+@app.post("/api/admin-login/resend-otp")
+def resend_admin_login_otp():
+    """Resend the administrator login OTP after the cooldown."""
+
+    data = request.get_json(silent=True) or {}
+    identifier = str(data.get("email", "")).strip()
+
+    if not identifier:
+        return jsonify(
+            success=False,
+            message="Admin email or user code is required.",
+        ), 400
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE role='admin'
+              AND (
+                    lower(email)=lower(?)
+                    OR lower(user_code)=lower(?)
+                  )
+            LIMIT 1
+            """,
+            (identifier, identifier),
+        ).fetchone()
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="Administrator account not found.",
+        ), 404
+
+    if not user["email_verified"]:
+        return jsonify(
+            success=False,
+            message="Administrator email is not verified.",
+        ), 403
+
+    if user["account_status"] != "active":
+        return jsonify(
+            success=False,
+            message="Administrator account is unavailable.",
+        ), 403
+
+    allowed, record = can_resend_otp(
+        user["email"].lower(),
+        "login",
+    )
+
+    if not record:
+        return jsonify(
+            success=False,
+            message="Login session expired. Please log in again.",
+        ), 400
+
+    if not allowed:
+        age = (
+            now()
+            - datetime.fromisoformat(record["created_at"])
+        ).total_seconds()
+        remaining = max(1, int(OTP_RESEND_SECONDS - age))
+
+        return jsonify(
+            success=False,
+            message=(
+                f"Please wait {remaining} seconds "
+                "before requesting another OTP."
+            ),
+        ), 429
+
+    otp = generate_otp()
+
+    save_otp(
+        user["email"].lower(),
+        "login",
+        otp,
+        str(user["id"]),
+    )
+
+    if not send_otp_email(
+        user["email"],
+        user["name"],
+        "login",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message="Email delivery failed.",
+        ), 503
+
+    return jsonify(
+        success=True,
+        message="New OTP sent to your administrator email.",
+        expires_in=OTP_MINUTES * 60,
+    )
+
+
+# =============================================================================
+# PASSWORD RESET
+# =============================================================================
+
+@app.post("/api/forgot-password")
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE lower(email)=?
+            """,
+            (email,),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    # Do not reveal whether an account exists.
+    if (
+        not user
+        or user["account_status"] != "active"
+    ):
+        return jsonify(
+            success=True,
+            message=(
+                "If an account exists for this email, "
+                "a verification code has been sent."
+            ),
+        )
+
+    otp = generate_otp()
+
+    save_otp(
+        email,
+        "password_reset",
+        otp,
+        str(user["id"]),
+    )
+
+    if not send_otp_email(
+        email,
+        user["name"],
+        "password_reset",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message="Email service unavailable.",
+        ), 503
+
+    return jsonify(
+        success=True,
+        message=(
+            "If an account exists for this email, "
+            "a verification code has been sent."
+        ),
+        expires_in=OTP_MINUTES * 60,
+    )
+
+
+@app.post("/api/forgot-password/resend-otp")
+def resend_reset():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    allowed, record = can_resend_otp(
+        email,
+        "password_reset",
+    )
+
+    if not record:
+        return jsonify(
+            success=False,
+            message=(
+                "Reset session expired. "
+                "Please request a new OTP."
+            ),
+        ), 400
+
+    if not allowed:
+        return jsonify(
+            success=False,
+            message=(
+                f"Please wait {OTP_RESEND_SECONDS} seconds "
+                "before requesting another OTP."
+            ),
+        ), 429
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE id=?
+            """,
+            (record["payload"],),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="Account not found.",
+        ), 404
+
+    otp = generate_otp()
+
+    save_otp(
+        email,
+        "password_reset",
+        otp,
+        record["payload"],
+    )
+
+    if not send_otp_email(
+        email,
+        user["name"],
+        "password_reset",
+        otp,
+    ):
+        return jsonify(
+            success=False,
+            message="Email delivery failed.",
+        ), 503
+
+    return jsonify(
+        success=True,
+        message="New OTP sent to your email.",
+    )
+
+
+@app.post("/api/forgot-password/verify-otp")
+@app.post("/api/verify-otp")
+def verify_reset():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    otp = str(
+        data.get("otp", "")
+    ).strip()
+
+    record, error = verify_otp(
+        email,
+        "password_reset",
+        otp,
+        True,
+    )
+
+    if error:
+        return jsonify(
+            success=False,
+            message=error,
+        ), 400
+
+    session["password_reset_user_id"] = record["payload"]
+    session["password_reset_expires_at"] = (
+        now() + timedelta(minutes=10)
+    ).isoformat()
+
+    return jsonify(
+        success=True,
+        message="OTP verified successfully.",
+    )
+
+
+@app.post("/api/reset-password")
+def reset_password():
+    data = request.get_json(silent=True) or {}
+
+    email = str(
+        data.get("email", "")
+    ).strip().lower()
+
+    password = str(
+        data.get(
+            "new_password",
+            data.get("password", ""),
+        )
+    )
+
+    confirm = str(
+        data.get(
+            "confirm_password",
+            password,
+        )
+    )
+
+    if (
+        password != confirm
+        or not valid_password(password)
+    ):
+        return jsonify(
+            success=False,
+            message=(
+                "Passwords must match and be "
+                "at least 8 characters."
+            ),
+        ), 400
+
+    reset_user_id = session.get(
+        "password_reset_user_id"
+    )
+
+    reset_expiry = session.get(
+        "password_reset_expires_at"
+    )
+
+    if (
+        not reset_user_id
+        or not reset_expiry
+        or datetime.fromisoformat(reset_expiry) < now()
+    ):
+        return jsonify(
+            success=False,
+            message=(
+                "Verify your password reset OTP "
+                "before choosing a new password."
+            ),
+        ), 403
+
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE id=?
+              AND lower(email)=?
+            """,
+            (reset_user_id, email),
+        ).fetchone()
+
+        if not user:
+            return jsonify(
+                success=False,
+                message="User account not found.",
+            ), 404
+
+        db.execute(
+            """
+            UPDATE users
+            SET password_hash=?
+            WHERE id=?
+            """,
+            (
+                generate_password_hash(password),
+                user["id"],
+            ),
+        )
+
+        db.commit()
+
+    finally:
+        db.close()
+
+    send_password_reset_success_email(
+        email,
+        user["name"],
+    )
+
+    session.pop(
+        "password_reset_user_id",
+        None,
+    )
+
+    session.pop(
+        "password_reset_expires_at",
+        None,
+    )
+
+    return jsonify(
+        success=True,
+        message="Password reset successfully.",
+    )
+
+
+# =============================================================================
+# SESSION ENDPOINTS
+# =============================================================================
+
+@app.get("/api/session")
+@login_required
+def current_session():
+    return jsonify(
+        success=True,
+        authenticated=True,
+        user={
+            "id": session["user_id"],
+            "name": session.get("user_name"),
+            "email": session.get("user_email"),
+            "role": session.get("role"),
+            "user_code": session.get("user_code"),
+        },
+    )
+
+
+@app.get("/api/admin/session")
+@role_required("admin")
+def admin_session():
+    return jsonify(
+        success=True,
+        authenticated=True,
+        admin={
+            "id": session["user_id"],
+            "user_code": session.get("user_code"),
+            "name": session.get("user_name"),
+            "email": session.get("user_email"),
+            "role": "admin",
+        },
+    )
+
+
+@app.post("/api/logout")
+@app.post("/api/admin/logout")
+def logout():
+    session.clear()
+
+    return jsonify(
+        success=True,
+        message="Logged out successfully.",
+    )
+
+
+# =============================================================================
+# USER MANAGEMENT
+# =============================================================================
+
+@app.get("/api/users")
+@role_required("admin")
+def users():
+    db = get_db()
+
+    try:
+        rows = db.execute(
+            """
+            SELECT
+                id,
+                user_code,
+                name,
+                email,
+                role,
+                sport,
+                contact_number,
+                gender,
+                date_of_birth,
+                created_at,
+                email_verified,
+                account_status
+            FROM users
+            ORDER BY id DESC
+            """
+        ).fetchall()
+
+    finally:
+        db.close()
+
+    return jsonify(
+        success=True,
+        users=[
+            dict(row)
+            for row in rows
+        ],
+    )
+
+
+@app.patch("/api/users/<int:user_id>/status")
+@role_required("admin")
+def update_user_status(user_id):
+    data = request.get_json(silent=True) or {}
+
+    status = str(
+        data.get("status", "")
+    ).lower()
+
+    if status not in {
+        "active",
+        "deactivated",
+        "deleted",
+    }:
+        return jsonify(
+            success=False,
+            message="Invalid account status.",
+        ), 400
+
+    if (
+        user_id == session["user_id"]
+        and status != "active"
+    ):
+        return jsonify(
+            success=False,
+            message=(
+                "You cannot deactivate your own "
+                "administrator account."
+            ),
+        ), 400
+
+    db = get_db()
+
+    try:
+        if not db.execute(
+            """
+            SELECT 1
+            FROM users
+            WHERE id=?
+            """,
+            (user_id,),
+        ).fetchone():
+            return jsonify(
+                success=False,
+                message="User not found.",
+            ), 404
+
+        db.execute(
+            """
+            UPDATE users
+            SET account_status=?
+            WHERE id=?
+            """,
+            (
+                status,
+                user_id,
+            ),
+        )
+
+        db.commit()
+
+    finally:
+        db.close()
+
+    return jsonify(
+        success=True,
+        message="Account status updated.",
+    )
+
+
+@app.get("/api/profile")
+@login_required
+def profile():
+    db = get_db()
+
+    try:
+        user = db.execute(
+            """
+            SELECT
+                id,
+                user_code,
+                name,
+                email,
+                role,
+                sport,
+                contact_number,
+                gender,
+                date_of_birth,
+                created_at
+            FROM users
+            WHERE id=?
+            """,
+            (session["user_id"],),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    if not user:
+        return jsonify(
+            success=False,
+            message="User not found.",
+        ), 404
+
+    return jsonify(
+        success=True,
+        user=dict(user),
+    )
+
+
+# =============================================================================
+# ROLE-BASED ATHLETE DATA
+# =============================================================================
+
+def get_athlete_ids_for_coach(coach_id, db):
+    rows = db.execute(
+        """
+        SELECT athlete_id
+        FROM coach_athletes
+        WHERE coach_id=?
+        """,
+        (coach_id,),
+    ).fetchall()
+
+    return [
+        row["athlete_id"]
+        for row in rows
+    ]
+
+
+def athlete_filter_clause(
+    role,
+    user_id,
+    coach_athlete_ids,
+):
+    if role == "admin":
+        return "", ()
+
+    if role == "coach":
+        if not coach_athlete_ids:
+            return " AND 1=0", ()
+
+        placeholders = ",".join(
+            "?" for _ in coach_athlete_ids
+        )
+
+        return (
+            f" AND athlete_id IN ({placeholders})",
+            tuple(coach_athlete_ids),
+        )
+
+    return (
+        " AND athlete_id=?",
+        (user_id,),
+    )
+
+
+def _validate_coach_owns_athlete(
+    coach_id,
+    athlete_id,
+):
+    db = get_db()
+
+    try:
+        assigned = db.execute(
+            """
+            SELECT 1
+            FROM coach_athletes
+            WHERE coach_id=?
+              AND athlete_id=?
+            """,
+            (
+                coach_id,
+                athlete_id,
+            ),
+        ).fetchone()
+
+    finally:
+        db.close()
+
+    if not assigned:
+        return jsonify(
+            success=False,
+            message=(
+                "You are not assigned to this athlete."
+            ),
+        ), 403
+
+    return None
+
+
+@app.get("/api/assessments")
+@login_required
+def get_assessments():
+    db = get_db()
+
+    try:
+        coach_ids = (
+            get_athlete_ids_for_coach(
+                session["user_id"],
+                db,
+            )
+            if session["role"] == "coach"
+            else []
+        )
+
+        where, params = athlete_filter_clause(
+            session["role"],
+            session["user_id"],
+            coach_ids,
+        )
+
+        rows = db.execute(
+            f"""
+            SELECT *
+            FROM physical_assessments
+            WHERE 1=1{where}
+            ORDER BY assessment_date DESC
+            """,
+            params,
+        ).fetchall()
+
+        return jsonify(
+            success=True,
+            assessments=[
+                dict(row)
+                for row in rows
+            ],
+        )
+
+    finally:
+        db.close()
+
+
+@app.get("/api/training-sessions")
+@login_required
+def get_training_sessions():
+    db = get_db()
+
+    try:
+        coach_ids = (
+            get_athlete_ids_for_coach(
+                session["user_id"],
+                db,
+            )
+            if session["role"] == "coach"
+            else []
+        )
+
+        where, params = athlete_filter_clause(
+            session["role"],
+            session["user_id"],
+            coach_ids,
+        )
+
+        rows = db.execute(
+            f"""
+            SELECT *
+            FROM training_sessions
+            WHERE 1=1{where}
+            ORDER BY session_date DESC
+            """,
+            params,
+        ).fetchall()
+
+        return jsonify(
+            success=True,
+            sessions=[
+                dict(row)
+                for row in rows
+            ],
+        )
+
+    finally:
+        db.close()
+
+
+@app.get("/api/goals")
+@login_required
+def get_goals():
+    db = get_db()
+
+    try:
+        coach_ids = (
+            get_athlete_ids_for_coach(
+                session["user_id"],
+                db,
+            )
+            if session["role"] == "coach"
+            else []
+        )
+
+        where, params = athlete_filter_clause(
+            session["role"],
+            session["user_id"],
+            coach_ids,
+        )
+
+        rows = db.execute(
+            f"""
+            SELECT *
+            FROM goals
+            WHERE 1=1{where}
+            ORDER BY target_date DESC
+            """,
+            params,
+        ).fetchall()
+
+        return jsonify(
+            success=True,
+            goals=[
+                dict(row)
+                for row in rows
+            ],
+        )
+
+    finally:
+        db.close()
+
+
+@app.get("/api/feedback")
+@login_required
+def get_feedback():
+    db = get_db()
+
+    try:
+        coach_ids = (
+            get_athlete_ids_for_coach(
+                session["user_id"],
+                db,
+            )
+            if session["role"] == "coach"
+            else []
+        )
+
+        where, params = athlete_filter_clause(
+            session["role"],
+            session["user_id"],
+            coach_ids,
+        )
+
+        rows = db.execute(
+            f"""
+            SELECT *
+            FROM coach_feedback
+            WHERE 1=1{where}
+            ORDER BY feedback_date DESC
+            """,
+            params,
+        ).fetchall()
+
+        return jsonify(
+            success=True,
+            feedback=[
+                dict(row)
+                for row in rows
+            ],
+        )
+
+    finally:
+        db.close()
+
+
+@app.get("/api/coach/athletes")
+@role_required("coach")
+def get_coach_athletes():
+    db = get_db()
+
+    try:
+        rows = db.execute(
+            """
+            SELECT
+                u.id,
+                u.user_code,
+                u.name,
+                u.email,
+                u.role,
+                u.sport,
+                u.contact_number,
+                u.gender,
+                u.date_of_birth,
+                u.created_at
+            FROM users u
+            JOIN coach_athletes ca
+              ON u.id = ca.athlete_id
+            WHERE ca.coach_id=?
+            """,
+            (session["user_id"],),
+        ).fetchall()
+
+    finally:
+        db.close()
+
+    return jsonify(
+        success=True,
+        athletes=[
+            dict(row)
+            for row in rows
+        ],
+    )
+
+
+# =============================================================================
+# WRITE ENDPOINTS — COACH ONLY
+# =============================================================================
+
+@app.post("/api/assessments")
+@role_required("coach")
+def create_assessment():
+    data = request.get_json(silent=True) or {}
+
+    athlete_id = data.get("athlete_id")
+
+    if not athlete_id:
+        return jsonify(
+            success=False,
+            message="athlete_id is required.",
+        ), 400
+
+    err = _validate_coach_owns_athlete(
+        session["user_id"],
+        athlete_id,
+    )
+
+    if err:
+        return err
+
+    db = get_db()
+
+    try:
+        db.execute(
+            """
+            INSERT INTO physical_assessments
+            (
+                athlete_id,
+                coach_id,
+                assessment_date,
+                height_cm,
+                weight_kg,
+                bmi,
+                assessment_remarks
+            )
+            VALUES (?,?,?,?,?,?,?)
+            """,
+            (
+                athlete_id,
+                session["user_id"],
+                data.get(
+                    "assessment_date",
+                    now().isoformat(),
+                ),
+                data.get("height_cm"),
+                data.get("weight_kg"),
+                data.get("bmi"),
+                data.get("assessment_remarks"),
+            ),
+        )
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Assessment recorded.",
+        ), 201
+
+    except sqlite3.Error as error:
+        db.rollback()
+
+        app.logger.error(
+            "Assessment insert error: %s",
+            error,
+        )
+
+        return jsonify(
+            success=False,
+            message="Database error.",
+        ), 500
+
+    finally:
+        db.close()
+
+
+@app.post("/api/training-sessions")
+@role_required("coach")
+def create_training_session():
+    data = request.get_json(silent=True) or {}
+
+    athlete_id = data.get("athlete_id")
+
+    if not athlete_id:
+        return jsonify(
+            success=False,
+            message="athlete_id is required.",
+        ), 400
+
+    err = _validate_coach_owns_athlete(
+        session["user_id"],
+        athlete_id,
+    )
+
+    if err:
+        return err
+
+    db = get_db()
+
+    try:
+        db.execute(
+            """
+            INSERT INTO training_sessions
+            (
+                athlete_id,
+                coach_id,
+                session_date,
+                sport_type,
+                duration_minutes,
+                intensity_level
+            )
+            VALUES (?,?,?,?,?,?)
+            """,
+            (
+                athlete_id,
+                session["user_id"],
+                data.get(
+                    "session_date",
+                    now().isoformat(),
+                ),
+                data.get("sport_type"),
+                data.get("duration_minutes"),
+                data.get("intensity_level"),
+            ),
+        )
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Training session recorded.",
+        ), 201
+
+    except sqlite3.Error:
+        db.rollback()
+
+        return jsonify(
+            success=False,
+            message="Database error.",
+        ), 500
+
+    finally:
+        db.close()
+
+
+@app.post("/api/goals")
+@role_required("coach")
+def create_goal():
+    data = request.get_json(silent=True) or {}
+
+    athlete_id = data.get("athlete_id")
+    goal_title = str(
+        data.get("goal_title", "")
+    ).strip()
+
+    if not athlete_id:
+        return jsonify(
+            success=False,
+            message="athlete_id is required.",
+        ), 400
+
+    if not goal_title:
+        return jsonify(
+            success=False,
+            message="goal_title is required.",
+        ), 400
+
+    err = _validate_coach_owns_athlete(
+        session["user_id"],
+        athlete_id,
+    )
+
+    if err:
+        return err
+
+    db = get_db()
+
+    try:
+        db.execute(
+            """
+            INSERT INTO goals
+            (
+                athlete_id,
+                coach_id,
+                goal_title,
+                goal_type,
+                target_value,
+                target_date
+            )
+            VALUES (?,?,?,?,?,?)
+            """,
+            (
+                athlete_id,
+                session["user_id"],
+                goal_title,
+                data.get("goal_type"),
+                data.get("target_value"),
+                data.get("target_date"),
+            ),
+        )
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Goal created.",
+        ), 201
+
+    except sqlite3.Error:
+        db.rollback()
+
+        return jsonify(
+            success=False,
+            message="Database error.",
+        ), 500
+
+    finally:
+        db.close()
+
+
+@app.post("/api/feedback")
+@role_required("coach")
+def create_feedback():
+    data = request.get_json(silent=True) or {}
+
+    athlete_id = data.get("athlete_id")
+
+    if not athlete_id:
+        return jsonify(
+            success=False,
+            message="athlete_id is required.",
+        ), 400
+
+    err = _validate_coach_owns_athlete(
+        session["user_id"],
+        athlete_id,
+    )
+
+    if err:
+        return err
+
+    db = get_db()
+
+    try:
+        db.execute(
+            """
+            INSERT INTO coach_feedback
+            (
+                athlete_id,
+                coach_id,
+                feedback_date,
+                performance_summary,
+                overall_rating
+            )
+            VALUES (?,?,?,?,?)
+            """,
+            (
+                athlete_id,
+                session["user_id"],
+                data.get(
+                    "feedback_date",
+                    now().isoformat(),
+                ),
+                data.get("performance_summary"),
+                data.get("overall_rating"),
+            ),
+        )
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Feedback submitted.",
+        ), 201
+
+    except sqlite3.Error:
+        db.rollback()
+
+        return jsonify(
+            success=False,
+            message="Database error.",
+        ), 500
+
+    finally:
+        db.close()
+
+
+# =============================================================================
+# STARTUP
+# =============================================================================
+
+init_db()
+
+
+if __name__ == "__main__":
+    debug = (
+        os.getenv("FLASK_DEBUG", "false").lower()
+        == "true"
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "5000")),
+        debug=debug,
+    )
