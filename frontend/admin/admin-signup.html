@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Create Account | Fitness Performance Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+
+                    colors: {
+                        brand: {
+                            DEFAULT: '#22c55e',
+                            hover: '#16a34a',
+                            light: '#f0fdf4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+
+<body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans relative overflow-x-hidden">
+
+
+    <!-- BACKGROUND -->
+
+    <div
+        class="fixed inset-0 bg-cover bg-center blur-xl opacity-30 scale-105 pointer-events-none"
+        style="background-image: url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1920&auto=format&fit=crop');">
+    </div>
+
+
+    <!-- MAIN CARD -->
+
+    <div class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10">
+
+
+        <!-- LEFT COLUMN -->
+
+        <div class="relative bg-slate-950 p-8 sm:p-12 flex flex-col justify-between overflow-hidden min-h-[450px] lg:min-h-[620px]">
+
+            <img
+                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1000&auto=format&fit=crop"
+                alt="Fitness"
+                class="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+            >
+
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"></div>
+
+
+            <!-- LOGO -->
+
+            <div class="relative z-10 flex items-center gap-3">
+
+                <div class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80">
+
+                    <svg
+                        class="w-5 h-5 text-brand"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div class="leading-tight">
+
+                    <span class="block text-[11px] font-extrabold tracking-wider text-white uppercase">
+                        FITNESS
+                    </span>
+
+                    <span class="block text-[11px] font-extrabold tracking-wider text-brand uppercase">
+                        PERFORMANCE TRACKER
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- HERO -->
+
+            <div class="relative z-10 my-auto py-8">
+
+                <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4">
+
+                    Manage.<br>
+                    Monitor.<br>
+
+                    <span class="text-brand">
+                        Perform.
+                    </span>
+
+                </h1>
+
+
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm">
+
+                    Manage the Fitness Performance Tracker platform,
+                    monitor coaches and students, and maintain a
+                    secure performance management environment.
+
+                </p>
+
+
+                <div class="w-12 h-1 bg-brand rounded-full mt-6"></div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+
+                PerformX Engine Platform
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="bg-white p-8 sm:p-12 flex flex-col justify-between">
+
+            <div>
+
+
+                <!-- ICON -->
+
+                <div class="flex justify-center mb-4">
+
+                    <div class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light">
+
+                        <svg
+                            class="w-7 h-7 text-slate-700"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.5"
+                                d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.5"
+                                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06-1.5 1.5-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V20h-2.12v-.5a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06-1.5-1.5.06-.06A1.65 1.65 0 009.4 15a1.65 1.65 0 00-1.51-1H7.4v-2.12h.5a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06 1.5-1.5.06.06a1.65 1.65 0 001.82.33 1.65 1.65 0 001-1.51V6h2.12v.5a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06 1.5 1.5-.06.06A1.65 1.65 0 0019.4 11c.18.6.74 1 1.37 1h.5v2.12h-.5a1.65 1.65 0 00-1.37.88z"
+                            />
+
+                        </svg>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <div class="text-center mb-6">
+
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">
+
+                        <span class="text-brand">
+                            Admin
+                        </span>
+
+                        Create Account
+
+                    </h2>
+
+
+                    <p class="text-xs text-slate-500 mt-1">
+
+                        Create your administrator account to
+                        manage the performance tracker platform.
+
+                    </p>
+
+                </div>
+
+
+                <!-- FORM -->
+
+                <form
+                    id="signupForm"
+                    class="space-y-4"
+                >
+
+
+                    <!-- FULL NAME -->
+
+                    <div>
+
+                        <label
+                            for="fullName"
+                            class="block text-xs font-bold text-slate-800 mb-1"
+                        >
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            required
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                        >
+
+                    </div>
+
+
+                    <!-- ADMIN EMAIL -->
+
+                    <div>
+
+                        <label
+                            for="adminEmail"
+                            class="block text-xs font-bold text-slate-800 mb-1"
+                        >
+                            Admin Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="adminEmail"
+                            required
+                            placeholder="Enter your admin email"
+                            autocomplete="email"
+                            class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div>
+
+                        <label
+                            for="password"
+                            class="block text-xs font-bold text-slate-800 mb-1"
+                        >
+                            Password
+                        </label>
+
+                        <div class="relative">
+
+                            <input
+                                type="password"
+                                id="password"
+                                required
+                                minlength="6"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                            >
+
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div>
+
+                        <label
+                            for="confirmPassword"
+                            class="block text-xs font-bold text-slate-800 mb-1"
+                        >
+                            Confirm Password
+                        </label>
+
+                        <div class="relative">
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                required
+                                minlength="6"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                            >
+
+                            <button
+                                type="button"
+                                id="toggleConfirmPassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand"
+                                aria-label="Show confirm password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+
+                    <div class="flex items-center text-xs py-1">
+
+                        <label class="flex items-center text-slate-600 cursor-pointer">
+
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                required
+                                class="w-3.5 h-3.5 rounded border-slate-300 text-brand focus:ring-0"
+                            >
+
+                            <span class="ml-2">
+
+                                I agree to the
+
+                                <a
+                                    href="#"
+                                    class="text-brand font-semibold hover:underline"
+                                >
+                                    Terms & Privacy Policy
+                                </a>
+
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- ERROR -->
+
+                    <div
+                        id="errorMessage"
+                        class="hidden bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-xs"
+                    ></div>
+
+
+                    <!-- BUTTON -->
+
+                    <button
+                        type="submit"
+                        id="signupButton"
+                        class="w-full py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2"
+                    >
+
+                        <span id="buttonText">
+                            Create Account
+                        </span>
+
+                        <span>
+                            &rarr;
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <!-- NAVIGATION -->
+
+                <div class="mt-5 text-center space-y-2 text-xs">
+
+                    <p class="text-slate-500">
+
+                        Already have an account?
+
+                        <a
+                            href="admin-login.html"
+                            class="text-brand font-bold hover:underline"
+                        >
+                            Sign In
+                        </a>
+
+                    </p>
+
+
+                    <p>
+
+                        <a
+                            href="../index.html"
+                            class="text-slate-400 hover:text-slate-600 font-medium text-[11px]"
+                        >
+                            &larr; Back to role selection
+                        </a>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- SECURITY -->
+
+            <div class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100">
+
+                🔒
+
+                <span>
+                    Your administrator account information is securely protected.
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        /* PASSWORD VISIBILITY */
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const togglePassword =
+            document.getElementById("togglePassword");
+
+
+        togglePassword.addEventListener(
+            "click",
+            function () {
+
+                if (passwordInput.type === "password") {
+
+                    passwordInput.type = "text";
+
+                    togglePassword.textContent = "🙈";
+
+                    togglePassword.setAttribute(
+                        "aria-label",
+                        "Hide password"
+                    );
+
+                } else {
+
+                    passwordInput.type = "password";
+
+                    togglePassword.textContent = "👁";
+
+                    togglePassword.setAttribute(
+                        "aria-label",
+                        "Show password"
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* CONFIRM PASSWORD VISIBILITY */
+
+        const confirmPasswordInput =
+            document.getElementById("confirmPassword");
+
+        const toggleConfirmPassword =
+            document.getElementById("toggleConfirmPassword");
+
+
+        toggleConfirmPassword.addEventListener(
+            "click",
+            function () {
+
+                if (confirmPasswordInput.type === "password") {
+
+                    confirmPasswordInput.type = "text";
+
+                    toggleConfirmPassword.textContent = "🙈";
+
+                } else {
+
+                    confirmPasswordInput.type = "password";
+
+                    toggleConfirmPassword.textContent = "👁";
+
+                }
+
+            }
+        );
+
+
+        /* FORM SUBMISSION */
+
+        const signupForm =
+            document.getElementById("signupForm");
+
+        const signupButton =
+            document.getElementById("signupButton");
+
+        const buttonText =
+            document.getElementById("buttonText");
+
+        const errorMessage =
+            document.getElementById("errorMessage");
+
+
+        signupForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const fullName =
+                    document
+                        .getElementById("fullName")
+                        .value
+                        .trim();
+
+
+                const email =
+                    document
+                        .getElementById("adminEmail")
+                        .value
+                        .trim();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                const confirmPassword =
+                    confirmPasswordInput.value;
+
+
+                errorMessage.classList.add("hidden");
+
+                errorMessage.textContent = "";
+
+
+                if (!fullName) {
+
+                    errorMessage.textContent =
+                        "Please enter your full name.";
+
+                    errorMessage.classList.remove("hidden");
+
+                    return;
+
+                }
+
+
+                if (!email) {
+
+                    errorMessage.textContent =
+                        "Please enter your email address.";
+
+                    errorMessage.classList.remove("hidden");
+
+                    return;
+
+                }
+
+
+                if (password.length < 6) {
+
+                    errorMessage.textContent =
+                        "Password must contain at least 6 characters.";
+
+                    errorMessage.classList.remove("hidden");
+
+                    return;
+
+                }
+
+
+                if (password !== confirmPassword) {
+
+                    errorMessage.textContent =
+                        "Passwords do not match.";
+
+                    errorMessage.classList.remove("hidden");
+
+                    return;
+
+                }
+
+
+                /* LOADING */
+
+                signupButton.disabled = true;
+
+                signupButton.classList.add(
+                    "opacity-70",
+                    "cursor-not-allowed"
+                );
+
+                buttonText.textContent =
+                    "Creating Account...";
+
+
+                /* SAVE ADMIN INFORMATION */
+
+                localStorage.setItem(
+                    "adminName",
+                    fullName
+                );
+
+                localStorage.setItem(
+                    "adminEmail",
+                    email
+                );
+
+                localStorage.setItem(
+                    "adminPassword",
+                    password
+                );
+
+                localStorage.setItem(
+                    "adminVerified",
+                    "false"
+                );
+
+
+                /* REDIRECT TO OTP */
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            "admin-signup-verify.html";
+
+                    },
+                    800
+                );
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

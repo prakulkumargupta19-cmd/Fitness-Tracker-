@@ -1,4 +1,4 @@
-.env
+
 backend/.env
-__pycache__/
-*.py[cod]
+
+*.lnk

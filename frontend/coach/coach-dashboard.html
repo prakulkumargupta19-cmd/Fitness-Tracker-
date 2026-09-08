@@ -1,0 +1,4045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Coach Dashboard | Fitness Performance Tracker</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#f5f7f6;
+    --card:#ffffff;
+    --text:#17221b;
+    --muted:#718078;
+    --border:#e4e9e6;
+    --input:#ffffff;
+    --input-border:#dce3de;
+    --sidebar:#0b1710;
+    --sidebar-hover:#173321;
+    --green:#16a34a;
+    --green-light:#ecfdf3;
+    --danger-bg:#fee2e2;
+    --danger:#b91c1c;
+    --shadow:0 4px 15px rgba(0,0,0,.03);
+}
+
+body.dark{
+    --bg:#111714;
+    --card:#18201b;
+    --text:#f1f5f2;
+    --muted:#9aa89f;
+    --border:#29352e;
+    --input:#121a15;
+    --input-border:#344139;
+    --sidebar:#080d0a;
+    --sidebar-hover:#183521;
+    --green:#22c55e;
+    --green-light:#12351f;
+    --danger-bg:#3a1919;
+    --danger:#ff8c8c;
+    --shadow:0 4px 18px rgba(0,0,0,.2);
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    transition:.2s;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:250px;
+    height:100vh;
+    background:var(--sidebar);
+    color:white;
+    padding:22px 18px;
+    display:flex;
+    flex-direction:column;
+    z-index:1000;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:5px 10px 25px;
+}
+
+.logo-icon{
+    width:42px;
+    height:42px;
+    border:2px solid #22c55e;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+}
+
+.logo-text{
+    font-size:12px;
+    font-weight:800;
+    line-height:1.2;
+    letter-spacing:1px;
+}
+
+.logo-text span{
+    color:#22c55e;
+}
+
+.nav-title{
+    color:#718078;
+    font-size:10px;
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    padding:0 12px;
+    margin:12px 0 8px;
+}
+
+.nav-link{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 14px;
+    margin-bottom:4px;
+    color:#b7c3bc;
+    text-decoration:none;
+    border-radius:9px;
+    font-size:13px;
+    cursor:pointer;
+    border:0;
+    background:transparent;
+    width:100%;
+    text-align:left;
+}
+
+.nav-link:hover,
+.nav-link.active{
+    background:var(--sidebar-hover);
+    color:white;
+}
+
+.nav-link.active{
+    border-left:3px solid #22c55e;
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+.sidebar-bottom{
+    margin-top:auto;
+}
+
+.coach-mini{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px;
+    background:#13241a;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.avatar{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    background:#22c55e;
+    color:#06220e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.coach-info strong{
+    display:block;
+    font-size:12px;
+}
+
+.coach-info small{
+    color:#809087;
+    font-size:10px;
+}
+
+.logout{
+    width:100%;
+    border:1px solid #294132;
+    background:transparent;
+    color:#b7c3bc;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.logout:hover{
+    background:#351919;
+    color:#ffb5b5;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+    padding:30px 35px;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.welcome h1{
+    font-size:27px;
+    margin-bottom:5px;
+}
+
+.welcome p{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.date{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:10px 15px;
+    border-radius:9px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* =========================
+   STAT CARDS
+========================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    box-shadow:var(--shadow);
+}
+
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:11px;
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.stat-icon{
+    width:35px;
+    height:35px;
+    border-radius:9px;
+    background:var(--green-light);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.stat-value{
+    font-size:27px;
+    font-weight:800;
+    margin-bottom:5px;
+}
+
+.stat-change{
+    font-size:11px;
+    color:var(--green);
+}
+
+/* =========================
+   PANELS
+========================= */
+
+.content-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+}
+
+.panel{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+}
+
+.panel-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.panel-header h2{
+    font-size:17px;
+}
+
+.view-all{
+    color:var(--green);
+    text-decoration:none;
+    font-size:11px;
+    font-weight:bold;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    text-align:left;
+    color:#89948e;
+    font-size:10px;
+    text-transform:uppercase;
+    padding:10px;
+    border-bottom:1px solid var(--border);
+}
+
+td{
+    padding:13px 10px;
+    border-bottom:1px solid var(--border);
+    font-size:12px;
+}
+
+.athlete{
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.athlete-avatar{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:var(--green-light);
+    color:var(--green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.athlete-name{
+    font-weight:bold;
+}
+
+.athlete-email{
+    display:block;
+    color:#9aa39e;
+    font-size:9px;
+    margin-top:2px;
+}
+
+.status{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:9px;
+    font-weight:bold;
+}
+
+.status.good{
+    background:#ecfdf3;
+    color:#15803d;
+}
+
+.status.average{
+    background:#fff7ed;
+    color:#c2410c;
+}
+
+.status.needs{
+    background:#fff1f2;
+    color:#be123c;
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+label{
+    display:block;
+    font-size:11px;
+    font-weight:bold;
+    color:var(--muted);
+    margin-bottom:6px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--input-border);
+    border-radius:8px;
+    outline:none;
+    font-family:inherit;
+    background:var(--input);
+    color:var(--text);
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:#22c55e;
+    box-shadow:0 0 0 3px rgba(34,197,94,.1);
+}
+
+textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+.btn{
+    border:none;
+    padding:11px 17px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:12px;
+}
+
+.btn-primary{
+    background:var(--green);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#15803d;
+}
+
+.btn-secondary{
+    background:#eef2ef;
+    color:#27342c;
+}
+
+body.dark .btn-secondary{
+    background:#29342e;
+    color:#e5ebe7;
+}
+
+.btn-danger{
+    background:var(--danger-bg);
+    color:var(--danger);
+}
+
+.form-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+/* =========================
+   ATHLETE SELECTOR
+========================= */
+
+.athlete-selector{
+    background:var(--green-light);
+    border:1px solid #dcefe1;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+.athlete-selector label{
+    color:var(--green);
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.actions{
+    display:grid;
+    gap:10px;
+}
+
+.action{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    text-decoration:none;
+    color:var(--text);
+    cursor:pointer;
+}
+
+.action:hover{
+    border-color:#22c55e;
+    background:var(--green-light);
+}
+
+.action-icon{
+    width:38px;
+    height:38px;
+    border-radius:9px;
+    background:var(--green-light);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* =========================
+   ACTIVITY
+========================= */
+
+.activity-item{
+    display:flex;
+    gap:10px;
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.activity-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:var(--green-light);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.activity-text strong{
+    display:block;
+    font-size:11px;
+}
+
+.activity-text p{
+    color:var(--muted);
+    font-size:10px;
+    margin-top:3px;
+}
+
+/* =========================
+   EXERCISE CARDS
+========================= */
+
+.exercise-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.exercise-card{
+    border:1px solid var(--border);
+    padding:16px;
+    border-radius:12px;
+}
+
+.exercise-card h3{
+    font-size:14px;
+    margin-bottom:7px;
+}
+
+.exercise-card p{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.5;
+}
+
+.exercise-actions{
+    display:flex;
+    gap:7px;
+    margin-top:12px;
+}
+
+/* =========================
+   SETTINGS
+========================= */
+
+.setting-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.setting-row:last-child{
+    border-bottom:none;
+}
+
+.setting-info strong{
+    display:block;
+    font-size:13px;
+}
+
+.setting-info small{
+    color:var(--muted);
+    font-size:10px;
+}
+
+.toggle{
+    width:45px;
+    height:24px;
+    background:#cbd5ce;
+    border-radius:20px;
+    cursor:pointer;
+    position:relative;
+}
+
+.toggle::after{
+    content:"";
+    position:absolute;
+    width:18px;
+    height:18px;
+    background:white;
+    border-radius:50%;
+    top:3px;
+    left:3px;
+    transition:.2s;
+}
+
+.toggle.active{
+    background:#22c55e;
+}
+
+.toggle.active::after{
+    left:24px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-content{
+    background:var(--card);
+    width:100%;
+    max-width:650px;
+    border-radius:15px;
+    padding:25px;
+    max-height:90vh;
+    overflow:auto;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.close{
+    border:none;
+    background:#f1f3f2;
+    color:#17221b;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+    position:fixed;
+    right:25px;
+    bottom:25px;
+    background:#0b1710;
+    color:white;
+    padding:13px 18px;
+    border-radius:8px;
+    display:none;
+    z-index:3000;
+    font-size:12px;
+}
+
+.toast.show{
+    display:block;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1100px){
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .content-grid{
+        grid-template-columns:1fr;
+    }
+
+    .exercise-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    .main{
+        margin-left:0;
+        padding:20px;
+    }
+
+    .nav-link{
+        display:none;
+    }
+
+    .sidebar-bottom{
+        display:none;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:550px){
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .exercise-grid{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">🏃</div>
+
+        <div class="logo-text">
+            FITNESS<br>
+            <span>PERFORMANCE</span><br>
+            TRACKER
+        </div>
+    </div>
+
+    <div class="nav-title">
+        Main Menu
+    </div>
+
+    <button class="nav-link active" data-page="dashboard">
+        <span class="nav-icon">📊</span>
+        Dashboard
+    </button>
+
+    <button class="nav-link" data-page="athletes">
+        <span class="nav-icon">👥</span>
+        My Athletes
+    </button>
+
+    <button class="nav-link" data-page="physical">
+        <span class="nav-icon">💪</span>
+        Physical Attributes
+    </button>
+
+    <button class="nav-link" data-page="training">
+        <span class="nav-icon">📈</span>
+        Training Metrics
+    </button>
+
+    <button class="nav-link" data-page="exercises">
+        <span class="nav-icon">🏋️</span>
+        Exercises
+    </button>
+
+    <button class="nav-link" data-page="goals">
+        <span class="nav-icon">🎯</span>
+        Goals
+    </button>
+
+    <button class="nav-link" data-page="feedback">
+        <span class="nav-icon">💬</span>
+        Feedback
+    </button>
+
+    <div class="nav-title">
+        Management
+    </div>
+
+    <button class="nav-link" data-page="settings">
+        <span class="nav-icon">⚙️</span>
+        Settings
+    </button>
+
+    <div class="sidebar-bottom">
+
+        <div class="coach-mini">
+
+            <div class="avatar">
+                C
+            </div>
+
+            <div class="coach-info">
+                <strong id="sidebarCoachName">
+                    Coach
+                </strong>
+
+                <small>
+                    Fitness Coach
+                </small>
+            </div>
+
+        </div>
+
+        <button class="logout" id="logoutButton">
+            ↪ Logout
+        </button>
+
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<section id="dashboard" class="page active">
+
+    <div class="topbar">
+
+        <div class="welcome">
+            <h1>Coach Dashboard</h1>
+
+            <p>
+                Monitor athlete performance and manage your team.
+            </p>
+        </div>
+
+        <div class="date" id="currentDate">
+            Loading...
+        </div>
+
+    </div>
+
+    <section class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+                <span class="stat-label">
+                    Total Athletes
+                </span>
+
+                <div class="stat-icon">👥</div>
+            </div>
+
+            <div class="stat-value" id="totalAthletes">
+                0
+            </div>
+
+            <div class="stat-change">
+                Registered athletes
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+                <span class="stat-label">
+                    Active Athletes
+                </span>
+
+                <div class="stat-icon">🟢</div>
+            </div>
+
+            <div class="stat-value" id="activeAthletes">
+                0
+            </div>
+
+            <div class="stat-change">
+                Currently active
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+                <span class="stat-label">
+                    Avg. Performance
+                </span>
+
+                <div class="stat-icon">📈</div>
+            </div>
+
+            <div class="stat-value" id="avgPerformance">
+                0%
+            </div>
+
+            <div class="stat-change">
+                Team average
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+                <span class="stat-label">
+                    Goals Completed
+                </span>
+
+                <div class="stat-icon">🎯</div>
+            </div>
+
+            <div class="stat-value" id="completedGoals">
+                0
+            </div>
+
+            <div class="stat-change">
+                Total completed
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <div class="content-grid">
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h2>Athlete Performance</h2>
+
+                <a
+                    href="#"
+                    class="view-all"
+                    onclick="showPage('athletes');return false;"
+                >
+                    View All →
+                </a>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>Athlete</th>
+                        <th>Performance</th>
+                        <th>Goals</th>
+                        <th>Status</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="athleteTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <div>
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>Quick Actions</h2>
+                </div>
+
+                <div class="actions">
+
+                    <div
+                        class="action"
+                        onclick="showPage('athletes')"
+                    >
+                        <div class="action-icon">👥</div>
+
+                        <div>
+                            <strong>My Athletes</strong>
+                            <small>Select and manage athletes</small>
+                        </div>
+                    </div>
+
+                    <div
+                        class="action"
+                        onclick="showPage('physical')"
+                    >
+                        <div class="action-icon">💪</div>
+
+                        <div>
+                            <strong>Physical Attributes</strong>
+                            <small>Record fitness measurements</small>
+                        </div>
+                    </div>
+
+                    <div
+                        class="action"
+                        onclick="showPage('training')"
+                    >
+                        <div class="action-icon">📈</div>
+
+                        <div>
+                            <strong>Training Metrics</strong>
+                            <small>Record today's training</small>
+                        </div>
+                    </div>
+
+                    <div
+                        class="action"
+                        onclick="showPage('exercises')"
+                    >
+                        <div class="action-icon">🏋️</div>
+
+                        <div>
+                            <strong>Manage Exercises</strong>
+                            <small>Add and manage exercises</small>
+                        </div>
+                    </div>
+
+                    <div
+                        class="action"
+                        onclick="showPage('feedback')"
+                    >
+                        <div class="action-icon">💬</div>
+
+                        <div>
+                            <strong>Give Feedback</strong>
+                            <small>Send athlete feedback</small>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>Recent Activity</h2>
+                </div>
+
+                <div id="activityList">
+
+                    <div class="activity-item">
+
+                        <div class="activity-icon">
+                            ✓
+                        </div>
+
+                        <div class="activity-text">
+
+                            <strong>
+                                Dashboard Ready
+                            </strong>
+
+                            <p>
+                                Coach dashboard loaded successfully.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     MY ATHLETES
+========================= -->
+
+<section id="athletes" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>My Athletes</h1>
+
+            <p>
+                Select an athlete to manage their performance.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <div class="form-group">
+
+            <label>
+                Search Athlete
+            </label>
+
+            <input
+                type="text"
+                id="athleteSearch"
+                placeholder="Search by name or email..."
+            >
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+                    <th>Athlete</th>
+                    <th>Email</th>
+                    <th>Performance</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="athletesList"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     PHYSICAL ATTRIBUTES
+========================= -->
+
+<section id="physical" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Physical Attributes</h1>
+
+            <p>
+                Record and update athlete physical measurements.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <div class="athlete-selector">
+
+            <label>
+                Select Athlete
+            </label>
+
+            <select id="physicalAthlete"></select>
+
+        </div>
+
+
+        <form id="physicalForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Height (cm)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="height"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Body Fat (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="bodyFat"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        BMI
+                    </label>
+
+                    <input
+                        type="number"
+                        id="bmi"
+                        step="any"
+                        readonly
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Resting Heart Rate (BPM)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="heartRate"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Blood Pressure
+                    </label>
+
+                    <input
+                        type="text"
+                        id="bloodPressure"
+                        placeholder="120/80"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Flexibility Score
+                    </label>
+
+                    <input
+                        type="number"
+                        id="flexibility"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Strength Measurement
+                    </label>
+
+                    <input
+                        type="text"
+                        id="strength"
+                        placeholder="e.g. Bench Press 60kg"
+                    >
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Endurance Measurement
+                    </label>
+
+                    <input
+                        type="text"
+                        id="endurance"
+                        placeholder="e.g. 2 km - 10 minutes"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <!-- No emoji on this button -->
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Save Physical Attributes
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="clearPhysicalForm()"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     TRAINING
+========================= -->
+
+<section id="training" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Training Metrics</h1>
+
+            <p>
+                Record athlete training sessions.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <form id="trainingForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Athlete</label>
+
+                    <select id="trainingAthlete"></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Training Date</label>
+
+                    <input
+                        type="date"
+                        id="trainingDate"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Session Type</label>
+
+                    <select id="sessionType">
+
+                        <option>Strength</option>
+                        <option>Cardio</option>
+                        <option>Flexibility</option>
+                        <option>Endurance</option>
+                        <option>Skill Training</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Duration (minutes)</label>
+
+                    <input
+                        type="number"
+                        id="duration"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Intensity (RPE)</label>
+
+                    <input
+                        type="number"
+                        id="rpe"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Exercise</label>
+
+                    <select id="trainingExercise"></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Sets</label>
+
+                    <input
+                        type="number"
+                        id="sets"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Reps</label>
+
+                    <input
+                        type="number"
+                        id="reps"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Weight (kg)</label>
+
+                    <input
+                        type="number"
+                        id="trainingWeight"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Attendance</label>
+
+                    <select id="attendance">
+
+                        <option value="Present">
+                            Present
+                        </option>
+
+                        <option value="Absent">
+                            Absent
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>Completion Status</label>
+
+                    <select id="completion">
+
+                        <option>Completed</option>
+                        <option>Partially Completed</option>
+                        <option>Not Completed</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                Save Training Session
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     EXERCISES
+========================= -->
+
+<section id="exercises" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Exercise Management</h1>
+
+            <p>
+                Create and manage exercises used during training.
+            </p>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            onclick="openExerciseModal()"
+        >
+            + Add Exercise
+        </button>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div
+            class="exercise-grid"
+            id="exerciseList"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     GOALS
+========================= -->
+
+<section id="goals" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Athlete Goals</h1>
+
+            <p>
+                Create and monitor performance goals.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <form id="goalForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Athlete</label>
+
+                    <select id="goalAthlete"></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Goal Name</label>
+
+                    <input
+                        type="text"
+                        id="goalName"
+                        placeholder="e.g. Improve endurance"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Current Value</label>
+
+                    <input
+                        type="number"
+                        id="currentValue"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Target Value</label>
+
+                    <input
+                        type="number"
+                        id="targetValue"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Create Goal
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+                    <th>Athlete</th>
+                    <th>Goal</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="goalTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     FEEDBACK
+========================= -->
+
+<section id="feedback" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Coach Feedback</h1>
+
+            <p>
+                Provide feedback and training suggestions.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <form id="feedbackForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Athlete</label>
+
+                    <select id="feedbackAthlete"></select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Overall Rating</label>
+
+                    <select id="feedbackRating">
+
+                        <option value="5">
+                            Excellent
+                        </option>
+
+                        <option value="4">
+                            Good
+                        </option>
+
+                        <option value="3">
+                            Average
+                        </option>
+
+                        <option value="2">
+                            Needs Improvement
+                        </option>
+
+                        <option value="1">
+                            Poor
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Strengths</label>
+
+                    <textarea
+                        id="strengths"
+                        placeholder="Athlete strengths..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Weaknesses</label>
+
+                    <textarea
+                        id="weaknesses"
+                        placeholder="Areas needing improvement..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>Coach Comments</label>
+
+                    <textarea
+                        id="coachComments"
+                        placeholder="Write your feedback..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>Training Suggestions</label>
+
+                    <textarea
+                        id="suggestions"
+                        placeholder="Recommended next steps..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Save Feedback
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     SETTINGS
+========================= -->
+
+<section id="settings" class="page">
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Settings</h1>
+
+            <p>
+                Manage your coach account and dashboard preferences.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Coach Profile</h2>
+
+        <br>
+
+        <form id="profileForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Coach Name</label>
+
+                    <input
+                        type="text"
+                        id="coachName"
+                        value="Coach"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="coachEmail"
+                        value="coach@example.com"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                Save Profile
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Preferences</h2>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <strong>
+                    Dark Mode
+                </strong>
+
+                <small>
+                    Use a dark interface throughout the dashboard.
+                </small>
+
+            </div>
+
+            <div
+                class="toggle"
+                id="darkModeToggle"
+                data-setting="darkMode"
+            ></div>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <strong>
+                    Dashboard Notifications
+                </strong>
+
+                <small>
+                    Receive dashboard activity notifications.
+                </small>
+
+            </div>
+
+            <div
+                class="toggle active"
+                data-setting="notifications"
+            ></div>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <strong>
+                    Auto Calculate BMI
+                </strong>
+
+                <small>
+                    Automatically calculate BMI from height and weight.
+                </small>
+
+            </div>
+
+            <div
+                class="toggle active"
+                data-setting="bmi"
+            ></div>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <strong>
+                    Save Data Locally
+                </strong>
+
+                <small>
+                    Store dashboard data in browser localStorage.
+                </small>
+
+            </div>
+
+            <div
+                class="toggle active"
+                data-setting="storage"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =========================
+     EXERCISE MODAL
+========================= -->
+
+<div
+    class="modal"
+    id="exerciseModal"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>
+                Add Exercise
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeExerciseModal()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <form id="exerciseForm">
+
+            <div class="form-group">
+
+                <label>
+                    Exercise Name
+                </label>
+
+                <input
+                    type="text"
+                    id="exerciseName"
+                    placeholder="e.g. Squats"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Exercise Category
+                </label>
+
+                <select id="exerciseCategory">
+
+                    <option>Strength</option>
+                    <option>Cardio</option>
+                    <option>Flexibility</option>
+                    <option>Endurance</option>
+                    <option>Skill</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Added exercise training values -->
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Sets
+                    </label>
+
+                    <input
+                        type="number"
+                        id="exerciseSets"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Reps
+                    </label>
+
+                    <input
+                        type="number"
+                        id="exerciseReps"
+                        step="any"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="exerciseWeight"
+                        step="any"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Description
+                </label>
+
+                <textarea
+                    id="exerciseDescription"
+                    placeholder="Exercise description..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Save Exercise
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeExerciseModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     TOAST
+========================= -->
+
+<div
+    class="toast"
+    id="toast"
+>
+    Saved successfully!
+</div>
+
+
+<script>
+
+/* =====================================================
+   DEFAULT DATA
+===================================================== */
+
+let athletes = [
+    {
+        name:"Athlete One",
+        email:"athlete1@example.com",
+        performance:91,
+        goals:"8 / 10"
+    },
+    {
+        name:"Athlete Two",
+        email:"athlete2@example.com",
+        performance:82,
+        goals:"7 / 10"
+    },
+    {
+        name:"Athlete Three",
+        email:"athlete3@example.com",
+        performance:73,
+        goals:"5 / 10"
+    },
+    {
+        name:"Athlete Four",
+        email:"athlete4@example.com",
+        performance:61,
+        goals:"3 / 10"
+    }
+];
+
+
+let exercises =
+    JSON.parse(
+        localStorage.getItem("coachExercises")
+    ) || [
+
+        {
+            name:"Squats",
+            category:"Strength",
+            sets:"",
+            reps:"",
+            weight:"",
+            description:"Lower body strength exercise."
+        },
+
+        {
+            name:"Push Ups",
+            category:"Strength",
+            sets:"",
+            reps:"",
+            weight:"",
+            description:"Upper body bodyweight exercise."
+        },
+
+        {
+            name:"Running",
+            category:"Cardio",
+            sets:"",
+            reps:"",
+            weight:"",
+            description:"Cardiovascular endurance exercise."
+        }
+
+    ];
+
+
+let goals =
+    JSON.parse(
+        localStorage.getItem("coachGoals")
+    ) || [];
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+const navLinks =
+    document.querySelectorAll(".nav-link");
+
+
+navLinks.forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        showPage(
+            link.dataset.page
+        );
+
+    });
+
+});
+
+
+function showPage(pageName){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+
+            page.classList.remove("active");
+
+        });
+
+
+    const target =
+        document.getElementById(pageName);
+
+
+    if(target){
+        target.classList.add("active");
+    }
+
+
+    navLinks.forEach(link => {
+
+        link.classList.remove("active");
+
+        if(
+            link.dataset.page === pageName
+        ){
+            link.classList.add("active");
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+document.getElementById(
+    "currentDate"
+).textContent =
+    new Date().toLocaleDateString(
+        "en-IN",
+        {
+            weekday:"short",
+            day:"numeric",
+            month:"short",
+            year:"numeric"
+        }
+    );
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(message){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    },3000);
+
+}
+
+
+/* =====================================================
+   ACTIVITY
+===================================================== */
+
+function addActivity(title,message){
+
+    const list =
+        document.getElementById(
+            "activityList"
+        );
+
+
+    const item =
+        document.createElement("div");
+
+
+    item.className =
+        "activity-item";
+
+
+    item.innerHTML = `
+
+        <div class="activity-icon">
+            ✓
+        </div>
+
+        <div class="activity-text">
+
+            <strong>
+                ${escapeHtml(title)}
+            </strong>
+
+            <p>
+                ${escapeHtml(message)}
+            </p>
+
+        </div>
+
+    `;
+
+
+    list.prepend(item);
+
+}
+
+
+/* =====================================================
+   HTML ESCAPE
+===================================================== */
+
+function escapeHtml(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   ATHLETE SELECT OPTIONS
+===================================================== */
+
+function populateAthleteSelects(){
+
+    const ids = [
+        "physicalAthlete",
+        "trainingAthlete",
+        "goalAthlete",
+        "feedbackAthlete"
+    ];
+
+
+    ids.forEach(id => {
+
+        const select =
+            document.getElementById(id);
+
+
+        if(!select){
+            return;
+        }
+
+
+        const current =
+            select.value;
+
+
+        select.innerHTML = "";
+
+
+        athletes.forEach(athlete => {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value =
+                athlete.name;
+
+
+            option.textContent =
+                athlete.name;
+
+
+            select.appendChild(option);
+
+        });
+
+
+        if(
+            athletes.some(
+                athlete =>
+                    athlete.name === current
+            )
+        ){
+            select.value = current;
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   ATHLETE TABLE
+===================================================== */
+
+function renderAthletes(){
+
+    const table =
+        document.getElementById(
+            "athleteTableBody"
+        );
+
+
+    table.innerHTML = "";
+
+
+    athletes.forEach(athlete => {
+
+        let status = "Good";
+        let statusClass = "good";
+
+
+        if(
+            athlete.performance < 70
+        ){
+
+            status = "Needs Attention";
+            statusClass = "needs";
+
+        }
+        else if(
+            athlete.performance < 80
+        ){
+
+            status = "Average";
+            statusClass = "average";
+
+        }
+
+
+        const initials =
+            athlete.name
+                .split(" ")
+                .map(x => x[0])
+                .join("");
+
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+
+                    <div class="athlete">
+
+                        <div class="athlete-avatar">
+                            ${escapeHtml(initials)}
+                        </div>
+
+                        <div>
+
+                            <span class="athlete-name">
+                                ${escapeHtml(athlete.name)}
+                            </span>
+
+                            <span class="athlete-email">
+                                ${escapeHtml(athlete.email)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+                <td>
+                    ${athlete.performance}%
+                </td>
+
+                <td>
+                    ${escapeHtml(athlete.goals)}
+                </td>
+
+                <td>
+
+                    <span class="status ${statusClass}">
+                        ${status}
+                    </span>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    document.getElementById(
+        "totalAthletes"
+    ).textContent =
+        athletes.length;
+
+
+    document.getElementById(
+        "activeAthletes"
+    ).textContent =
+        athletes.length;
+
+
+    const average =
+        athletes.length
+        ? Math.round(
+            athletes.reduce(
+                (sum,a) =>
+                    sum + Number(a.performance || 0),
+                0
+            ) / athletes.length
+        )
+        : 0;
+
+
+    document.getElementById(
+        "avgPerformance"
+    ).textContent =
+        average + "%";
+
+
+    renderAthleteManagement();
+
+    populateAthleteSelects();
+
+}
+
+
+/* =====================================================
+   ATHLETE MANAGEMENT
+===================================================== */
+
+function renderAthleteManagement(){
+
+    const table =
+        document.getElementById(
+            "athletesList"
+        );
+
+
+    table.innerHTML = "";
+
+
+    athletes.forEach((athlete,index) => {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    <strong>
+                        ${escapeHtml(athlete.name)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHtml(athlete.email)}
+                </td>
+
+                <td>
+                    ${athlete.performance}%
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="selectAthlete(${index})"
+                    >
+                        Select
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+function selectAthlete(index){
+
+    const athlete =
+        athletes[index];
+
+
+    if(!athlete){
+        return;
+    }
+
+
+    const ids = [
+        "physicalAthlete",
+        "trainingAthlete",
+        "goalAthlete",
+        "feedbackAthlete"
+    ];
+
+
+    ids.forEach(id => {
+
+        const select =
+            document.getElementById(id);
+
+
+        if(select){
+            select.value =
+                athlete.name;
+        }
+
+    });
+
+
+    loadPhysicalData();
+
+
+    showToast(
+        athlete.name + " selected"
+    );
+
+
+    showPage("physical");
+
+}
+
+
+/* =====================================================
+   ATHLETE SEARCH
+===================================================== */
+
+document.getElementById(
+    "athleteSearch"
+).addEventListener(
+    "input",
+    function(){
+
+        const search =
+            this.value.toLowerCase();
+
+
+        document
+            .querySelectorAll(
+                "#athletesList tr"
+            )
+            .forEach(row => {
+
+                row.style.display =
+                    row.textContent
+                        .toLowerCase()
+                        .includes(search)
+                        ? ""
+                        : "none";
+
+            });
+
+    }
+);
+
+
+/* =====================================================
+   BMI CALCULATION
+===================================================== */
+
+function calculateBMI(){
+
+    const height =
+        parseFloat(
+            document.getElementById(
+                "height"
+            ).value
+        );
+
+
+    const weight =
+        parseFloat(
+            document.getElementById(
+                "weight"
+            ).value
+        );
+
+
+    if(
+        Number.isFinite(height) &&
+        Number.isFinite(weight) &&
+        height !== 0
+    ){
+
+        const heightMeters =
+            height / 100;
+
+
+        const bmi =
+            weight /
+            (heightMeters * heightMeters);
+
+
+        if(Number.isFinite(bmi)){
+
+            document.getElementById(
+                "bmi"
+            ).value =
+                bmi.toFixed(2);
+
+        }
+
+    }
+    else{
+
+        document.getElementById(
+            "bmi"
+        ).value = "";
+
+    }
+
+}
+
+
+document.getElementById(
+    "height"
+).addEventListener(
+    "input",
+    calculateBMI
+);
+
+
+document.getElementById(
+    "weight"
+).addEventListener(
+    "input",
+    calculateBMI
+);
+
+
+/* =====================================================
+   CLEAR PHYSICAL FORM
+===================================================== */
+
+function clearPhysicalForm(){
+
+    document
+        .getElementById(
+            "physicalForm"
+        )
+        .reset();
+
+
+    document.getElementById(
+        "bmi"
+    ).value = "";
+
+}
+
+
+/* =====================================================
+   SAVE PHYSICAL ATTRIBUTES
+===================================================== */
+
+document.getElementById(
+    "physicalForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const athlete =
+            document.getElementById(
+                "physicalAthlete"
+            ).value;
+
+
+        const physicalData = {
+
+            athlete:athlete,
+
+            height:
+                document.getElementById(
+                    "height"
+                ).value,
+
+            weight:
+                document.getElementById(
+                    "weight"
+                ).value,
+
+            bodyFat:
+                document.getElementById(
+                    "bodyFat"
+                ).value,
+
+            bmi:
+                document.getElementById(
+                    "bmi"
+                ).value,
+
+            heartRate:
+                document.getElementById(
+                    "heartRate"
+                ).value,
+
+            bloodPressure:
+                document.getElementById(
+                    "bloodPressure"
+                ).value,
+
+            flexibility:
+                document.getElementById(
+                    "flexibility"
+                ).value,
+
+            strength:
+                document.getElementById(
+                    "strength"
+                ).value,
+
+            endurance:
+                document.getElementById(
+                    "endurance"
+                ).value,
+
+            updatedAt:
+                new Date().toISOString()
+
+        };
+
+
+        localStorage.setItem(
+            "physical_" + athlete,
+            JSON.stringify(physicalData)
+        );
+
+
+        addActivity(
+            "Physical Attributes Updated",
+            athlete +
+            "'s physical information was saved."
+        );
+
+
+        showToast(
+            "Physical attributes saved successfully!"
+        );
+
+
+        /*
+         * IMPORTANT:
+         * Clear every physical attribute after saving.
+         */
+
+        clearPhysicalForm();
+
+    }
+);
+
+
+/* =====================================================
+   LOAD PHYSICAL ATTRIBUTES
+===================================================== */
+
+document.getElementById(
+    "physicalAthlete"
+).addEventListener(
+    "change",
+    loadPhysicalData
+);
+
+
+function loadPhysicalData(){
+
+    const athlete =
+        document.getElementById(
+            "physicalAthlete"
+        ).value;
+
+
+    const data =
+        JSON.parse(
+            localStorage.getItem(
+                "physical_" + athlete
+            )
+        );
+
+
+    /*
+     * If there is no saved record,
+     * keep all fields blank.
+     */
+
+    if(!data){
+
+        clearPhysicalForm();
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "height"
+    ).value =
+        data.height || "";
+
+
+    document.getElementById(
+        "weight"
+    ).value =
+        data.weight || "";
+
+
+    document.getElementById(
+        "bodyFat"
+    ).value =
+        data.bodyFat || "";
+
+
+    document.getElementById(
+        "bmi"
+    ).value =
+        data.bmi || "";
+
+
+    document.getElementById(
+        "heartRate"
+    ).value =
+        data.heartRate || "";
+
+
+    document.getElementById(
+        "bloodPressure"
+    ).value =
+        data.bloodPressure || "";
+
+
+    document.getElementById(
+        "flexibility"
+    ).value =
+        data.flexibility || "";
+
+
+    document.getElementById(
+        "strength"
+    ).value =
+        data.strength || "";
+
+
+    document.getElementById(
+        "endurance"
+    ).value =
+        data.endurance || "";
+
+}
+
+
+/* =====================================================
+   TRAINING
+===================================================== */
+
+document.getElementById(
+    "trainingDate"
+).value =
+    new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+function populateExerciseSelect(){
+
+    const select =
+        document.getElementById(
+            "trainingExercise"
+        );
+
+
+    select.innerHTML = "";
+
+
+    if(!exercises.length){
+
+        const option =
+            document.createElement("option");
+
+
+        option.textContent =
+            "No exercises available";
+
+
+        option.value = "";
+
+
+        select.appendChild(option);
+
+
+        return;
+
+    }
+
+
+    exercises.forEach(exercise => {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value =
+            exercise.name;
+
+
+        option.textContent =
+            exercise.name;
+
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+document.getElementById(
+    "trainingForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const athlete =
+            document.getElementById(
+                "trainingAthlete"
+            ).value;
+
+
+        const trainingData = {
+
+            athlete:athlete,
+
+            date:
+                document.getElementById(
+                    "trainingDate"
+                ).value,
+
+            session:
+                document.getElementById(
+                    "sessionType"
+                ).value,
+
+            duration:
+                document.getElementById(
+                    "duration"
+                ).value,
+
+            rpe:
+                document.getElementById(
+                    "rpe"
+                ).value,
+
+            exercise:
+                document.getElementById(
+                    "trainingExercise"
+                ).value,
+
+            sets:
+                document.getElementById(
+                    "sets"
+                ).value,
+
+            reps:
+                document.getElementById(
+                    "reps"
+                ).value,
+
+            weight:
+                document.getElementById(
+                    "trainingWeight"
+                ).value,
+
+            attendance:
+                document.getElementById(
+                    "attendance"
+                ).value,
+
+            completion:
+                document.getElementById(
+                    "completion"
+                ).value
+
+        };
+
+
+        const oldData =
+            JSON.parse(
+                localStorage.getItem(
+                    "trainingSessions"
+                )
+            ) || [];
+
+
+        oldData.push(trainingData);
+
+
+        localStorage.setItem(
+            "trainingSessions",
+            JSON.stringify(oldData)
+        );
+
+
+        addActivity(
+            "Training Session Saved",
+            "Training data recorded for " +
+            athlete + "."
+        );
+
+
+        showToast(
+            "Training session saved!"
+        );
+
+
+        this.reset();
+
+
+        document.getElementById(
+            "trainingDate"
+        ).value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+    }
+);
+
+
+/* =====================================================
+   EXERCISES
+===================================================== */
+
+function openExerciseModal(){
+
+    document
+        .getElementById(
+            "exerciseModal"
+        )
+        .classList.add("show");
+
+}
+
+
+function closeExerciseModal(){
+
+    document
+        .getElementById(
+            "exerciseModal"
+        )
+        .classList.remove("show");
+
+}
+
+
+document.getElementById(
+    "exerciseForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const exercise = {
+
+            name:
+                document.getElementById(
+                    "exerciseName"
+                ).value.trim(),
+
+            category:
+                document.getElementById(
+                    "exerciseCategory"
+                ).value,
+
+            sets:
+                document.getElementById(
+                    "exerciseSets"
+                ).value,
+
+            reps:
+                document.getElementById(
+                    "exerciseReps"
+                ).value,
+
+            weight:
+                document.getElementById(
+                    "exerciseWeight"
+                ).value,
+
+            description:
+                document.getElementById(
+                    "exerciseDescription"
+                ).value.trim()
+
+        };
+
+
+        exercises.push(exercise);
+
+
+        localStorage.setItem(
+            "coachExercises",
+            JSON.stringify(exercises)
+        );
+
+
+        renderExercises();
+
+        populateExerciseSelect();
+
+
+        this.reset();
+
+
+        closeExerciseModal();
+
+
+        addActivity(
+            "Exercise Added",
+            exercise.name +
+            " was added to the exercise library."
+        );
+
+
+        showToast(
+            "Exercise added successfully!"
+        );
+
+    }
+);
+
+
+function renderExercises(){
+
+    const list =
+        document.getElementById(
+            "exerciseList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    exercises.forEach(
+        (exercise,index) => {
+
+            list.innerHTML += `
+
+                <div class="exercise-card">
+
+                    <h3>
+                        ${escapeHtml(exercise.name)}
+                    </h3>
+
+                    <p>
+                        <strong>
+                            ${escapeHtml(exercise.category)}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Sets:
+                        ${escapeHtml(exercise.sets || "—")}
+                    </p>
+
+                    <p>
+                        Reps:
+                        ${escapeHtml(exercise.reps || "—")}
+                    </p>
+
+                    <p>
+                        Weight:
+                        ${escapeHtml(
+                            exercise.weight
+                            ? exercise.weight + " kg"
+                            : "—"
+                        )}
+                    </p>
+
+                    <p>
+                        ${escapeHtml(
+                            exercise.description ||
+                            "No description"
+                        )}
+                    </p>
+
+                    <div class="exercise-actions">
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteExercise(${index})"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+function deleteExercise(index){
+
+    const name =
+        exercises[index].name;
+
+
+    if(
+        !confirm(
+            "Delete " + name + "?"
+        )
+    ){
+        return;
+    }
+
+
+    exercises.splice(
+        index,
+        1
+    );
+
+
+    localStorage.setItem(
+        "coachExercises",
+        JSON.stringify(exercises)
+    );
+
+
+    renderExercises();
+
+    populateExerciseSelect();
+
+
+    showToast(
+        "Exercise deleted."
+    );
+
+}
+
+
+/* =====================================================
+   GOALS
+===================================================== */
+
+document.getElementById(
+    "goalForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const current =
+            parseFloat(
+                document.getElementById(
+                    "currentValue"
+                ).value
+            );
+
+
+        const target =
+            parseFloat(
+                document.getElementById(
+                    "targetValue"
+                ).value
+            );
+
+
+        let progress = 0;
+
+
+        if(
+            Number.isFinite(target) &&
+            target !== 0
+        ){
+
+            progress =
+                Math.round(
+                    (current / target) * 100
+                );
+
+        }
+
+
+        const goal = {
+
+            athlete:
+                document.getElementById(
+                    "goalAthlete"
+                ).value,
+
+            name:
+                document.getElementById(
+                    "goalName"
+                ).value,
+
+            current:current,
+
+            target:target,
+
+            progress:progress
+
+        };
+
+
+        goals.push(goal);
+
+
+        localStorage.setItem(
+            "coachGoals",
+            JSON.stringify(goals)
+        );
+
+
+        renderGoals();
+
+
+        addActivity(
+            "Goal Created",
+            goal.name +
+            " created for " +
+            goal.athlete
+        );
+
+
+        showToast(
+            "Goal created successfully!"
+        );
+
+
+        this.reset();
+
+    }
+);
+
+
+function renderGoals(){
+
+    const table =
+        document.getElementById(
+            "goalTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    goals.forEach(goal => {
+
+        const status =
+            goal.progress >= 100
+                ? "Completed"
+                : goal.progress >= 70
+                ? "On Track"
+                : "Needs Work";
+
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(goal.athlete)}
+                </td>
+
+                <td>
+                    ${escapeHtml(goal.name)}
+                </td>
+
+                <td>
+                    ${goal.progress}%
+                </td>
+
+                <td>
+
+                    <span class="status ${
+                        goal.progress >= 70
+                        ? "good"
+                        : "average"
+                    }">
+                        ${status}
+                    </span>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    const completed =
+        goals.filter(
+            goal =>
+                goal.progress >= 100
+        ).length;
+
+
+    document.getElementById(
+        "completedGoals"
+    ).textContent =
+        completed;
+
+}
+
+
+/* =====================================================
+   FEEDBACK
+===================================================== */
+
+document.getElementById(
+    "feedbackForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const athlete =
+            document.getElementById(
+                "feedbackAthlete"
+            ).value;
+
+
+        const feedback = {
+
+            athlete:athlete,
+
+            rating:
+                document.getElementById(
+                    "feedbackRating"
+                ).value,
+
+            strengths:
+                document.getElementById(
+                    "strengths"
+                ).value,
+
+            weaknesses:
+                document.getElementById(
+                    "weaknesses"
+                ).value,
+
+            comments:
+                document.getElementById(
+                    "coachComments"
+                ).value,
+
+            suggestions:
+                document.getElementById(
+                    "suggestions"
+                ).value,
+
+            date:
+                new Date().toISOString()
+
+        };
+
+
+        localStorage.setItem(
+            "feedback_" + athlete,
+            JSON.stringify(feedback)
+        );
+
+
+        addActivity(
+            "Coach Feedback Saved",
+            "New feedback was saved for " +
+            athlete + "."
+        );
+
+
+        showToast(
+            "Coach feedback saved!"
+        );
+
+
+        this.reset();
+
+    }
+);
+
+
+/* =====================================================
+   PROFILE SETTINGS
+===================================================== */
+
+document.getElementById(
+    "profileForm"
+).addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById(
+                "coachName"
+            ).value;
+
+
+        const email =
+            document.getElementById(
+                "coachEmail"
+            ).value;
+
+
+        localStorage.setItem(
+            "coachProfile",
+            JSON.stringify({
+                name:name,
+                email:email
+            })
+        );
+
+
+        document.getElementById(
+            "sidebarCoachName"
+        ).textContent =
+            name || "Coach";
+
+
+        showToast(
+            "Profile updated successfully!"
+        );
+
+    }
+);
+
+
+/* =====================================================
+   SETTINGS TOGGLES
+===================================================== */
+
+document
+    .querySelectorAll(".toggle")
+    .forEach(toggle => {
+
+        toggle.addEventListener(
+            "click",
+            function(){
+
+                const setting =
+                    this.dataset.setting;
+
+
+                this.classList.toggle(
+                    "active"
+                );
+
+
+                const enabled =
+                    this.classList.contains(
+                        "active"
+                    );
+
+
+                localStorage.setItem(
+                    "setting_" + setting,
+                    enabled
+                );
+
+
+                if(setting === "darkMode"){
+
+                    document.body.classList.toggle(
+                        "dark",
+                        enabled
+                    );
+
+                }
+
+
+                showToast(
+                    "Setting updated."
+                );
+
+            }
+        );
+
+    });
+
+
+/* =====================================================
+   LOAD SETTINGS
+===================================================== */
+
+function loadSettings(){
+
+    const darkMode =
+        localStorage.getItem(
+            "setting_darkMode"
+        ) === "true";
+
+
+    const darkToggle =
+        document.getElementById(
+            "darkModeToggle"
+        );
+
+
+    if(darkMode){
+
+        document.body.classList.add(
+            "dark"
+        );
+
+        darkToggle.classList.add(
+            "active"
+        );
+
+    }
+    else{
+
+        document.body.classList.remove(
+            "dark"
+        );
+
+        darkToggle.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".toggle"
+        )
+        .forEach(toggle => {
+
+            const setting =
+                toggle.dataset.setting;
+
+
+            if(setting === "darkMode"){
+                return;
+            }
+
+
+            const saved =
+                localStorage.getItem(
+                    "setting_" + setting
+                );
+
+
+            if(saved !== null){
+
+                toggle.classList.toggle(
+                    "active",
+                    saved === "true"
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =====================================================
+   LOAD COACH PROFILE
+===================================================== */
+
+function loadCoachProfile(){
+
+    const profile =
+        JSON.parse(
+            localStorage.getItem(
+                "coachProfile"
+            )
+        );
+
+
+    if(!profile){
+        return;
+    }
+
+
+    document.getElementById(
+        "coachName"
+    ).value =
+        profile.name || "Coach";
+
+
+    document.getElementById(
+        "coachEmail"
+    ).value =
+        profile.email || "coach@example.com";
+
+
+    document.getElementById(
+        "sidebarCoachName"
+    ).textContent =
+        profile.name || "Coach";
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+document.getElementById(
+    "logoutButton"
+).addEventListener(
+    "click",
+    function(){
+
+        if(
+            confirm(
+                "Are you sure you want to logout?"
+            )
+        ){
+
+            window.location.href =
+                "coach-login.html";
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+===================================================== */
+
+document.getElementById(
+    "exerciseModal"
+).addEventListener(
+    "click",
+    function(event){
+
+        if(
+            event.target === this
+        ){
+
+            closeExerciseModal();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadSettings();
+
+loadCoachProfile();
+
+renderAthletes();
+
+renderExercises();
+
+renderGoals();
+
+populateExerciseSelect();
+
+</script>
+
+</body>
+</html>

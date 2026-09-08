@@ -1,0 +1,267 @@
+# Athlete Fitness Tracker
+
+Athlete Fitness Tracker is a Flask and SQLite web application for recording athletic performance and giving athletes, coaches, and administrators different views of the same data.
+
+This repository currently contains two different levels of implementation:
+
+- The Flask API, database schema, seed data, and student dashboard are substantially connected and usable.
+- The coach and admin dashboard pages contain polished UI prototypes, but most of their current interactions use hard-coded data or browser `localStorage` rather than the Flask API. They should be treated as demos until they are integrated.
+
+## Contents
+
+- [Capabilities](#capabilities)
+- [Current Feature Status](#current-feature-status)
+- [Roles And Permissions](#roles-and-permissions)
+- [Authentication](#authentication)
+- [Data Model](#data-model)
+- [API Reference](#api-reference)
+- [Local Setup](#local-setup)
+- [Seed Accounts](#seed-accounts)
+- [What Works Well](#what-works-well)
+- [Known Gaps And Risks](#known-gaps-and-risks)
+- [Recommended Improvements](#recommended-improvements)
+- [Project Structure](#project-structure)
+
+## Capabilities
+
+The intended product supports the following fitness-management workflow:
+
+1. A student or coach creates an account and verifies their email with a six-digit OTP.
+2. A student or coach logs in with email and password.
+3. An administrator logs in with email, password, and a second OTP factor.
+4. Coaches record assessments, training sessions, goals, and feedback for assigned athletes.
+5. Students view their own assessments, training history, goals, and coach feedback.
+6. Administrators can view the user directory and, through the API, all athlete records.
+7. Any account can request a password reset by email OTP.
+
+The database is designed to support detailed measurements, sport-specific training metrics, recovery information, injury restrictions, goal progress, and qualitative coaching feedback.
+
+## Current Feature Status
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Static site serving | Implemented | Flask serves `frontend/` from `/`. |
+| Student registration | Connected | API registration, hashed password, OTP verification, and session creation. |
+| Student login | Connected | Role-aware login creates a Flask session. |
+| Student dashboard | Connected | Loads and displays the four read-only data collections from the API. |
+| Student password reset | Mostly connected | Request and OTP verification use the shared API client; reset page still uses a direct fetch. |
+| Coach registration/login/reset | UI prototype | Forms and redirects are present, but they do not consistently call the backend. |
+| Coach dashboard | UI prototype | Includes athlete, physical, training, exercise, goal, feedback, profile, and settings views; data is hard-coded or stored in `localStorage`. |
+| Coach API | Implemented | Authenticated coaches can read assigned athletes and create four record types through API calls. |
+| Admin login with OTP | Backend implemented, UI incomplete | Backend is available; the admin login page does not start the flow correctly and the OTP page hard-codes localhost. |
+| Admin dashboard | UI prototype | Counts, users, activity, and profile data are static mock data. |
+| Admin user directory API | Implemented | `GET /api/users` is restricted to admins. |
+| Database and seed data | Implemented | SQLite schema and representative users/records are included. |
+
+## Roles And Permissions
+
+The backend uses `player` internally; the UI commonly calls this role `student`.
+
+| Role | Can do through the API |
+| --- | --- |
+| Student/player | Log in, maintain a session, log out, and read only their own assessments, training sessions, goals, and feedback. |
+| Coach | Log in, read records for assigned athletes, list assigned athletes, and create assessments, training sessions, goals, and feedback for those athletes. |
+| Admin | Complete the admin OTP login flow, list all users, and read all assessment, training, goal, and feedback records. Admins are not allowed to use coach write endpoints. |
+
+Coach ownership is checked against `coach_athletes` before every coach write. Public registration is intended for students and coaches; admin account creation must be restricted before production use.
+
+## Authentication
+
+- Passwords are hashed with Werkzeug and are never stored as plain text by the backend.
+- Signup OTPs and password-reset OTPs expire after 10 minutes.
+- An OTP is invalidated after use, and incorrect OTP attempts are limited to five.
+- Admin login requires a password followed by an email OTP.
+- Flask stores the authenticated user in a permanent, seven-day session.
+- Session cookies are HTTP-only and use `SameSite=Lax`.
+- `credentials: "include"` is used by the shared frontend API client so browser sessions are sent with requests.
+
+## Data Model
+
+SQLite is the single data store: `backend/athlete_tracker.db`.
+
+- `users`: identity, role, contact details, sport, and email verification state.
+- `otp_requests`: hashed OTPs, purpose, expiry, attempt count, and consumption state.
+- `coach_athletes`: coach-to-athlete assignments.
+- `physical_assessments`: height, weight, BMI, body measurements, mobility, posture, injury status, restrictions, and remarks.
+- `training_sessions`: date, sport, duration, intensity, RPE, exercises, strength metrics, running/jump metrics, sleep, fatigue, attendance, completion, and coaching observations.
+- `goals`: goal type, baseline/target/current values, progress, dates, injury/recovery fields, self-rating, confidence, effort, challenges, and outcome.
+- `coach_feedback`: technical, fitness, tactical, discipline, teamwork, ratings, strengths, improvement areas, actions, practice tasks, and follow-up date.
+
+`init_db()` creates the database automatically on first backend startup. It does not drop an existing database. The current migration logic only adds the OTP table for backward compatibility; it is not a general schema migration system.
+
+## API Reference
+
+All API responses are JSON with a `success` boolean and usually a `message`.
+
+### Authentication
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/register` | Register a student/player or coach and send signup OTP. |
+| `POST` | `/api/admin-signup` | Admin signup endpoint currently present; restrict or remove before production. |
+| `POST` | `/api/account-verification/send` | Resend signup OTP. |
+| `POST` | `/api/account-verification/verify` | Verify signup OTP and create the account/session. |
+| `POST` | `/api/login` | Student/player or coach login. |
+| `POST` | `/api/admin-login` | Begin admin login and send OTP. |
+| `POST` | `/api/admin-login/verify-otp` | Verify admin login OTP and create session. |
+| `POST` | `/api/admin-login/resend-otp` | Resend admin login OTP. |
+| `POST` | `/api/forgot-password` | Begin password reset. |
+| `POST` | `/api/forgot-password/resend-otp` | Resend reset OTP. |
+| `POST` | `/api/forgot-password/verify-otp` | Verify reset OTP without consuming it. |
+| `POST` | `/api/reset-password` | Consume reset OTP and set a new password. |
+| `GET` | `/api/session` | Return the current authenticated user. |
+| `GET` | `/api/admin/session` | Return the current admin session. |
+| `POST` | `/api/logout` | Clear the session. |
+
+### Data
+
+| Method | Endpoint | Access |
+| --- | --- | --- |
+| `GET` | `/api/assessments` | Authenticated; filtered by role. |
+| `GET` | `/api/training-sessions` | Authenticated; filtered by role. |
+| `GET` | `/api/goals` | Authenticated; filtered by role. |
+| `GET` | `/api/feedback` | Authenticated; filtered by role. |
+| `GET` | `/api/coach/athletes` | Coach only; assigned athletes. |
+| `GET` | `/api/users` | Admin only; user directory. |
+| `POST` | `/api/assessments` | Coach only; creates a limited assessment record. |
+| `POST` | `/api/training-sessions` | Coach only; creates a limited training record. |
+| `POST` | `/api/goals` | Coach only; creates a goal. |
+| `POST` | `/api/feedback` | Coach only; creates feedback. |
+
+The shared frontend wrapper is `frontend/js/api-client.js`; new frontend integrations should use it instead of raw `fetch()` calls.
+
+## Local Setup
+
+Requirements: Python 3.10+ is recommended.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:SECRET_KEY = "dev-secret-key-32-chars-long"
+$env:FITNESS_TEST_MODE = "true"
+python backend\app.py
+```
+
+Open `http://127.0.0.1:5000/`. The backend serves the frontend, which is important because the API client uses relative URLs and Flask session cookies.
+
+For a Unix-like shell, use the equivalent `export` commands and forward-slash paths.
+
+### Email configuration
+
+Without test mode, configure SMTP before using OTP features:
+
+```text
+MAIL_USERNAME=your-smtp-account
+MAIL_PASSWORD=your-smtp-password
+MAIL_FROM=optional-sender@example.com
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+```
+
+`FITNESS_TEST_MODE=true` prints OTPs to the backend console instead of sending email. Never use that mode or sample credentials in production.
+
+### Seed the database
+
+Start the backend once so the schema is created, stop it, then run:
+
+```powershell
+python backend\seed.py
+```
+
+The seed script skips itself when users already exist. To start over in local development, stop the server and remove `backend\athlete_tracker.db`, then start the backend and seed again. Do not delete a production database.
+
+## Seed Accounts
+
+The seed data creates 1 admin, 2 coaches, 5 players, 5 assignments, 5 assessments, 3 training sessions, 3 goals, and 2 feedback records.
+
+All sample accounts currently use password `1234`, which is intentionally weak and does not meet the normal eight-character signup requirement. Change or remove these credentials before sharing or deploying the application.
+
+| Email | Role | User code |
+| --- | --- | --- |
+| `admin@college.edu` | Admin | `ADM001` |
+| `verma@college.edu` | Coach | `COA001` |
+| `sharma@college.edu` | Coach | `COA002` |
+| `arjun@college.edu` | Player | `ATH001` |
+| `sneha@college.edu` | Player | `ATH002` |
+| `kabir@college.edu` | Player | `ATH003` |
+| `meera@college.edu` | Player | `ATH004` |
+| `rohan@college.edu` | Player | `ATH005` |
+
+## What Works Well
+
+- The backend has a clear role model and central session helpers.
+- SQL statements use parameters, and SQLite foreign-key enforcement is enabled.
+- Passwords and OTPs are stored as hashes rather than raw values.
+- OTP expiry, attempt limits, replacement of older OTPs, and one-time consumption are implemented.
+- Coach writes enforce assignment ownership, preventing a coach from writing to an unrelated assigned ID.
+- Admin access to the user directory and role-filtered data endpoints is protected by decorators.
+- The frontend has a shared API client, role mapping, relative URL configuration, and an authentication guard for protected pages.
+- The schema captures unusually rich sports-performance information, including recovery, injury, technical, and tactical context.
+- Database initialization avoids destructively rerunning the full schema over an existing database.
+
+## Known Gaps And Risks
+
+These are the most important limitations in the current implementation:
+
+1. `/api/admin-signup` is publicly callable and can create admin accounts. This is a critical privilege-escalation risk.
+2. Coach and admin UI login flows do not reliably call the backend, establish Flask sessions, or load server data. Their dashboards can therefore appear functional while remaining disconnected from the database.
+3. The coach dashboard stores user-entered values in browser `localStorage`; the coach signup prototype stores a plaintext password there.
+4. The admin OTP page hard-codes `http://127.0.0.1:5000` and depends on state that the preceding admin login page does not set correctly.
+5. The admin dashboard displays mock counts and activity, and its logout path points to a non-existent `login.html`.
+6. There is no CSRF protection for cookie-authenticated state-changing requests.
+7. CORS allows credentialed requests globally rather than using an explicit production allowlist.
+8. OTP endpoints have no rate limiting, and password-reset responses reveal whether an email exists.
+9. Backend validation is light for numeric ranges, dates, field lengths, and referenced user roles.
+10. The auth guard checks whether a session exists but does not verify that its role matches the dashboard URL.
+11. There are no automated tests in the repository, and the student dashboard presents failed API loads similarly to empty datasets.
+12. Several pages depend on CDN fonts, Tailwind, or external images, so offline use and strict-content-security-policy deployment need additional work.
+
+## Recommended Improvements
+
+### Priority 0: security and access control
+
+- Remove public admin registration or require an existing admin/invite token.
+- Replace seeded passwords, rotate `SECRET_KEY`, and use environment-specific secrets.
+- Add CSRF protection, explicit CORS origins, HTTPS, and `FLASK_SECURE_COOKIE=true` in production.
+- Add rate limiting and lockout policies for login, OTP, resend, and reset endpoints.
+- Return non-enumerating password-reset messages.
+
+### Priority 1: complete the product workflow
+
+- Replace coach/admin demo authentication with `api-client.js` calls and session guards.
+- Connect coach dashboard forms to the four POST endpoints and load assigned athletes from `/api/coach/athletes`.
+- Connect the admin dashboard to `/api/admin/session`, `/api/users`, and role-filtered data endpoints.
+- Add server-backed coach assignment management and admin user-management actions if those UI claims are retained.
+- Remove plaintext credentials and all sensitive demo state from `localStorage`.
+
+### Priority 2: data quality and maintainability
+
+- Add a validation layer for dates, numeric ranges, enum values, payload sizes, and athlete/coach roles.
+- Add real migrations instead of only creating a missing OTP table.
+- Add API tests for authentication, role boundaries, ownership checks, OTP expiry/attempt limits, and CRUD behavior.
+- Add frontend error, loading, empty, and unauthorized states.
+- Document the supported Python version, deployment server, backup strategy, and database maintenance process.
+
+## Project Structure
+
+```text
+backend/
+	app.py                  Flask application, routes, auth, email, sessions
+	schema.sql              SQLite schema
+	seed.py                 Development/demo data loader
+	athlete_tracker.db      Generated local database (created at runtime)
+frontend/
+	index.html              Role selection page
+	student/                Student auth pages and connected dashboard
+	coach/                  Coach auth pages and dashboard prototype
+	admin/                  Admin auth pages and dashboard prototype
+	js/config.js            Shared role, routing, and API configuration
+	js/api-client.js        Shared JSON API wrapper
+	js/auth-guard.js        Session check and protected-page redirect
+requirements.txt          Python dependencies
+```
+
+## License
+
+No license file is currently included. Add one before distributing the project.

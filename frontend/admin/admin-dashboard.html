@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | Fitness Performance Tracker</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7f6;
+            color: #17221c;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 250px;
+            height: 100vh;
+
+            background: #0c1912;
+            color: white;
+
+            padding: 25px 18px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 10px;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+
+            border: 2px solid #22c55e;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1.3;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: #22c55e;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            color: #718078;
+            margin: 20px 10px 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 13px 12px;
+
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: #b8c4bd;
+            text-decoration: none;
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #163221;
+            color: #ffffff;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid #22c55e;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+
+        .topbar {
+            height: 75px;
+
+            background: white;
+
+            border-bottom: 1px solid #e5e9e6;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 35px;
+        }
+
+        .topbar h1 {
+            font-size: 23px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+
+            background: #dcfce7;
+            border: 1px solid #22c55e;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .profile-role {
+            font-size: 11px;
+            color: #777;
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding: 35px;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .welcome p {
+            color: #718078;
+            font-size: 14px;
+        }
+
+        /* STAT CARDS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+
+            border: 1px solid #e4e9e5;
+
+            border-radius: 14px;
+
+            padding: 22px;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+
+            background: #ecfdf3;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7b847e;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        /* SECTIONS */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 25px;
+        }
+
+        .panel {
+            background: white;
+
+            border: 1px solid #e4e9e5;
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 22px;
+        }
+
+        .panel-header h3 {
+            font-size: 17px;
+        }
+
+        .view-all {
+            color: #16a34a;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* TABLE */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+
+            font-size: 11px;
+            color: #8a948d;
+
+            padding: 10px;
+
+            border-bottom: 1px solid #edf0ee;
+        }
+
+        td {
+            padding: 13px 10px;
+
+            font-size: 13px;
+
+            border-bottom: 1px solid #f0f2f1;
+        }
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .active-status {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .pending-status {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* ACTIVITY */
+
+        .activity {
+            display: flex;
+
+            gap: 13px;
+
+            padding: 14px 0;
+
+            border-bottom: 1px solid #edf0ee;
+        }
+
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+
+            background: #ecfdf3;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-text {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .activity-time {
+            color: #9aa39d;
+            font-size: 10px;
+        }
+
+        /* LOGOUT */
+
+        .logout {
+            margin-top: 25px;
+
+            width: 100%;
+
+            border: 1px solid #2d4936;
+
+            background: transparent;
+
+            color: #b8c4bd;
+
+            padding: 11px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+        }
+
+        .logout:hover {
+            background: #351b1b;
+            color: #ffb4b4;
+        }
+
+
+        /* COACH-ATHLETE MANAGEMENT */
+        .assignment-panel { margin-top: 25px; }
+        .assignment-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .assignment-form select {
+            padding: 11px 12px;
+            border: 1px solid #dfe5e1;
+            border-radius: 8px;
+            background: white;
+            font-size: 13px;
+            color: #17221c;
+        }
+        .assign-btn, .remove-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .assign-btn { background: #16a34a; color: white; }
+        .assign-btn:hover { background: #15803d; }
+        .remove-btn { background: #fee2e2; color: #b91c1c; }
+        .remove-btn:hover { background: #fecaca; }
+        .assignment-message {
+            display: none;
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .assignment-message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+        .assignment-message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .empty-assignments {
+            color: #8a948d;
+            font-size: 13px;
+            padding: 15px 10px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚡
+        </div>
+
+        <div class="logo-text">
+            FITNESS<br>
+            <span>PERFORMANCE</span><br>
+            TRACKER
+        </div>
+
+    </div>
+
+
+    <div class="nav-title">
+        Administration
+    </div>
+
+    <a href="#" class="nav-link active">
+        📊 Dashboard
+    </a>
+
+    <a href="#" class="nav-link">
+        👨‍🎓 Students
+    </a>
+
+    <a href="#" class="nav-link">
+        🏋️ Coaches
+    </a>
+
+    <a href="#" class="nav-link">
+        👥 Users
+    </a>
+
+
+    <div class="nav-title">
+        System
+    </div>
+
+    <a href="#" class="nav-link">
+        🔐 Permissions
+    </a>
+
+    <a href="#" class="nav-link">
+        📋 System Logs
+    </a>
+
+    <a href="#" class="nav-link">
+        ⚙️ Settings
+    </a>
+
+
+    <button
+        class="logout"
+        onclick="logout()"
+    >
+        ← Logout
+    </button>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <h1>
+            Admin Dashboard
+        </h1>
+
+        <div class="admin-profile">
+
+            <div class="profile-icon">
+                ⚡
+            </div>
+
+            <div>
+
+                <div class="profile-name">
+                    System Administrator
+                </div>
+
+                <div class="profile-role">
+                    Administrator
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <section class="content">
+
+        <div class="welcome">
+
+            <h2>
+                Welcome, Administrator 👋
+            </h2>
+
+            <p>
+                Monitor and manage the Fitness Performance Tracker platform.
+            </p>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-label">
+                        Total Students
+                    </div>
+
+                    <div class="stat-icon">
+                        🎓
+                    </div>
+
+                </div>
+
+                <div class="stat-number">
+                    248
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-label">
+                        Active Coaches
+                    </div>
+
+                    <div class="stat-icon">
+                        🏋️
+                    </div>
+
+                </div>
+
+                <div class="stat-number">
+                    24
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-label">
+                        Active Accounts
+                    </div>
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                </div>
+
+                <div class="stat-number">
+                    272
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-label">
+                        Pending Requests
+                    </div>
+
+                    <div class="stat-icon">
+                        🔔
+                    </div>
+
+                </div>
+
+                <div class="stat-number">
+                    7
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOWER CONTENT -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- USERS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>
+                        Recent User Accounts
+                    </h3>
+
+                    <a href="#" class="view-all">
+                        View All
+                    </a>
+
+                </div>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                USER
+                            </th>
+
+                            <th>
+                                ROLE
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Rahul Sharma
+                            </td>
+
+                            <td>
+                                Student
+                            </td>
+
+                            <td>
+                                <span class="status active-status">
+                                    Active
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Arjun Singh
+                            </td>
+
+                            <td>
+                                Coach
+                            </td>
+
+                            <td>
+                                <span class="status active-status">
+                                    Active
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Priya Das
+                            </td>
+
+                            <td>
+                                Student
+                            </td>
+
+                            <td>
+                                <span class="status pending-status">
+                                    Pending
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Vikram Roy
+                            </td>
+
+                            <td>
+                                Coach
+                            </td>
+
+                            <td>
+                                <span class="status active-status">
+                                    Active
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ACTIVITY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>
+                        Recent Activity
+                    </h3>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        👤
+                    </div>
+
+                    <div class="activity-text">
+
+                        New student account created.
+
+                        <div class="activity-time">
+                            10 minutes ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        🏋️
+                    </div>
+
+                    <div class="activity-text">
+
+                        New coach account registered.
+
+                        <div class="activity-time">
+                            32 minutes ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        🔐
+                    </div>
+
+                    <div class="activity-text">
+
+                        Account permissions updated.
+
+                        <div class="activity-time">
+                            1 hour ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity">
+
+                    <div class="activity-icon">
+                        📋
+                    </div>
+
+                    <div class="activity-text">
+
+                        System log generated.
+
+                        <div class="activity-time">
+                            2 hours ago
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- COACH-ATHLETE MANAGEMENT -->
+        <div class="panel assignment-panel">
+            <div class="panel-header">
+                <h3>Coach–Athlete Management</h3>
+                <a href="#" class="view-all" onclick="loadAssignments(); return false;">Refresh</a>
+            </div>
+
+            <div id="assignmentMessage" class="assignment-message"></div>
+
+            <div class="assignment-form">
+                <select id="coachSelect">
+                    <option value="">Select Coach</option>
+                </select>
+
+                <select id="athleteSelect">
+                    <option value="">Select Athlete</option>
+                </select>
+
+                <button class="assign-btn" onclick="assignCoach()">
+                    Assign Coach
+                </button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>COACH</th>
+                        <th>ATHLETE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="assignmentTableBody">
+                    <tr>
+                        <td colspan="3" class="empty-assignments">
+                            Loading assignments...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+
+    const API_BASE = "http://127.0.0.1:5000";
+
+    function showAssignmentMessage(message, type) {
+        const box = document.getElementById("assignmentMessage");
+        box.textContent = message;
+        box.className = "assignment-message " + type;
+    }
+
+    async function loadUsersForAssignment() {
+        try {
+            const response = await fetch(API_BASE + "/api/users", {
+                credentials: "include"
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Could not load users.");
+            }
+
+            const users = data.users || [];
+            const coachSelect = document.getElementById("coachSelect");
+            const athleteSelect = document.getElementById("athleteSelect");
+
+            coachSelect.innerHTML = '<option value="">Select Coach</option>';
+            athleteSelect.innerHTML = '<option value="">Select Athlete</option>';
+
+            users.filter(u => u.role === "coach").forEach(coach => {
+                const option = document.createElement("option");
+                option.value = coach.id;
+                option.textContent = `${coach.name} (${coach.user_code || "No code"})`;
+                coachSelect.appendChild(option);
+            });
+
+            users.filter(u => u.role === "player" || u.role === "student").forEach(athlete => {
+                const option = document.createElement("option");
+                option.value = athlete.id;
+                option.textContent = `${athlete.name} (${athlete.user_code || "No code"})`;
+                athleteSelect.appendChild(option);
+            });
+        } catch (error) {
+            showAssignmentMessage(error.message, "error");
+        }
+    }
+
+    async function loadAssignments() {
+        const tbody = document.getElementById("assignmentTableBody");
+
+        try {
+            const response = await fetch(API_BASE + "/api/coach-athletes", {
+                credentials: "include"
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Could not load assignments.");
+            }
+
+            const assignments = data.assignments || [];
+            tbody.innerHTML = "";
+
+            if (assignments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-assignments">No coach-athlete assignments found.</td></tr>';
+                return;
+            }
+
+            assignments.forEach(a => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${escapeHtml(a.coach_name || "Unknown Coach")}</td>
+                    <td>${escapeHtml(a.athlete_name || "Unknown Athlete")}</td>
+                    <td>
+                        <button class="remove-btn"
+                            onclick="removeAssignment(${a.coach_id}, ${a.athlete_id})">
+                            Remove
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-assignments">${escapeHtml(error.message)}</td></tr>`;
+        }
+    }
+
+    async function assignCoach() {
+        const coachId = document.getElementById("coachSelect").value;
+        const athleteId = document.getElementById("athleteSelect").value;
+
+        if (!coachId || !athleteId) {
+            showAssignmentMessage("Please select both a coach and an athlete.", "error");
+            return;
+        }
+
+        try {
+            const response = await fetch(API_BASE + "/api/coach-athletes", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    coach_id: Number(coachId),
+                    athlete_id: Number(athleteId)
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Could not assign coach.");
+            }
+
+            showAssignmentMessage(data.message || "Coach assigned successfully.", "success");
+            document.getElementById("coachSelect").value = "";
+            document.getElementById("athleteSelect").value = "";
+            await loadAssignments();
+        } catch (error) {
+            showAssignmentMessage(error.message, "error");
+        }
+    }
+
+    async function removeAssignment(coachId, athleteId) {
+        if (!confirm("Remove this coach-athlete assignment?")) return;
+
+        try {
+            const response = await fetch(API_BASE + "/api/coach-athletes", {
+                method: "DELETE",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    coach_id: Number(coachId),
+                    athlete_id: Number(athleteId)
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Could not remove assignment.");
+            }
+
+            showAssignmentMessage(data.message || "Assignment removed successfully.", "success");
+            await loadAssignments();
+        } catch (error) {
+            showAssignmentMessage(error.message, "error");
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function logout() {
+        fetch(API_BASE + "/api/admin/logout", {
+            method: "POST",
+            credentials: "include"
+        }).finally(() => {
+            window.location.href = "login.html";
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await loadUsersForAssignment();
+        await loadAssignments();
+    });
+
+</script>
+
+</body>
+</html>

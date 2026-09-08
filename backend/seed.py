@@ -1,45 +1,50 @@
-import sqlite3
 import os
+import pymysql
+from pymysql.cursors import DictCursor
 from werkzeug.security import generate_password_hash
 
-# Use the SAME absolute path as app.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_NAME = os.path.join(BASE_DIR, 'athlete_tracker.db')
+DB_CONFIG = {
+    'host': os.getenv("DB_HOST", "localhost"),
+    'user': os.getenv("DB_USER", "fitness_user"),
+    'password': os.getenv("DB_PASSWORD", "StrongPassword123!"),
+    'database': os.getenv("DB_NAME", "athlete_tracker"),
+    'charset': 'utf8mb4',
+    'cursorclass': DictCursor
+}
 
 def hash_password(password):
     return generate_password_hash(password)
 
 def main():
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
+    conn = pymysql.connect(**DB_CONFIG)
     cursor = conn.cursor()
 
     # Check if already seeded
-    cursor.execute("SELECT COUNT(*) FROM users")
-    if cursor.fetchone()[0] > 0:
+    cursor.execute("SELECT COUNT(*) as cnt FROM users")
+    if cursor.fetchone()['cnt'] > 0:
         print("Database already contains users. Skipping seed.")
         conn.close()
         return
 
     # ============================================
-    # USERS (DO NOT specify id — let AUTOINCREMENT handle it)
+    # USERS (DO NOT specify id — let AUTO_INCREMENT handle it)
     # user_code format: ADM001, COA001, ATH001 (matches app.py new_code())
     # ============================================
     users_raw = [
-        ('ADM001', 'Admin Kumar', 'admin@college.edu', hash_password('ChangeMe!123'), 'admin', None, '9876543210', None, None),
-        ('COA001', 'Coach Verma', 'verma@college.edu', hash_password('ChangeMe!123'), 'coach', 'Athletics', '9876543211', 'Male', '1985-03-15'),
-        ('COA002', 'Coach Sharma', 'sharma@college.edu', hash_password('ChangeMe!123'), 'coach', 'Basketball', '9876543212', 'Male', '1982-07-22'),
-        ('ATH001', 'Arjun Roy', 'arjun@college.edu', hash_password('ChangeMe!123'), 'player', 'Athletics', '9876543213', 'Male', '2005-03-12'),
-        ('ATH002', 'Sneha Gupta', 'sneha@college.edu', hash_password('ChangeMe!123'), 'player', 'Basketball', '9876543214', 'Female', '2004-07-21'),
-        ('ATH003', 'Kabir Ali', 'kabir@college.edu', hash_password('ChangeMe!123'), 'player', 'Football', '9876543215', 'Male', '2003-11-18'),
-        ('ATH004', 'Meera Das', 'meera@college.edu', hash_password('ChangeMe!123'), 'player', 'Athletics', '9876543216', 'Female', '2006-02-02'),
-        ('ATH005', 'Rohan Singh', 'rohan@college.edu', hash_password('ChangeMe!123'), 'player', 'Basketball', '9876543217', 'Male', '2004-09-30'),
+        ('ADM001', 'Admin Kumar', 'admin@college.edu', hash_password('1234'), 'admin', None, '9876543210', None, None),
+        ('COA001', 'Coach Verma', 'verma@college.edu', hash_password('1234'), 'coach', 'Athletics', '9876543211', 'Male', '1985-03-15'),
+        ('COA002', 'Coach Sharma', 'sharma@college.edu', hash_password('1234'), 'coach', 'Basketball', '9876543212', 'Male', '1982-07-22'),
+        ('ATH001', 'Arjun Roy', 'arjun@college.edu', hash_password('1234'), 'player', 'Athletics', '9876543213', 'Male', '2005-03-12'),
+        ('ATH002', 'Sneha Gupta', 'sneha@college.edu', hash_password('1234'), 'player', 'Basketball', '9876543214', 'Female', '2004-07-21'),
+        ('ATH003', 'Kabir Ali', 'kabir@college.edu', hash_password('1234'), 'player', 'Football', '9876543215', 'Male', '2003-11-18'),
+        ('ATH004', 'Meera Das', 'meera@college.edu', hash_password('1234'), 'player', 'Athletics', '9876543216', 'Female', '2006-02-02'),
+        ('ATH005', 'Rohan Singh', 'rohan@college.edu', hash_password('1234'), 'player', 'Basketball', '9876543217', 'Male', '2004-09-30'),
     ]
 
     for user in users_raw:
         cursor.execute(
-            """INSERT INTO users (user_code, name, email, password_hash, role, sport, contact_number, gender, date_of_birth, email_verified, account_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'active')""",
+            """INSERT INTO users (user_code, name, email, password_hash, role, sport, contact_number, gender, date_of_birth)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             user
         )
 
@@ -62,7 +67,7 @@ def main():
     ]
     for coach_id, athlete_id in assignments:
         cursor.execute(
-            "INSERT INTO coach_athletes (coach_id, athlete_id) VALUES (?, ?)",
+            "INSERT INTO coach_athletes (coach_id, athlete_id) VALUES (%s, %s)",
             (coach_id, athlete_id)
         )
 
@@ -94,7 +99,7 @@ def main():
                 flexibility_score, mobility_score, posture_assessment, injury_status, injury_notes,
                 medical_restrictions, previous_measurement, current_measurement, change_value,
                 assessment_remarks, next_assessment_date)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             a
         )
 
@@ -130,7 +135,7 @@ def main():
                 agility_test_score, vertical_jump_height, broad_jump_distance, sleep_hours, fatigue_level,
                 muscle_soreness_level, attendance, completion_pct, missed_session_reason, session_observation,
                 technical_feedback, training_recommendation, next_session_focus)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             s
         )
 
@@ -162,7 +167,7 @@ def main():
                 injury_status, injury_area, expected_recovery_date, current_limitation, training_restriction,
                 rehabilitation_exercise, recovery_progress_pct, self_rating, confidence_level, effort_level,
                 challenges_faced, goal_achieved_date, final_result, next_goal)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             g
         )
 
@@ -207,7 +212,7 @@ def main():
                 game_awareness, discipline, communication, confidence, focus_concentration, teamwork,
                 overall_rating, key_strength, key_improvement_area, performance_summary, immediate_action,
                 home_practice_task, next_session_focus, follow_up_date)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             f
         )
 

@@ -1,4 +1,7 @@
-"""Athlete Tracker — Production-hardened Flask backend.
+from dotenv import load_dotenv
+load_dotenv()
+
+"""Athlete Tracker — Production-hardened Flask backend (MySQL).
 
 API Contract (for frontend developers):
 - All endpoints return JSON: {"success": bool, "message": str, ...data}
@@ -10,35 +13,25 @@ API Contract (for frontend developers):
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from functools import wraps
-import json, os, secrets, smtplib, sqlite3, ssl
+import json, os, secrets, smtplib, pymysql, ssl
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, "athlete_tracker.db")
-FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend1")
-OTP_MINUTES = 3
-OTP_RESEND_SECONDS = 60
+FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
+OTP_MINUTES = 10
 
-def load_local_env():
-    """Load a local .env without adding credentials to source control.
-
-    Existing process environment values always win, which keeps production
-    deployment configuration authoritative.
-    """
-    for path in (os.path.join(os.path.dirname(BASE_DIR), ".env"), os.path.join(BASE_DIR, ".env")):
-        if not os.path.exists(path):
-            continue
-        with open(path, encoding="utf-8") as env_file:
-            for raw_line in env_file:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
-
-load_local_env()
+# ── MySQL Configuration ─────────────────────────────────────────────────────
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "fitness_user"),
+    "password": os.getenv("DB_PASSWORD", "StrongPassword123!"),
+    "database": os.getenv("DB_NAME", "athlete_tracker"),
+    "charset": "utf8mb4",
+    "cursorclass": pymysql.cursors.DictCursor,
+    "autocommit": False,
+}
 
 # ── Flask setup ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -60,15 +53,24 @@ app.config.update(
 )
 CORS(app, supports_credentials=True)
 
+# Test mode: prints OTP to console instead of sending email
+TEST_MODE = False
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def get_db():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
-    db.execute("PRAGMA foreign_keys = ON")  # Enforce foreign key constraints
-    return db
+    """Return a fresh MySQL connection."""
+    return pymysql.connect(**DB_CONFIG)
 
 def now():
     return datetime.now(timezone.utc)
+
+def now_sql():
+    """Return MySQL-compatible DATETIME string."""
+    return now().strftime("%Y-%m-%d %H:%M:%S")
+
+def today_sql():
+    """Return MySQL-compatible DATE string."""
+    return now().strftime("%Y-%m-%d")
 
 def generate_otp():
     return f"{secrets.randbelow(1_000_000):06d}"
@@ -83,8 +85,15 @@ def display_role(role):
 def valid_password(password):
     return len(password) >= 8
 
-def valid_email(email):
-    return "@" in email and "." in email.rsplit("@", 1)[-1] and len(email) <= 254
+def email_exists(email):
+    """Check if an email is already registered in the database."""
+    db = get_db()
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT 1 FROM users WHERE lower(email)=%s", (email,))
+        return cursor.fetchone() is not None
+    finally:
+        db.close()
 
 def init_db():
     """Create tables on first startup ONLY. Never drops existing data."""
@@ -92,57 +101,63 @@ def init_db():
     if not os.path.exists(schema_path):
         raise FileNotFoundError(f"schema.sql not found at {schema_path}")
 
-    with sqlite3.connect(DATABASE) as db:
-        # Check if database is already initialized
-        existing = db.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'"
-        ).fetchone()
+    # 1. Ensure database exists
+    temp_cfg = {k: v for k, v in DB_CONFIG.items() if k not in ("database", "cursorclass")}
+    temp_cfg["cursorclass"] = pymysql.cursors.DictCursor
+    temp_conn = pymysql.connect(**temp_cfg)
+    try:
+        with temp_conn.cursor() as cursor:
+            cursor.execute(
+                "CREATE DATABASE IF NOT EXISTS athlete_tracker "
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+            )
+        temp_conn.commit()
+    finally:
+        temp_conn.close()
 
-        if not existing:
-            # First run — safe to run full schema (including any DROPs for clean start)
-            with open(schema_path, "r", encoding="utf-8") as f:
-                db.executescript(f.read())
-            print("[INIT] Database created from schema.sql")
-        else:
-            # Already initialized — only add missing tables (migrations)
-            # Ensure otp_requests exists (backward compatibility)
-            db.execute("""
-                CREATE TABLE IF NOT EXISTS otp_requests (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    email TEXT NOT NULL,
-                    purpose TEXT NOT NULL,
-                    otp_hash TEXT NOT NULL,
-                    payload TEXT,
-                    expires_at TEXT NOT NULL,
-                    attempts INTEGER NOT NULL DEFAULT 0,
-                    verified INTEGER NOT NULL DEFAULT 0,
-                    used INTEGER NOT NULL DEFAULT 0,
-                    created_at TEXT NOT NULL
-                )
-            """)
-            db.execute("CREATE INDEX IF NOT EXISTS idx_otp_requests_lookup ON otp_requests(email, purpose, used)")
-            columns = {row[1] for row in db.execute("PRAGMA table_info(users)")}
-            if "account_status" not in columns:
-                db.execute("ALTER TABLE users ADD COLUMN account_status TEXT NOT NULL DEFAULT 'active'")
-            # This application never persists a new unverified user: registrations
-            # stay only in otp_requests until verification succeeds. Thus rows with
-            # email_verified=0 here are legacy accounts from before that design.
-            db.execute("UPDATE users SET email_verified=1 WHERE email_verified=0")
-            db.commit()
-            print("[INIT] Database already exists — skipped destructive schema.")
+    # 2. Run schema (idempotent)
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute("SHOW TABLES LIKE \'users\'")
+            existing = cursor.fetchone()
+
+            if not existing:
+                with open(schema_path, "r", encoding="utf-8") as f:
+                    statements = f.read().split(";")
+                    for stmt in statements:
+                        stmt = stmt.strip()
+                        if stmt and not stmt.startswith("--") and len(stmt) > 5:
+                            cursor.execute(stmt + ";")
+                db.commit()
+                print("[INIT] Database created from schema.sql")
+            else:
+                # Backward compatibility: ensure otp_requests exists
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS otp_requests (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        email VARCHAR(255) NOT NULL,
+                        purpose VARCHAR(50) NOT NULL,
+                        otp_hash VARCHAR(255) NOT NULL,
+                        payload TEXT,
+                        expires_at DATETIME NOT NULL,
+                        attempts INT NOT NULL DEFAULT 0,
+                        verified TINYINT NOT NULL DEFAULT 0,
+                        used TINYINT NOT NULL DEFAULT 0,
+                        created_at DATETIME NOT NULL
+                    ) ENGINE=InnoDB
+                """)
+                db.commit()
+                print("[INIT] Database already exists — skipped destructive schema.")
+    finally:
+        db.close()
 
 # ── Email ─────────────────────────────────────────────────────────────────────
 def send_email(recipient, subject, body):
     username = os.getenv("MAIL_USERNAME")
     password = os.getenv("MAIL_PASSWORD")
     if not username or not password:
-        app.logger.warning("Email not configured: set MAIL_USERNAME and MAIL_PASSWORD in .env")
-        return False
-    server_name = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    try:
-        port = int(os.getenv("MAIL_PORT", "587"))
-    except ValueError:
-        app.logger.error("Email delivery failed: MAIL_PORT must be a number")
+        app.logger.warning("Email not configured: set MAIL_USERNAME and MAIL_PASSWORD")
         return False
     message = EmailMessage()
     message["Subject"] = subject
@@ -150,11 +165,12 @@ def send_email(recipient, subject, body):
     message["To"] = recipient
     message.set_content(body)
     try:
-        use_ssl = os.getenv("MAIL_USE_SSL", "false").lower() == "true" or port == 465
-        smtp_class = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
-        with smtp_class(server_name, port, timeout=15, context=ssl.create_default_context()) if use_ssl else smtp_class(server_name, port, timeout=15) as server:
-            if not use_ssl:
-                server.starttls(context=ssl.create_default_context())
+        with smtplib.SMTP(
+            os.getenv("MAIL_SERVER", "smtp.gmail.com"),
+            int(os.getenv("MAIL_PORT", "587")),
+            timeout=15,
+        ) as server:
+            server.starttls(context=ssl.create_default_context())
             server.login(username, password)
             server.send_message(message)
         return True
@@ -163,11 +179,10 @@ def send_email(recipient, subject, body):
         return False
 
 def send_otp_email(email, name, purpose, otp):
-    action = {
-        "password_reset": "password reset",
-        "login": "login verification",
-        "signup": "account verification",
-    }.get(purpose, "verification")
+    action = "password reset" if purpose == "password_reset" else "account verification"
+    if TEST_MODE:
+        print(f"\n[TEST MODE] OTP for {email} ({purpose}): {otp}\n")
+        return True
     return send_email(
         email,
         f"Athlete Tracker – {action.title()} OTP",
@@ -176,6 +191,9 @@ def send_otp_email(email, name, purpose, otp):
     )
 
 def send_account_created_email(email, name, role):
+    if TEST_MODE:
+        print(f"[TEST MODE] Account created for {email} as {role}")
+        return True
     return send_email(
         email,
         "Athlete Tracker Account Created Successfully",
@@ -184,6 +202,9 @@ def send_account_created_email(email, name, role):
     )
 
 def send_password_reset_success_email(email, name):
+    if TEST_MODE:
+        print(f"[TEST MODE] Password reset successful for {email}")
+        return True
     return send_email(
         email,
         "Password Reset Successful",
@@ -191,67 +212,102 @@ def send_password_reset_success_email(email, name):
         f"If you did not perform this action, contact the administrator.\n\nThank you,\nAthlete Tracker Team",
     )
 
+def send_signup_confirmation_email(email, name, user_code):
+    """Send account creation confirmation email."""
+    if TEST_MODE:
+        print(f"[TEST MODE] Signup confirmation sent to {email}")
+        return True
+    return send_email(
+        email,
+        "Welcome to Athlete Tracker — Account Created Successfully",
+        f"Hello {name},\n\n"
+        f"Welcome to Athlete Tracker! Your account has been successfully created.\n\n"
+        f"Your Athlete Code: {user_code}\n"
+        f"Email: {email}\n\n"
+        f"You can now log in to your dashboard and start tracking your fitness performance.\n\n"
+        f"Thank you,\nAthlete Tracker Team",
+    )
+
+def send_password_reset_confirmation_email(email, name):
+    """Send password reset confirmation email."""
+    if TEST_MODE:
+        print(f"[TEST MODE] Password reset confirmation sent to {email}")
+        return True
+    return send_email(
+        email,
+        "Password Reset Confirmation",
+        f"Hello {name},\n\n"
+        f"Your Athlete Tracker password has been successfully reset.\n\n"
+        f"If you did not perform this action, please contact the administrator immediately.\n\n"
+        f"Thank you,\nAthlete Tracker Team",
+    )
+
 # ── OTP storage ───────────────────────────────────────────────────────────────
 def save_otp(email, purpose, otp, payload=""):
     db = get_db()
     try:
-        db.execute(
-            "UPDATE otp_requests SET used=1 WHERE email=? AND purpose=? AND used=0",
+        cursor = db.cursor()
+        cursor.execute(
+            "UPDATE otp_requests SET used=1 WHERE email=%s AND purpose=%s AND used=0",
             (email, purpose),
         )
-        db.execute(
+        cursor.execute(
             "INSERT INTO otp_requests (email,purpose,otp_hash,payload,expires_at,created_at) "
-            "VALUES (?,?,?,?,?,?)",
+            "VALUES (%s,%s,%s,%s,%s,%s)",
             (
                 email,
                 purpose,
                 generate_password_hash(otp),
                 payload,
-                (now() + timedelta(minutes=OTP_MINUTES)).isoformat(),
-                now().isoformat(),
+                (now() + timedelta(minutes=OTP_MINUTES)).strftime("%Y-%m-%d %H:%M:%S"),
+                now_sql(),
             ),
         )
         db.commit()
     finally:
         db.close()
 
-def can_resend_otp(email, purpose):
-    """Apply a server-side resend cooldown before invalidating the current OTP."""
-    record = get_otp(email, purpose)
-    if not record:
-        return False, None
-    age = (now() - datetime.fromisoformat(record["created_at"])).total_seconds()
-    return age >= OTP_RESEND_SECONDS, record
-
 def get_otp(email, purpose):
     db = get_db()
     try:
-        return db.execute(
-            "SELECT * FROM otp_requests WHERE email=? AND purpose=? AND used=0 "
+        cursor = db.cursor()
+        cursor.execute(
+            "SELECT * FROM otp_requests WHERE email=%s AND purpose=%s AND used=0 "
             "ORDER BY id DESC LIMIT 1",
             (email, purpose),
-        ).fetchone()
+        )
+        return cursor.fetchone()
     finally:
         db.close()
 
 def verify_otp(email, purpose, otp, consume=False):
     record = get_otp(email, purpose)
-    if not record or datetime.fromisoformat(record["expires_at"]) < now():
+    if not record:
+        return None, "OTP expired. Please request a new OTP."
+    expires_at = record["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    # Make expires_at offset-aware if it's naive (MySQL returns naive datetimes)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < now():
         return None, "OTP expired. Please request a new OTP."
     if record["attempts"] >= 5:
         return None, "Too many incorrect attempts. Please request a new OTP."
     if not check_password_hash(record["otp_hash"], otp):
         db = get_db()
         try:
-            db.execute("UPDATE otp_requests SET attempts=attempts+1 WHERE id=?", (record["id"],))
+            cursor = db.cursor()
+            cursor.execute("UPDATE otp_requests SET attempts=attempts+1 WHERE id=%s", (record["id"],))
             db.commit()
         finally:
             db.close()
         return None, "Invalid OTP"
     db = get_db()
     try:
-        db.execute(
-            "UPDATE otp_requests SET verified=1,used=? WHERE id=?",
+        cursor = db.cursor()
+        cursor.execute(
+            "UPDATE otp_requests SET verified=1,used=%s WHERE id=%s",
             (1 if consume else 0, record["id"]),
         )
         db.commit()
@@ -262,7 +318,9 @@ def verify_otp(email, purpose, otp, consume=False):
 # ── User code generator ───────────────────────────────────────────────────────
 def new_code(db, role):
     prefix = {"admin": "ADM", "coach": "COA", "player": "ATH"}[role]
-    existing = {r[0] for r in db.execute("SELECT user_code FROM users WHERE user_code LIKE ?", (prefix + "%",))}
+    cursor = db.cursor()
+    cursor.execute("SELECT user_code FROM users WHERE user_code LIKE %s", (prefix + "%",))
+    existing = {r["user_code"] for r in cursor.fetchall()}
     number = 1
     while f"{prefix}{number:03d}" in existing:
         number += 1
@@ -286,15 +344,6 @@ def login_required(f):
     def decorated(*args, **kwargs):
         if not session.get("user_id"):
             return jsonify(success=False, message="Unauthorized — please log in"), 401
-        db = get_db()
-        try:
-            user = db.execute("SELECT role, email_verified, account_status FROM users WHERE id=?", (session["user_id"],)).fetchone()
-        finally:
-            db.close()
-        if not user or not user["email_verified"] or user["account_status"] != "active":
-            session.clear()
-            return jsonify(success=False, message="Unauthorized — account is unavailable"), 401
-        session["role"] = user["role"]
         return f(*args, **kwargs)
     return decorated
 
@@ -304,16 +353,7 @@ def role_required(*roles):
         def decorated(*args, **kwargs):
             if not session.get("user_id"):
                 return jsonify(success=False, message="Unauthorized"), 401
-            db = get_db()
-            try:
-                user = db.execute("SELECT role, email_verified, account_status FROM users WHERE id=?", (session["user_id"],)).fetchone()
-            finally:
-                db.close()
-            if not user or not user["email_verified"] or user["account_status"] != "active":
-                session.clear()
-                return jsonify(success=False, message="Unauthorized — account is unavailable"), 401
-            session["role"] = user["role"]
-            if user["role"] not in roles:
+            if session.get("role") not in roles:
                 return jsonify(success=False, message="Forbidden — insufficient privileges"), 403
             return f(*args, **kwargs)
         return decorated
@@ -326,23 +366,6 @@ def role_required(*roles):
 def home():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
-# Protect dashboard documents themselves as well as their APIs.  The catch-all
-# static route below remains appropriate for public pages and static assets.
-@app.get("/admin/admin-dashboard.html")
-@role_required("admin")
-def admin_dashboard():
-    return send_from_directory(FRONTEND_DIR, "admin/admin-dashboard.html")
-
-@app.get("/coach/coach-dashboard.html")
-@role_required("coach")
-def coach_dashboard():
-    return send_from_directory(FRONTEND_DIR, "coach/coach-dashboard.html")
-
-@app.get("/student/student-dashboard.html")
-@role_required("player")
-def student_dashboard():
-    return send_from_directory(FRONTEND_DIR, "student/student-dashboard.html")
-
 @app.get("/<path:asset_path>")
 def frontend_asset(asset_path):
     return send_from_directory(FRONTEND_DIR, asset_path)
@@ -350,109 +373,35 @@ def frontend_asset(asset_path):
 # ═══════════════════════════════════════════════════════════════════════════════
 #  AUTH ENDPOINTS
 # ═══════════════════════════════════════════════════════════════════════════════
-def signup(data, forced_role=None, allow_admin=False):
+def signup(data, forced_role=None):
     name = str(data.get("name", "")).strip()
     email = str(data.get("email", "")).strip().lower()
     password = str(data.get("password", ""))
-    confirm_password = str(data.get("confirm_password", ""))
     role = forced_role or canonical_role(data.get("role"))
-    # SECURITY: public registration is limited to student and coach accounts.
-    if role == "admin" and not allow_admin:
+    # SECURITY: Public registration cannot create admins
+    if not forced_role and role == "admin":
         return None, (jsonify(success=False, message="Admin accounts cannot be created through public registration."), 403)
-    if password != confirm_password:
-        return None, (jsonify(success=False, message="Passwords do not match."), 400)
-    permitted_roles = {"player", "coach", "admin"} if allow_admin else {"player", "coach"}
-    if not name or not valid_email(email) or not valid_password(password) or role not in permitted_roles:
-        return None, (jsonify(success=False, message="Enter a valid name, email, and password (min 8 chars)."), 400)
+    if not name:
+        return None, (jsonify(success=False, message="Please enter your name."), 400)
+    if "@" not in email or "." not in email.split("@")[-1]:
+        return None, (jsonify(success=False, message="Please enter a valid email address."), 400)
+    if not valid_password(password):
+        return None, (jsonify(success=False, message="Password must be at least 8 characters long."), 400)
+    if role not in {"player", "coach", "admin"}:
+        return None, (jsonify(success=False, message="Please select a valid role."), 400)
+    # Check if email already exists (Google-style error)
+    if email_exists(email):
+        return None, (jsonify(success=False, message="An account already exists with this email. Try signing in instead."), 400)
+
+    # Check if there's a pending signup OTP for this email
     db = get_db()
     try:
-        # Enforce one email address -> one account role.
-        existing_user = db.execute(
-            "SELECT role FROM users WHERE lower(email)=? LIMIT 1",
-            (email,),
-        ).fetchone()
-
-        if existing_user:
-            role_names = {
-                "player": "Student",
-                "coach": "Coach",
-                "admin": "Admin",
-            }
-            existing_role_name = role_names.get(
-                existing_user["role"],
-                str(existing_user["role"]).capitalize(),
-            )
-            return None, (
-                jsonify(
-                    success=False,
-                    message=(
-                        f"This email is already registered as a "
-                        f"{existing_role_name}. "
-                        "One email can only be used for one account."
-                    ),
-                ),
-                409,
-            )
-
-        # Also block the same email while a signup OTP is still pending.
-        pending_signup = db.execute(
-            """
-            SELECT payload
-            FROM otp_requests
-            WHERE lower(email)=?
-              AND purpose='signup'
-              AND used=0
-            ORDER BY id DESC
-            LIMIT 1
-            """,
-            (email,),
-        ).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT 1 FROM otp_requests WHERE email=%s AND purpose='signup' AND used=0 AND expires_at > NOW()", (email,))
+        if cursor.fetchone():
+            return None, (jsonify(success=False, message="An OTP was already sent to this email. Please check your inbox or wait before requesting a new one."), 429)
     finally:
         db.close()
-
-    if pending_signup:
-        try:
-            pending_payload = json.loads(pending_signup["payload"])
-            pending_role = pending_payload.get("role")
-        except (TypeError, json.JSONDecodeError):
-            pending_role = None
-
-        if pending_role:
-            role_names = {
-                "player": "Student",
-                "coach": "Coach",
-                "admin": "Admin",
-            }
-            pending_role_name = role_names.get(
-                pending_role,
-                str(pending_role).capitalize(),
-            )
-
-            if pending_role != role:
-                return None, (
-                    jsonify(
-                        success=False,
-                        message=(
-                            f"This email already has a pending "
-                            f"{pending_role_name} registration. "
-                            f"The same email cannot be registered as a "
-                            f"{display_role(role)}."
-                        ),
-                    ),
-                    409,
-                )
-
-            return None, (
-                jsonify(
-                    success=False,
-                    message=(
-                        f"A {pending_role_name} registration is already "
-                        "in progress for this email. Please complete "
-                        "the OTP verification."
-                    ),
-                ),
-                409,
-            )
     payload = json.dumps(
         {
             "name": name,
@@ -476,27 +425,14 @@ def register():
     _, error = signup(request.get_json(silent=True) or {})
     return error or (jsonify(success=True, message="OTP sent to your email."), 201)
 
-@app.post("/api/admin-signup")
-def admin_signup():
-    return jsonify(success=False, message="Admin accounts must be provisioned by an existing administrator."), 403
-
-@app.post("/api/admin/users")
-@role_required("admin")
-def provision_admin():
-    """Existing admins may provision another admin through the same email OTP flow."""
-    _, error = signup(request.get_json(silent=True) or {}, forced_role="admin", allow_admin=True)
-    return error or (jsonify(success=True, message="Admin verification OTP sent to the provided email."), 201)
 
 @app.post("/api/account-verification/send")
-@app.post("/api/admin-signup/resend-otp")
 def resend_signup_otp():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
-    allowed, record = can_resend_otp(email, "signup")
+    record = get_otp(email, "signup")
     if not record:
         return jsonify(success=False, message="Signup session expired. Please register again."), 400
-    if not allowed:
-        return jsonify(success=False, message=f"Please wait {OTP_RESEND_SECONDS} seconds before requesting another OTP."), 429
     payload = json.loads(record["payload"])
     otp = generate_otp()
     save_otp(email, "signup", otp, record["payload"])
@@ -505,7 +441,6 @@ def resend_signup_otp():
     return jsonify(success=True, message="New OTP sent to your email.")
 
 @app.post("/api/account-verification/verify")
-@app.post("/api/admin-signup/verify-otp")
 def verify_signup_otp():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
@@ -518,12 +453,14 @@ def verify_signup_otp():
     payload = json.loads(record["payload"])
     db = get_db()
     try:
-        if db.execute("SELECT 1 FROM users WHERE lower(email)=?", (email,)).fetchone():
+        cursor = db.cursor()
+        cursor.execute("SELECT 1 FROM users WHERE lower(email)=%s", (email,))
+        if cursor.fetchone():
             return jsonify(success=False, message="Email already registered."), 400
         code = new_code(db, payload["role"])
-        cursor = db.execute(
-            "INSERT INTO users (user_code,name,email,password_hash,role,sport,contact_number,gender,date_of_birth,email_verified,account_status) "
-            "VALUES (?,?,?,?,?,?,?,?,?,1,'active')",
+        cursor.execute(
+            "INSERT INTO users (user_code,name,email,password_hash,role,sport,contact_number,gender,date_of_birth,email_verified) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,1)",
             (
                 code,
                 payload["name"],
@@ -537,20 +474,20 @@ def verify_signup_otp():
             ),
         )
         db.commit()
-        user = db.execute("SELECT * FROM users WHERE id=?", (cursor.lastrowid,)).fetchone()
-    except sqlite3.Error as error:
+        cursor.execute("SELECT * FROM users WHERE id=%s", (cursor.lastrowid,))
+        user = cursor.fetchone()
+    except pymysql.Error as error:
         db.rollback()
         app.logger.error("Signup database error: %s", error)
         return jsonify(success=False, message="Unable to create account."), 500
     finally:
         db.close()
     establish_session(user)
-    confirmation_sent = send_account_created_email(email, user["name"], user["role"])
+    send_account_created_email(email, user["name"], user["role"])
+    send_signup_confirmation_email(email, user["name"], user["user_code"])
     return jsonify(
         success=True,
-        message=("Account verified successfully. A confirmation email has been sent."
-                 if confirmation_sent else
-                 "Account verified successfully, but the confirmation email could not be sent."),
+        message="Account verified successfully.",
         user_code=user["user_code"],
         user={k: user[k] for k in ("id", "name", "email", "role", "user_code")},
     )
@@ -560,46 +497,24 @@ def login():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
     password = str(data.get("password", ""))
+    role = canonical_role(data.get("role", "player"))
+    # SECURITY: Admin must use /api/admin-login with OTP
+    if role == "admin":
+        return jsonify(success=False, message="Admins must log in through the admin portal."), 403
+    if not email or "@" not in email or "." not in email.split("@")[-1]:
+        return jsonify(success=False, message="Please enter a valid email address."), 400
+    # Google-style: check if email exists at all before password check
+    if not email_exists(email):
+        return jsonify(success=False, message="Couldn't find your account. Please check your email or sign up."), 401
     db = get_db()
     try:
-        user = db.execute("SELECT * FROM users WHERE lower(email)=?", (email,)).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE lower(email)=%s AND role=%s", (email, role))
+        user = cursor.fetchone()
     finally:
         db.close()
     if not user or not check_password_hash(user["password_hash"], password):
         return jsonify(success=False, message="Invalid email or password."), 401
-    if not user["email_verified"]:
-        return jsonify(success=False, message="Email verification is required before login."), 403
-    if user["account_status"] != "active":
-        return jsonify(success=False, message="Account has been deactivated or is unavailable."), 403
-    otp = generate_otp()
-    save_otp(email, "login", otp, str(user["id"]))
-    if not send_otp_email(email, user["name"], "login", otp):
-        return jsonify(success=False, message="Email service unavailable. Please try again later."), 503
-    return jsonify(success=True, message="A verification code has been sent to your email.", role=user["role"], expires_in=OTP_MINUTES * 60)
-
-@app.post("/api/admin-login")
-def admin_login():
-    return login()
-
-@app.post("/api/admin-login/verify-otp")
-def verify_admin_login():
-    return verify_login()
-
-@app.post("/api/login/verify-otp")
-def verify_login():
-    data = request.get_json(silent=True) or {}
-    email = str(data.get("email", "")).strip().lower()
-    otp = str(data.get("otp", "")).strip()
-    record, error = verify_otp(email, "login", otp, True)
-    if error:
-        return jsonify(success=False, message=error), 400
-    db = get_db()
-    try:
-        user = db.execute("SELECT * FROM users WHERE id=?", (record["payload"],)).fetchone()
-    finally:
-        db.close()
-    if not user or not user["email_verified"] or user["account_status"] != "active":
-        return jsonify(success=False, message="Account is unavailable."), 401
     establish_session(user)
     return jsonify(
         success=True,
@@ -607,23 +522,71 @@ def verify_login():
         user={k: user[k] for k in ("id", "name", "email", "role", "user_code")},
     )
 
+@app.post("/api/admin-login")
+def admin_login():
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    password = str(data.get("password", ""))
+    if not email or "@" not in email or "." not in email.split("@")[-1]:
+        return jsonify(success=False, message="Please enter a valid email address."), 400
+    if not email_exists(email):
+        return jsonify(success=False, message="Couldn't find your admin account."), 401
+    db = get_db()
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE lower(email)=%s AND role='admin'", (email,))
+        user = cursor.fetchone()
+    finally:
+        db.close()
+    if not user or not check_password_hash(user["password_hash"], password):
+        return jsonify(success=False, message="Invalid admin email or password."), 401
+    otp = generate_otp()
+    save_otp(email, "admin_login", otp, str(user["id"]))
+    if not send_otp_email(email, user["name"], "admin login", otp):
+        return jsonify(success=False, message="Email service unavailable."), 503
+    return jsonify(success=True, message="OTP sent to your email.")
+
+@app.post("/api/admin-login/verify-otp")
+def verify_admin_login():
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    otp = str(data.get("otp", "")).strip()
+    record, error = verify_otp(email, "admin_login", otp, True)
+    if error:
+        return jsonify(success=False, message=error), 400
+    db = get_db()
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE id=%s AND role='admin'", (record["payload"],))
+        user = cursor.fetchone()
+    finally:
+        db.close()
+    if not user:
+        return jsonify(success=False, message="Admin account not found."), 401
+    establish_session(user)
+    return jsonify(
+        success=True,
+        message="Admin login successful.",
+        admin={k: user[k] for k in ("id", "name", "email", "role", "user_code")},
+    )
+
 @app.post("/api/admin-login/resend-otp")
 def resend_admin_login():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
-    allowed, record = can_resend_otp(email, "login")
+    record = get_otp(email, "admin_login")
     if not record:
         return jsonify(success=False, message="Login OTP expired. Please log in again."), 400
-    if not allowed:
-        return jsonify(success=False, message=f"Please wait {OTP_RESEND_SECONDS} seconds before requesting another OTP."), 429
     db = get_db()
     try:
-        user = db.execute("SELECT * FROM users WHERE id=?", (record["payload"],)).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE id=%s", (record["payload"],))
+        user = cursor.fetchone()
     finally:
         db.close()
     otp = generate_otp()
-    save_otp(email, "login", otp, record["payload"])
-    if not user or not send_otp_email(email, user["name"], "login", otp):
+    save_otp(email, "admin_login", otp, record["payload"])
+    if not user or not send_otp_email(email, user["name"], "admin login", otp):
         return jsonify(success=False, message="Email delivery failed."), 503
     return jsonify(success=True, message="New OTP sent to your email.")
 
@@ -631,31 +594,38 @@ def resend_admin_login():
 def forgot_password():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
+    if not email or "@" not in email or "." not in email.split("@")[-1]:
+        return jsonify(success=False, message="Please enter a valid email address."), 400
+    # Google-style: check if email exists before sending OTP
+    if not email_exists(email):
+        return jsonify(success=False, message="Couldn't find your account. Please check your email or sign up."), 404
     db = get_db()
     try:
-        user = db.execute("SELECT * FROM users WHERE lower(email)=?", (email,)).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE lower(email)=%s", (email,))
+        user = cursor.fetchone()
     finally:
         db.close()
-    if not user or user["account_status"] != "active":
-        return jsonify(success=True, message="If an account exists for this email, a verification code has been sent.")
+    if not user:
+        return jsonify(success=False, message="Couldn't find your account."), 404
     otp = generate_otp()
     save_otp(email, "password_reset", otp, str(user["id"]))
     if not send_otp_email(email, user["name"], "password_reset", otp):
         return jsonify(success=False, message="Email service unavailable."), 503
-    return jsonify(success=True, message="If an account exists for this email, a verification code has been sent.", expires_in=OTP_MINUTES * 60)
+    return jsonify(success=True, message="OTP sent to your email.")
 
 @app.post("/api/forgot-password/resend-otp")
 def resend_reset():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
-    allowed, record = can_resend_otp(email, "password_reset")
+    record = get_otp(email, "password_reset")
     if not record:
         return jsonify(success=False, message="Reset session expired. Please request a new OTP."), 400
-    if not allowed:
-        return jsonify(success=False, message=f"Please wait {OTP_RESEND_SECONDS} seconds before requesting another OTP."), 429
     db = get_db()
     try:
-        user = db.execute("SELECT * FROM users WHERE id=?", (record["payload"],)).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE id=%s", (record["payload"],))
+        user = cursor.fetchone()
     finally:
         db.close()
     otp = generate_otp()
@@ -670,37 +640,34 @@ def verify_reset():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
     otp = str(data.get("otp", "")).strip()
-    record, error = verify_otp(email, "password_reset", otp, True)
-    if error:
-        return jsonify(success=False, message=error), 400
-    session["password_reset_user_id"] = record["payload"]
-    session["password_reset_expires_at"] = (now() + timedelta(minutes=10)).isoformat()
-    return jsonify(success=True, message="OTP verified successfully."), 200
+    _, error = verify_otp(email, "password_reset", otp)
+    return (jsonify(success=False, message=error), 400) if error else (jsonify(success=True, message="OTP verified successfully.", email=email), 200)
 
 @app.post("/api/reset-password")
 def reset_password():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email", "")).strip().lower()
+    otp = str(data.get("otp", "")).strip()
     password = str(data.get("new_password", data.get("password", "")))
     confirm = str(data.get("confirm_password", password))
     if password != confirm or not valid_password(password):
         return jsonify(success=False, message="Passwords must match and be at least 8 characters."), 400
-    reset_user_id = session.get("password_reset_user_id")
-    reset_expiry = session.get("password_reset_expires_at")
-    if not reset_user_id or not reset_expiry or datetime.fromisoformat(reset_expiry) < now():
-        return jsonify(success=False, message="Verify your password reset OTP before choosing a new password."), 403
+    record, error = verify_otp(email, "password_reset", otp, True)
+    if error:
+        return jsonify(success=False, message=error), 400
     db = get_db()
     try:
-        user = db.execute("SELECT * FROM users WHERE id=? AND lower(email)=?", (reset_user_id, email)).fetchone()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE id=%s", (record["payload"],))
+        user = cursor.fetchone()
         if not user:
             return jsonify(success=False, message="User account not found."), 404
-        db.execute("UPDATE users SET password_hash=? WHERE id=?", (generate_password_hash(password), user["id"]))
+        cursor.execute("UPDATE users SET password_hash=%s WHERE id=%s", (generate_password_hash(password), user["id"]))
         db.commit()
     finally:
         db.close()
     send_password_reset_success_email(email, user["name"])
-    session.pop("password_reset_user_id", None)
-    session.pop("password_reset_expires_at", None)
+    send_password_reset_confirmation_email(email, user["name"])
     return jsonify(success=True, message="Password reset successfully.")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -750,45 +717,15 @@ def logout():
 def users():
     db = get_db()
     try:
-        rows = db.execute(
-            "SELECT id,user_code,name,email,role,sport,contact_number,gender,date_of_birth,created_at,email_verified,account_status "
+        cursor = db.cursor()
+        cursor.execute(
+            "SELECT id,user_code,name,email,role,sport,contact_number,gender,date_of_birth,created_at,email_verified "
             "FROM users ORDER BY id DESC"
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
     finally:
         db.close()
     return jsonify(success=True, users=[dict(row) for row in rows])
-
-@app.patch("/api/users/<int:user_id>/status")
-@role_required("admin")
-def update_user_status(user_id):
-    data = request.get_json(silent=True) or {}
-    status = str(data.get("status", "")).lower()
-    if status not in {"active", "deactivated", "deleted"}:
-        return jsonify(success=False, message="Invalid account status."), 400
-    if user_id == session["user_id"] and status != "active":
-        return jsonify(success=False, message="You cannot deactivate your own administrator account."), 400
-    db = get_db()
-    try:
-        if not db.execute("SELECT 1 FROM users WHERE id=?", (user_id,)).fetchone():
-            return jsonify(success=False, message="User not found."), 404
-        db.execute("UPDATE users SET account_status=? WHERE id=?", (status, user_id))
-        db.commit()
-    finally:
-        db.close()
-    return jsonify(success=True, message="Account status updated.")
-
-@app.get("/api/profile")
-@login_required
-def profile():
-    db = get_db()
-    try:
-        user = db.execute(
-            "SELECT id,user_code,name,email,role,sport,contact_number,gender,date_of_birth,created_at FROM users WHERE id=?",
-            (session["user_id"],),
-        ).fetchone()
-    finally:
-        db.close()
-    return jsonify(success=True, user=dict(user))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  DATA ENDPOINTS — Role-based access
@@ -796,7 +733,9 @@ def profile():
 
 def get_athlete_ids_for_coach(coach_id, db):
     """Return list of athlete IDs assigned to this coach."""
-    rows = db.execute("SELECT athlete_id FROM coach_athletes WHERE coach_id=?", (coach_id,)).fetchall()
+    cursor = db.cursor()
+    cursor.execute("SELECT athlete_id FROM coach_athletes WHERE coach_id=%s", (coach_id,))
+    rows = cursor.fetchall()
     return [r["athlete_id"] for r in rows]
 
 def athlete_filter_clause(role, user_id, coach_athlete_ids):
@@ -806,19 +745,21 @@ def athlete_filter_clause(role, user_id, coach_athlete_ids):
     if role == "coach":
         if not coach_athlete_ids:
             return " AND 1=0", ()  # No athletes assigned → empty result
-        placeholders = ",".join("?" for _ in coach_athlete_ids)
+        placeholders = ",".join("%s" for _ in coach_athlete_ids)
         return f" AND athlete_id IN ({placeholders})", tuple(coach_athlete_ids)
     # player
-    return " AND athlete_id=?", (user_id,)
+    return " AND athlete_id=%s", (user_id,)
 
 def _validate_coach_owns_athlete(coach_id, athlete_id):
     """Return error response tuple if coach is not assigned to athlete, else None."""
     db = get_db()
     try:
-        assigned = db.execute(
-            "SELECT 1 FROM coach_athletes WHERE coach_id=? AND athlete_id=?",
+        cursor = db.cursor()
+        cursor.execute(
+            "SELECT 1 FROM coach_athletes WHERE coach_id=%s AND athlete_id=%s",
             (coach_id, athlete_id)
-        ).fetchone()
+        )
+        assigned = cursor.fetchone()
     finally:
         db.close()
     if not assigned:
@@ -832,9 +773,11 @@ def get_assessments():
     try:
         coach_ids = get_athlete_ids_for_coach(session["user_id"], db) if session["role"] == "coach" else []
         where, params = athlete_filter_clause(session["role"], session["user_id"], coach_ids)
-        rows = db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             f"SELECT * FROM physical_assessments WHERE 1=1{where} ORDER BY assessment_date DESC", params
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
         return jsonify(success=True, assessments=[dict(r) for r in rows])
     finally:
         db.close()
@@ -846,9 +789,11 @@ def get_training_sessions():
     try:
         coach_ids = get_athlete_ids_for_coach(session["user_id"], db) if session["role"] == "coach" else []
         where, params = athlete_filter_clause(session["role"], session["user_id"], coach_ids)
-        rows = db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             f"SELECT * FROM training_sessions WHERE 1=1{where} ORDER BY session_date DESC", params
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
         return jsonify(success=True, sessions=[dict(r) for r in rows])
     finally:
         db.close()
@@ -860,9 +805,11 @@ def get_goals():
     try:
         coach_ids = get_athlete_ids_for_coach(session["user_id"], db) if session["role"] == "coach" else []
         where, params = athlete_filter_clause(session["role"], session["user_id"], coach_ids)
-        rows = db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             f"SELECT * FROM goals WHERE 1=1{where} ORDER BY target_date DESC", params
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
         return jsonify(success=True, goals=[dict(r) for r in rows])
     finally:
         db.close()
@@ -874,9 +821,11 @@ def get_feedback():
     try:
         coach_ids = get_athlete_ids_for_coach(session["user_id"], db) if session["role"] == "coach" else []
         where, params = athlete_filter_clause(session["role"], session["user_id"], coach_ids)
-        rows = db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             f"SELECT * FROM coach_feedback WHERE 1=1{where} ORDER BY feedback_date DESC", params
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
         return jsonify(success=True, feedback=[dict(r) for r in rows])
     finally:
         db.close()
@@ -886,13 +835,15 @@ def get_feedback():
 def get_coach_athletes():
     db = get_db()
     try:
-        rows = db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "SELECT u.id, u.user_code, u.name, u.email, u.role, u.sport, u.contact_number, u.gender, u.date_of_birth, u.created_at "
             "FROM users u "
             "JOIN coach_athletes ca ON u.id = ca.athlete_id "
-            "WHERE ca.coach_id=?",
+            "WHERE ca.coach_id=%s",
             (session["user_id"],),
-        ).fetchall()
+        )
+        rows = cursor.fetchall()
         return jsonify(success=True, athletes=[dict(r) for r in rows])
     finally:
         db.close()
@@ -914,13 +865,14 @@ def create_assessment():
 
     db = get_db()
     try:
-        db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "INSERT INTO physical_assessments (athlete_id,coach_id,assessment_date,height_cm,weight_kg,bmi,assessment_remarks) "
-            "VALUES (?,?,?,?,?,?,?)",
+            "VALUES (%s,%s,%s,%s,%s,%s,%s)",
             (
                 athlete_id,
                 session["user_id"],
-                data.get("assessment_date", now().isoformat()),
+                data.get("assessment_date", today_sql()),
                 data.get("height_cm"),
                 data.get("weight_kg"),
                 data.get("bmi"),
@@ -929,7 +881,7 @@ def create_assessment():
         )
         db.commit()
         return jsonify(success=True, message="Assessment recorded."), 201
-    except sqlite3.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         app.logger.error("Assessment insert error: %s", e)
         return jsonify(success=False, message="Database error."), 500
@@ -950,13 +902,14 @@ def create_training_session():
 
     db = get_db()
     try:
-        db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "INSERT INTO training_sessions (athlete_id,coach_id,session_date,sport_type,duration_minutes,intensity_level) "
-            "VALUES (?,?,?,?,?,?)",
+            "VALUES (%s,%s,%s,%s,%s,%s)",
             (
                 athlete_id,
                 session["user_id"],
-                data.get("session_date", now().isoformat()),
+                data.get("session_date", today_sql()),
                 data.get("sport_type"),
                 data.get("duration_minutes"),
                 data.get("intensity_level"),
@@ -964,7 +917,7 @@ def create_training_session():
         )
         db.commit()
         return jsonify(success=True, message="Training session recorded."), 201
-    except sqlite3.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         return jsonify(success=False, message="Database error."), 500
     finally:
@@ -987,9 +940,10 @@ def create_goal():
 
     db = get_db()
     try:
-        db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "INSERT INTO goals (athlete_id,coach_id,goal_title,goal_type,target_value,target_date) "
-            "VALUES (?,?,?,?,?,?)",
+            "VALUES (%s,%s,%s,%s,%s,%s)",
             (
                 athlete_id,
                 session["user_id"],
@@ -1001,7 +955,7 @@ def create_goal():
         )
         db.commit()
         return jsonify(success=True, message="Goal created."), 201
-    except sqlite3.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         return jsonify(success=False, message="Database error."), 500
     finally:
@@ -1021,22 +975,200 @@ def create_feedback():
 
     db = get_db()
     try:
-        db.execute(
+        cursor = db.cursor()
+        cursor.execute(
             "INSERT INTO coach_feedback (athlete_id,coach_id,feedback_date,performance_summary,overall_rating) "
-            "VALUES (?,?,?,?,?)",
+            "VALUES (%s,%s,%s,%s,%s)",
             (
                 athlete_id,
                 session["user_id"],
-                data.get("feedback_date", now().isoformat()),
+                data.get("feedback_date", today_sql()),
                 data.get("performance_summary"),
                 data.get("overall_rating"),
             ),
         )
         db.commit()
         return jsonify(success=True, message="Feedback submitted."), 201
-    except sqlite3.Error as e:
+    except pymysql.Error as e:
         db.rollback()
         return jsonify(success=False, message="Database error."), 500
+    finally:
+        db.close()
+        # ============================================================
+# ADMIN - COACH / ATHLETE ASSIGNMENTS
+# ============================================================
+
+@app.route("/api/coach-athletes", methods=["GET"])
+@role_required("admin")
+def get_admin_coach_athlete_assignments():
+    db = get_db()
+
+    try:
+        cursor = db.cursor()
+
+        cursor.execute("""
+            SELECT
+                ca.coach_id,
+                ca.athlete_id,
+                ca.assigned_date,
+                c.name AS coach_name,
+                c.user_code AS coach_code,
+                a.name AS athlete_name,
+                a.user_code AS athlete_code
+            FROM coach_athletes ca
+            JOIN users c ON c.id = ca.coach_id
+            JOIN users a ON a.id = ca.athlete_id
+            ORDER BY ca.assigned_date DESC
+        """)
+
+        assignments = cursor.fetchall()
+
+        return jsonify(
+            success=True,
+            assignments=assignments
+        )
+
+    finally:
+        db.close()
+
+
+@app.route("/api/coach-athletes", methods=["POST"])
+@role_required("admin")
+def assign_coach_athlete():
+    data = request.get_json() or {}
+
+    coach_id = data.get("coach_id")
+    athlete_id = data.get("athlete_id")
+
+    if not coach_id or not athlete_id:
+        return jsonify(
+            success=False,
+            message="coach_id and athlete_id are required."
+        ), 400
+
+    db = get_db()
+
+    try:
+        cursor = db.cursor()
+
+        # Check coach exists and has coach role
+        cursor.execute("""
+            SELECT id, name
+            FROM users
+            WHERE id=%s AND role='coach'
+        """, (coach_id,))
+
+        coach = cursor.fetchone()
+
+        if not coach:
+            return jsonify(
+                success=False,
+                message="Invalid coach."
+            ), 404
+
+        # Check athlete exists and has player role
+        cursor.execute("""
+            SELECT id, name
+            FROM users
+            WHERE id=%s AND role='player'
+        """, (athlete_id,))
+
+        athlete = cursor.fetchone()
+
+        if not athlete:
+            return jsonify(
+                success=False,
+                message="Invalid athlete."
+            ), 404
+
+        # Check whether assignment already exists
+        cursor.execute("""
+            SELECT 1
+            FROM coach_athletes
+            WHERE coach_id=%s AND athlete_id=%s
+        """, (coach_id, athlete_id))
+
+        existing = cursor.fetchone()
+
+        if existing:
+            return jsonify(
+                success=False,
+                message="Coach is already assigned to this athlete."
+            ), 409
+
+        # Create assignment
+        cursor.execute("""
+            INSERT INTO coach_athletes
+            (coach_id, athlete_id)
+            VALUES (%s, %s)
+        """, (coach_id, athlete_id))
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Coach assigned to athlete successfully."
+        ), 201
+
+    except Exception:
+        db.rollback()
+        raise
+
+    finally:
+        db.close()
+
+
+@app.route("/api/coach-athletes", methods=["DELETE"])
+@role_required("admin")
+def remove_coach_athlete():
+    data = request.get_json() or {}
+
+    coach_id = data.get("coach_id")
+    athlete_id = data.get("athlete_id")
+
+    if not coach_id or not athlete_id:
+        return jsonify(
+            success=False,
+            message="coach_id and athlete_id are required."
+        ), 400
+
+    db = get_db()
+
+    try:
+        cursor = db.cursor()
+
+        # Check assignment exists
+        cursor.execute("""
+            SELECT 1
+            FROM coach_athletes
+            WHERE coach_id=%s AND athlete_id=%s
+        """, (coach_id, athlete_id))
+
+        assignment = cursor.fetchone()
+
+        if not assignment:
+            return jsonify(
+                success=False,
+                message="Assignment does not exist."
+            ), 404
+
+        # Remove assignment
+        cursor.execute("""
+            DELETE FROM coach_athletes
+            WHERE coach_id=%s AND athlete_id=%s
+        """, (coach_id, athlete_id))
+
+        db.commit()
+
+        return jsonify(
+            success=True,
+            message="Coach assignment removed successfully."
+        )
+
+    except Exception:
+        db.rollback()
+        raise
+
     finally:
         db.close()
 

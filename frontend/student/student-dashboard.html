@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Fitness Performance Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #111827; color: #fff;
+            padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .navbar .brand { font-size: 18px; font-weight: bold; }
+        .navbar .brand span { color: #22c55e; }
+        .navbar .user { font-size: 13px; color: #9ca3af; }
+        .navbar button {
+            background: #374151; color: #fff; border: none;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;
+        }
+        .navbar button:hover { background: #4b5563; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        .welcome { margin-bottom: 24px; }
+        .welcome h2 { font-size: 24px; color: #111; }
+        .welcome p { color: #666; font-size: 14px; margin-top: 4px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #fff; border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h3 {
+            font-size: 16px; color: #111; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card h3 .emoji { font-size: 20px; }
+        .card .empty {
+            color: #9ca3af; font-size: 13px; text-align: center; padding: 20px 0;
+        }
+        .card .item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px; color: #374151;
+        }
+        .card .item:last-child { border-bottom: none; }
+        .card .item strong { color: #111; display: block; margin-bottom: 2px; }
+        .card .item small { color: #9ca3af; }
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px;
+            font-size: 11px; font-weight: bold;
+        }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .loading { color: #9ca3af; font-size: 13px; text-align: center; padding: 20px; }
+        @media (max-width: 600px) {
+            .navbar { flex-direction: column; gap: 10px; text-align: center; }
+            .container { padding: 16px; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="navbar">
+        <div class="brand">🏃 FITNESS <span>TRACKER</span></div>
+        <div class="user" id="userInfo">Loading...</div>
+        <button id="logoutBtn">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="welcome">
+            <h2 id="welcomeName">Hello!</h2>
+            <p>Here is your fitness performance overview.</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3><span class="emoji">📊</span> Physical Assessments</h3>
+                <div id="assessmentsList"><div class="loading">Loading...</div></div>
+            </div>
+            <div class="card">
+                <h3><span class="emoji">🏋️</span> Training Sessions</h3>
+                <div id="sessionsList"><div class="loading">Loading...</div></div>
+            </div>
+            <div class="card">
+                <h3><span class="emoji">🎯</span> Goals</h3>
+                <div id="goalsList"><div class="loading">Loading...</div></div>
+            </div>
+            <div class="card">
+                <h3><span class="emoji">💬</span> Coach Feedback</h3>
+                <div id="feedbackList"><div class="loading">Loading...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api-client.js"></script>
+    <script src="../js/auth-guard.js"></script>
+
+    <script>
+        // XSS-safe text escape helper
+        function escapeHtml(text) {
+            if (text == null) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        (async function () {
+            // Load user info
+            const sessionRes = await API.getSession();
+            if (sessionRes.ok && sessionRes.data.authenticated) {
+                const user = sessionRes.data.user;
+                document.getElementById("welcomeName").textContent = "Hello, " + escapeHtml(user.name) + "!";
+                document.getElementById("userInfo").textContent = escapeHtml(user.name) + " | " + escapeHtml(user.user_code);
+            }
+
+            // Logout
+            document.getElementById("logoutBtn").addEventListener("click", async function () {
+                await API.logout();
+                window.location.href = "student-login.html";
+            });
+
+            // Load all data in parallel
+            const [assRes, sessRes, goalRes, feedRes] = await Promise.all([
+                API.getAssessments(),
+                API.getTrainingSessions(),
+                API.getGoals(),
+                API.getFeedback()
+            ]);
+
+            // Render Assessments (safe DOM creation)
+            const aList = document.getElementById("assessmentsList");
+            aList.innerHTML = "";
+            if (assRes.ok && assRes.data.assessments && assRes.data.assessments.length > 0) {
+                assRes.data.assessments.forEach(a => {
+                    const div = document.createElement("div");
+                    div.className = "item";
+                    div.innerHTML = `<strong>${escapeHtml(a.assessment_date)}</strong>` +
+                        `Height: ${escapeHtml(a.height_cm) || "—"}cm | Weight: ${escapeHtml(a.weight_kg) || "—"}kg | BMI: ${escapeHtml(a.bmi) || "—"}` +
+                        `<br><small>${escapeHtml(a.assessment_remarks)}</small>`;
+                    aList.appendChild(div);
+                });
+            } else {
+                aList.innerHTML = '<div class="empty">No assessments yet.</div>';
+            }
+
+            // Render Sessions
+            const sList = document.getElementById("sessionsList");
+            sList.innerHTML = "";
+            if (sessRes.ok && sessRes.data.sessions && sessRes.data.sessions.length > 0) {
+                sessRes.data.sessions.forEach(s => {
+                    const div = document.createElement("div");
+                    div.className = "item";
+                    div.innerHTML = `<strong>${escapeHtml(s.session_date)} — ${escapeHtml(s.sport_type) || "Session"}</strong>` +
+                        `Duration: ${escapeHtml(s.duration_minutes) || "—"}min | Intensity: ${escapeHtml(s.intensity_level) || "—"}` +
+                        `<br><small>${escapeHtml(s.session_observation)}</small>`;
+                    sList.appendChild(div);
+                });
+            } else {
+                sList.innerHTML = '<div class="empty">No training sessions yet.</div>';
+            }
+
+            // Render Goals
+            const gList = document.getElementById("goalsList");
+            gList.innerHTML = "";
+            if (goalRes.ok && goalRes.data.goals && goalRes.data.goals.length > 0) {
+                goalRes.data.goals.forEach(g => {
+                    let badge = "badge-yellow";
+                    if (g.goal_status === "Achieved") badge = "badge-green";
+                    if (g.goal_status === "In Progress") badge = "badge-blue";
+                    const div = document.createElement("div");
+                    div.className = "item";
+                    div.innerHTML = `<strong>${escapeHtml(g.goal_title)}</strong> ` +
+                        `<span class="badge ${badge}">${escapeHtml(g.goal_status)}</span>` +
+                        `<br>Progress: ${escapeHtml(g.progress_pct) || 0}% | Target: ${escapeHtml(g.target_value) || "—"}`;
+                    gList.appendChild(div);
+                });
+            } else {
+                gList.innerHTML = '<div class="empty">No goals set yet.</div>';
+            }
+
+            // Render Feedback
+            const fList = document.getElementById("feedbackList");
+            fList.innerHTML = "";
+            if (feedRes.ok && feedRes.data.feedback && feedRes.data.feedback.length > 0) {
+                feedRes.data.feedback.forEach(f => {
+                    const div = document.createElement("div");
+                    div.className = "item";
+                    div.innerHTML = `<strong>${escapeHtml(f.feedback_date)} — ${escapeHtml(f.session_reference) || "Feedback"}</strong>` +
+                        `Rating: ${escapeHtml(f.overall_rating) || "—"}/10` +
+                        `<br><small>${escapeHtml(f.performance_summary)}</small>`;
+                    fList.appendChild(div);
+                });
+            } else {
+                fList.innerHTML = '<div class="empty">No feedback yet.</div>';
+            }
+        })();
+    </script>
+</body>
+</html>
