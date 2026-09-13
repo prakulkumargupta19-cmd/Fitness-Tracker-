@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify Admin OTP | Fitness Performance Tracker</title>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Page-specific CSS -->
+    <link
+        rel="stylesheet"
+        href="../css/admin-signup-verify.css"
+    >
+
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="icon">
+        🔐
+    </div>
+
+    <h1>
+        Verify <span>Admin Account</span>
+    </h1>
+
+    <p class="subtitle">
+        Enter the 6-digit OTP sent to your email address.
+    </p>
+
+    <div class="email-box">
+
+        OTP sent to:
+
+        <strong id="emailDisplay">
+            Loading...
+        </strong>
+
+    </div>
+
+
+    <!-- OTP INPUTS -->
+
+    <div class="otp-container">
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            autofocus
+        >
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+        >
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+        >
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+        >
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+        >
+
+        <input
+            class="otp"
+            maxlength="1"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+        >
+
+    </div>
+
+
+    <!-- VERIFY BUTTON -->
+
+    <button
+        type="button"
+        id="verifyBtn"
+    >
+        Verify OTP
+    </button>
+
+
+    <!-- TIMER -->
+
+    <div class="timer">
+
+        OTP expires in:
+
+        <strong id="timer">
+            10:00
+        </strong>
+
+    </div>
+
+
+    <!-- RESEND -->
+
+    <div class="resend">
+
+        Didn't receive the code?
+
+        <button
+            type="button"
+            id="resendBtn"
+            disabled
+        >
+            Resend OTP
+        </button>
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    <div id="message"></div>
+
+
+    <!-- CHANGE EMAIL -->
+
+    <a
+        href="admin-signup.html"
+        class="change-email"
+    >
+        ← Change Email
+    </a>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   BACKEND
+========================================================= */
+
+const API_URL =
+    window.location.origin;
+
+
+/* =========================================================
+   GET ADMIN SIGNUP EMAIL
+========================================================= */
+
+const email =
+    sessionStorage.getItem(
+        "adminSignupEmail"
+    );
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const emailDisplay =
+    document.getElementById(
+        "emailDisplay"
+    );
+
+const verifyBtn =
+    document.getElementById(
+        "verifyBtn"
+    );
+
+const resendBtn =
+    document.getElementById(
+        "resendBtn"
+    );
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+const timerElement =
+    document.getElementById(
+        "timer"
+    );
+
+const otpInputs =
+    document.querySelectorAll(
+        ".otp"
+    );
+
+
+/* =========================================================
+   CHECK EMAIL
+========================================================= */
+
+if (!email) {
+
+    emailDisplay.textContent =
+        "No email found";
+
+    verifyBtn.disabled =
+        true;
+
+    resendBtn.disabled =
+        true;
+
+    showMessage(
+        "Signup email was not found. Please return to the signup page.",
+        "error"
+    );
+
+}
+
+
+/* =========================================================
+   MASK EMAIL
+========================================================= */
+
+function maskEmail(email) {
+
+    const parts =
+        email.split("@");
+
+
+    if (parts.length !== 2) {
+
+        return email;
+
+    }
+
+
+    const username =
+        parts[0];
+
+    const domain =
+        parts[1];
+
+
+    if (username.length <= 2) {
+
+        return (
+            "*".repeat(
+                username.length
+            ) +
+            "@" +
+            domain
+        );
+
+    }
+
+
+    return (
+        username.charAt(0) +
+
+        "*".repeat(
+            Math.max(
+                username.length - 2,
+                1
+            )
+        ) +
+
+        username.charAt(
+            username.length - 1
+        ) +
+
+        "@" +
+
+        domain
+    );
+
+}
+
+
+/* =========================================================
+   DISPLAY EMAIL
+========================================================= */
+
+if (email) {
+
+    emailDisplay.textContent =
+        maskEmail(email);
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(
+    text,
+    type
+) {
+
+    message.textContent =
+        text;
+
+    message.className =
+        type;
+
+}
+
+
+/* =========================================================
+   OTP INPUT HANDLING
+========================================================= */
+
+otpInputs.forEach(
+    function(input, index) {
+
+        /* ---------------------------------------------
+           INPUT
+        --------------------------------------------- */
+
+        input.addEventListener(
+            "input",
+            function() {
+
+                this.value =
+                    this.value
+                        .replace(/\D/g, "")
+                        .slice(0, 1);
+
+
+                if (
+                    this.value &&
+                    index <
+                    otpInputs.length - 1
+                ) {
+
+                    otpInputs[
+                        index + 1
+                    ].focus();
+
+                }
+
+            }
+        );
+
+
+        /* ---------------------------------------------
+           BACKSPACE
+        --------------------------------------------- */
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Backspace" &&
+                    !this.value &&
+                    index > 0
+                ) {
+
+                    otpInputs[
+                        index - 1
+                    ].focus();
+
+                }
+
+            }
+        );
+
+
+        /* ---------------------------------------------
+           PASTE OTP
+        --------------------------------------------- */
+
+        input.addEventListener(
+            "paste",
+            function(event) {
+
+                event.preventDefault();
+
+
+                const pasted =
+                    event.clipboardData
+                        .getData("text")
+                        .replace(/\D/g, "")
+                        .slice(0, 6);
+
+
+                pasted
+                    .split("")
+                    .forEach(
+                        function(
+                            digit,
+                            i
+                        ) {
+
+                            if (
+                                otpInputs[i]
+                            ) {
+
+                                otpInputs[i]
+                                    .value =
+                                    digit;
+
+                            }
+
+                        }
+                    );
+
+
+                if (
+                    pasted.length === 6
+                ) {
+
+                    otpInputs[5]
+                        .focus();
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   GET OTP
+========================================================= */
+
+function getOTP() {
+
+    return Array.from(
+        otpInputs
+    )
+    .map(
+        function(input) {
+
+            return input.value;
+
+        }
+    )
+    .join("");
+
+}
+
+
+/* =========================================================
+   VERIFY ADMIN OTP
+========================================================= */
+
+verifyBtn.addEventListener(
+    "click",
+    async function() {
+
+        const otp =
+            getOTP();
+
+
+        /* ---------------------------------------------
+           VALIDATE OTP
+        --------------------------------------------- */
+
+        if (
+            otp.length !== 6
+        ) {
+
+            showMessage(
+                "Please enter the complete 6-digit OTP.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!email) {
+
+            showMessage(
+                "Signup email was not found. Please start the signup process again.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* ---------------------------------------------
+           DISABLE BUTTON
+        --------------------------------------------- */
+
+        verifyBtn.disabled =
+            true;
+
+        verifyBtn.textContent =
+            "Verifying...";
+
+
+        try {
+
+            /* -----------------------------------------
+               BACKEND REQUEST
+            ----------------------------------------- */
+
+            const response =
+                await fetch(
+                    API_URL +
+                    "/api/admin-signup/verify-otp",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        credentials:
+                            "include",
+
+                        body:
+                            JSON.stringify({
+
+                                email:
+                                    email,
+
+                                otp:
+                                    otp
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "ADMIN OTP RESULT:",
+                response.status,
+                result
+            );
+
+
+            /* -----------------------------------------
+               SUCCESS
+            ----------------------------------------- */
+
+            if (
+                response.ok &&
+                result.success === true
+            ) {
+
+                showMessage(
+                    "OTP verified successfully. Opening Admin Dashboard...",
+                    "success"
+                );
+
+
+                /* -------------------------------------
+                   CLEAR TEMPORARY SIGNUP DATA
+                ------------------------------------- */
+
+                sessionStorage.removeItem(
+                    "adminSignupEmail"
+                );
+
+                sessionStorage.removeItem(
+                    "adminSignupName"
+                );
+
+
+                /* -------------------------------------
+                   REDIRECT
+                ------------------------------------- */
+
+                setTimeout(
+                    function() {
+
+                        window.location.replace(
+                            "admin-dashboard.html"
+                        );
+
+                    },
+                    700
+                );
+
+
+                return;
+
+            }
+
+
+            /* -----------------------------------------
+               OTP FAILED
+            ----------------------------------------- */
+
+            throw new Error(
+                result.message ||
+                "OTP verification failed."
+            );
+
+        }
+
+
+        catch(error) {
+
+            console.error(
+                "ADMIN OTP ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to verify OTP.",
+                "error"
+            );
+
+
+            verifyBtn.disabled =
+                false;
+
+            verifyBtn.textContent =
+                "Verify OTP";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+let secondsLeft =
+    600;
+
+
+function updateTimer() {
+
+    const minutes =
+        Math.floor(
+            secondsLeft / 60
+        );
+
+
+    const seconds =
+        secondsLeft % 60;
+
+
+    timerElement.textContent =
+        String(minutes).padStart(
+            2,
+            "0"
+        ) +
+        ":" +
+        String(seconds).padStart(
+            2,
+            "0"
+        );
+
+
+    if (
+        secondsLeft <= 0
+    ) {
+
+        clearInterval(
+            countdown
+        );
+
+
+        timerElement.textContent =
+            "Expired";
+
+
+        resendBtn.disabled =
+            false;
+
+
+        return;
+
+    }
+
+
+    secondsLeft--;
+
+}
+
+
+const countdown =
+    setInterval(
+        updateTimer,
+        1000
+    );
+
+
+updateTimer();
+
+
+/* =========================================================
+   RESEND ADMIN OTP
+========================================================= */
+
+resendBtn.addEventListener(
+    "click",
+    async function() {
+
+        if (!email) {
+
+            showMessage(
+                "Signup email was not found. Please start again.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        resendBtn.disabled =
+            true;
+
+        resendBtn.textContent =
+            "Sending...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API_URL +
+                    "/api/admin-signup/resend-otp",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        credentials:
+                            "include",
+
+                        body:
+                            JSON.stringify({
+
+                                email:
+                                    email
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "ADMIN RESEND OTP RESULT:",
+                response.status,
+                result
+            );
+
+
+            if (
+                !response.ok ||
+                result.success !== true
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to resend OTP."
+                );
+
+            }
+
+
+            /* -----------------------------------------
+               RESET TIMER
+            ----------------------------------------- */
+
+            secondsLeft =
+                600;
+
+
+            timerElement.textContent =
+                "10:00";
+
+
+            showMessage(
+                "A new OTP has been sent to your email.",
+                "success"
+            );
+
+        }
+
+
+        catch(error) {
+
+            console.error(
+                "ADMIN RESEND OTP ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to resend OTP.",
+                "error"
+            );
+
+        }
+
+
+        resendBtn.disabled =
+            false;
+
+        resendBtn.textContent =
+            "Resend OTP";
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Login | Fitness Performance Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/admin-login.css"
+    >
+
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- =====================================================
+         LEFT BRAND SECTION
+    ====================================================== -->
+
+    <section class="brand-section">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ⚡
+            </div>
+
+            <div class="logo-text">
+                FITNESS
+                <span>PERFORMANCE</span>
+                TRACKER
+            </div>
+
+        </div>
+
+
+        <h1>
+            Manage.
+            Monitor.
+            <span>Perform.</span>
+        </h1>
+
+
+        <p>
+            Manage athletes, coaches, accounts,
+            permissions, and system performance
+            from the administrator portal.
+        </p>
+
+
+        <div class="brand-line"></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RIGHT LOGIN SECTION
+    ====================================================== -->
+
+    <section class="login-section">
+
+        <div class="login-card">
+
+            <div class="admin-icon">
+                ⚡
+            </div>
+
+
+            <h2>
+                <span>Admin</span> Login
+            </h2>
+
+
+            <p class="subtitle">
+                Sign in to manage the Fitness Performance
+                Tracker platform and system accounts.
+            </p>
+
+
+            <!-- ERROR MESSAGE -->
+
+            <div
+                class="error-message"
+                id="errorMessage"
+            >
+                Please enter your email and password.
+            </div>
+
+
+            <!-- LOGIN FORM -->
+
+            <form id="adminLoginForm">
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Admin Email
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Enter your admin email"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <span class="input-icon">
+                            ✉
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <span
+                            class="input-icon"
+                            id="togglePassword"
+                            aria-label="Show password"
+                            role="button"
+                            tabindex="0"
+                        >
+
+                            <svg
+                                id="eyeIcon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+
+                                <path
+                                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                                ></path>
+
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="3"
+                                ></circle>
+
+                            </svg>
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="form-options">
+
+                    <label class="remember">
+
+                        <input
+                            type="checkbox"
+                            id="remember"
+                        >
+
+                        Remember Me
+
+                    </label>
+
+
+                    <a
+                        href="forgot-password.html"
+                        class="forgot"
+                    >
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+                <!-- LOGIN BUTTON -->
+
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="loginButton"
+                >
+                    Login as Admin →
+                </button>
+
+            </form>
+
+
+            <!-- =================================================
+                 NO CREATE ACCOUNT SECTION
+            ================================================== -->
+
+
+            <!-- BACK LINK -->
+
+            <a
+                href="../index.html"
+                class="back-link"
+            >
+                ← Back to role selection
+            </a>
+
+
+            <!-- SECURITY -->
+
+            <div class="security-note">
+
+                <span class="security-icon">
+                    🔒
+                </span>
+
+                <span>
+                    Administrator access is securely protected.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       PASSWORD VISIBILITY
+    ====================================================== */
+
+    const password =
+        document.getElementById("password");
+
+    const togglePassword =
+        document.getElementById("togglePassword");
+
+
+    function togglePasswordVisibility() {
+
+        if (password.type === "password") {
+
+            password.type = "text";
+
+            togglePassword.setAttribute(
+                "aria-label",
+                "Hide password"
+            );
+
+            togglePassword.innerHTML = `
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                    ></path>
+
+                    <path
+                        d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                    ></path>
+
+                    <path
+                        d="M14.12 14.12a3 3 0 1 1-4.24-4.24"
+                    ></path>
+
+                    <line
+                        x1="1"
+                        y1="1"
+                        x2="23"
+                        y2="23"
+                    ></line>
+
+                </svg>
+            `;
+
+        } else {
+
+            password.type = "password";
+
+            togglePassword.setAttribute(
+                "aria-label",
+                "Show password"
+            );
+
+            togglePassword.innerHTML = `
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+
+                    <path
+                        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    ></path>
+
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                    ></circle>
+
+                </svg>
+            `;
+
+        }
+
+    }
+
+
+    togglePassword.addEventListener(
+        "click",
+        togglePasswordVisibility
+    );
+
+
+    togglePassword.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                togglePasswordVisibility();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       BACKEND
+    ====================================================== */
+
+    const API_URL = "";
+
+
+    /* =====================================================
+       ADMIN LOGIN
+    ====================================================== */
+
+    const form =
+        document.getElementById("adminLoginForm");
+
+    form.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+
+            const passwordValue =
+                document
+                    .getElementById("password")
+                    .value;
+
+
+            const errorMessage =
+                document.getElementById(
+                    "errorMessage"
+                );
+
+
+            const loginButton =
+                document.getElementById(
+                    "loginButton"
+                );
+
+
+            /* ---------------------------------------------
+               VALIDATION
+            --------------------------------------------- */
+
+            if (!email || !passwordValue) {
+
+                errorMessage.textContent =
+                    "Please enter your email and password.";
+
+                errorMessage.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            errorMessage.style.display =
+                "none";
+
+
+            loginButton.disabled =
+                true;
+
+            loginButton.textContent =
+                "Signing in...";
+
+
+            /* ---------------------------------------------
+               SEND LOGIN REQUEST
+            --------------------------------------------- */
+
+            try {
+
+                const response =
+                    await fetch(
+                        API_URL + "/api/admin-login",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "include",
+
+                            body:
+                                JSON.stringify({
+                                    email:
+                                        email,
+
+                                    password:
+                                        passwordValue
+                                })
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                console.log(
+                    "ADMIN LOGIN RESPONSE:",
+                    response.status,
+                    result
+                );
+
+
+                /* -----------------------------------------
+                   LOGIN FAILED
+                ----------------------------------------- */
+
+                if (
+                    !response.ok ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to log in."
+                    );
+
+                }
+
+
+                /* -----------------------------------------
+                   STORE EMAIL FOR OTP PAGE
+                ----------------------------------------- */
+
+                sessionStorage.setItem(
+                    "adminLoginEmail",
+                    email
+                );
+
+
+                /* -----------------------------------------
+                   OTP SENT
+                ----------------------------------------- */
+
+                loginButton.textContent =
+                    "OTP sent...";
+
+
+                /*
+                 * The password is NOT stored.
+                 *
+                 * Only the admin email is temporarily
+                 * stored so the OTP page knows which
+                 * login attempt it is verifying.
+                 */
+
+
+                setTimeout(
+                    function() {
+
+                        window.location.href =
+                            "admin-loginotp.html";
+
+                    },
+                    300
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               ERROR HANDLING
+            --------------------------------------------- */
+
+            catch(error) {
+
+                console.error(
+                    "ADMIN LOGIN ERROR:",
+                    error
+                );
+
+
+                errorMessage.textContent =
+                    error.message ||
+                    "Unable to connect to the server.";
+
+
+                errorMessage.style.display =
+                    "block";
+
+
+                loginButton.disabled =
+                    false;
+
+                loginButton.textContent =
+                    "Login as Admin →";
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

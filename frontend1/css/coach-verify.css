@@ -1,0 +1,462 @@
+/* =========================================================
+   COACH OTP VERIFICATION
+   verify.css
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(98, 187, 232, 0.18),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #f0f9ff 0%,
+            #f8fafc 50%,
+            #eef6fb 100%
+        );
+
+    color: #1e293b;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100vh;
+    padding: 25px;
+}
+
+
+/* =========================================================
+   OTP CARD
+========================================================= */
+
+.otp-card {
+    width: 100%;
+    max-width: 460px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+
+    padding: 42px 38px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.10),
+        0 5px 15px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.otp-icon {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background: #e0f2fe;
+
+    font-size: 32px;
+
+    box-shadow:
+        0 8px 20px rgba(98, 187, 232, 0.18);
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+h1 {
+    color: #0f172a;
+
+    font-size: 30px;
+    font-weight: 800;
+
+    margin-bottom: 12px;
+
+    letter-spacing: -0.5px;
+}
+
+h1 span {
+    color: #62bbe8;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.description {
+    color: #64748b;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    max-width: 360px;
+
+    margin: 0 auto 22px;
+}
+
+
+/* =========================================================
+   EMAIL DISPLAY
+========================================================= */
+
+.email-display {
+    background: #f0f9ff;
+
+    border: 1px solid #bae6fd;
+
+    color: #64748b;
+
+    padding: 13px 15px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+    margin-bottom: 25px;
+}
+
+.email-display strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #0369a1;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   OTP CONTAINER
+========================================================= */
+
+.otp-container {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 9px;
+
+    margin: 25px 0;
+}
+
+
+/* =========================================================
+   OTP INPUT
+========================================================= */
+
+.otp-input {
+    width: 52px;
+    height: 58px;
+
+    border: 2px solid #dbe4ea;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    text-align: center;
+
+    font-family: "Inter", sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.otp-input:hover {
+    border-color: #a8d8ef;
+}
+
+.otp-input:focus {
+    border-color: #62bbe8;
+
+    box-shadow:
+        0 0 0 4px rgba(98, 187, 232, 0.16);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   VERIFY BUTTON
+========================================================= */
+
+.verify-button {
+    width: 100%;
+
+    padding: 14px 18px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #62bbe8;
+    color: #ffffff;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        transform 0.2s ease,
+        box-shadow 0.25s ease;
+}
+
+.verify-button:hover {
+    background: #46a1ce;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 18px rgba(70, 161, 206, 0.25);
+}
+
+.verify-button:active {
+    transform: translateY(0);
+}
+
+.verify-button:disabled {
+    background: #9ca3af;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+.timer {
+    margin-top: 18px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.timer span {
+    color: #46a1ce;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   RESEND OTP
+========================================================= */
+
+.resend {
+    margin-top: 15px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.resend button {
+    border: none;
+
+    background: none;
+
+    color: #46a1ce;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-left: 3px;
+}
+
+.resend button:hover:not(:disabled) {
+    color: #2689b8;
+
+    text-decoration: underline;
+}
+
+.resend button:disabled {
+    color: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.message {
+    display: none;
+
+    margin-top: 18px;
+
+    padding: 11px 13px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.message.success {
+    display: block;
+
+    background: #ecfdf5;
+
+    color: #047857;
+
+    border: 1px solid #a7f3d0;
+}
+
+.message.error {
+    display: block;
+
+    background: #fff1f2;
+
+    color: #be123c;
+
+    border: 1px solid #fecdd3;
+}
+
+
+/* =========================================================
+   CHANGE EMAIL
+========================================================= */
+
+.change-email {
+    display: inline-block;
+
+    margin-top: 22px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.change-email:hover {
+    color: #62bbe8;
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+========================================================= */
+
+.security-note {
+    border-top: 1px solid #e2e8f0;
+
+    margin-top: 25px;
+
+    padding-top: 18px;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 500px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .otp-card {
+        padding: 32px 20px;
+
+        border-radius: 16px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .otp-container {
+        gap: 6px;
+    }
+
+    .otp-input {
+        width: 43px;
+        height: 52px;
+
+        font-size: 20px;
+    }
+}
+
+
+@media (max-width: 360px) {
+
+    .otp-card {
+        padding: 28px 15px;
+    }
+
+    .otp-container {
+        gap: 4px;
+    }
+
+    .otp-input {
+        width: 39px;
+        height: 48px;
+    }
+}

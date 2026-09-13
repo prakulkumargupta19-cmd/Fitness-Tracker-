@@ -1,0 +1,4292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Student Performance Dashboard
+</title>
+
+
+<!-- =========================================================
+     CSS
+========================================================= -->
+
+<link
+    rel="stylesheet"
+    href="../css/student-dashboard.css"
+>
+
+
+<!-- =========================================================
+     CHART.JS
+========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js"
+></script>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside
+    class="sidebar"
+    id="sidebar"
+>
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            🎓
+        </div>
+
+        <div
+            class="logo-text"
+            id="studentBrandName"
+        >
+            Student
+        </div>
+
+    </div>
+
+
+    <div class="navigation">
+
+        <div class="nav-title">
+            Student Menu
+        </div>
+
+
+        <button
+            class="nav-item active"
+            data-section="dashboard"
+        >
+            <span class="nav-icon">
+                📊
+            </span>
+
+            Dashboard
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-section="analytics"
+        >
+            <span class="nav-icon">
+                📈
+            </span>
+
+            Performance Analytics
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-section="improvement"
+        >
+            <span class="nav-icon">
+                🎯
+            </span>
+
+            Scope of Improvement
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-section="goals"
+        >
+            <span class="nav-icon">
+                📅
+            </span>
+
+            Goal Progress
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-section="attendance"
+        >
+            <span class="nav-icon">
+                ✓
+            </span>
+
+            Attendance
+        </button>
+
+
+        <button
+            class="nav-item"
+            data-section="feedback"
+        >
+            <span class="nav-icon">
+                💬
+            </span>
+
+            Coach Feedback
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="settingsNav"
+        >
+            <span class="nav-icon">
+                ⚙️
+            </span>
+
+            Settings
+        </button>
+
+    </div>
+
+
+    <div class="sidebar-profile">
+
+        <div
+            class="profile-avatar"
+            id="sidebarAvatar"
+        >
+            S
+        </div>
+
+
+        <div class="profile-info">
+
+            <div
+                class="profile-name"
+                id="sidebarStudentName"
+            >
+                Student
+            </div>
+
+
+            <div class="profile-role">
+                Athlete
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main class="main-content">
+
+
+<header class="topbar">
+
+    <div class="topbar-left">
+
+        <button
+            class="mobile-menu"
+            id="mobileMenu"
+        >
+            ☰
+        </button>
+
+
+        <div>
+
+            <div
+                class="top-student-name"
+                id="topStudentName"
+            >
+                Student
+            </div>
+
+
+            <div class="top-student-subtitle">
+                Performance and development overview
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="top-actions">
+
+        <button
+            class="top-button"
+            id="themeButton"
+            title="Toggle theme"
+        >
+            🌙
+        </button>
+
+
+        <button
+            class="top-button"
+            id="topSettings"
+            title="Settings"
+        >
+            ⚙️
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<div class="content">
+
+
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
+
+<section id="dashboard">
+
+    <div class="welcome-card">
+
+        <div class="welcome-text">
+
+            <div class="welcome-label">
+                Welcome back
+            </div>
+
+
+            <div
+                class="welcome-title"
+                id="welcomeName"
+            >
+                Student
+            </div>
+
+
+            <div class="welcome-description">
+
+                Keep working toward your goals.
+                Review your latest performance insights,
+                focus areas and coach feedback to continue
+                improving.
+
+            </div>
+
+        </div>
+
+
+        <div class="welcome-stat">
+
+            <div
+                class="overall-score"
+                id="overallScore"
+            >
+                --
+            </div>
+
+
+            <div class="overall-score-label">
+                Overall Performance
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     ANALYTICS
+========================================================= -->
+
+<section id="analytics">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Performance Analytics
+            </div>
+
+            <div class="section-description">
+                Interactive metrics and visual performance tracking
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="charts-grid">
+
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Skill & Fitness Benchmark Comparison
+                </div>
+
+                <div class="chart-score-label">
+                    Score / 100
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+                <canvas
+                    id="categoryBarChart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Attribute Balance
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+                <canvas
+                    id="attributeRadarChart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="chart-card"
+        style="margin-top:16px;"
+    >
+
+        <div class="chart-header">
+
+            <div>
+
+                <div class="chart-title">
+                    Weekly Performance Progression
+                </div>
+
+                <div
+                    class="section-description"
+                    style="margin-top:2px;"
+                >
+                    Track improvements over the last 8 weeks
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="chart-container"
+            style="height:260px;"
+        >
+
+            <canvas
+                id="progressionLineChart"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     IMPROVEMENT
+========================================================= -->
+
+<section id="improvement">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Scope of Improvement
+            </div>
+
+            <div class="section-description">
+                Areas that deserve your attention next
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="improvement-grid">
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                ⚠️
+            </div>
+
+            <div class="card-label">
+                Weakest Performance Area
+            </div>
+
+            <div
+                class="card-title"
+                id="weakestArea"
+            >
+                Endurance
+            </div>
+
+            <div
+                class="card-description"
+                id="weakestAreaDesc"
+            >
+                Your endurance score is currently
+                below your other performance areas.
+            </div>
+
+            <span class="priority-badge high">
+                High Priority
+            </span>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🎯
+            </div>
+
+            <div class="card-label">
+                Skill Improvement Priority
+            </div>
+
+            <div
+                class="card-title"
+                id="skillPriority"
+            >
+                Ball Control
+            </div>
+
+            <div
+                class="card-description"
+                id="skillPriorityDesc"
+            >
+                Additional technical training can
+                improve consistency and control.
+            </div>
+
+            <span class="priority-badge medium">
+                Medium Priority
+            </span>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                💪
+            </div>
+
+            <div class="card-label">
+                Physical Area
+            </div>
+
+            <div
+                class="card-title"
+                id="physicalArea"
+            >
+                Lower Body Strength
+            </div>
+
+            <div
+                class="card-description"
+                id="physicalAreaDesc"
+            >
+                Building lower-body strength can
+                support speed and movement quality.
+            </div>
+
+            <span class="priority-badge medium">
+                Focus Area
+            </span>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🚀
+            </div>
+
+            <div class="card-label">
+                Recommended Next Focus
+            </div>
+
+            <div
+                class="card-title"
+                id="nextFocus"
+            >
+                Endurance Training
+            </div>
+
+            <div
+                class="card-description"
+                id="nextFocusDesc"
+            >
+                Prioritize conditioning sessions
+                during your next training cycle.
+            </div>
+
+            <span class="priority-badge low">
+                Recommended
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     GOALS
+========================================================= -->
+
+<section id="goals">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Goal Progress
+            </div>
+
+            <div class="section-description">
+                Your weekly training and goal schedule
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="week-calendar">
+
+        <div class="calendar-header">
+
+            <div class="calendar-title">
+                Weekly Goal Calendar
+            </div>
+
+            <div class="calendar-week">
+                Current Training Week
+            </div>
+
+        </div>
+
+
+        <div
+            class="week-days"
+            id="goalCalendarDays"
+        >
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Monday
+                </div>
+
+                <div class="day-number">
+                    01
+                </div>
+
+                <div class="goal-task completed">
+
+                    <div class="task-title">
+                        100m Sprint
+                    </div>
+
+                    <div class="task-status">
+                        ✓ Completed
+                    </div>
+
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Lower Body Strength
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 45 min
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Tuesday
+                </div>
+
+                <div class="day-number">
+                    02
+                </div>
+
+                <div class="goal-task completed">
+
+                    <div class="task-title">
+                        Ball Control
+                    </div>
+
+                    <div class="task-status">
+                        ✓ Completed
+                    </div>
+
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Recovery
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 20 min
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day today">
+
+                <div class="day-name">
+                    Wednesday
+                </div>
+
+                <div class="day-number">
+                    03
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Endurance
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 40 min
+                    </div>
+
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Stamina
+                    </div>
+
+                    <div class="task-status">
+                        Target: 80%
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Thursday
+                </div>
+
+                <div class="day-number">
+                    04
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Vertical Jump
+                    </div>
+
+                    <div class="task-status">
+                        Target: 60cm
+                    </div>
+
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Sprint Training
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 6 sets
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Friday
+                </div>
+
+                <div class="day-number">
+                    05
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Ball Control
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 45 min
+                    </div>
+
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Strength
+                    </div>
+
+                    <div class="task-status">
+                        Goal: 40 min
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Saturday
+                </div>
+
+                <div class="day-number">
+                    06
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Match Training
+                    </div>
+
+                    <div class="task-status">
+                        Goal: Full Session
+                    </div>
+
+                </div>
+
+                <div class="goal-task completed">
+
+                    <div class="task-title">
+                        Recovery
+                    </div>
+
+                    <div class="task-status">
+                        ✓ Completed
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="week-day">
+
+                <div class="day-name">
+                    Sunday
+                </div>
+
+                <div class="day-number">
+                    07
+                </div>
+
+                <div class="goal-task">
+
+                    <div class="task-title">
+                        Recovery Day
+                    </div>
+
+                    <div class="task-status">
+                        Goal: Full Recovery
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="calendar-legend">
+
+            <div class="legend-item">
+
+                <span class="legend-box completed"></span>
+
+                Completed
+
+            </div>
+
+            <div class="legend-item">
+
+                <span class="legend-box"></span>
+
+                Upcoming
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     ATTENDANCE
+========================================================= -->
+
+<section id="attendance">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Student Attendance
+            </div>
+
+            <div class="section-description">
+                Track your training and session attendance
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="attendance-grid">
+
+
+        <div class="attendance-card">
+
+            <div class="attendance-heading">
+                Overall Attendance
+            </div>
+
+            <div
+                class="attendance-percentage"
+                id="attendancePercentage"
+            >
+                92%
+            </div>
+
+            <div
+                class="attendance-label"
+                id="attendanceLabel"
+            >
+                Excellent attendance rate
+            </div>
+
+            <div class="attendance-progress">
+
+                <div
+                    class="attendance-progress-fill"
+                    id="attendanceProgressFill"
+                ></div>
+
+            </div>
+
+
+            <div class="attendance-stats">
+
+                <div class="attendance-stat">
+
+                    <div
+                        class="attendance-stat-number"
+                        id="attendancePresent"
+                    >
+                        23
+                    </div>
+
+                    <div class="attendance-stat-label">
+                        Present
+                    </div>
+
+                </div>
+
+
+                <div class="attendance-stat">
+
+                    <div
+                        class="attendance-stat-number"
+                        id="attendanceAbsent"
+                    >
+                        2
+                    </div>
+
+                    <div class="attendance-stat-label">
+                        Absent
+                    </div>
+
+                </div>
+
+
+                <div class="attendance-stat">
+
+                    <div
+                        class="attendance-stat-number"
+                        id="attendanceTotal"
+                    >
+                        25
+                    </div>
+
+                    <div class="attendance-stat-label">
+                        Total
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="attendance-card">
+
+            <div class="attendance-heading">
+                This Week
+            </div>
+
+            <div
+                class="attendance-week"
+                id="attendanceWeekContainer"
+            >
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Mon</div>
+                    <div class="attendance-mark attendance-present">✓</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Tue</div>
+                    <div class="attendance-mark attendance-present">✓</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Wed</div>
+                    <div class="attendance-mark attendance-present">✓</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Thu</div>
+                    <div class="attendance-mark attendance-present">✓</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Fri</div>
+                    <div class="attendance-mark attendance-absent">—</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Sat</div>
+                    <div class="attendance-mark attendance-present">✓</div>
+                </div>
+
+                <div class="attendance-day">
+                    <div class="attendance-day-name">Sun</div>
+                    <div class="attendance-mark attendance-absent">—</div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="attendance-card">
+
+            <div class="attendance-heading">
+                Attendance Status
+            </div>
+
+            <div
+                id="attendanceStatusText"
+                style="
+                    font-size:28px;
+                    font-weight:800;
+                    color:#2563eb;
+                    margin-bottom:8px;
+                "
+            >
+                Excellent
+            </div>
+
+            <div
+                id="attendanceStatusDesc"
+                style="
+                    color:#64748b;
+                    font-size:12px;
+                    line-height:1.6;
+                "
+            >
+                Your attendance is above the
+                recommended 90% target. Keep
+                maintaining your regular training
+                schedule.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     FEEDBACK
+========================================================= -->
+
+<section id="feedback">
+
+    <div class="section-header">
+
+        <div>
+
+            <div class="section-title">
+                Coach Feedback
+            </div>
+
+            <div class="section-description">
+                Feedback from your coaching team
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="feedback-grid">
+
+
+        <div class="feedback-card">
+
+            <div class="feedback-heading">
+                Overall Feedback
+            </div>
+
+            <div
+                class="feedback-text"
+                id="coachFeedbackText"
+            >
+                You have shown good consistency during
+                recent training sessions. Your technical
+                execution is improving, but additional
+                conditioning work will help you maintain
+                performance throughout longer sessions.
+            </div>
+
+
+            <div class="rating">
+
+                <div
+                    class="rating-number"
+                    id="coachRatingNumber"
+                >
+                    4.2
+                </div>
+
+                <div>
+
+                    <div
+                        class="stars"
+                        id="coachRatingStars"
+                    >
+                        ★★★★★
+                    </div>
+
+                    <div
+                        class="muted"
+                        style="
+                            font-size:10px;
+                            margin-top:3px;
+                            color:#64748b;
+                        "
+                    >
+                        Coach rating
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="feedback-card">
+
+            <div class="feedback-heading">
+                Your Strengths
+            </div>
+
+            <ul
+                class="feedback-list"
+                id="coachStrengthsList"
+            >
+                <li>
+                    Good technical consistency
+                </li>
+
+                <li>
+                    Strong training attendance
+                </li>
+
+                <li>
+                    Positive response to coaching
+                </li>
+
+                <li>
+                    Good movement quality
+                </li>
+
+            </ul>
+
+        </div>
+
+
+
+        <div class="feedback-card">
+
+            <div class="feedback-heading">
+                Areas to Improve
+            </div>
+
+            <ul
+                class="feedback-list weakness-list"
+                id="coachImprovementsList"
+            >
+                <li>
+                    Improve endurance
+                </li>
+
+                <li>
+                    Develop lower-body strength
+                </li>
+
+                <li>
+                    Improve late-session consistency
+                </li>
+
+                <li>
+                    Increase recovery quality
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+
+<!-- =========================================================
+     SETTINGS
+========================================================= -->
+
+<div
+    class="settings-overlay"
+    id="settingsOverlay"
+>
+
+    <div class="settings-panel">
+
+
+        <div class="settings-header">
+
+            <div class="settings-title">
+                Settings
+            </div>
+
+            <button
+                class="close-settings"
+                id="closeSettings"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="settings-section-title">
+            Account
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Student Profile
+                </div>
+
+                <div class="setting-description">
+                    View your account information
+                </div>
+
+            </div>
+
+            <button
+                class="modal-button save-button"
+                id="profileButton"
+            >
+                View
+            </button>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Change Password
+                </div>
+
+                <div class="setting-description">
+                    Update your account password
+                </div>
+
+            </div>
+
+            <button
+                class="modal-button save-button"
+                id="passwordButton"
+            >
+                Change
+            </button>
+
+        </div>
+
+
+        <div class="settings-section-title">
+            Appearance
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Dark Mode
+                </div>
+
+                <div class="setting-description">
+                    Switch between light and dark theme
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="darkModeToggle"
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="settings-section-title">
+            Notifications
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Training Reminders
+                </div>
+
+                <div class="setting-description">
+                    Receive reminders for upcoming training
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="trainingNotifications"
+                    checked
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Goal Updates
+                </div>
+
+                <div class="setting-description">
+                    Get notified when goal progress changes
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="goalNotifications"
+                    checked
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Coach Feedback
+                </div>
+
+                <div class="setting-description">
+                    Notify when your coach leaves feedback
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="feedbackNotifications"
+                    checked
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="settings-section-title">
+            Dashboard
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Default Section
+                </div>
+
+                <div class="setting-description">
+                    Section opened when dashboard loads
+                </div>
+
+            </div>
+
+
+            <select
+                class="setting-select"
+                id="defaultSection"
+            >
+
+                <option value="dashboard">
+                    Dashboard
+                </option>
+
+                <option value="analytics">
+                    Analytics
+                </option>
+
+                <option value="improvement">
+                    Improvement
+                </option>
+
+                <option value="goals">
+                    Goals
+                </option>
+
+                <option value="attendance">
+                    Attendance
+                </option>
+
+                <option value="feedback">
+                    Feedback
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Compact View
+                </div>
+
+                <div class="setting-description">
+                    Reduce spacing between dashboard cards
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="compactView"
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="settings-section-title">
+            Account Actions
+        </div>
+
+
+        <div class="setting-row">
+
+            <div>
+
+                <div class="setting-name">
+                    Log Out
+                </div>
+
+                <div class="setting-description">
+                    Sign out of your student account
+                </div>
+
+            </div>
+
+
+            <button
+                class="modal-button"
+                id="logoutButton"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PROFILE MODAL
+========================================================= -->
+
+<div
+    class="modal-overlay"
+    id="profileModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-title">
+            Student Profile
+        </div>
+
+        <div class="modal-description">
+            Your student account information.
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Name
+            </label>
+
+            <input
+                class="input"
+                id="profileName"
+                readonly
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Email
+            </label>
+
+            <input
+                class="input"
+                id="profileEmail"
+                readonly
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Account Type
+            </label>
+
+            <input
+                class="input"
+                value="Student / Athlete"
+                readonly
+            >
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="modal-button cancel-button"
+                onclick="closeModal('profileModal')"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PASSWORD MODAL
+========================================================= -->
+
+<div
+    class="modal-overlay"
+    id="passwordModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-title">
+            Change Password
+        </div>
+
+        <div class="modal-description">
+            Enter your new password below.
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Current Password
+            </label>
+
+            <input
+                type="password"
+                class="input"
+                id="currentPassword"
+                placeholder="Current password"
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                New Password
+            </label>
+
+            <input
+                type="password"
+                class="input"
+                id="newPassword"
+                placeholder="New password"
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Confirm Password
+            </label>
+
+            <input
+                type="password"
+                class="input"
+                id="confirmPassword"
+                placeholder="Confirm new password"
+            >
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="modal-button cancel-button"
+                onclick="closeModal('passwordModal')"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                class="modal-button save-button"
+                id="savePassword"
+            >
+                Save Password
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   API
+========================================================= */
+
+const API_BASE_URL = "/api";
+
+
+/* =========================================================
+   STUDENT DISPLAY DATA
+========================================================= */
+
+function getStoredStudentName() {
+
+    const values = [
+
+        localStorage.getItem("studentName"),
+
+        localStorage.getItem("studentFullName"),
+
+        localStorage.getItem("name"),
+
+        sessionStorage.getItem("studentName"),
+
+        sessionStorage.getItem("studentFullName")
+
+    ];
+
+
+    for (const value of values) {
+
+        if (
+            value &&
+            value.trim() !== ""
+        ) {
+
+            return value.trim();
+
+        }
+
+    }
+
+
+    return "Student";
+
+}
+
+
+function getStoredStudentEmail() {
+
+    const values = [
+
+        localStorage.getItem("studentEmail"),
+
+        localStorage.getItem("email"),
+
+        sessionStorage.getItem("studentEmail"),
+
+        sessionStorage.getItem("signupEmail")
+
+    ];
+
+
+    for (const value of values) {
+
+        if (
+            value &&
+            value.trim() !== ""
+        ) {
+
+            return value.trim();
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+let studentName =
+    getStoredStudentName();
+
+
+let studentEmail =
+    getStoredStudentEmail();
+
+
+/* =========================================================
+   UPDATE HEADER
+========================================================= */
+
+function updateProfileHeaderUI() {
+
+    document.getElementById(
+        "studentBrandName"
+    ).textContent =
+        studentName;
+
+
+    document.getElementById(
+        "topStudentName"
+    ).textContent =
+        studentName;
+
+
+    document.getElementById(
+        "welcomeName"
+    ).textContent =
+        studentName;
+
+
+    document.getElementById(
+        "sidebarStudentName"
+    ).textContent =
+        studentName;
+
+
+    document.getElementById(
+        "sidebarAvatar"
+    ).textContent =
+        studentName
+            .charAt(0)
+            .toUpperCase();
+
+
+    document.getElementById(
+        "profileName"
+    ).value =
+        studentName;
+
+
+    document.getElementById(
+        "profileEmail"
+    ).value =
+        studentEmail;
+
+}
+
+
+/* =========================================================
+   SESSION CHECK
+========================================================= */
+
+async function checkStudentSession() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/session`,
+                {
+                    method: "GET",
+
+                    credentials:
+                        "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        /*
+         * Any unsuccessful session request
+         * means the user cannot access the
+         * student dashboard.
+         */
+
+        if (!response.ok) {
+
+            console.error(
+                "Session request failed:",
+                response.status
+            );
+
+            window.location.replace(
+                "student-login.html"
+            );
+
+            return false;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Student session response:",
+            data
+        );
+
+
+        /*
+         * IMPORTANT:
+         *
+         * Flask returns the authenticated
+         * user inside:
+         *
+         * data.user
+         *
+         * Example:
+         *
+         * {
+         *     authenticated: true,
+         *     user: {
+         *         id: 12,
+         *         name: "Student Name",
+         *         email: "student@example.com",
+         *         role: "player"
+         *     }
+         * }
+         */
+
+        if (!data.authenticated) {
+
+            console.warn(
+                "No authenticated session."
+            );
+
+            window.location.replace(
+                "student-login.html"
+            );
+
+            return false;
+
+        }
+
+
+        /*
+         * Get the authenticated user.
+         */
+
+        const user =
+            data.user;
+
+
+        if (!user) {
+
+            console.error(
+                "Authenticated session contains no user data."
+            );
+
+            window.location.replace(
+                "student-login.html"
+            );
+
+            return false;
+
+        }
+
+
+        /*
+         * The backend stores student accounts
+         * using the role "player".
+         *
+         * We also accept "student" for
+         * compatibility with older records.
+         */
+
+        const role =
+            String(
+                user.role ||
+                data.role ||
+                ""
+            ).toLowerCase();
+
+
+        console.log(
+            "Authenticated student role:",
+            role
+        );
+
+
+        /*
+         * Only player/student accounts
+         * can access this dashboard.
+         */
+
+        if (
+            role !== "player" &&
+            role !== "student"
+        ) {
+
+            console.warn(
+                "Wrong role for student dashboard:",
+                role
+            );
+
+            window.location.replace(
+                "student-login.html"
+            );
+
+            return false;
+
+        }
+
+
+        /*
+         * Use authenticated server data
+         * instead of relying only on
+         * localStorage/sessionStorage.
+         */
+
+        if (user.name) {
+
+            studentName =
+                user.name;
+
+            localStorage.setItem(
+                "studentName",
+                studentName
+            );
+
+        }
+
+
+        if (user.email) {
+
+            studentEmail =
+                user.email;
+
+            localStorage.setItem(
+                "studentEmail",
+                studentEmail
+            );
+
+        }
+
+
+        /*
+         * Update all dashboard identity
+         * elements.
+         */
+
+        updateProfileHeaderUI();
+
+
+        console.log(
+            "Student session verified successfully."
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Session check error:",
+            error
+        );
+
+
+        showToast(
+            "Unable to verify your login session."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+let categoryBarChartInstance =
+    null;
+
+let attributeRadarChartInstance =
+    null;
+
+let progressionLineChartInstance =
+    null;
+
+
+function initCharts() {
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+
+    const textColor =
+        isDark
+            ? "#94a3b8"
+            : "#64748b";
+
+
+    const gridColor =
+        isDark
+            ? "#263449"
+            : "#f1f5f9";
+
+
+    Chart.defaults.color =
+        textColor;
+
+
+    Chart.defaults.font.family =
+        "Arial, Helvetica, sans-serif";
+
+
+    /* =====================================================
+       BAR CHART
+    ===================================================== */
+
+    const ctxBar =
+        document.getElementById(
+            "categoryBarChart"
+        );
+
+
+    if (ctxBar) {
+
+        categoryBarChartInstance =
+            new Chart(
+                ctxBar,
+                {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels: [
+                            "Speed",
+                            "Endurance",
+                            "Ball Control",
+                            "Lower Strength",
+                            "Agility",
+                            "Tactical"
+                        ],
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Current Score",
+
+                                data: [
+                                    84,
+                                    62,
+                                    70,
+                                    68,
+                                    88,
+                                    76
+                                ],
+
+                                backgroundColor:
+                                    "#2563eb",
+
+                                borderRadius:
+                                    6,
+
+                                barPercentage:
+                                    0.6
+
+                            },
+
+
+                            {
+
+                                label:
+                                    "Target Score",
+
+                                data: [
+                                    90,
+                                    80,
+                                    85,
+                                    80,
+                                    90,
+                                    85
+                                ],
+
+                                backgroundColor:
+                                    "#93c5fd",
+
+                                borderRadius:
+                                    6,
+
+                                barPercentage:
+                                    0.6
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            legend: {
+
+                                position:
+                                    "top",
+
+                                align:
+                                    "end"
+
+                            },
+
+                            tooltip: {
+
+                                backgroundColor:
+                                    isDark
+                                        ? "#111827"
+                                        : "#0f172a",
+
+                                padding:
+                                    10,
+
+                                cornerRadius:
+                                    8
+
+                            }
+
+                        },
+
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+                                    display:
+                                        false
+                                }
+
+                            },
+
+                            y: {
+
+                                beginAtZero:
+                                    true,
+
+                                max:
+                                    100,
+
+                                grid: {
+
+                                    color:
+                                        gridColor
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+
+
+    /* =====================================================
+       RADAR
+    ===================================================== */
+
+    const ctxRadar =
+        document.getElementById(
+            "attributeRadarChart"
+        );
+
+
+    if (ctxRadar) {
+
+        attributeRadarChartInstance =
+            new Chart(
+                ctxRadar,
+                {
+
+                    type:
+                        "radar",
+
+                    data: {
+
+                        labels: [
+                            "Speed",
+                            "Endurance",
+                            "Control",
+                            "Strength",
+                            "Agility",
+                            "Tactical"
+                        ],
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Performance Level",
+
+                                data: [
+                                    84,
+                                    62,
+                                    70,
+                                    68,
+                                    88,
+                                    76
+                                ],
+
+                                backgroundColor:
+                                    "rgba(37,99,235,0.2)",
+
+                                borderColor:
+                                    "#2563eb",
+
+                                borderWidth:
+                                    2,
+
+                                pointBackgroundColor:
+                                    "#2563eb",
+
+                                pointRadius:
+                                    4
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            legend: {
+                                display:
+                                    false
+                            }
+
+                        },
+
+                        scales: {
+
+                            r: {
+
+                                angleLines: {
+                                    color:
+                                        gridColor
+                                },
+
+                                grid: {
+                                    color:
+                                        gridColor
+                                },
+
+                                suggestedMin:
+                                    40,
+
+                                suggestedMax:
+                                    100,
+
+                                ticks: {
+                                    display:
+                                        false
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+
+
+    /* =====================================================
+       LINE
+    ===================================================== */
+
+    const ctxLine =
+        document.getElementById(
+            "progressionLineChart"
+        );
+
+
+    if (ctxLine) {
+
+        progressionLineChartInstance =
+            new Chart(
+                ctxLine,
+                {
+
+                    type:
+                        "line",
+
+                    data: {
+
+                        labels: [
+                            "W1",
+                            "W2",
+                            "W3",
+                            "W4",
+                            "W5",
+                            "W6",
+                            "W7",
+                            "W8"
+                        ],
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Overall Index",
+
+                                data: [
+                                    68,
+                                    70,
+                                    71,
+                                    74,
+                                    73,
+                                    76,
+                                    77,
+                                    78
+                                ],
+
+                                borderColor:
+                                    "#2563eb",
+
+                                backgroundColor:
+                                    "rgba(37,99,235,0.08)",
+
+                                fill:
+                                    true,
+
+                                tension:
+                                    0.35,
+
+                                borderWidth:
+                                    3,
+
+                                pointRadius:
+                                    4,
+
+                                pointHoverRadius:
+                                    6,
+
+                                pointBackgroundColor:
+                                    "#2563eb"
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            legend: {
+                                display:
+                                    false
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+                                    display:
+                                        false
+                                }
+
+                            },
+
+                            y: {
+
+                                min:
+                                    50,
+
+                                max:
+                                    95,
+
+                                grid: {
+
+                                    color:
+                                        gridColor
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+function updateChartsTheme() {
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+
+    const textColor =
+        isDark
+            ? "#94a3b8"
+            : "#64748b";
+
+
+    const gridColor =
+        isDark
+            ? "#263449"
+            : "#f1f5f9";
+
+
+    [
+        categoryBarChartInstance,
+        attributeRadarChartInstance,
+        progressionLineChartInstance
+    ].forEach(
+        chart => {
+
+            if (!chart)
+                return;
+
+
+            if (chart.options.scales?.x) {
+
+                chart.options.scales.x.ticks.color =
+                    textColor;
+
+            }
+
+
+            if (chart.options.scales?.y) {
+
+                chart.options.scales.y.ticks.color =
+                    textColor;
+
+                chart.options.scales.y.grid.color =
+                    gridColor;
+
+            }
+
+
+            if (chart.options.scales?.r) {
+
+                chart.options.scales.r.angleLines.color =
+                    gridColor;
+
+                chart.options.scales.r.grid.color =
+                    gridColor;
+
+                chart.options.scales.r.pointLabels.color =
+                    textColor;
+
+            }
+
+
+            chart.update();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DASHBOARD API
+========================================================= */
+
+async function fetchStudentDashboardData() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/student/dashboard`,
+                {
+                    method: "GET",
+
+                    credentials:
+                        "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            window.location.replace(
+                "student-login.html"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * If this endpoint does not exist yet,
+         * don't destroy the dashboard.
+         */
+
+        if (response.status === 404) {
+
+            console.warn(
+                "/api/student/dashboard is not implemented yet."
+            );
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Dashboard API error: ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        populateDashboardUI(
+            data
+        );
+
+
+    } catch (error) {
+
+        console.warn(
+            "Dashboard API unavailable:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   POPULATE DASHBOARD
+========================================================= */
+
+function populateDashboardUI(data) {
+
+    if (!data)
+        return;
+
+
+    /* =====================================================
+       IDENTITY
+    ===================================================== */
+
+    if (data.name) {
+
+        studentName =
+            data.name;
+
+        localStorage.setItem(
+            "studentName",
+            data.name
+        );
+
+    }
+
+
+    if (data.email) {
+
+        studentEmail =
+            data.email;
+
+        localStorage.setItem(
+            "studentEmail",
+            data.email
+        );
+
+    }
+
+
+    updateProfileHeaderUI();
+
+
+    /* =====================================================
+       SCORE
+    ===================================================== */
+
+    if (
+        data.overallScore !==
+        undefined
+    ) {
+
+        document.getElementById(
+            "overallScore"
+        ).textContent =
+            data.overallScore;
+
+    }
+
+
+    /* =====================================================
+       BENCHMARKS
+    ===================================================== */
+
+    if (
+        data.benchmarks &&
+        categoryBarChartInstance
+    ) {
+
+        if (
+            data.benchmarks.labels
+        ) {
+
+            categoryBarChartInstance.data.labels =
+                data.benchmarks.labels;
+
+        }
+
+
+        if (
+            data.benchmarks.current
+        ) {
+
+            categoryBarChartInstance
+                .data
+                .datasets[0]
+                .data =
+                    data.benchmarks.current;
+
+        }
+
+
+        if (
+            data.benchmarks.target
+        ) {
+
+            categoryBarChartInstance
+                .data
+                .datasets[1]
+                .data =
+                    data.benchmarks.target;
+
+        }
+
+
+        categoryBarChartInstance.update();
+
+    }
+
+
+    /* =====================================================
+       ATTRIBUTES
+    ===================================================== */
+
+    if (
+        data.attributes &&
+        attributeRadarChartInstance
+    ) {
+
+        if (
+            data.attributes.labels
+        ) {
+
+            attributeRadarChartInstance
+                .data
+                .labels =
+                    data.attributes.labels;
+
+        }
+
+
+        if (
+            data.attributes.scores
+        ) {
+
+            attributeRadarChartInstance
+                .data
+                .datasets[0]
+                .data =
+                    data.attributes.scores;
+
+        }
+
+
+        attributeRadarChartInstance.update();
+
+    }
+
+
+    /* =====================================================
+       PROGRESSION
+    ===================================================== */
+
+    if (
+        data.progression &&
+        progressionLineChartInstance
+    ) {
+
+        if (
+            data.progression.weeks
+        ) {
+
+            progressionLineChartInstance
+                .data
+                .labels =
+                    data.progression.weeks;
+
+        }
+
+
+        if (
+            data.progression.history
+        ) {
+
+            progressionLineChartInstance
+                .data
+                .datasets[0]
+                .data =
+                    data.progression.history;
+
+        }
+
+
+        progressionLineChartInstance.update();
+
+    }
+
+
+    /* =====================================================
+       IMPROVEMENT
+    ===================================================== */
+
+    if (data.improvement) {
+
+        const improvement =
+            data.improvement;
+
+
+        if (
+            improvement.weakestArea
+        ) {
+
+            document.getElementById(
+                "weakestArea"
+            ).textContent =
+                improvement.weakestArea;
+
+        }
+
+
+        if (
+            improvement.weakestAreaDesc
+        ) {
+
+            document.getElementById(
+                "weakestAreaDesc"
+            ).textContent =
+                improvement.weakestAreaDesc;
+
+        }
+
+
+        if (
+            improvement.skillPriority
+        ) {
+
+            document.getElementById(
+                "skillPriority"
+            ).textContent =
+                improvement.skillPriority;
+
+        }
+
+
+        if (
+            improvement.skillPriorityDesc
+        ) {
+
+            document.getElementById(
+                "skillPriorityDesc"
+            ).textContent =
+                improvement.skillPriorityDesc;
+
+        }
+
+
+        if (
+            improvement.physicalArea
+        ) {
+
+            document.getElementById(
+                "physicalArea"
+            ).textContent =
+                improvement.physicalArea;
+
+        }
+
+
+        if (
+            improvement.physicalAreaDesc
+        ) {
+
+            document.getElementById(
+                "physicalAreaDesc"
+            ).textContent =
+                improvement.physicalAreaDesc;
+
+        }
+
+
+        if (
+            improvement.nextFocus
+        ) {
+
+            document.getElementById(
+                "nextFocus"
+            ).textContent =
+                improvement.nextFocus;
+
+        }
+
+
+        if (
+            improvement.nextFocusDesc
+        ) {
+
+            document.getElementById(
+                "nextFocusDesc"
+            ).textContent =
+                improvement.nextFocusDesc;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       ATTENDANCE
+    ===================================================== */
+
+    if (data.attendance) {
+
+        const attendance =
+            data.attendance;
+
+
+        if (
+            attendance.percentage !==
+            undefined
+        ) {
+
+            document.getElementById(
+                "attendancePercentage"
+            ).textContent =
+                `${attendance.percentage}%`;
+
+
+            document.getElementById(
+                "attendanceProgressFill"
+            ).style.width =
+                `${attendance.percentage}%`;
+
+        }
+
+
+        if (attendance.label) {
+
+            document.getElementById(
+                "attendanceLabel"
+            ).textContent =
+                attendance.label;
+
+        }
+
+
+        if (
+            attendance.present !==
+            undefined
+        ) {
+
+            document.getElementById(
+                "attendancePresent"
+            ).textContent =
+                attendance.present;
+
+        }
+
+
+        if (
+            attendance.absent !==
+            undefined
+        ) {
+
+            document.getElementById(
+                "attendanceAbsent"
+            ).textContent =
+                attendance.absent;
+
+        }
+
+
+        if (
+            attendance.total !==
+            undefined
+        ) {
+
+            document.getElementById(
+                "attendanceTotal"
+            ).textContent =
+                attendance.total;
+
+        }
+
+
+        if (attendance.statusText) {
+
+            document.getElementById(
+                "attendanceStatusText"
+            ).textContent =
+                attendance.statusText;
+
+        }
+
+
+        if (attendance.statusDesc) {
+
+            document.getElementById(
+                "attendanceStatusDesc"
+            ).textContent =
+                attendance.statusDesc;
+
+        }
+
+
+        if (
+            Array.isArray(
+                attendance.weekly
+            )
+        ) {
+
+            const container =
+                document.getElementById(
+                    "attendanceWeekContainer"
+                );
+
+
+            container.innerHTML = "";
+
+
+            attendance.weekly.forEach(
+                item => {
+
+                    const dayDiv =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    dayDiv.className =
+                        "attendance-day";
+
+
+                    dayDiv.innerHTML = `
+
+                        <div
+                            class="attendance-day-name"
+                        >
+                            ${item.day}
+                        </div>
+
+                        <div
+                            class="attendance-mark ${
+                                item.present
+                                    ? "attendance-present"
+                                    : "attendance-absent"
+                            }"
+                        >
+                            ${
+                                item.present
+                                    ? "✓"
+                                    : "—"
+                            }
+                        </div>
+
+                    `;
+
+
+                    container.appendChild(
+                        dayDiv
+                    );
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       FEEDBACK
+    ===================================================== */
+
+    if (data.feedback) {
+
+        const feedback =
+            data.feedback;
+
+
+        if (feedback.text) {
+
+            document.getElementById(
+                "coachFeedbackText"
+            ).textContent =
+                feedback.text;
+
+        }
+
+
+        if (
+            feedback.rating !==
+            undefined
+        ) {
+
+            document.getElementById(
+                "coachRatingNumber"
+            ).textContent =
+                feedback.rating;
+
+        }
+
+
+        if (
+            Array.isArray(
+                feedback.strengths
+            )
+        ) {
+
+            const list =
+                document.getElementById(
+                    "coachStrengthsList"
+                );
+
+
+            list.innerHTML =
+                feedback.strengths
+                    .map(
+                        item =>
+                            `<li>${item}</li>`
+                    )
+                    .join("");
+
+        }
+
+
+        if (
+            Array.isArray(
+                feedback.improvements
+            )
+        ) {
+
+            const list =
+                document.getElementById(
+                    "coachImprovementsList"
+                );
+
+
+            list.innerHTML =
+                feedback.improvements
+                    .map(
+                        item =>
+                            `<li>${item}</li>`
+                    )
+                    .join("");
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+const savedTheme =
+    localStorage.getItem(
+        "studentTheme"
+    );
+
+
+const savedTrainingNotifications =
+    localStorage.getItem(
+        "studentTrainingNotifications"
+    );
+
+
+const savedGoalNotifications =
+    localStorage.getItem(
+        "studentGoalNotifications"
+    );
+
+
+const savedFeedbackNotifications =
+    localStorage.getItem(
+        "studentFeedbackNotifications"
+    );
+
+
+const savedCompactView =
+    localStorage.getItem(
+        "studentCompactView"
+    );
+
+
+const savedDefaultSection =
+    localStorage.getItem(
+        "studentDefaultSection"
+    );
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+const darkModeToggle =
+    document.getElementById(
+        "darkModeToggle"
+    );
+
+
+const themeButton =
+    document.getElementById(
+        "themeButton"
+    );
+
+
+function applyTheme(isDark) {
+
+    document.body.classList.toggle(
+        "dark-mode",
+        isDark
+    );
+
+
+    darkModeToggle.checked =
+        isDark;
+
+
+    themeButton.textContent =
+        isDark
+            ? "☀️"
+            : "🌙";
+
+
+    localStorage.setItem(
+        "studentTheme",
+        isDark
+            ? "dark"
+            : "light"
+    );
+
+
+    updateChartsTheme();
+
+}
+
+
+applyTheme(
+    savedTheme === "dark"
+);
+
+
+darkModeToggle.addEventListener(
+    "change",
+    function () {
+
+        applyTheme(
+            this.checked
+        );
+
+        showToast(
+            this.checked
+                ? "Dark mode enabled."
+                : "Light mode enabled."
+        );
+
+    }
+);
+
+
+themeButton.addEventListener(
+    "click",
+    function () {
+
+        applyTheme(
+            !document.body.classList.contains(
+                "dark-mode"
+            )
+        );
+
+    }
+);
+
+
+/* =========================================================
+   SETTINGS PANEL
+========================================================= */
+
+const settingsOverlay =
+    document.getElementById(
+        "settingsOverlay"
+    );
+
+
+function openSettings() {
+
+    settingsOverlay.classList.add(
+        "open"
+    );
+
+}
+
+
+function closeSettings() {
+
+    settingsOverlay.classList.remove(
+        "open"
+    );
+
+}
+
+
+document.getElementById(
+    "settingsNav"
+).addEventListener(
+    "click",
+    openSettings
+);
+
+
+document.getElementById(
+    "topSettings"
+).addEventListener(
+    "click",
+    openSettings
+);
+
+
+document.getElementById(
+    "closeSettings"
+).addEventListener(
+    "click",
+    closeSettings
+);
+
+
+settingsOverlay.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            event.target ===
+            settingsOverlay
+        ) {
+
+            closeSettings();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+const trainingNotifications =
+    document.getElementById(
+        "trainingNotifications"
+    );
+
+
+const goalNotifications =
+    document.getElementById(
+        "goalNotifications"
+    );
+
+
+const feedbackNotifications =
+    document.getElementById(
+        "feedbackNotifications"
+    );
+
+
+trainingNotifications.checked =
+    savedTrainingNotifications !==
+    "false";
+
+
+goalNotifications.checked =
+    savedGoalNotifications !==
+    "false";
+
+
+feedbackNotifications.checked =
+    savedFeedbackNotifications !==
+    "false";
+
+
+trainingNotifications.addEventListener(
+    "change",
+    function () {
+
+        localStorage.setItem(
+            "studentTrainingNotifications",
+            this.checked
+        );
+
+        showToast(
+            this.checked
+                ? "Training reminders enabled."
+                : "Training reminders disabled."
+        );
+
+    }
+);
+
+
+goalNotifications.addEventListener(
+    "change",
+    function () {
+
+        localStorage.setItem(
+            "studentGoalNotifications",
+            this.checked
+        );
+
+        showToast(
+            this.checked
+                ? "Goal notifications enabled."
+                : "Goal notifications disabled."
+        );
+
+    }
+);
+
+
+feedbackNotifications.addEventListener(
+    "change",
+    function () {
+
+        localStorage.setItem(
+            "studentFeedbackNotifications",
+            this.checked
+        );
+
+        showToast(
+            this.checked
+                ? "Coach feedback notifications enabled."
+                : "Coach feedback notifications disabled."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   DEFAULT SECTION
+========================================================= */
+
+const defaultSection =
+    document.getElementById(
+        "defaultSection"
+    );
+
+
+if (savedDefaultSection) {
+
+    defaultSection.value =
+        savedDefaultSection;
+
+}
+
+
+defaultSection.addEventListener(
+    "change",
+    function () {
+
+        localStorage.setItem(
+            "studentDefaultSection",
+            this.value
+        );
+
+        showToast(
+            "Default dashboard section saved."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   COMPACT VIEW
+========================================================= */
+
+const compactView =
+    document.getElementById(
+        "compactView"
+    );
+
+
+compactView.checked =
+    savedCompactView ===
+    "true";
+
+
+function applyCompactView(
+    enabled
+) {
+
+    document
+        .querySelectorAll(
+            ".card, .chart-card, .attendance-card, .feedback-card"
+        )
+        .forEach(
+            card => {
+
+                card.style.padding =
+                    enabled
+                        ? "14px"
+                        : "";
+
+            }
+        );
+
+
+    localStorage.setItem(
+        "studentCompactView",
+        enabled
+    );
+
+}
+
+
+applyCompactView(
+    compactView.checked
+);
+
+
+compactView.addEventListener(
+    "change",
+    function () {
+
+        applyCompactView(
+            this.checked
+        );
+
+        showToast(
+            this.checked
+                ? "Compact view enabled."
+                : "Compact view disabled."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+document.getElementById(
+    "profileButton"
+).addEventListener(
+    "click",
+    function () {
+
+        document.getElementById(
+            "profileModal"
+        ).classList.add(
+            "open"
+        );
+
+    }
+);
+
+
+document.getElementById(
+    "passwordButton"
+).addEventListener(
+    "click",
+    function () {
+
+        document.getElementById(
+            "passwordModal"
+        ).classList.add(
+            "open"
+        );
+
+    }
+);
+
+
+function closeModal(id) {
+
+    document.getElementById(
+        id
+    ).classList.remove(
+        "open"
+    );
+
+}
+
+
+/* =========================================================
+   CHANGE PASSWORD
+========================================================= */
+
+document.getElementById(
+    "savePassword"
+).addEventListener(
+    "click",
+    async function () {
+
+        const currentPassword =
+            document.getElementById(
+                "currentPassword"
+            ).value;
+
+
+        const newPassword =
+            document.getElementById(
+                "newPassword"
+            ).value;
+
+
+        const confirmPassword =
+            document.getElementById(
+                "confirmPassword"
+            ).value;
+
+
+        if (
+            !currentPassword ||
+            !newPassword ||
+            !confirmPassword
+        ) {
+
+            showToast(
+                "Please complete all password fields."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            newPassword !==
+            confirmPassword
+        ) {
+
+            showToast(
+                "New passwords do not match."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            newPassword.length < 6
+        ) {
+
+            showToast(
+                "Password must contain at least 6 characters."
+            );
+
+            return;
+
+        }
+
+
+        const saveButton =
+            document.getElementById(
+                "savePassword"
+            );
+
+
+        saveButton.disabled =
+            true;
+
+
+        saveButton.textContent =
+            "Updating...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/profile`,
+                    {
+                        method: "PATCH",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                current_password:
+                                    currentPassword,
+
+                                password:
+                                    newPassword
+
+                            })
+
+                        }
+                    );
+
+
+            const result =
+                await response.json();
+
+
+            if (
+                response.ok &&
+                result.success
+            ) {
+
+                showToast(
+                    result.message ||
+                    "Password updated successfully."
+                );
+
+
+                document.getElementById(
+                    "currentPassword"
+                ).value = "";
+
+
+                document.getElementById(
+                    "newPassword"
+                ).value = "";
+
+
+                document.getElementById(
+                    "confirmPassword"
+                ).value = "";
+
+
+                closeModal(
+                    "passwordModal"
+                );
+
+            } else {
+
+                showToast(
+                    result.message ||
+                    "Failed to update password."
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Change password error:",
+                error
+            );
+
+
+            showToast(
+                "Unable to connect to the server."
+            );
+
+        } finally {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "Save Password";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+document.getElementById(
+    "logoutButton"
+).addEventListener(
+    "click",
+    async function () {
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to log out?"
+            );
+
+
+        if (!confirmed)
+            return;
+
+
+        try {
+
+            await fetch(
+                `${API_BASE_URL}/logout`,
+                {
+                    method: "POST",
+
+                    credentials:
+                        "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Logout request failed:",
+                error
+            );
+
+        } finally {
+
+            localStorage.removeItem(
+                "studentName"
+            );
+
+            localStorage.removeItem(
+                "studentEmail"
+            );
+
+            sessionStorage.removeItem(
+                "studentName"
+            );
+
+            sessionStorage.removeItem(
+                "studentEmail"
+            );
+
+
+            window.location.href =
+                "student-login.html";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+const sidebar =
+    document.getElementById(
+        "sidebar"
+    );
+
+
+document.getElementById(
+    "mobileMenu"
+).addEventListener(
+    "click",
+    function () {
+
+        sidebar.classList.toggle(
+            "open"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navItems =
+    document.querySelectorAll(
+        ".nav-item[data-section]"
+    );
+
+
+navItems.forEach(
+    item => {
+
+        item.addEventListener(
+            "click",
+            function () {
+
+                navItems.forEach(
+                    nav =>
+                        nav.classList.remove(
+                            "active"
+                        )
+                );
+
+
+                this.classList.add(
+                    "active"
+                );
+
+
+                const section =
+                    document.getElementById(
+                        this.dataset.section
+                    );
+
+
+                if (section) {
+
+                    section.scrollIntoView({
+                        behavior:
+                            "smooth"
+                    });
+
+                }
+
+
+                sidebar.classList.remove(
+                    "open"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer =
+    null;
+
+
+function showToast(text) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    toast.textContent =
+        text;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    if (toastTimer) {
+
+        clearTimeout(
+            toastTimer
+        );
+
+    }
+
+
+    toastTimer =
+        setTimeout(
+            function () {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2500
+        );
+
+}
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeSettings();
+
+            closeModal(
+                "profileModal"
+            );
+
+            closeModal(
+                "passwordModal"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".modal-overlay"
+    )
+    .forEach(
+        overlay => {
+
+            overlay.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target ===
+                        overlay
+                    ) {
+
+                        overlay.classList.remove(
+                            "open"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+        updateProfileHeaderUI();
+
+
+        /*
+         * First verify the Flask session.
+         */
+
+        const authenticated =
+            await checkStudentSession();
+
+
+        if (!authenticated) {
+
+            return;
+
+        }
+
+
+        /*
+         * Only initialize the dashboard
+         * after a valid student session
+         * has been confirmed.
+         */
+
+        initCharts();
+
+
+        /*
+         * Fetch actual student dashboard
+         * information if the endpoint exists.
+         */
+
+        await fetchStudentDashboardData();
+
+
+        /*
+         * Open saved default section.
+         */
+
+        if (
+            savedDefaultSection &&
+            savedDefaultSection !==
+                "dashboard"
+        ) {
+
+            const targetSection =
+                document.getElementById(
+                    savedDefaultSection
+                );
+
+
+            if (targetSection) {
+
+                targetSection.scrollIntoView({
+                    behavior:
+                        "smooth"
+                });
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

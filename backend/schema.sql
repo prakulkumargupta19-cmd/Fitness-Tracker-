@@ -1,7 +1,9 @@
--- ============================================
+﻿-- ============================================
 -- ATHLETE FITNESS TRACKER — UNIFIED SCHEMA
--- SQLite (single source of truth)
+-- MySQL (single source of truth)
 -- ============================================
+
+SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS coach_feedback;
 DROP TABLE IF EXISTS goals;
@@ -11,174 +13,153 @@ DROP TABLE IF EXISTS coach_athletes;
 DROP TABLE IF EXISTS otp_requests;
 DROP TABLE IF EXISTS users;
 
--- ============================================
--- TABLE 1: users
--- ============================================
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_code TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    email_verified INTEGER DEFAULT 0,
-    account_status TEXT NOT NULL DEFAULT 'active' CHECK(account_status IN ('active', 'deactivated', 'deleted')),
-    role TEXT NOT NULL CHECK(role IN ('admin', 'coach', 'player')),
-    sport TEXT,
-    contact_number TEXT UNIQUE,
-    gender TEXT,
-    date_of_birth TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================
--- TABLE 2: otp_requests (used by app.py for all OTP flows)
--- ============================================
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    email_verified TINYINT DEFAULT 0,
+    role ENUM('admin', 'coach', 'player') NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'approved',
+    sport VARCHAR(100),
+    contact_number VARCHAR(20) UNIQUE,
+    gender VARCHAR(20),
+    date_of_birth DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 CREATE TABLE otp_requests (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL,
-    purpose TEXT NOT NULL,
-    otp_hash TEXT NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    purpose VARCHAR(50) NOT NULL,
+    otp_hash VARCHAR(255) NOT NULL,
     payload TEXT,
-    expires_at TEXT NOT NULL,
-    attempts INTEGER NOT NULL DEFAULT 0,
-    verified INTEGER NOT NULL DEFAULT 0,
-    used INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL
-);
+    expires_at DATETIME NOT NULL,
+    attempts INT NOT NULL DEFAULT 0,
+    verified TINYINT NOT NULL DEFAULT 0,
+    used TINYINT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL
+) ENGINE=InnoDB;
 CREATE INDEX idx_otp_requests_lookup ON otp_requests(email, purpose, used);
 
--- ============================================
--- TABLE 3: coach_athletes
--- ============================================
 CREATE TABLE coach_athletes (
-    coach_id INTEGER NOT NULL,
-    athlete_id INTEGER NOT NULL,
+    coach_id INT NOT NULL,
+    athlete_id INT NOT NULL,
     assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (coach_id, athlete_id),
-    FOREIGN KEY (coach_id) REFERENCES users(id),
-    FOREIGN KEY (athlete_id) REFERENCES users(id)
-);
+    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- ============================================
--- TABLE 4: physical_assessments
--- ============================================
 CREATE TABLE physical_assessments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    athlete_id INTEGER NOT NULL,
-    coach_id INTEGER NOT NULL,
-    assessment_date TEXT NOT NULL,
-    height_cm REAL,
-    weight_kg REAL,
-    bmi REAL,
-    body_fat_pct REAL,
-    waist_circumference REAL,
-    hip_circumference REAL,
-    chest_circumference REAL,
-    thigh_circumference REAL,
-    arm_circumference REAL,
-    flexibility_score TEXT,
-    mobility_score TEXT,
-    posture_assessment TEXT,
-    injury_status TEXT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    athlete_id INT NOT NULL,
+    coach_id INT NOT NULL,
+    assessment_date DATE NOT NULL,
+    height_cm FLOAT,
+    weight_kg FLOAT,
+    bmi FLOAT,
+    waist_circumference FLOAT,
+    hip_circumference FLOAT,
+    chest_circumference FLOAT,
+    thigh_circumference FLOAT,
+    arm_circumference FLOAT,
+    flexibility_score VARCHAR(50),
+    mobility_score VARCHAR(50),
+    posture_assessment VARCHAR(255),
+    injury_status VARCHAR(255),
     injury_notes TEXT,
     medical_restrictions TEXT,
-    previous_measurement TEXT,
-    current_measurement TEXT,
-    change_value TEXT,
+    previous_measurement VARCHAR(50),
+    current_measurement VARCHAR(50),
+    change_value VARCHAR(50),
     assessment_remarks TEXT,
-    next_assessment_date TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id),
-    FOREIGN KEY (coach_id) REFERENCES users(id)
-);
+    next_assessment_date DATE,
+    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- ============================================
--- TABLE 5: training_sessions
--- ============================================
 CREATE TABLE training_sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    athlete_id INTEGER NOT NULL,
-    coach_id INTEGER NOT NULL,
-    session_date TEXT NOT NULL,
-    sport_type TEXT,
-    duration_minutes INTEGER,
-    intensity_level TEXT CHECK(intensity_level IN ('Low', 'Medium', 'High')),
-    rpe INTEGER CHECK(rpe BETWEEN 1 AND 10),
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    athlete_id INT NOT NULL,
+    coach_id INT NOT NULL,
+    session_date DATE NOT NULL,
+    sport_type VARCHAR(100),
+    duration_minutes INT,
+    intensity_level ENUM('Low', 'Medium', 'High'),
+    rpe INT,
     exercises_performed TEXT,
     sets_reps_weights TEXT,
-    squat_load REAL,
-    deadlift_load REAL,
-    bench_press_load REAL,
-    pushups_count INTEGER,
-    pullups_count INTEGER,
-    plank_time TEXT,
-    running_distance REAL,
-    sprint_time TEXT,
-    shuttle_run_time TEXT,
-    agility_test_score TEXT,
-    vertical_jump_height REAL,
-    broad_jump_distance REAL,
-    sleep_hours REAL,
-    fatigue_level TEXT,
-    muscle_soreness_level TEXT,
-    attendance TEXT CHECK(attendance IN ('Present', 'Absent')),
-    completion_pct INTEGER,
+    squat_load FLOAT,
+    deadlift_load FLOAT,
+    bench_press_load FLOAT,
+    pushups_count INT,
+    pullups_count INT,
+    plank_time VARCHAR(50),
+    running_distance FLOAT,
+    sprint_time VARCHAR(50),
+    shuttle_run_time VARCHAR(50),
+    agility_test_score VARCHAR(50),
+    vertical_jump_height FLOAT,
+    broad_jump_distance FLOAT,
+    sleep_hours FLOAT,
+    fatigue_level VARCHAR(50),
+    muscle_soreness_level VARCHAR(50),
+    attendance ENUM('Present', 'Absent'),
+    completion_pct FLOAT,
     missed_session_reason TEXT,
     session_observation TEXT,
-    technical_feedback TEXT,
     training_recommendation TEXT,
     next_session_focus TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id),
-    FOREIGN KEY (coach_id) REFERENCES users(id)
-);
+    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- ============================================
--- TABLE 6: goals
--- ============================================
 CREATE TABLE goals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    athlete_id INTEGER NOT NULL,
-    coach_id INTEGER NOT NULL,
-    goal_title TEXT NOT NULL,
-    goal_type TEXT CHECK(goal_type IN ('Skill', 'Fitness', 'Competition', 'Recovery')),
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    athlete_id INT NOT NULL,
+    coach_id INT NOT NULL,
+    goal_title VARCHAR(255) NOT NULL,
+    goal_type ENUM('Skill', 'Fitness', 'Competition', 'Recovery'),
     goal_description TEXT,
-    baseline_value TEXT,
-    target_value TEXT,
-    current_value TEXT,
-    progress_pct INTEGER,
-    goal_status TEXT CHECK(goal_status IN ('Not Started', 'In Progress', 'Achieved', 'Delayed')),
-    start_date TEXT,
-    target_date TEXT,
-    review_date TEXT,
-    injury_status TEXT,
-    injury_area TEXT,
-    expected_recovery_date TEXT,
+    baseline_value VARCHAR(255),
+    target_value VARCHAR(255),
+    current_value VARCHAR(255),
+    progress_pct FLOAT,
+    goal_status ENUM('Not Started', 'In Progress', 'Achieved', 'Delayed'),
+    start_date DATE,
+    target_date DATE,
+    review_date DATE,
+    injury_status VARCHAR(255),
+    injury_area VARCHAR(255),
+    expected_recovery_date DATE,
     current_limitation TEXT,
     training_restriction TEXT,
     rehabilitation_exercise TEXT,
-    recovery_progress_pct INTEGER,
-    self_rating INTEGER CHECK(self_rating BETWEEN 1 AND 10),
-    confidence_level TEXT,
-    effort_level TEXT,
+    recovery_progress_pct FLOAT,
+    self_rating INT,
+    confidence_level VARCHAR(50),
+    effort_level VARCHAR(50),
     challenges_faced TEXT,
-    goal_achieved_date TEXT,
+    goal_achieved_date DATE,
     final_result TEXT,
     next_goal TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id),
-    FOREIGN KEY (coach_id) REFERENCES users(id)
-);
+    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
--- ============================================
--- TABLE 7: coach_feedback
--- ============================================
 CREATE TABLE coach_feedback (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    athlete_id INTEGER NOT NULL,
-    coach_id INTEGER NOT NULL,
-    feedback_date TEXT,
-    session_reference TEXT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    athlete_id INT NOT NULL,
+    coach_id INT NOT NULL,
+    feedback_date DATE,
+    session_reference VARCHAR(255),
     technical_strengths TEXT,
     technical_corrections TEXT,
-    skill_execution_rating INTEGER CHECK(skill_execution_rating BETWEEN 1 AND 10),
+    skill_execution_rating INT,
     fitness_observation TEXT,
     endurance_observation TEXT,
     strength_observation TEXT,
@@ -191,14 +172,14 @@ CREATE TABLE coach_feedback (
     confidence TEXT,
     focus_concentration TEXT,
     teamwork TEXT,
-    overall_rating INTEGER CHECK(overall_rating BETWEEN 1 AND 10),
+    overall_rating INT,
     key_strength TEXT,
     key_improvement_area TEXT,
     performance_summary TEXT,
     immediate_action TEXT,
     home_practice_task TEXT,
     next_session_focus TEXT,
-    follow_up_date TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id),
-    FOREIGN KEY (coach_id) REFERENCES users(id)
-);
+    follow_up_date DATE,
+    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Coach Login | Fitness Performance Tracker</title>
+
+
+    <!-- =========================================================
+         GOOGLE FONTS
+    ========================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =========================================================
+         MATERIAL SYMBOLS
+    ========================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    >
+
+
+    <!-- =========================================================
+         COACH LOGIN CSS
+    ========================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/coach-login.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <div class="page-container">
+
+
+        <!-- =====================================================
+             BRAND / LEFT HERO SECTION
+        ====================================================== -->
+
+        <section class="brand-section">
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    🏃
+                </div>
+
+                <div class="logo-text">
+                    FITNESS<br>
+                    PERFORMANCE<br>
+                    TRACKER
+                </div>
+
+            </div>
+
+
+            <h1>
+                Coach <span>Portal</span>
+            </h1>
+
+
+            <p>
+                Manage athletes, monitor live squad telemetry,
+                log physical benchmarks, and deliver
+                data-driven coaching feedback.
+            </p>
+
+
+            <div class="brand-line"></div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             LOGIN SECTION
+        ====================================================== -->
+
+        <section class="login-section">
+
+            <div class="login-card">
+
+
+                <!-- COACH ICON -->
+
+                <div class="coach-icon">
+                    📋
+                </div>
+
+
+                <!-- TITLE -->
+
+                <h2>
+                    Coach <span>Sign In</span>
+                </h2>
+
+
+                <p class="subtitle">
+                    Access your coaching squad dashboard
+                    and athlete records.
+                </p>
+
+
+
+                <!-- =================================================
+                     STATUS MESSAGE
+                ================================================== -->
+
+                <div
+                    id="message"
+                    class="message"
+                    role="alert"
+                    aria-live="polite"
+                ></div>
+
+
+
+                <!-- =================================================
+                     LOGIN FORM
+                ================================================== -->
+
+                <form id="loginForm">
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <span
+                                class="material-symbols-outlined input-icon"
+                            >
+                                mail
+                            </span>
+
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="coach@example.com"
+                                autocomplete="username"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <span
+                                class="material-symbols-outlined input-icon"
+                            >
+                                lock
+                            </span>
+
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+
+                            <!-- PASSWORD TOGGLE -->
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+
+                                <span
+                                    class="material-symbols-outlined"
+                                    id="toggleIcon"
+                                >
+                                    visibility
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         FORM OPTIONS
+                    ================================================== -->
+
+                    <div class="form-options">
+
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                            >
+
+                            <span>
+                                Remember me
+                            </span>
+
+                        </label>
+
+
+                        <a
+                            href="forgot-password.html"
+                            class="forgot"
+                        >
+                            Forgot password?
+                        </a>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         LOGIN BUTTON
+                    ================================================== -->
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                        id="loginButton"
+                    >
+
+                        <span id="loginButtonText">
+                            Sign In
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+
+                <!-- =================================================
+                     SIGNUP LINK
+                ================================================== -->
+
+                <div class="signup-section">
+
+                    <span>
+                        Don't have a coach account?
+                    </span>
+
+                    <a href="coach-signup.html">
+                        Register here
+                    </a>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     BACK LINK
+                ================================================== -->
+
+                <a
+                    href="../index.html"
+                    class="back-link"
+                >
+                    ← Return to Role Selection
+                </a>
+
+
+
+                <!-- =================================================
+                     SECURITY MESSAGE
+                ================================================== -->
+
+                <div class="security-note">
+
+                    <span
+                        class="material-symbols-outlined security-icon"
+                    >
+                        verified_user
+                    </span>
+
+                    <span>
+                        256-Bit Encrypted Coach Terminal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         LOGIN JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+        (function () {
+
+            "use strict";
+
+
+            /* =====================================================
+               API BASE URL
+            ===================================================== */
+
+            const API_BASE =
+                window.location.protocol === "file:"
+                    ? "http://127.0.0.1:5000"
+                    : window.location.origin;
+
+
+
+            /* =====================================================
+               ELEMENTS
+            ===================================================== */
+
+            const loginForm =
+                document.getElementById("loginForm");
+
+            const emailInput =
+                document.getElementById("email");
+
+            const passwordInput =
+                document.getElementById("password");
+
+            const rememberMe =
+                document.getElementById("rememberMe");
+
+            const loginButton =
+                document.getElementById("loginButton");
+
+            const loginButtonText =
+                document.getElementById("loginButtonText");
+
+            const message =
+                document.getElementById("message");
+
+            const togglePassword =
+                document.getElementById("togglePassword");
+
+            const toggleIcon =
+                document.getElementById("toggleIcon");
+
+
+
+            /* =====================================================
+               SHOW MESSAGE
+            ====================================================== */
+
+            function showMessage(
+                text,
+                type = "error"
+            ) {
+
+                message.textContent = text;
+
+                message.className =
+                    "message " + type;
+
+            }
+
+
+
+            /* =====================================================
+               CLEAR MESSAGE
+            ====================================================== */
+
+            function clearMessage() {
+
+                message.textContent = "";
+
+                message.className =
+                    "message";
+
+            }
+
+
+
+            /* =====================================================
+               PASSWORD VISIBILITY
+            ====================================================== */
+
+            if (
+                togglePassword &&
+                toggleIcon &&
+                passwordInput
+            ) {
+
+                togglePassword.addEventListener(
+                    "click",
+                    function () {
+
+                        const isPassword =
+                            passwordInput.type === "password";
+
+
+                        passwordInput.type =
+                            isPassword
+                                ? "text"
+                                : "password";
+
+
+                        toggleIcon.textContent =
+                            isPassword
+                                ? "visibility_off"
+                                : "visibility";
+
+
+                        togglePassword.setAttribute(
+                            "aria-label",
+                            isPassword
+                                ? "Hide password"
+                                : "Show password"
+                        );
+
+
+                        togglePassword.setAttribute(
+                            "aria-pressed",
+                            isPassword
+                                ? "true"
+                                : "false"
+                        );
+
+                    }
+                );
+
+            }
+
+
+
+            /* =====================================================
+               REMEMBER EMAIL
+
+               Only the email is remembered.
+               The password is NEVER stored.
+            ===================================================== */
+
+            const savedEmail =
+                localStorage.getItem(
+                    "coach_login_email"
+                );
+
+
+            if (savedEmail) {
+
+                emailInput.value =
+                    savedEmail;
+
+                rememberMe.checked =
+                    true;
+
+            }
+
+
+
+            /* =====================================================
+               LOGIN
+            ===================================================== */
+
+            loginForm.addEventListener(
+                "submit",
+                async function (event) {
+
+                    event.preventDefault();
+
+                    clearMessage();
+
+
+                    const email =
+                        emailInput.value
+                            .trim()
+                            .toLowerCase();
+
+
+                    /*
+                     * IMPORTANT:
+                     * Do not trim passwords.
+                     */
+
+                    const password =
+                        passwordInput.value;
+
+
+                    /* ---------------------------------------------
+                       BASIC VALIDATION
+                    --------------------------------------------- */
+
+                    if (!email) {
+
+                        showMessage(
+                            "Please enter your email address."
+                        );
+
+                        emailInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!password) {
+
+                        showMessage(
+                            "Please enter your password."
+                        );
+
+                        passwordInput.focus();
+
+                        return;
+
+                    }
+
+
+
+                    /* ---------------------------------------------
+                       DISABLE BUTTON
+                    --------------------------------------------- */
+
+                    loginButton.disabled =
+                        true;
+
+                    loginButtonText.textContent =
+                        "Signing in...";
+
+
+
+                    try {
+
+                        /* =========================================
+                           STEP 1
+
+                           Authenticate with Flask.
+                        ========================================== */
+
+                        const loginResponse =
+                            await fetch(
+                                `${API_BASE}/api/login`,
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    credentials: "include",
+
+                                    body: JSON.stringify({
+                                        email: email,
+                                        password: password,
+                                        role: "coach"
+                                    })
+                                }
+                            );
+
+
+
+                        let loginData = {};
+
+
+                        try {
+
+                            loginData =
+                                await loginResponse.json();
+
+                        } catch (jsonError) {
+
+                            loginData = {};
+
+                        }
+
+
+
+                        console.log(
+                            "COACH LOGIN RESPONSE:",
+                            loginResponse.status,
+                            loginData
+                        );
+
+
+
+                        /* =========================================
+                           SERVER LOGIN ERROR
+                        ========================================== */
+
+                        if (
+                            !loginResponse.ok ||
+                            !loginData.success
+                        ) {
+
+                            throw new Error(
+                                loginData.message ||
+                                "Invalid coach email or password."
+                            );
+
+                        }
+
+
+
+                        /* =========================================
+                           STEP 2
+
+                           Check the REAL Flask session.
+
+                           We do NOT trust localStorage,
+                           sessionStorage, or a token.
+                        ========================================== */
+
+                        const sessionResponse =
+                            await fetch(
+                                `${API_BASE}/api/session`,
+                                {
+                                    method: "GET",
+                                    credentials: "include"
+                                }
+                            );
+
+
+                        let sessionData = {};
+
+
+                        try {
+
+                            sessionData =
+                                await sessionResponse.json();
+
+                        } catch (jsonError) {
+
+                            sessionData = {};
+
+                        }
+
+
+
+                        console.log(
+                            "COACH SESSION RESPONSE:",
+                            sessionResponse.status,
+                            sessionData
+                        );
+
+
+
+                        /* =========================================
+                           SESSION MUST BE AUTHENTICATED
+                        ========================================== */
+
+                        if (
+                            !sessionResponse.ok ||
+                            !sessionData.authenticated ||
+                            !sessionData.user
+                        ) {
+
+                            throw new Error(
+                                "Login succeeded, but the session could not be established."
+                            );
+
+                        }
+
+
+
+                        /* =========================================
+                           STEP 3
+
+                           Check the ACTUAL DATABASE ROLE
+                           returned by the Flask session.
+                        ========================================== */
+
+                        const actualRole =
+                            String(
+                                sessionData.user.role || ""
+                            )
+                            .trim()
+                            .toLowerCase();
+
+
+                        if (
+                            actualRole !== "coach"
+                        ) {
+
+                            throw new Error(
+                                "This account is not registered as a coach."
+                            );
+
+                        }
+
+
+
+                        /* =========================================
+                           REMEMBER EMAIL
+                        ========================================== */
+
+                        if (
+                            rememberMe.checked
+                        ) {
+
+                            localStorage.setItem(
+                                "coach_login_email",
+                                email
+                            );
+
+                        } else {
+
+                            localStorage.removeItem(
+                                "coach_login_email"
+                            );
+
+                        }
+
+
+
+                        /* =========================================
+                           OPTIONAL DISPLAY INFORMATION
+
+                           These are NOT used for authentication.
+                        ========================================== */
+
+                        if (
+                            sessionData.user.name
+                        ) {
+
+                            sessionStorage.setItem(
+                                "coachName",
+                                sessionData.user.name
+                            );
+
+                        }
+
+
+                        if (
+                            sessionData.user.id
+                        ) {
+
+                            sessionStorage.setItem(
+                                "coachId",
+                                String(
+                                    sessionData.user.id
+                                )
+                            );
+
+                        }
+
+
+
+                        /* =========================================
+                           SUCCESS
+                        ========================================== */
+
+                        showMessage(
+                            "Login successful. Redirecting...",
+                            "success"
+                        );
+
+
+
+                        /* =========================================
+                           REDIRECT
+                        ========================================== */
+
+                        setTimeout(
+                            function () {
+
+                                window.location.assign(
+                                    "coach-dashboard.html"
+                                );
+
+                            },
+                            300
+                        );
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(
+                            "Coach login error:",
+                            error
+                        );
+
+
+                        showMessage(
+                            error.message ||
+                            "Unable to login. Please try again."
+                        );
+
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButtonText.textContent =
+                            "Sign In";
+
+                    }
+
+                }
+            );
+
+        })();
+
+    </script>
+
+</body>
+
+</html>

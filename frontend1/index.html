@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Role Selection | Fitness Performance Tracker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+
+            background: #ffffff;
+
+            color: #151515;
+        }
+
+        .landing-container {
+            width: 100%;
+            max-width: 1050px;
+            text-align: center;
+        }
+
+        .landing-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .landing-logo .icon {
+            width: 55px;
+            height: 55px;
+
+            border: 2px solid #62bbe8;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 26px;
+            background: #f0f9ff;
+        }
+
+        .landing-logo .title {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+
+            text-align: left;
+
+            letter-spacing: 1px;
+            color: #151515;
+        }
+
+        .landing-logo .title span {
+            color: #62bbe8;
+        }
+
+        .landing-header h1 {
+            font-size: 42px;
+            margin-bottom: 12px;
+            color: #151515;
+        }
+
+        .landing-header h1 span {
+            color: #62bbe8;
+        }
+
+        .landing-header p {
+            color: #666666;
+            font-size: 15px;
+            margin-bottom: 45px;
+        }
+
+        /* ROLE CARDS GRID */
+
+        .role-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 25px;
+        }
+
+        .role-card {
+            background: #62bbe8;
+
+            border: 1px solid #4ea8d5;
+
+            border-radius: 20px;
+
+            padding: 40px 25px;
+
+            text-decoration: none;
+
+            color: #ffffff;
+
+            transition: all 0.3s ease;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            box-shadow: 0 10px 25px rgba(98, 187, 232, 0.3);
+        }
+
+        .role-card:hover {
+            transform: translateY(-6px);
+
+            border-color: #ffffff;
+
+            background: #4ea8d5;
+
+            box-shadow:
+                0 15px 35px rgba(98, 187, 232, 0.45);
+        }
+
+        .role-icon {
+            width: 70px;
+            height: 70px;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            border: 2px solid #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 32px;
+
+            margin-bottom: 20px;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .role-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffffff;
+
+            margin-bottom: 10px;
+        }
+
+        .role-desc {
+            font-size: 13px;
+
+            color: #f0f9ff;
+
+            line-height: 1.5;
+        }
+
+        .role-action {
+            margin-top: 25px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.2s ease;
+        }
+
+        .role-card:hover .role-action {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .role-grid {
+                grid-template-columns: 1fr;
+
+                max-width: 450px;
+
+                margin: 0 auto;
+            }
+
+            .landing-header h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="landing-container">
+
+        <!-- LOGO -->
+
+        <div class="landing-logo">
+
+            <div class="icon">
+                🏃
+            </div>
+
+            <div class="title">
+                FITNESS<br>
+                <span>PERFORMANCE</span><br>
+                TRACKER
+            </div>
+
+        </div>
+
+
+        <!-- HEADER -->
+
+        <div class="landing-header">
+
+            <h1>
+                Select Your <span>Portal</span>
+            </h1>
+
+            <p>
+                Welcome! Choose your access role to continue to your dashboard.
+            </p>
+
+        </div>
+
+
+        <!-- ROLE CARDS -->
+
+        <div class="role-grid">
+
+
+            <!-- ==========================
+                 STUDENT CARD
+            =========================== -->
+
+            <a
+                href="student/student-login.html"
+                class="role-card"
+            >
+
+                <div class="role-icon">
+                    🎓
+                </div>
+
+                <div class="role-title">
+                    Student
+                </div>
+
+                <div class="role-desc">
+                    Track your workouts, view goal progress,
+                    and review coach feedback.
+                </div>
+
+                <div class="role-action">
+                    Student Login →
+                </div>
+
+            </a>
+
+
+            <!-- ==========================
+                 COACH CARD
+            =========================== -->
+
+            <a
+                href="coach/coach-login.html"
+                class="role-card"
+            >
+
+                <div class="role-icon">
+                    📋
+                </div>
+
+                <div class="role-title">
+                    Coach
+                </div>
+
+                <div class="role-desc">
+                    Assess athletes, update fitness goals,
+                    and provide performance reviews.
+                </div>
+
+                <div class="role-action">
+                    Coach Login →
+                </div>
+
+            </a>
+
+
+            <!-- ==========================
+                 ADMIN CARD
+            =========================== -->
+
+            <a
+                href="admin/admin-login.html"
+                class="role-card"
+            >
+
+                <div class="role-icon">
+                    ⚡
+                </div>
+
+                <div class="role-title">
+                    Admin
+                </div>
+
+                <div class="role-desc">
+                    Manage system accounts, system logs,
+                    and user access permissions.
+                </div>
+
+                <div class="role-action">
+                    Admin Login →
+                </div>
+
+            </a>
+
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

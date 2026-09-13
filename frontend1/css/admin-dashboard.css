@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: "Hanken Grotesk", sans-serif;
+}
+
+.sidebar {
+    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.05);
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+.nav-active {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.nav-item {
+    color: #64748b;
+}
+
+.nav-item:hover {
+    background: #f8fafc;
+    color: #2563eb;
+}
+
+.scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.progress-track {
+    background: #dbeafe;
+}
+
+.progress-fill {
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #6366f1
+    );
+}
+
+.modal-backdrop {
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.toast {
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+}
+
+.content-section {
+    animation: sectionFade 0.2s ease;
+}
+
+@keyframes sectionFade {
+
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 280px;
+    }
+
+}
+
+@media (max-width: 640px) {
+
+    .card {
+        border-radius: 12px;
+    }
+
+}

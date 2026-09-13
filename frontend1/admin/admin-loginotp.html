@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin OTP Verification | Fitness Performance Tracker</title>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="../css/admin-loginotp.css">
+</head>
+
+<body>
+
+    <main class="otp-page">
+
+        <section class="otp-card">
+
+            <!-- Icon -->
+            <div class="otp-icon">
+                <i>✓</i>
+            </div>
+
+            <!-- Heading -->
+            <h1>Verify Your Account</h1>
+
+            <p class="otp-subtitle">
+                A verification code has been sent to the administrator email address.
+            </p>
+
+            <p class="email-display" id="emailDisplay">
+                Loading email...
+            </p>
+
+            <!-- OTP Form -->
+            <form id="otpForm">
+
+                <label for="otp">Enter 6-Digit OTP</label>
+
+                <input
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    class="otp-input"
+                    placeholder="000000"
+                    maxlength="6"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    required
+                >
+
+                <p
+                    class="message"
+                    id="message"
+                    role="alert"
+                ></p>
+
+                <button
+                    type="submit"
+                    id="verifyBtn"
+                    class="verify-btn"
+                >
+                    <span id="verifyText">Verify OTP</span>
+                    <span
+                        id="verifySpinner"
+                        class="spinner"
+                        hidden
+                    ></span>
+                </button>
+
+            </form>
+
+            <!-- Resend -->
+            <div class="resend-section">
+
+                <p>Didn't receive the code?</p>
+
+                <button
+                    type="button"
+                    id="resendBtn"
+                    class="resend-btn"
+                >
+                    Resend OTP
+                </button>
+
+                <p
+                    id="resendMessage"
+                    class="resend-message"
+                ></p>
+
+            </div>
+
+            <!-- Back -->
+            <div class="back-section">
+
+                <a
+                    href="admin-login.html"
+                    class="back-link"
+                >
+                    ← Back to Admin Login
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        // =========================================================
+        // CONFIGURATION
+        // =========================================================
+
+        const API_URL = "";
+
+
+        // =========================================================
+        // ELEMENTS
+        // =========================================================
+
+        const otpForm = document.getElementById("otpForm");
+
+        const otpInput = document.getElementById("otp");
+
+        const verifyBtn = document.getElementById("verifyBtn");
+
+        const verifyText = document.getElementById("verifyText");
+
+        const verifySpinner = document.getElementById("verifySpinner");
+
+        const message = document.getElementById("message");
+
+        const resendBtn = document.getElementById("resendBtn");
+
+        const resendMessage = document.getElementById("resendMessage");
+
+        const emailDisplay = document.getElementById("emailDisplay");
+
+
+        // =========================================================
+        // GET ADMIN EMAIL
+        // =========================================================
+
+        const adminEmail =
+            sessionStorage.getItem("adminLoginEmail");
+
+
+        if (!adminEmail) {
+
+            emailDisplay.textContent =
+                "Admin email not found.";
+
+            message.textContent =
+                "Your login session has expired. Please login again.";
+
+            message.className =
+                "message error";
+
+            verifyBtn.disabled = true;
+            resendBtn.disabled = true;
+
+        } else {
+
+            emailDisplay.textContent = adminEmail;
+
+        }
+
+
+        // =========================================================
+        // OTP INPUT
+        // Only allow numbers
+        // =========================================================
+
+        otpInput.addEventListener("input", function () {
+
+            this.value = this.value.replace(/\D/g, "");
+
+            if (this.value.length > 6) {
+
+                this.value =
+                    this.value.substring(0, 6);
+
+            }
+
+        });
+
+
+        // =========================================================
+        // VERIFY OTP
+        // =========================================================
+
+        otpForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            message.textContent = "";
+            message.className = "message";
+
+            const otp = otpInput.value.trim();
+
+
+            // Validate email
+            if (!adminEmail) {
+
+                message.textContent =
+                    "Admin email is missing. Please login again.";
+
+                message.className =
+                    "message error";
+
+                return;
+
+            }
+
+
+            // Validate OTP
+            if (!/^\d{6}$/.test(otp)) {
+
+                message.textContent =
+                    "Please enter the 6-digit OTP.";
+
+                message.className =
+                    "message error";
+
+                otpInput.focus();
+
+                return;
+
+            }
+
+
+            // Loading state
+            verifyBtn.disabled = true;
+
+            verifyText.textContent =
+                "Verifying...";
+
+            verifySpinner.hidden = false;
+
+
+            try {
+
+                const response = await fetch(
+                    `${API_URL}/api/admin-login/verify-otp`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        credentials: "include",
+
+                        body: JSON.stringify({
+                            email: adminEmail,
+                            otp: otp
+                        })
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        "Invalid or expired OTP."
+                    );
+
+                }
+
+
+                // Successful verification
+                message.textContent =
+                    data.message ||
+                    "OTP verified successfully.";
+
+                message.className =
+                    "message success";
+
+
+                // Remove temporary login email
+                sessionStorage.removeItem(
+                    "adminLoginEmail"
+                );
+
+
+                // Redirect to admin dashboard
+                setTimeout(function () {
+
+                    window.location.href =
+                        "admin-dashboard.html";
+
+                }, 700);
+
+
+            } catch (error) {
+
+                message.textContent =
+                    error.message ||
+                    "OTP verification failed.";
+
+                message.className =
+                    "message error";
+
+                otpInput.value = "";
+
+                otpInput.focus();
+
+
+            } finally {
+
+                verifyBtn.disabled = false;
+
+                verifyText.textContent =
+                    "Verify OTP";
+
+                verifySpinner.hidden = true;
+
+            }
+
+        });
+
+
+        // =========================================================
+        // RESEND OTP
+        // =========================================================
+
+        resendBtn.addEventListener("click", async function () {
+
+            if (!adminEmail) {
+
+                resendMessage.textContent =
+                    "Admin email is missing. Please login again.";
+
+                resendMessage.className =
+                    "resend-message error-text";
+
+                return;
+
+            }
+
+
+            resendMessage.textContent =
+                "Sending new OTP...";
+
+            resendMessage.className =
+                "resend-message";
+
+
+            resendBtn.disabled = true;
+
+
+            try {
+
+                /*
+                 * This endpoint is expected to resend the
+                 * admin login OTP.
+                 *
+                 * We will confirm the exact backend endpoint
+                 * when you provide app.py.
+                 */
+
+                const response = await fetch(
+                    `${API_URL}/api/admin-login/resend-otp`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        credentials: "include",
+
+                        body: JSON.stringify({
+                            email: adminEmail
+                        })
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to resend OTP."
+                    );
+
+                }
+
+
+                resendMessage.textContent =
+                    data.message ||
+                    "A new OTP has been sent.";
+
+                resendMessage.className =
+                    "resend-message success-text";
+
+
+            } catch (error) {
+
+                resendMessage.textContent =
+                    error.message ||
+                    "Unable to resend OTP.";
+
+                resendMessage.className =
+                    "resend-message error-text";
+
+            } finally {
+
+                /*
+                 * Small cooldown so the button cannot
+                 * be repeatedly clicked.
+                 */
+
+                setTimeout(function () {
+
+                    resendBtn.disabled = false;
+
+                }, 3000);
+
+            }
+
+        });
+
+
+        // =========================================================
+        // AUTO FOCUS
+        // =========================================================
+
+        if (adminEmail) {
+
+            otpInput.focus();
+
+        }
+
+    </script>
+
+</body>
+</html>
