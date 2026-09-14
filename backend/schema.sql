@@ -1,185 +1,92 @@
-﻿-- ============================================
--- ATHLETE FITNESS TRACKER — UNIFIED SCHEMA
--- MySQL (single source of truth)
--- ============================================
+﻿-- ============================================================
+-- Fitness Performance Tracker — Auth Workflow Schema
+-- Scope: ONLY the signup / login / forgot-password / admin-approval
+-- flow from the workflow diagram. No assessments, sessions, etc.
+-- Engine: MySQL 8+ (CHECK constraints require 8.0.16+)
+-- ============================================================
 
-SET FOREIGN_KEY_CHECKS = 0;
+CREATE DATABASE IF NOT EXISTS fitness_tracker_auth
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS coach_feedback;
-DROP TABLE IF EXISTS goals;
-DROP TABLE IF EXISTS training_sessions;
-DROP TABLE IF EXISTS physical_assessments;
-DROP TABLE IF EXISTS coach_athletes;
-DROP TABLE IF EXISTS otp_requests;
-DROP TABLE IF EXISTS users;
+USE fitness_tracker_auth;
 
-SET FOREIGN_KEY_CHECKS = 1;
-
+-- ------------------------------------------------------------
+-- 1. USERS
+-- Shared identity table for all three roles — this is the
+-- "basic info" step for both student and coach signup, plus
+-- the two pre-seeded admin accounts (admin has no signup form).
+--
+--   is_verified  → only meaningful for a student (signup OTP).
+--                  TRUE by default for coach/admin, who don't
+--                  go through that step in this workflow.
+--   coach_status → only set when role = 'coach'. NULL for
+--                  student/admin. Captures "approval by admin?
+--                  yes / no" — pending until an admin decides.
+-- ------------------------------------------------------------
 CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_code VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    email_verified TINYINT DEFAULT 0,
-    role ENUM('admin', 'coach', 'player') NOT NULL,
-    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'approved',
-    sport VARCHAR(100),
-    contact_number VARCHAR(20) UNIQUE,
-    gender VARCHAR(20),
-    date_of_birth DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    role           ENUM('student', 'coach', 'admin') NOT NULL,
+    full_name      VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) NOT NULL UNIQUE,
+    password_hash  VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15),
+    is_verified    BOOLEAN NOT NULL DEFAULT TRUE,
+    coach_status   ENUM('pending', 'approved', 'rejected') DEFAULT NULL,
+    last_login_at  DATETIME,
+    created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-CREATE TABLE otp_requests (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(255) NOT NULL,
-    purpose VARCHAR(50) NOT NULL,
-    otp_hash VARCHAR(255) NOT NULL,
-    payload TEXT,
+    CONSTRAINT chk_coach_status CHECK (
+        (role = 'coach' AND coach_status IS NOT NULL)
+        OR (role <> 'coach' AND coach_status IS NULL)
+    )
+);
+
+-- ------------------------------------------------------------
+-- 2. STUDENT_PROFILES
+-- The "personal info" step. One row per student, 1:1 with users.
+-- date_of_birth is stored — NOT age. Age is calculated at query
+-- time (see the view below), so it's always correct.
+-- ------------------------------------------------------------
+CREATE TABLE student_profiles (
+    user_id           INT PRIMARY KEY,
+    date_of_birth     DATE NOT NULL,
+    emergency_contact VARCHAR(15) NOT NULL,
+    height_cm         DECIMAL(5,2),
+    weight_kg         DECIMAL(5,2),
+    goal              VARCHAR(255),
+    sport_activity    VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ------------------------------------------------------------
+-- 3. OTP_VERIFICATIONS
+-- Covers both OTP moments in the diagram:
+--   purpose = 'signup'          → student only, flips is_verified
+--   purpose = 'password_reset'  → any role, the "forgot pwd" branch
+-- ------------------------------------------------------------
+CREATE TABLE otp_verifications (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    purpose    ENUM('signup', 'login', 'password_reset') NOT NULL,
+    otp_hash   VARCHAR(255) NOT NULL,
     expires_at DATETIME NOT NULL,
-    attempts INT NOT NULL DEFAULT 0,
-    verified TINYINT NOT NULL DEFAULT 0,
-    used TINYINT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL
-) ENGINE=InnoDB;
-CREATE INDEX idx_otp_requests_lookup ON otp_requests(email, purpose, used);
+    is_used    BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_otp_user_purpose (user_id, purpose)
+);
 
-CREATE TABLE coach_athletes (
-    coach_id INT NOT NULL,
-    athlete_id INT NOT NULL,
-    assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (coach_id, athlete_id),
-    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE physical_assessments (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    athlete_id INT NOT NULL,
-    coach_id INT NOT NULL,
-    assessment_date DATE NOT NULL,
-    height_cm FLOAT,
-    weight_kg FLOAT,
-    bmi FLOAT,
-    waist_circumference FLOAT,
-    hip_circumference FLOAT,
-    chest_circumference FLOAT,
-    thigh_circumference FLOAT,
-    arm_circumference FLOAT,
-    flexibility_score VARCHAR(50),
-    mobility_score VARCHAR(50),
-    posture_assessment VARCHAR(255),
-    injury_status VARCHAR(255),
-    injury_notes TEXT,
-    medical_restrictions TEXT,
-    previous_measurement VARCHAR(50),
-    current_measurement VARCHAR(50),
-    change_value VARCHAR(50),
-    assessment_remarks TEXT,
-    next_assessment_date DATE,
-    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE training_sessions (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    athlete_id INT NOT NULL,
-    coach_id INT NOT NULL,
-    session_date DATE NOT NULL,
-    sport_type VARCHAR(100),
-    duration_minutes INT,
-    intensity_level ENUM('Low', 'Medium', 'High'),
-    rpe INT,
-    exercises_performed TEXT,
-    sets_reps_weights TEXT,
-    squat_load FLOAT,
-    deadlift_load FLOAT,
-    bench_press_load FLOAT,
-    pushups_count INT,
-    pullups_count INT,
-    plank_time VARCHAR(50),
-    running_distance FLOAT,
-    sprint_time VARCHAR(50),
-    shuttle_run_time VARCHAR(50),
-    agility_test_score VARCHAR(50),
-    vertical_jump_height FLOAT,
-    broad_jump_distance FLOAT,
-    sleep_hours FLOAT,
-    fatigue_level VARCHAR(50),
-    muscle_soreness_level VARCHAR(50),
-    attendance ENUM('Present', 'Absent'),
-    completion_pct FLOAT,
-    missed_session_reason TEXT,
-    session_observation TEXT,
-    training_recommendation TEXT,
-    next_session_focus TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE goals (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    athlete_id INT NOT NULL,
-    coach_id INT NOT NULL,
-    goal_title VARCHAR(255) NOT NULL,
-    goal_type ENUM('Skill', 'Fitness', 'Competition', 'Recovery'),
-    goal_description TEXT,
-    baseline_value VARCHAR(255),
-    target_value VARCHAR(255),
-    current_value VARCHAR(255),
-    progress_pct FLOAT,
-    goal_status ENUM('Not Started', 'In Progress', 'Achieved', 'Delayed'),
-    start_date DATE,
-    target_date DATE,
-    review_date DATE,
-    injury_status VARCHAR(255),
-    injury_area VARCHAR(255),
-    expected_recovery_date DATE,
-    current_limitation TEXT,
-    training_restriction TEXT,
-    rehabilitation_exercise TEXT,
-    recovery_progress_pct FLOAT,
-    self_rating INT,
-    confidence_level VARCHAR(50),
-    effort_level VARCHAR(50),
-    challenges_faced TEXT,
-    goal_achieved_date DATE,
-    final_result TEXT,
-    next_goal TEXT,
-    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE coach_feedback (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    athlete_id INT NOT NULL,
-    coach_id INT NOT NULL,
-    feedback_date DATE,
-    session_reference VARCHAR(255),
-    technical_strengths TEXT,
-    technical_corrections TEXT,
-    skill_execution_rating INT,
-    fitness_observation TEXT,
-    endurance_observation TEXT,
-    strength_observation TEXT,
-    flexibility_mobility_observation TEXT,
-    decision_making TEXT,
-    positioning TEXT,
-    game_awareness TEXT,
-    discipline TEXT,
-    communication TEXT,
-    confidence TEXT,
-    focus_concentration TEXT,
-    teamwork TEXT,
-    overall_rating INT,
-    key_strength TEXT,
-    key_improvement_area TEXT,
-    performance_summary TEXT,
-    immediate_action TEXT,
-    home_practice_task TEXT,
-    next_session_focus TEXT,
-    follow_up_date DATE,
-    FOREIGN KEY (athlete_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- ------------------------------------------------------------
+-- Optional convenience view: surfaces a student's age without
+-- ever storing it as a column.
+-- ------------------------------------------------------------
+CREATE VIEW student_details AS
+SELECT
+    u.id, u.full_name, u.email, u.contact_number,
+    sp.date_of_birth,
+    TIMESTAMPDIFF(YEAR, sp.date_of_birth, CURDATE()) AS age,
+    sp.emergency_contact, sp.height_cm, sp.weight_kg,
+    sp.goal, sp.sport_activity
+FROM users u
+JOIN student_profiles sp ON sp.user_id = u.id
+WHERE u.role = 'student';

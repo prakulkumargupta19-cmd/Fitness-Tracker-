@@ -173,14 +173,13 @@
                                 required
                             >
 
-
                             <button
                                 type="button"
                                 class="password-toggle"
                                 id="togglePassword"
                                 aria-label="Show password"
                             >
-                                👁
+                                <span class="eye-icon" aria-hidden="true"></span>
                             </button>
 
                         </div>
@@ -351,37 +350,17 @@ function clearMessage() {
 }
 
 
-/* =========================================================
-   PASSWORD TOGGLE
-========================================================= */
-
 togglePasswordButton.addEventListener("click", function () {
+    const isPassword = passwordInput.type === "password";
 
-    const isPassword =
-        passwordInput.type === "password";
-
-    if (isPassword) {
-        passwordInput.type = "text";
-
-        togglePasswordButton.textContent = "🙈";
-
-        togglePasswordButton.setAttribute(
-            "aria-label",
-            "Hide password"
-        );
-
-    } else {
-
-        passwordInput.type = "password";
-
-        togglePasswordButton.textContent = "👁";
-
-        togglePasswordButton.setAttribute(
-            "aria-label",
-            "Show password"
-        );
-    }
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePasswordButton.classList.toggle("is-visible", isPassword);
+    togglePasswordButton.setAttribute(
+        "aria-label",
+        isPassword ? "Hide password" : "Show password"
+    );
 });
+
 
 
 /* =========================================================
@@ -592,31 +571,13 @@ loginForm.addEventListener("submit", async function (event) {
         }
 
 
-        /* =================================================
-           LOGIN SUCCESS
-        ================================================= */
+          /* =================================================
+              LOGIN SUCCESS: the backend requires OTP verification
+          ================================================= */
 
-        showMessage(
-            "Login successful. Opening dashboard...",
-            "success"
-        );
-
-        loginButton.textContent =
-            "Opening dashboard...";
-
-
-        /* =================================================
-           DIRECT REDIRECT
-
-           The backend has already created the Flask
-           session during /api/login.
-
-           No second /api/session request is necessary.
-        ================================================= */
-
-        window.location.replace(
-            "student-dashboard.html"
-        );
+        sessionStorage.setItem("loginOtpEmail", email);
+        showMessage("A verification code was sent to your email.", "success");
+        window.location.replace("student-loginotp.html");
 
     } catch (error) {
 

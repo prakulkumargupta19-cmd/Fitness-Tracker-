@@ -11,19 +11,6 @@ __pycache__/
 
 # Windows shortcuts
 *.lnk
-# Environment variables
-backend/.env
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-
-# Virtual environment
-.venv/
-
-# Windows shortcuts
-*.lnk
 
 # Local databases
 backend/*.db

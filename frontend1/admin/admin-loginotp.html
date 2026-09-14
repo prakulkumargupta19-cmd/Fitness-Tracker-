@@ -2,453 +2,346 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin OTP Verification | Fitness Performance Tracker</title>
 
-    <!-- Shared CSS -->
-    <link rel="stylesheet" href="../css/style.css">
-
-    <!-- Page-specific CSS -->
     <link rel="stylesheet" href="../css/admin-loginotp.css">
 </head>
 
 <body>
 
-    <main class="otp-page">
+<div class="otp-page">
 
-        <section class="otp-card">
+    <div class="otp-card">
 
-            <!-- Icon -->
-            <div class="otp-icon">
-                <i>✓</i>
-            </div>
+        <div class="otp-icon" aria-hidden="true">
+            <i>✓</i>
+        </div>
 
-            <!-- Heading -->
-            <h1>Verify Your Account</h1>
+        <h1>Verify Your Account</h1>
 
-            <p class="otp-subtitle">
-                A verification code has been sent to the administrator email address.
+        <p class="otp-subtitle">
+            Enter the 6-digit verification code sent to your
+            administrator email address.
+        </p>
+
+        <div id="emailDisplay" class="email-display"></div>
+
+        <form id="otpForm" novalidate>
+
+            <label for="otp">Verification Code</label>
+
+            <input
+                type="text"
+                id="otp"
+                class="otp-input"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="000000"
+                maxlength="6"
+                aria-label="6-digit verification code"
+                required
+            >
+
+            <div
+                id="message"
+                class="message"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+            <button
+                type="submit"
+                id="verifyBtn"
+                class="verify-btn"
+            >
+                <span id="verifyText">Verify OTP</span>
+                <span id="verifySpinner" class="spinner" hidden></span>
+            </button>
+
+        </form>
+
+        <div class="resend-section">
+            <p>Didn't receive the code?</p>
+
+            <button
+                type="button"
+                id="resendBtn"
+                class="resend-btn"
+            >
+                Resend OTP
+            </button>
+
+            <div
+                id="resendMessage"
+                class="resend-message"
+                aria-live="polite"
+            ></div>
+        </div>
+
+        <a href="admin-login.html" class="back-link">
+            ← Back to Admin Login
+        </a>
+
+        <div class="security-note">
+            <span>🔒</span>
+            <p>
+                For your security, this verification code expires
+                after a limited time.
             </p>
+        </div>
 
-            <p class="email-display" id="emailDisplay">
-                Loading email...
-            </p>
+    </div>
 
-            <!-- OTP Form -->
-            <form id="otpForm">
+</div>
 
-                <label for="otp">Enter 6-Digit OTP</label>
+<script>
+"use strict";
 
-                <input
-                    type="text"
-                    id="otp"
-                    name="otp"
-                    class="otp-input"
-                    placeholder="000000"
-                    maxlength="6"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    required
-                >
+(function () {
 
-                <p
-                    class="message"
-                    id="message"
-                    role="alert"
-                ></p>
+    const API_URL = "";
 
-                <button
-                    type="submit"
-                    id="verifyBtn"
-                    class="verify-btn"
-                >
-                    <span id="verifyText">Verify OTP</span>
-                    <span
-                        id="verifySpinner"
-                        class="spinner"
-                        hidden
-                    ></span>
-                </button>
+    const otpForm = document.getElementById("otpForm");
+    const otpInput = document.getElementById("otp");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const verifyText = document.getElementById("verifyText");
+    const verifySpinner = document.getElementById("verifySpinner");
 
-            </form>
+    const resendBtn = document.getElementById("resendBtn");
+    const resendMessage = document.getElementById("resendMessage");
 
-            <!-- Resend -->
-            <div class="resend-section">
+    const message = document.getElementById("message");
+    const emailDisplay = document.getElementById("emailDisplay");
 
-                <p>Didn't receive the code?</p>
+    const adminEmail = (
+        sessionStorage.getItem("adminLoginEmail") || ""
+    ).trim().toLowerCase();
 
-                <button
-                    type="button"
-                    id="resendBtn"
-                    class="resend-btn"
-                >
-                    Resend OTP
-                </button>
+    let resendCooldown = null;
+    let resendSeconds = 60;
 
-                <p
-                    id="resendMessage"
-                    class="resend-message"
-                ></p>
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + (type || "");
+    }
 
-            </div>
+    function clearMessage() {
+        message.textContent = "";
+        message.className = "message";
+    }
 
-            <!-- Back -->
-            <div class="back-section">
+    function maskEmail(email) {
+        const parts = email.split("@");
 
-                <a
-                    href="admin-login.html"
-                    class="back-link"
-                >
-                    ← Back to Admin Login
-                </a>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script>
-
-        // =========================================================
-        // CONFIGURATION
-        // =========================================================
-
-        const API_URL = "";
-
-
-        // =========================================================
-        // ELEMENTS
-        // =========================================================
-
-        const otpForm = document.getElementById("otpForm");
-
-        const otpInput = document.getElementById("otp");
-
-        const verifyBtn = document.getElementById("verifyBtn");
-
-        const verifyText = document.getElementById("verifyText");
-
-        const verifySpinner = document.getElementById("verifySpinner");
-
-        const message = document.getElementById("message");
-
-        const resendBtn = document.getElementById("resendBtn");
-
-        const resendMessage = document.getElementById("resendMessage");
-
-        const emailDisplay = document.getElementById("emailDisplay");
-
-
-        // =========================================================
-        // GET ADMIN EMAIL
-        // =========================================================
-
-        const adminEmail =
-            sessionStorage.getItem("adminLoginEmail");
-
-
-        if (!adminEmail) {
-
-            emailDisplay.textContent =
-                "Admin email not found.";
-
-            message.textContent =
-                "Your login session has expired. Please login again.";
-
-            message.className =
-                "message error";
-
-            verifyBtn.disabled = true;
-            resendBtn.disabled = true;
-
-        } else {
-
-            emailDisplay.textContent = adminEmail;
-
+        if (parts.length !== 2) {
+            return email;
         }
 
+        const name = parts[0];
+        const domain = parts[1];
 
-        // =========================================================
-        // OTP INPUT
-        // Only allow numbers
-        // =========================================================
+        if (name.length <= 2) {
+            return name.charAt(0) + "***@" + domain;
+        }
 
-        otpInput.addEventListener("input", function () {
+        return (
+            name.charAt(0) +
+            "***" +
+            name.charAt(name.length - 1) +
+            "@" +
+            domain
+        );
+    }
 
-            this.value = this.value.replace(/\D/g, "");
+    function startResendCooldown(seconds) {
+        clearInterval(resendCooldown);
 
-            if (this.value.length > 6) {
+        resendSeconds = seconds;
+        resendBtn.disabled = true;
 
-                this.value =
-                    this.value.substring(0, 6);
+        resendBtn.textContent =
+            "Resend OTP (" + resendSeconds + "s)";
 
-            }
+        resendCooldown = setInterval(function () {
 
-        });
+            resendSeconds--;
 
-
-        // =========================================================
-        // VERIFY OTP
-        // =========================================================
-
-        otpForm.addEventListener("submit", async function (event) {
-
-            event.preventDefault();
-
-            message.textContent = "";
-            message.className = "message";
-
-            const otp = otpInput.value.trim();
-
-
-            // Validate email
-            if (!adminEmail) {
-
-                message.textContent =
-                    "Admin email is missing. Please login again.";
-
-                message.className =
-                    "message error";
-
+            if (resendSeconds <= 0) {
+                clearInterval(resendCooldown);
+                resendCooldown = null;
+                resendBtn.disabled = false;
+                resendBtn.textContent = "Resend OTP";
                 return;
-
             }
 
+            resendBtn.textContent =
+                "Resend OTP (" + resendSeconds + "s)";
 
-            // Validate OTP
-            if (!/^\d{6}$/.test(otp)) {
+        }, 1000);
+    }
 
-                message.textContent =
-                    "Please enter the 6-digit OTP.";
+    if (!adminEmail) {
+        showMessage(
+            "Administrator email information is missing. Please log in again.",
+            "error"
+        );
 
-                message.className =
-                    "message error";
+        verifyBtn.disabled = true;
+        resendBtn.disabled = true;
 
-                otpInput.focus();
+        return;
+    }
 
-                return;
+    emailDisplay.textContent =
+        "Code sent to " + maskEmail(adminEmail);
 
-            }
+    otpInput.addEventListener("input", function () {
+        otpInput.value = otpInput.value
+            .replace(/\D/g, "")
+            .slice(0, 6);
+    });
 
+    otpForm.addEventListener("submit", async function (event) {
 
-            // Loading state
-            verifyBtn.disabled = true;
+        event.preventDefault();
 
-            verifyText.textContent =
-                "Verifying...";
+        clearMessage();
 
-            verifySpinner.hidden = false;
+        const otp = otpInput.value.trim();
 
+        if (!/^\d{6}$/.test(otp)) {
+            showMessage(
+                "Please enter the complete 6-digit OTP.",
+                "error"
+            );
+            otpInput.focus();
+            return;
+        }
 
-            try {
+        verifyBtn.disabled = true;
+        verifyText.textContent = "Verifying...";
+        verifySpinner.hidden = false;
 
-                const response = await fetch(
-                    `${API_URL}/api/admin-login/verify-otp`,
-                    {
-                        method: "POST",
+        try {
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        credentials: "include",
-
-                        body: JSON.stringify({
-                            email: adminEmail,
-                            otp: otp
-                        })
-                    }
-                );
-
-
-                const data = await response.json();
-
-
-                if (!response.ok || !data.success) {
-
-                    throw new Error(
-                        data.message ||
-                        "Invalid or expired OTP."
-                    );
-
+            const response = await fetch(
+                API_URL + "/api/admin-login/verify-otp",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        email: adminEmail,
+                        otp: otp
+                    })
                 }
+            );
 
+            const data = await response.json().catch(function () {
+                return {};
+            });
 
-                // Successful verification
-                message.textContent =
+            if (!response.ok || !data.success) {
+                throw new Error(
                     data.message ||
-                    "OTP verified successfully.";
-
-                message.className =
-                    "message success";
-
-
-                // Remove temporary login email
-                sessionStorage.removeItem(
-                    "adminLoginEmail"
+                    "Invalid or expired OTP."
                 );
-
-
-                // Redirect to admin dashboard
-                setTimeout(function () {
-
-                    window.location.href =
-                        "admin-dashboard.html";
-
-                }, 700);
-
-
-            } catch (error) {
-
-                message.textContent =
-                    error.message ||
-                    "OTP verification failed.";
-
-                message.className =
-                    "message error";
-
-                otpInput.value = "";
-
-                otpInput.focus();
-
-
-            } finally {
-
-                verifyBtn.disabled = false;
-
-                verifyText.textContent =
-                    "Verify OTP";
-
-                verifySpinner.hidden = true;
-
             }
 
-        });
+            showMessage(
+                "OTP verified successfully. Opening Admin Dashboard...",
+                "success"
+            );
 
+            sessionStorage.removeItem("adminLoginEmail");
 
-        // =========================================================
-        // RESEND OTP
-        // =========================================================
+            clearInterval(resendCooldown);
 
-        resendBtn.addEventListener("click", async function () {
+            setTimeout(function () {
+                window.location.replace("admin-dashboard.html");
+            }, 700);
 
-            if (!adminEmail) {
+        } catch (error) {
 
-                resendMessage.textContent =
-                    "Admin email is missing. Please login again.";
+            showMessage(
+                error.message ||
+                "Unable to verify OTP. Please try again.",
+                "error"
+            );
 
-                resendMessage.className =
-                    "resend-message error-text";
-
-                return;
-
-            }
-
-
-            resendMessage.textContent =
-                "Sending new OTP...";
-
-            resendMessage.className =
-                "resend-message";
-
-
-            resendBtn.disabled = true;
-
-
-            try {
-
-                /*
-                 * This endpoint is expected to resend the
-                 * admin login OTP.
-                 *
-                 * We will confirm the exact backend endpoint
-                 * when you provide app.py.
-                 */
-
-                const response = await fetch(
-                    `${API_URL}/api/admin-login/resend-otp`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        credentials: "include",
-
-                        body: JSON.stringify({
-                            email: adminEmail
-                        })
-                    }
-                );
-
-
-                const data = await response.json();
-
-
-                if (!response.ok || !data.success) {
-
-                    throw new Error(
-                        data.message ||
-                        "Unable to resend OTP."
-                    );
-
-                }
-
-
-                resendMessage.textContent =
-                    data.message ||
-                    "A new OTP has been sent.";
-
-                resendMessage.className =
-                    "resend-message success-text";
-
-
-            } catch (error) {
-
-                resendMessage.textContent =
-                    error.message ||
-                    "Unable to resend OTP.";
-
-                resendMessage.className =
-                    "resend-message error-text";
-
-            } finally {
-
-                /*
-                 * Small cooldown so the button cannot
-                 * be repeatedly clicked.
-                 */
-
-                setTimeout(function () {
-
-                    resendBtn.disabled = false;
-
-                }, 3000);
-
-            }
-
-        });
-
-
-        // =========================================================
-        // AUTO FOCUS
-        // =========================================================
-
-        if (adminEmail) {
-
+            otpInput.value = "";
             otpInput.focus();
 
+            verifyBtn.disabled = false;
+            verifyText.textContent = "Verify OTP";
+            verifySpinner.hidden = true;
         }
 
-    </script>
+    });
+
+    resendBtn.addEventListener("click", async function () {
+
+        clearMessage();
+        resendMessage.textContent = "";
+
+        resendBtn.disabled = true;
+        resendMessage.textContent = "Sending new OTP...";
+
+        try {
+
+            const response = await fetch(
+                API_URL + "/api/admin-login/resend-otp",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        email: adminEmail
+                    })
+                }
+            );
+
+            const data = await response.json().catch(function () {
+                return {};
+            });
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "Unable to resend OTP."
+                );
+            }
+
+            resendMessage.textContent =
+                "A new OTP has been sent.";
+
+            otpInput.value = "";
+            otpInput.focus();
+
+            startResendCooldown(60);
+
+        } catch (error) {
+
+            resendMessage.textContent =
+                error.message ||
+                "Unable to resend OTP.";
+
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend OTP";
+        }
+
+    });
+
+    otpInput.focus();
+    startResendCooldown(60);
+
+})();
+</script>
 
 </body>
 </html>

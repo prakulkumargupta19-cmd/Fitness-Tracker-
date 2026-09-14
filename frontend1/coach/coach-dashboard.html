@@ -2645,25 +2645,14 @@ textarea {
 <script>
 
 /* =====================================================
-   DATA & LOCAL STORAGE DEFAULTS
+   DATA
 ===================================================== */
 
-let defaultStudents = [
-    { id: "STU001", name: "Alex Hunter", sport: "Football", age: 16, gender: "Male", bmi: 21.5, score: 8.5, remarks: "Excellent ball control", injury: "None", restriction: "None" },
-    { id: "STU002", name: "Marcus Reed", sport: "Basketball", age: 17, gender: "Male", bmi: 22.8, score: 7.9, remarks: "Needs vertical stamina", injury: "Ankle Sprain", restriction: "No jumping drills" },
-    { id: "STU003", name: "Sophia Taylor", sport: "Athletics", age: 15, gender: "Female", bmi: 19.8, score: 9.1, remarks: "Top sprint pace", injury: "None", restriction: "None" },
-    { id: "STU004", name: "Liam Davies", sport: "Tennis", age: 16, gender: "Male", bmi: 20.4, score: 8.0, remarks: "Improve backhand reach", injury: "None", restriction: "None" }
-];
-
-let students = JSON.parse(localStorage.getItem("coachStudents")) || defaultStudents;
+let students = [];
 let sessions = JSON.parse(localStorage.getItem("trainingSessions")) || [];
 let goals = JSON.parse(localStorage.getItem("coachGoals")) || [];
 let activities = JSON.parse(localStorage.getItem("coachActivities")) || [];
 let feedback = JSON.parse(localStorage.getItem("coachFeedback")) || {};
-
-if (!localStorage.getItem("coachStudents")) {
-    localStorage.setItem("coachStudents", JSON.stringify(students));
-}
 
 /* =====================================================
    HELPERS
@@ -2708,11 +2697,28 @@ function showToast(message){
 ===================================================== */
 
 function saveAll(){
-    localStorage.setItem("coachStudents", JSON.stringify(students));
     localStorage.setItem("trainingSessions", JSON.stringify(sessions));
     localStorage.setItem("coachGoals", JSON.stringify(goals));
     localStorage.setItem("coachActivities", JSON.stringify(activities));
     localStorage.setItem("coachFeedback", JSON.stringify(feedback));
+}
+
+async function loadCoachAthletes(){
+    try {
+        const response = await fetch("/api/coach/athletes", {
+            credentials: "include",
+            cache: "no-store"
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to load students.");
+        }
+        students = Array.isArray(data.athletes) ? data.athletes : [];
+    } catch (error) {
+        console.error("COACH ATHLETES ERROR:", error);
+        students = [];
+        showToast(error.message || "Unable to load students.");
+    }
 }
 
 function addActivity(title, message){
@@ -3475,12 +3481,14 @@ $("deleteAccount")?.addEventListener("click", () => {
 
 $("logoutButton").addEventListener("click", () => {
     if (confirm("Are you sure you want to logout?")) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("coachToken");
-        localStorage.removeItem("coachLoggedIn");
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("coachLoggedIn");
-        window.location.href = "coach-login.html";
+        fetch("/api/logout", {
+            method: "POST",
+            credentials: "include"
+        }).finally(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "coach-login.html";
+        });
     }
 });
 
@@ -3570,12 +3578,17 @@ $("notificationBell")?.addEventListener("click", () => {
    INITIALIZATION
 ===================================================== */
 
-populateSelects();
-loadProfile();
-initCoachCharts();
-renderDashboard();
-renderStudents();
-renderGoals();
+async function initializeCoachDashboard(){
+    await loadCoachAthletes();
+    populateSelects();
+    loadProfile();
+    initCoachCharts();
+    renderDashboard();
+    renderStudents();
+    renderGoals();
+}
+
+initializeCoachDashboard();
 
 </script>
 

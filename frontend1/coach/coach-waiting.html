@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Pending Approval | Fitness Performance Tracker</title>
+
+<!-- Shared CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="../css/coach-waiting.css">
+
+
+
+</head>
+
+<body>
+
+
+<div class="waiting-container">
+
+    <!-- WAITING ICON -->
+    <div class="waiting-icon">
+        ⏳
+    </div>
+
+    <!-- HEADING -->
+    <h1>
+        Registration <span>Successful!</span>
+    </h1>
+
+    <!-- MESSAGE -->
+    <p class="message">
+        Thank you for registering as a coach with the
+        Fitness Performance Tracker.
+        Your registration has been submitted successfully
+        and is currently waiting for admin approval.
+    </p>
+
+    <!-- STATUS -->
+    <div class="status-box">
+
+        <div class="status-title">
+            Account Status
+        </div>
+
+        <div class="status">
+            ⏳ Pending Admin Approval
+        </div>
+
+    </div>
+
+    <!-- INFORMATION -->
+    <p class="info">
+        An administrator will review your registration
+        details and approve your account.
+        You will be able to access your coach dashboard
+        once your account has been approved.
+    </p>
+
+    <!-- BACK BUTTON -->
+    <a href="../index.html" class="back-button">
+        ← Back to Home
+    </a>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        Fitness Performance Tracker
+    </div>
+
+</div>
+
+<!-- ADMIN APPROVAL CHECK -->
+<script>
+
+    const coachEmail = sessionStorage.getItem("authEmail");
+
+    async function checkApprovalStatus() {
+        if (!coachEmail) return;
+        const response = await fetch("/api/coach/status?email=" + encodeURIComponent(coachEmail));
+        const data = await response.json().catch(() => ({}));
+        if (data.success && data.coach_status === "approved") {
+            window.location.href = "coach-login.html";
+        }
+        if (data.success && data.coach_status === "rejected") {
+            document.querySelector(".status").textContent = "Application Not Approved";
+        }
+    }
+
+    // Check immediately
+    checkApprovalStatus();
+
+    // Check again every 5 seconds
+    setInterval(checkApprovalStatus, 5000);
+
+</script>
+
+</body>
+
+</html>

@@ -22,6 +22,7 @@
 
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="../css/coach-verify.css">
+    <link rel="stylesheet" href="../css/verification-portal.css">
 
 </head>
 
@@ -246,8 +247,20 @@ const userEmail =
    GET RESET EMAIL
 ========================================================= */
 
+const emailFromUrl =
+    new URLSearchParams(window.location.search).get("email");
+
 const email =
-    sessionStorage.getItem("resetEmail");
+    (emailFromUrl ||
+        sessionStorage.getItem("resetEmail") ||
+        localStorage.getItem("resetEmail") ||
+        "")
+    .trim()
+    .toLowerCase();
+
+if (email) {
+    sessionStorage.setItem("resetEmail", email);
+}
 
 
 /*
@@ -315,7 +328,7 @@ function maskEmail(email) {
 if (email) {
 
     userEmail.textContent =
-        maskEmail(email);
+        email;
 
 }
 

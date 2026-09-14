@@ -14,9 +14,9 @@ import pymysql
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "fitness_user"),
-    "password": os.getenv("DB_PASSWORD", "StrongPassword123!"),
-    "database": os.getenv("DB_NAME", "athlete_tracker"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", "Prakul@2006"),
+    "database": os.getenv("DB_NAME", "fitness_tracker_auth"),
     "charset": "utf8mb4",
     "cursorclass": pymysql.cursors.DictCursor,
     "autocommit": False,
@@ -31,3 +31,4 @@ def get_db():
     import it without creating a circular dependency.
     """
     return pymysql.connect(**DB_CONFIG)
+

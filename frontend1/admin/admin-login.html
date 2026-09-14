@@ -44,19 +44,10 @@
         </div>
 
 
-        <h1>
-            Manage.
-            Monitor.
-            <span>Perform.</span>
-        </h1>
-
-
-        <p>
             Manage athletes, coaches, accounts,
             permissions, and system performance
             from the administrator portal.
         </p>
-
 
         <div class="brand-line"></div>
 
@@ -518,32 +509,11 @@
 
                 }
 
+                sessionStorage.setItem("adminLoginEmail", email);
 
-                /* -----------------------------------------
-                   STORE EMAIL FOR OTP PAGE
-                ----------------------------------------- */
-
-                sessionStorage.setItem(
-                    "adminLoginEmail",
-                    email
-                );
-
-
-                /* -----------------------------------------
-                   OTP SENT
-                ----------------------------------------- */
 
                 loginButton.textContent =
-                    "OTP sent...";
-
-
-                /*
-                 * The password is NOT stored.
-                 *
-                 * Only the admin email is temporarily
-                 * stored so the OTP page knows which
-                 * login attempt it is verifying.
-                 */
+                    "Login successful...";
 
 
                 setTimeout(

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Login OTP</title>
+    <style>
+        body { font-family: Arial, sans-serif; min-height: 100vh; display: grid; place-items: center; margin: 0; background: #102a43; }
+        .card { width: min(92%, 420px); padding: 32px; background: #fff; border-radius: 16px; text-align: center; box-shadow: 0 20px 50px #0005; }
+        input, button { width: 100%; padding: 13px; margin-top: 12px; box-sizing: border-box; border-radius: 8px; font-size: 16px; }
+        input { border: 1px solid #bcccdc; text-align: center; letter-spacing: 6px; }
+        button { border: 0; background: #147d92; color: white; cursor: pointer; }
+        button:disabled { opacity: .6; cursor: wait; }
+        #message { min-height: 24px; margin-top: 14px; }
+        .error { color: #b42318; } .success { color: #067647; }
+        a { display: block; margin-top: 18px; color: #147d92; }
+    </style>
+    <link rel="stylesheet" href="../css/verification-portal.css">
+    <style>
+        body {
+            background-image:
+                linear-gradient(rgba(7, 25, 43, .82), rgba(7, 25, 43, .82)),
+                url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1920&q=85");
+        }
+    </style>
+</head>
+<body>
+<main class="otp-card">
+    <div class="otp-icon" aria-hidden="true"><i>✓</i></div>
+    <h1>Verify Your Account</h1>
+    <p class="otp-subtitle">Enter the 6-digit verification code sent to your coach email address.</p>
+    <div id="emailDisplay" class="email-display"></div>
+    <form id="otpForm">
+        <label for="otp">Verification Code</label>
+        <input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required>
+        <div id="message" class="message" aria-live="polite"></div>
+        <button id="verifyButton" class="verify-btn" type="submit">Verify OTP</button>
+    </form>
+    <div class="resend-section">
+        <p>Didn't receive the code?</p>
+        <button id="resendButton" class="resend-btn" type="button">Resend OTP</button>
+    </div>
+    <a href="coach-login.html">Back to login</a>
+    <div class="security-note">🔒 For your security, this verification code expires after a limited time.</div>
+</main>
+<script>
+(function () {
+    const email = (sessionStorage.getItem("loginOtpEmail") || "").trim().toLowerCase();
+    const form = document.getElementById("otpForm");
+    const otp = document.getElementById("otp");
+    const verifyButton = document.getElementById("verifyButton");
+    const resendButton = document.getElementById("resendButton");
+    const message = document.getElementById("message");
+    document.getElementById("emailDisplay").textContent = email ? "Code sent to " + email : "Login session expired.";
+    function show(text, type) { message.textContent = text; message.className = type || ""; }
+    if (!email) { verifyButton.disabled = true; resendButton.disabled = true; }
+    otp.addEventListener("input", function () { otp.value = otp.value.replace(/\D/g, "").slice(0, 6); });
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        if (!/^\d{6}$/.test(otp.value)) { show("Enter the complete 6-digit OTP.", "error"); return; }
+        verifyButton.disabled = true;
+        try {
+            const response = await fetch("/api/login/verify-otp", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: email, otp: otp.value }) });
+            const data = await response.json().catch(function () { return {}; });
+            if (!response.ok || !data.success) throw new Error(data.message || "Invalid or expired OTP.");
+            sessionStorage.removeItem("loginOtpEmail");
+            show("Login verified. Opening dashboard...", "success");
+            setTimeout(function () { window.location.replace("coach-dashboard.html"); }, 500);
+        } catch (error) { show(error.message, "error"); verifyButton.disabled = false; }
+    });
+    resendButton.addEventListener("click", async function () {
+        resendButton.disabled = true;
+        const response = await fetch("/api/login/resend-otp", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: email }) });
+        const data = await response.json().catch(function () { return {}; });
+        if (!response.ok || !data.success) { show(data.message || "Unable to resend OTP.", "error"); resendButton.disabled = false; return; }
+        show(data.message, "success");
+        setTimeout(function () { resendButton.disabled = false; }, 60000);
+    });
+})();
+</script>
+</body>
+</html>

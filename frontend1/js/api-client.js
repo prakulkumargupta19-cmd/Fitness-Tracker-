@@ -253,7 +253,7 @@
 
                 "POST",
 
-                "/api/admin/login",
+                "/api/admin-login",
 
                 {
 
@@ -279,7 +279,7 @@
 
                 "POST",
 
-                "/api/admin/login/verify-otp",
+                "/api/admin-login/verify-otp",
 
                 {
 
@@ -302,7 +302,7 @@
 
                 "POST",
 
-                "/api/admin/login/resend-otp",
+                "/api/admin-login/resend-otp",
 
                 {
 
@@ -337,10 +337,9 @@
                     data.confirm_password,
 
                 role:
-                    cfg.ROLE_MAP[
-                        data.role
-                    ] ||
-                    data.role
+                    data.role === "student"
+                        ? "student"
+                        : cfg.ROLE_MAP[data.role] || data.role
 
             };
 

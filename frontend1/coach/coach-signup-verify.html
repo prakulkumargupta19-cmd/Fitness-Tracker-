@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/coach-signup-verify.css">
+    <link rel="stylesheet" href="../css/verification-portal.css">
 </head>
 
 <body>
@@ -488,7 +489,7 @@
 
                     const response =
                         await fetch(
-                            `${API_BASE}/api/verify-otp`,
+                            `${API_BASE}/api/account-verification/verify`,
                             {
                                 method: "POST",
 
@@ -528,7 +529,7 @@
 
                     showMessage(
                         data.message ||
-                        "OTP verified successfully. Your coach account has been created!",
+                            data.message || "Email verified. Your application is waiting for admin approval.",
                         "success"
                     );
 
@@ -551,7 +552,7 @@
                         function() {
 
                             window.location.href =
-                                "coach-login.html";
+                                "coach-waiting.html";
 
                         },
                         1200
@@ -694,7 +695,7 @@
 
                     const response =
                         await fetch(
-                            `${API_BASE}/api/verify-otp/resend`,
+                            `${API_BASE}/api/account-verification/send`,
                             {
                                 method: "POST",
 

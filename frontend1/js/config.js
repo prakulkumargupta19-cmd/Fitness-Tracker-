@@ -19,9 +19,9 @@
         // If frontend is served from a different origin, override via env.
         API_BASE: "",
 
-        // Role mapping (backend uses 'player', UI uses 'student')
+        // Keep role names aligned with the backend schema.
         ROLE_MAP: {
-            student: "player",
+            student: "student",
             coach: "coach",
             admin: "admin"
         },

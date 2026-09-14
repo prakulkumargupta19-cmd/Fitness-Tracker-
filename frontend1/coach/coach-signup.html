@@ -827,7 +827,7 @@
                BACKEND REGISTRATION
             ================================== */
 
-            fetch("/api/register", {
+                fetch("/api/signup", {
 
                 method: "POST",
 
@@ -865,24 +865,7 @@
 
                 }
 
-                /*
-                    Save only the email and authentication mode.
-                    Do NOT save the password in localStorage.
-                */
-
-                sessionStorage.setItem(
-                    "authEmail",
-                    email
-                );
-
-                sessionStorage.setItem(
-                    "authMode",
-                    "signup"
-                );
-
-                /*
-                    Move to the coach OTP verification page.
-                */
+                sessionStorage.setItem("authEmail", email);
 
                 window.location.href =
                     "coach-signup-verify.html";
