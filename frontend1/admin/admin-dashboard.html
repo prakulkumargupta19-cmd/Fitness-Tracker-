@@ -2171,7 +2171,7 @@ async function apiGet(endpoint) {
 function updateDashboard() {  
     const students = adminState.users.filter(user => user.role === "player" || user.role === "student");  
     const coaches = adminState.users.filter(user => user.role === "coach");  
-    const pending = adminState.users.filter(user => user.coach_status === "pending" || Number(user.is_verified) === 0);  
+    const pending = adminState.users.filter(isPendingAccount);  
     const performanceRecords = adminState.assessments.length + adminState.trainingSessions.length;  
   
     document.getElementById("studentCount").textContent = students.length;  
@@ -2420,7 +2420,7 @@ function statusBadge(user) {
     if (status === "deleted") {  
         return `<span class="inline-flex px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-mono uppercase font-bold">Deleted</span>`;  
     }  
-    if (Number(user.email_verified) === 0) {  
+    if (isPendingAccount(user)) {  
         return `<span class="inline-flex px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-mono uppercase font-bold">Pending</span>`;  
     }  
     return `<span class="inline-flex px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-bold">Active</span>`;  
@@ -2492,6 +2492,11 @@ function updateDistribution(students, coaches, pending) {
     document.getElementById("coachPercentage").textContent = `${coachPercentage}%`;  
     document.getElementById("pendingPercentage").textContent = `${pendingPercentage}%`;  
 }  
+
+function isPendingAccount(user) {
+    return String(user.coach_status || "").toLowerCase() === "pending"
+        || Number(user.email_verified ?? user.is_verified) === 0;
+}
   
 function createDistributionChart() {  
     const canvas = document.getElementById("userStatusDoughnutChart");  
@@ -2500,7 +2505,7 @@ function createDistributionChart() {
   
     const students = adminState.users.filter(user => user.role === "player" || user.role === "student").length;  
     const coaches = adminState.users.filter(user => user.role === "coach").length;  
-    const pending = adminState.users.filter(user => Number(user.email_verified) === 0).length;  
+    const pending = adminState.users.filter(isPendingAccount).length;  
   
     distributionChart = new Chart(canvas, {  
         type: "doughnut",  

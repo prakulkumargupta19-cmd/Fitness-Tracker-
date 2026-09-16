@@ -31,6 +31,20 @@ def hash_password(password):
     return generate_password_hash(password)
 
 
+def ensure_builtin_admins(cursor):
+    builtin_admins = [
+        ('Gareema Kumari Gupta', 'gareema.k.gupta@gmail.com', 'Sample@1234', '9876543210'),
+        ('Prakul Gupta', 'guptaaprakul18@gmail.com', 'Secure@1234', '9876543220'),
+    ]
+    for full_name, email, password, contact_number in builtin_admins:
+        cursor.execute(
+            """INSERT IGNORE INTO users
+               (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
+               VALUES ('admin', %s, %s, %s, %s, TRUE, NULL, NOW())""",
+            (full_name, email, hash_password(password), contact_number),
+        )
+
+
 def main():
     """Seed database with demo accounts: 2 admins, 2 coaches, 5 students"""
     conn = pymysql.connect(**DB_CONFIG)
@@ -38,6 +52,8 @@ def main():
 
     cursor.execute('SELECT COUNT(*) AS cnt FROM users')
     if cursor.fetchone()['cnt'] > 0:
+        ensure_builtin_admins(cursor)
+        conn.commit()
         conn.close()
         return
 

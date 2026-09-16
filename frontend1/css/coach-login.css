@@ -31,7 +31,7 @@ body {
 
     color: #ffffff;
 
-    padding: 20px;
+    padding: 0;
 }
 
 
@@ -42,7 +42,7 @@ body {
 .page-container {
     width: 100%;
     max-width: 1150px;
-    min-height: 650px;
+    min-height: 0;
 
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -198,7 +198,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    padding: 55px;
+    padding: 50px;
 }
 
 
@@ -209,6 +209,8 @@ body {
 .login-card {
     width: 100%;
     max-width: 410px;
+    height: auto;
+    min-height: 0;
 }
 
 
@@ -233,7 +235,7 @@ body {
 
     font-size: 30px;
 
-    margin-bottom: 22px;
+    margin-bottom: 25px;
 }
 
 
@@ -246,7 +248,7 @@ body {
 
     line-height: 1.15;
 
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 
     font-weight: 800;
 
@@ -270,7 +272,7 @@ body {
 
     line-height: 1.6;
 
-    margin-bottom: 28px;
+    margin-bottom: 35px;
 }
 
 
@@ -320,7 +322,7 @@ body {
 ========================================================= */
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
 
@@ -333,7 +335,7 @@ body {
 
     color: #333333;
 
-    margin-bottom: 8px;
+    margin-bottom: 9px;
 }
 
 
@@ -518,7 +520,7 @@ body {
 
     gap: 15px;
 
-    margin-bottom: 25px;
+    margin: 8px 0 28px;
 }
 
 
@@ -728,6 +730,7 @@ body {
         max-width: 550px;
 
         margin: 25px;
+        min-height: 0;
     }
 
 
@@ -764,7 +767,7 @@ body {
     .page-container {
         margin: 0;
 
-        min-height: 100vh;
+        min-height: 0;
 
         border-radius: 0;
     }

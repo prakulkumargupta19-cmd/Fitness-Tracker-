@@ -169,6 +169,32 @@ def seed_admins():
         return False
 
 
+def ensure_builtin_admins():
+    from werkzeug.security import generate_password_hash
+
+    builtin_admins = [
+        ("Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", "Sample@1234", "9876543210"),
+        ("Prakul Gupta", "guptaaprakul18@gmail.com", "Secure@1234", "9876543220"),
+    ]
+
+    try:
+        conn = pymysql.connect(**APP_CONFIG)
+        with conn.cursor() as cursor:
+            for full_name, email, password, contact_number in builtin_admins:
+                cursor.execute(
+                    """INSERT IGNORE INTO users
+                       (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
+                       VALUES ('admin', %s, %s, %s, %s, TRUE, NULL, NOW())""",
+                    (full_name, email, generate_password_hash(password), contact_number),
+                )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[ERROR] Error ensuring built-in admins: {e}")
+        return False
+
+
 def main():
     init_only = "--init-only" in sys.argv
     force_reset = "--reset" in sys.argv
@@ -184,6 +210,8 @@ def main():
     if force_reset or not users_seeded():
         if not seed_admins():
             sys.exit(1)
+    elif not ensure_builtin_admins():
+        sys.exit(1)
 
     if init_only:
         sys.exit(0)

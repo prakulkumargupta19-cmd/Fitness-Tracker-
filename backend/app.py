@@ -62,8 +62,11 @@ def add_cors_headers(response):
 
 
 @app.route("/", methods=["GET"])
+@app.route("/index.html", methods=["GET"])
 def index():
-    return send_from_directory(str(FRONTEND_DIR), "index.html")
+    if (FRONTEND_DIR / "index.html").is_file():
+        return send_from_directory(str(FRONTEND_DIR), "index.html")
+    return send_from_directory(str(FRONTEND_DIR), "mainlading.html")
 
 
 @app.route("/<path:path>", methods=["GET"])
