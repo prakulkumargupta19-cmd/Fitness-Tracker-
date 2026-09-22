@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Personal Information | Fitness Performance Tracker</title>
+
+   <link
+        rel="stylesheet"
+        href="../css/student-personalinfo.css"
+    >
+
+
+</head>
+
+
+<body>
+
+
+    <div class="form-container">
+
+
+        <!-- HEADER -->
+
+        <div class="form-header">
+
+            <h1>
+                Personal <span>Information</span>
+            </h1>
+
+            <p>
+                Help us understand your fitness profile and goals.
+            </p>
+
+        </div>
+
+
+        <!-- PROGRESS -->
+
+        <div class="progress-container">
+
+            <div class="progress-text">
+
+                <span>
+                    Account
+                </span>
+
+                <span>
+                    Basic Information
+                </span>
+
+                <span class="active">
+                    Personal Information
+                </span>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div class="progress"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORM -->
+
+        <form id="personalInfoForm" action="student-signup-verify.html" method="get">
+
+
+            <!-- SEMESTER -->
+
+            <div class="form-group">
+
+                <label for="semester">
+                    Semester <span class="required">*</span>
+                </label>
+
+                <select
+                    id="semester"
+                    name="semester"
+                    required
+                >
+
+                    <option value="" disabled selected>
+                        Select your semester
+                    </option>
+
+                    <option value="1">
+                        Semester 1
+                    </option>
+
+                    <option value="2">
+                        Semester 2
+                    </option>
+
+                    <option value="3">
+                        Semester 3
+                    </option>
+
+                    <option value="4">
+                        Semester 4
+                    </option>
+
+                    <option value="5">
+                        Semester 5
+                    </option>
+
+                    <option value="6">
+                        Semester 6
+                    </option>
+
+                    <option value="7">
+                        Semester 7
+                    </option>
+
+                    <option value="8">
+                        Semester 8
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- HEIGHT -->
+
+            <div class="form-group">
+
+                <label for="height">
+                    Height <span class="required">*</span>
+                </label>
+
+                <div class="input-with-unit">
+
+                    <input
+                        type="number"
+                        id="height"
+                        name="height"
+                        placeholder="Enter your height"
+                        min="50"
+                        max="250"
+                        step="0.1"
+                        required
+                    >
+
+
+                    <select
+                        id="height-unit"
+                        name="height_unit"
+                        class="unit-select"
+                        required
+                    >
+
+                        <option value="cm">
+                            cm
+                        </option>
+
+                        <option value="ft">
+                            ft
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- WEIGHT -->
+
+            <div class="form-group">
+
+                <label for="weight">
+                    Weight <span class="required">*</span>
+                </label>
+
+                <div class="input-with-unit">
+
+                    <input
+                        type="number"
+                        id="weight"
+                        name="weight"
+                        placeholder="Enter your weight"
+                        min="20"
+                        max="300"
+                        step="0.1"
+                        required
+                    >
+
+
+                    <select
+                        id="weight-unit"
+                        name="weight_unit"
+                        class="unit-select"
+                        required
+                    >
+
+                        <option value="kg">
+                            kg
+                        </option>
+
+                        <option value="lbs">
+                            lbs
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- FITNESS GOAL -->
+
+            <div class="form-group">
+
+                <label for="goal">
+                    Fitness Goal <span class="required">*</span>
+                </label>
+
+                <select
+                    id="goal"
+                    name="goal"
+                    required
+                >
+
+                    <option value="" disabled selected>
+                        Select your fitness goal
+                    </option>
+
+                    <option value="weight-loss">
+                        Weight Loss
+                    </option>
+
+                    <option value="weight-gain">
+                        Weight Gain
+                    </option>
+
+                    <option value="muscle-gain">
+                        Muscle Gain
+                    </option>
+
+                    <option value="strength">
+                        Improve Strength
+                    </option>
+
+                    <option value="endurance">
+                        Improve Endurance
+                    </option>
+
+                    <option value="fitness">
+                        General Fitness
+                    </option>
+
+                    <option value="flexibility">
+                        Improve Flexibility
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ACTIVITY LEVEL -->
+
+            <div class="form-group">
+
+                <label for="activity">
+                    Activity Level <span class="required">*</span>
+                </label>
+
+                <select
+                    id="activity"
+                    name="activity"
+                    required
+                >
+
+                    <option value="" disabled selected>
+                        Select your activity level
+                    </option>
+
+                    <option value="sedentary">
+                        Sedentary - Little or no exercise
+                    </option>
+
+                    <option value="light">
+                        Lightly Active - 1 to 3 days/week
+                    </option>
+
+                    <option value="moderate">
+                        Moderately Active - 3 to 5 days/week
+                    </option>
+
+                    <option value="very-active">
+                        Very Active - 6 to 7 days/week
+                    </option>
+
+                    <option value="extra-active">
+                        Extremely Active - Intense daily exercise
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="button-container">
+
+
+                <a
+                    href="student-basicinfo.html"
+                    class="back-button"
+                >
+                    ← Back
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="next-button"
+                >
+                    Continue →
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+            Fitness Performance Tracker
+        </div>
+
+
+    </div>
+
+    <script>
+    document.getElementById("personalInfoForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const basic = JSON.parse(sessionStorage.getItem("studentProfileBasic") || "{}");
+        const height = Number(document.getElementById("height").value);
+        const weight = Number(document.getElementById("weight").value);
+        const heightCm = document.getElementById("height-unit").value === "ft" ? height * 30.48 : height;
+        const weightKg = document.getElementById("weight-unit").value === "lbs" ? weight * 0.453592 : weight;
+        const apiBase = window.location.protocol === "file:" ? "http://127.0.0.1:5000" : "";
+        const response = await fetch(apiBase + "/api/profile/setup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                ...basic,
+                height_cm: heightCm.toFixed(2),
+                weight_kg: weightKg.toFixed(2),
+                goal: document.getElementById("goal").value,
+                sport_activity: document.getElementById("activity").value
+            })
+        });
+        const data = await response.json().catch(function () { return {}; });
+        if (!response.ok || !data.success) {
+            window.alert(data.message || "Unable to save your profile.");
+            return;
+        }
+        sessionStorage.removeItem("studentProfileBasic");
+        window.location.href = "student-signup-verify.html";
+    });
+    </script>
+
+
+</body>
+
+</html>
+

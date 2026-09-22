@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Basic Information | Fitness Performance Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/student-basicinfo.css"
+    >
+
+
+</head>
+
+
+<body>
+
+
+    <div class="form-container">
+
+
+        <!-- HEADER -->
+
+        <div class="form-header">
+
+            <h1>
+                Basic <span>Information</span>
+            </h1>
+
+            <p>
+                Tell us a little more about yourself to complete your profile.
+            </p>
+
+        </div>
+
+
+        <!-- PROGRESS -->
+
+        <div class="progress-container">
+
+            <div class="progress-text">
+
+                <span>
+                    Account
+                </span>
+
+                <span class="active">
+                    Basic Information
+                </span>
+
+                <span>
+                    Personal Information
+                </span>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div class="progress"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORM -->
+
+        <form id="basicInfoForm" action="student-personalinfo.html" method="get">
+
+
+            <!-- GENDER -->
+
+            <div class="form-group">
+
+                <label for="gender">
+                    Gender <span class="required">*</span>
+                </label>
+
+                <select id="gender" name="gender" required>
+
+                    <option value="" disabled selected>
+                        Select your gender
+                    </option>
+
+                    <option value="male">
+                        Male
+                    </option>
+
+                    <option value="female">
+                        Female
+                    </option>
+
+                    <option value="other">
+                        Other
+                    </option>
+
+                    <option value="prefer-not-to-say">
+                        Prefer not to say
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- DATE OF BIRTH -->
+
+            <div class="form-group">
+
+                <label for="dob">
+                    Date of Birth <span class="required">*</span>
+                </label>
+
+                <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    required
+                >
+
+            </div>
+
+
+            <!-- PHONE NUMBER -->
+
+            <div class="form-group">
+
+                <label for="phone">
+                    Phone Number <span class="required">*</span>
+                </label>
+
+
+                <div class="phone-input">
+
+                    <input
+                        type="text"
+                        class="country-code"
+                        value="+91"
+                        readonly
+                    >
+
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter your phone number"
+                        pattern="[0-9]{10}"
+                        maxlength="10"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- EMERGENCY NUMBER -->
+
+            <div class="form-group">
+
+                <label for="emergency-phone">
+                    Emergency Number <span class="required">*</span>
+                </label>
+
+
+                <div class="phone-input">
+
+                    <input
+                        type="text"
+                        class="country-code"
+                        value="+91"
+                        readonly
+                    >
+
+
+                    <input
+                        type="tel"
+                        id="emergency-phone"
+                        name="emergency-phone"
+                        placeholder="Enter emergency contact number"
+                        pattern="[0-9]{10}"
+                        maxlength="10"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="button-container">
+
+
+                <a
+                    href="student-signup.html"
+                    class="back-button"
+                >
+                    ← Back
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="next-button"
+                >
+                    Continue →
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+            Fitness Performance Tracker
+        </div>
+
+
+    </div>
+
+    <script>
+    document.getElementById("basicInfoForm").addEventListener("submit", function () {
+        sessionStorage.setItem("studentProfileBasic", JSON.stringify({
+            gender: document.getElementById("gender").value,
+            date_of_birth: document.getElementById("dob").value,
+            contact_number: document.getElementById("phone").value,
+            emergency_contact: document.getElementById("emergency-phone").value
+        }));
+    });
+    </script>
+
+
+</body>
+
+</html>
+
+

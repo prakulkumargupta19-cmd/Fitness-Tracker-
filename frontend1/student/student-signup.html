@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Sign Up | Fitness Performance Tracker</title>
+
+    <!-- STUDENT SIGNUP CSS -->
+    <link
+        rel="stylesheet"
+        href="../css/student-signup.css?v=2"
+    >
+
+</head>
+
+<body>
+
+    <div class="signup-page">
+
+        <!-- =====================================================
+             LEFT / BRAND SECTION
+        ====================================================== -->
+
+        <section class="brand-section">
+
+            <div class="brand-content">
+
+                <div class="brand-icon">
+                    🏃
+                </div>
+
+                <h1>
+                    Fitness Performance Tracker
+                </h1>
+
+                <p>
+                    Create your student account and start
+                    tracking your fitness performance.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SIGNUP SECTION
+        ====================================================== -->
+
+        <section class="signup-section">
+
+            <div class="signup-card">
+
+                <div class="signup-header">
+
+                    <h2>
+                        Create Student Account
+                    </h2>
+
+                    <p>
+                        Enter your details to create your account.
+                    </p>
+
+                </div>
+
+
+                <!-- ERROR MESSAGE -->
+
+                <div
+                    id="errorMessage"
+                    class="message error hidden"
+                ></div>
+
+
+                <!-- SUCCESS MESSAGE -->
+
+                <div
+                    id="successMessage"
+                    class="message success hidden"
+                ></div>
+
+
+                <!-- =================================================
+                     SIGNUP FORM
+                ================================================== -->
+
+                <form
+                    id="signupForm"
+                    novalidate
+                >
+
+                    <!-- FULL NAME -->
+
+                    <div class="form-group">
+
+                        <label for="fullName">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="studentEmail">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="studentEmail"
+                            name="studentEmail"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="show-password"
+                                id="passwordToggle"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="confirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="show-password"
+                                id="confirmPasswordToggle"
+                                aria-label="Show confirm password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+
+                    <div class="form-options">
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                name="terms"
+                            >
+
+                            <span>
+                                I agree to the Terms & Privacy Policy.
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="signup-button"
+                        id="signupButton"
+                    >
+
+                        <span id="buttonText">
+                            Create Account
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <!-- LOGIN LINK -->
+
+                <div class="login-section">
+
+                    Already have an account?
+
+                    <a
+                        href="student-login.html"
+                        class="login-link"
+                    >
+                        Login
+                    </a>
+
+                </div>
+
+
+                <!-- BACK LINK -->
+
+                <a
+                    href="../mainlading.html"
+                    class="back-link"
+                >
+                    ← Back to role selection
+                </a>
+
+
+                <!-- SECURITY MESSAGE -->
+
+                <div class="security-note">
+
+                    <span class="security-icon">
+                        🔒
+                    </span>
+
+                    <span>
+                        Your personal performance data
+                        is securely protected.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================================================
+         API CLIENT
+    ========================================================== -->
+
+    <script src="../js/api-client.js"></script>
+
+
+    <!-- =========================================================
+         STUDENT SIGNUP JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+        (function () {
+
+            "use strict";
+
+
+            /* =====================================================
+               ELEMENTS
+            ===================================================== */
+
+            const signupForm =
+                document.getElementById("signupForm");
+
+            const fullNameInput =
+                document.getElementById("fullName");
+
+            const emailInput =
+                document.getElementById("studentEmail");
+
+            const passwordInput =
+                document.getElementById("password");
+
+            const confirmPasswordInput =
+                document.getElementById("confirmPassword");
+
+            const termsInput =
+                document.getElementById("terms");
+
+            const signupButton =
+                document.getElementById("signupButton");
+
+            const buttonText =
+                document.getElementById("buttonText");
+
+            const errorMessage =
+                document.getElementById("errorMessage");
+
+            const successMessage =
+                document.getElementById("successMessage");
+
+
+            /* =====================================================
+               MESSAGE FUNCTIONS
+            ===================================================== */
+
+            function showError(message) {
+
+                if (successMessage) {
+
+                    successMessage.classList.add("hidden");
+
+                    successMessage.textContent = "";
+
+                }
+
+                if (errorMessage) {
+
+                    errorMessage.textContent = message;
+
+                    errorMessage.classList.remove("hidden");
+
+                }
+
+            }
+
+
+            function showSuccess(message) {
+
+                if (errorMessage) {
+
+                    errorMessage.classList.add("hidden");
+
+                    errorMessage.textContent = "";
+
+                }
+
+                if (successMessage) {
+
+                    successMessage.textContent = message;
+
+                    successMessage.classList.remove("hidden");
+
+                }
+
+            }
+
+
+            function clearMessages() {
+
+                if (errorMessage) {
+
+                    errorMessage.classList.add("hidden");
+
+                    errorMessage.textContent = "";
+
+                }
+
+                if (successMessage) {
+
+                    successMessage.classList.add("hidden");
+
+                    successMessage.textContent = "";
+
+                }
+
+            }
+
+
+            /* =====================================================
+               PASSWORD VISIBILITY
+            ===================================================== */
+
+            function setupPasswordToggle(input, button) {
+
+                if (!input || !button) {
+                    return;
+                }
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        if (input.type === "password") {
+
+                            input.type = "text";
+
+                            button.textContent = "🙈";
+
+                        } else {
+
+                            input.type = "password";
+
+                            button.textContent = "👁";
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            setupPasswordToggle(
+                passwordInput,
+                document.getElementById(
+                    "passwordToggle"
+                )
+            );
+
+
+            setupPasswordToggle(
+                confirmPasswordInput,
+                document.getElementById(
+                    "confirmPasswordToggle"
+                )
+            );
+
+
+            /* =====================================================
+               SIGNUP
+               
+               IMPORTANT:
+               Password comparison is handled by Flask.
+            ===================================================== */
+
+            signupForm.addEventListener(
+                "submit",
+                async function (event) {
+
+                    event.preventDefault();
+
+                    clearMessages();
+
+
+                    const fullName =
+                        fullNameInput.value.trim();
+
+                    const email =
+                        emailInput.value
+                            .trim()
+                            .toLowerCase();
+
+                    /*
+                     * Never trim passwords.
+                     */
+                    const password =
+                        passwordInput.value;
+
+                    const confirmPassword =
+                        confirmPasswordInput.value;
+
+                    const termsAccepted =
+                        termsInput.checked;
+
+
+                    /* =================================================
+                       VALIDATION
+                    ================================================= */
+
+                    if (!fullName) {
+
+                        showError(
+                            "Please enter your full name."
+                        );
+
+                        fullNameInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!email) {
+
+                        showError(
+                            "Please enter your email address."
+                        );
+
+                        emailInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (
+                        !email.includes("@") ||
+                        !email.includes(".")
+                    ) {
+
+                        showError(
+                            "Please enter a valid email address."
+                        );
+
+                        emailInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!password) {
+
+                        showError(
+                            "Please enter a password."
+                        );
+
+                        passwordInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!confirmPassword) {
+
+                        showError(
+                            "Please confirm your password."
+                        );
+
+                        confirmPasswordInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (password.length < 8) {
+
+                        showError(
+                            "Password must contain at least 8 characters."
+                        );
+
+                        passwordInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (!termsAccepted) {
+
+                        showError(
+                            "Please accept the Terms & Privacy Policy."
+                        );
+
+                        termsInput.focus();
+
+                        return;
+
+                    }
+
+
+                    /* =================================================
+                       DISABLE BUTTON
+                    ================================================= */
+
+                    signupButton.disabled = true;
+
+                    buttonText.textContent =
+                        "Creating Account...";
+
+
+                    try {
+
+                        /* =================================================
+                           REAL BACKEND REQUEST
+
+                           POST /api/register
+                        ================================================= */
+
+                        const response =
+                            await API.register({
+
+                                name: fullName,
+
+                                email: email,
+
+                                password: password,
+
+                                confirm_password:
+                                    confirmPassword,
+
+                                role: "student"
+
+                            });
+
+
+                        console.log(
+                            "STUDENT SIGNUP RESPONSE:",
+                            response.status,
+                            response.data
+                        );
+
+
+                        /* =================================================
+                           SERVER ERROR
+                        ================================================= */
+
+                        if (
+                            !response.ok ||
+                            !response.data ||
+                            response.data.success !== true
+                        ) {
+
+                            showError(
+                                response.data &&
+                                response.data.message
+                                    ? response.data.message
+                                    : "Unable to create account. Please try again."
+                            );
+
+                            return;
+
+                        }
+
+
+                        /* =================================================
+                           TEMPORARY SIGNUP DATA
+
+                           Used by student-signup-verify.html
+                        ================================================= */
+
+                        sessionStorage.setItem(
+                            "signupEmail",
+                            email
+                        );
+
+                        sessionStorage.setItem(
+                            "signupName",
+                            fullName
+                        );
+
+
+                        /* =================================================
+                           SUCCESS MESSAGE
+                        ================================================= */
+
+                        showSuccess(
+                            response.data.message ||
+                            "OTP sent to your email."
+                        );
+
+
+                        /* =================================================
+                           REDIRECT TO OTP VERIFICATION PAGE
+                        ================================================= */
+
+                        setTimeout(
+                            function () {
+
+                                window.location.href =
+                                    "student-basicinfo.html";
+
+                            },
+                            500
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "STUDENT SIGNUP ERROR:",
+                            error
+                        );
+
+                        showError(
+                            "Unable to connect to the server. Please try again."
+                        );
+
+                    }
+
+                    finally {
+
+                        signupButton.disabled = false;
+
+                        buttonText.textContent =
+                            "Create Account";
+
+                    }
+
+                }
+            );
+
+        })();
+
+    </script>
+
+</body>
+
+</html>

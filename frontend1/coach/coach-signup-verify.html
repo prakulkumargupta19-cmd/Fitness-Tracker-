@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify OTP | Fitness Performance Tracker</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/coach-signup-verify.css">
+    <link rel="stylesheet" href="../css/verification-portal.css">
+</head>
+
+<body>
+
+    <!-- ==============================
+         OTP CARD
+    ============================== -->
+
+    <div class="otp-card">
+
+        <!-- ICON -->
+
+        <div class="otp-icon">
+            🔐
+        </div>
+
+
+        <!-- HEADING -->
+
+        <h1>
+            Verify <span>OTP</span>
+        </h1>
+
+
+        <!-- DESCRIPTION -->
+
+        <p class="description">
+            Enter the 6-digit verification code
+            sent to your email address to complete
+            your coach account registration.
+        </p>
+
+
+        <!-- EMAIL -->
+
+        <div class="email-display">
+
+            OTP sent to:
+
+            <strong id="userEmail">
+                coach@example.com
+            </strong>
+
+        </div>
+
+
+        <!-- OTP INPUTS -->
+
+        <div class="otp-container">
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                autofocus
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+            >
+
+            <input
+                type="text"
+                class="otp-input"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+            >
+
+        </div>
+
+
+        <!-- VERIFY BUTTON -->
+
+        <button
+            type="button"
+            class="verify-button"
+            id="verifyButton"
+        >
+            Verify OTP
+        </button>
+
+
+        <!-- TIMER -->
+
+        <div class="timer">
+
+            OTP expires in:
+
+            <span id="timer">
+                02:00
+            </span>
+
+        </div>
+
+
+        <!-- RESEND -->
+
+        <div class="resend">
+
+            Didn't receive the code?
+
+            <button
+                type="button"
+                id="resendButton"
+                disabled
+            >
+                Resend OTP
+            </button>
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <!-- CHANGE EMAIL -->
+
+        <a
+            href="coach-signup.html"
+            class="change-email"
+        >
+            ← Change Email Address
+        </a>
+
+
+        <!-- SECURITY -->
+
+        <div class="security-note">
+
+            🔒 Never share your OTP with anyone.
+            Our team will never ask you for your OTP.
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* =========================================================
+           API
+        ========================================================= */
+
+        const API_BASE = window.location.origin;
+
+
+        /* =========================================================
+           ELEMENTS
+        ========================================================= */
+
+        const otpInputs =
+            document.querySelectorAll(".otp-input");
+
+        const verifyButton =
+            document.getElementById("verifyButton");
+
+        const resendButton =
+            document.getElementById("resendButton");
+
+        const message =
+            document.getElementById("message");
+
+        const timerElement =
+            document.getElementById("timer");
+
+        const userEmailElement =
+            document.getElementById("userEmail");
+
+
+        /* =========================================================
+           GET COACH EMAIL
+        ========================================================= */
+
+        const coachEmail =
+            sessionStorage.getItem("authEmail");
+
+
+        if (!coachEmail) {
+
+            showMessage(
+                "Your signup session has expired. Please create your account again.",
+                "error"
+            );
+
+            verifyButton.disabled = true;
+            resendButton.disabled = true;
+
+        } else {
+
+            userEmailElement.textContent =
+                maskEmail(coachEmail);
+
+        }
+
+
+        /* =========================================================
+           MASK EMAIL
+        ========================================================= */
+
+        function maskEmail(email) {
+
+            const parts =
+                email.split("@");
+
+            if (parts.length !== 2) {
+
+                return email;
+
+            }
+
+            const username =
+                parts[0];
+
+            const domain =
+                parts[1];
+
+
+            if (username.length <= 2) {
+
+                return "*".repeat(username.length)
+                    + "@"
+                    + domain;
+
+            }
+
+
+            return username.charAt(0)
+                + "*".repeat(username.length - 2)
+                + username.charAt(username.length - 1)
+                + "@"
+                + domain;
+
+        }
+
+
+        /* =========================================================
+           OTP INPUT BEHAVIOR
+        ========================================================= */
+
+        otpInputs.forEach(
+            (input, index) => {
+
+                input.addEventListener(
+                    "input",
+                    function() {
+
+                        this.value =
+                            this.value
+                                .replace(/\D/g, "")
+                                .slice(0, 1);
+
+
+                        if (
+                            this.value &&
+                            index < otpInputs.length - 1
+                        ) {
+
+                            otpInputs[
+                                index + 1
+                            ].focus();
+
+                        }
+
+                    }
+                );
+
+
+                input.addEventListener(
+                    "keydown",
+                    function(event) {
+
+                        if (
+                            event.key === "Backspace" &&
+                            !this.value &&
+                            index > 0
+                        ) {
+
+                            otpInputs[
+                                index - 1
+                            ].focus();
+
+                        }
+
+                    }
+                );
+
+
+                input.addEventListener(
+                    "paste",
+                    function(event) {
+
+                        event.preventDefault();
+
+
+                        const pastedData =
+                            event.clipboardData
+                                .getData("text")
+                                .replace(/\D/g, "")
+                                .slice(0, 6);
+
+
+                        pastedData
+                            .split("")
+                            .forEach(
+                                (digit, i) => {
+
+                                    if (otpInputs[i]) {
+
+                                        otpInputs[i].value =
+                                            digit;
+
+                                    }
+
+                                }
+                            );
+
+
+                        if (
+                            pastedData.length === 6
+                        ) {
+
+                            otpInputs[5].focus();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           GET OTP
+        ========================================================= */
+
+        function getOTP() {
+
+            let otp = "";
+
+            otpInputs.forEach(
+                input => {
+
+                    otp += input.value;
+
+                }
+            );
+
+            return otp;
+
+        }
+
+
+        /* =========================================================
+           CLEAR OTP
+        ========================================================= */
+
+        function clearOTP() {
+
+            otpInputs.forEach(
+                input => {
+
+                    input.value = "";
+
+                }
+            );
+
+            otpInputs[0].focus();
+
+        }
+
+
+        /* =========================================================
+           SHOW MESSAGE
+        ========================================================= */
+
+        function showMessage(text, type) {
+
+            message.textContent =
+                text;
+
+            message.className =
+                "message " + type;
+
+        }
+
+
+        /* =========================================================
+           VERIFY OTP
+        ========================================================= */
+
+        verifyButton.addEventListener(
+            "click",
+            async function() {
+
+                const otp =
+                    getOTP();
+
+
+                if (otp.length !== 6) {
+
+                    showMessage(
+                        "Please enter the complete 6-digit OTP.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                if (!coachEmail) {
+
+                    showMessage(
+                        "Signup session expired. Please create your account again.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                verifyButton.disabled =
+                    true;
+
+                verifyButton.textContent =
+                    "Verifying...";
+
+
+                try {
+
+                    /*
+                     * Send OTP to Flask backend.
+                     *
+                     * The backend should verify:
+                     * - email
+                     * - OTP
+                     * - expiry
+                     */
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/api/account-verification/verify`,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials: "include",
+
+                                body: JSON.stringify({
+                                    email: coachEmail,
+                                    otp: otp
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            data.error ||
+                            "Invalid or expired OTP."
+                        );
+
+                    }
+
+
+                    /*
+                     * OTP verified successfully.
+                     */
+
+                    showMessage(
+                        data.message ||
+                            data.message || "Email verified. Your application is waiting for admin approval.",
+                        "success"
+                    );
+
+
+                    sessionStorage.removeItem(
+                        "authEmail"
+                    );
+
+                    sessionStorage.removeItem(
+                        "authMode"
+                    );
+
+
+                    /*
+                     * Give the user a moment
+                     * to see the success message.
+                     */
+
+                    setTimeout(
+                        function() {
+
+                            window.location.href =
+                                "coach-waiting.html";
+
+                        },
+                        1200
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "OTP verification error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        error.message ||
+                        "Unable to verify OTP. Please try again.",
+                        "error"
+                    );
+
+
+                    verifyButton.disabled =
+                        false;
+
+                    verifyButton.textContent =
+                        "Verify OTP";
+
+                }
+
+            }
+        );
+
+
+        /* =========================================================
+           COUNTDOWN TIMER
+        ========================================================= */
+
+        let timeLeft = 120;
+
+        let countdown;
+
+
+        function startCountdown() {
+
+            clearInterval(
+                countdown
+            );
+
+
+            countdown =
+                setInterval(
+                    function() {
+
+                        const minutes =
+                            Math.floor(
+                                timeLeft / 60
+                            );
+
+
+                        const seconds =
+                            timeLeft % 60;
+
+
+                        timerElement.textContent =
+                            String(minutes)
+                                .padStart(2, "0")
+                            + ":"
+                            +
+                            String(seconds)
+                                .padStart(2, "0");
+
+
+                        if (timeLeft <= 0) {
+
+                            clearInterval(
+                                countdown
+                            );
+
+
+                            timerElement.textContent =
+                                "Expired";
+
+
+                            resendButton.disabled =
+                                false;
+
+
+                            return;
+
+                        }
+
+
+                        timeLeft--;
+
+                    },
+                    1000
+                );
+
+        }
+
+
+        startCountdown();
+
+
+        /* =========================================================
+           RESEND OTP
+        ========================================================= */
+
+        resendButton.addEventListener(
+            "click",
+            async function() {
+
+                if (!coachEmail) {
+
+                    showMessage(
+                        "Signup session expired. Please create your account again.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                resendButton.disabled =
+                    true;
+
+                resendButton.textContent =
+                    "Sending...";
+
+
+                try {
+
+                    /*
+                     * Request a new OTP from Flask.
+                     *
+                     * IMPORTANT:
+                     * This endpoint must exist in
+                     * your backend.
+                     */
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/api/account-verification/send`,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials: "include",
+
+                                body: JSON.stringify({
+                                    email: coachEmail
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            data.error ||
+                            "Unable to resend OTP."
+                        );
+
+                    }
+
+
+                    /*
+                     * Restart timer.
+                     */
+
+                    timeLeft =
+                        120;
+
+                    timerElement.textContent =
+                        "02:00";
+
+
+                    clearOTP();
+
+                    startCountdown();
+
+
+                    showMessage(
+                        data.message ||
+                        "A new OTP has been sent to your email.",
+                        "success"
+                    );
+
+
+                    resendButton.textContent =
+                        "Resend OTP";
+
+
+                    /*
+                     * Keep resend disabled
+                     * until timer expires.
+                     */
+
+                    resendButton.disabled =
+                        true;
+
+                } catch (error) {
+
+                    console.error(
+                        "Resend OTP error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        error.message ||
+                        "Unable to resend OTP. Please try again.",
+                        "error"
+                    );
+
+
+                    resendButton.disabled =
+                        false;
+
+                    resendButton.textContent =
+                        "Resend OTP";
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
