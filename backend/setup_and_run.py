@@ -173,19 +173,19 @@ def ensure_builtin_admins():
     from werkzeug.security import generate_password_hash
 
     builtin_admins = [
-        ("Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", "Sample@1234", "9876543210"),
-        ("Prakul Gupta", "guptaaprakul18@gmail.com", "Secure@1234", "9876543220"),
+        ("admin","Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", "Sample@1234", "9876543210"),
+        ("admin","Prakul Gupta", "guptaaprakul18@gmail.com", "Secure@1234", "9876543220"),
     ]
 
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            for full_name, email, password, contact_number in builtin_admins:
+            for role,full_name, email, password, contact_number in builtin_admins:
                 cursor.execute(
                     """INSERT IGNORE INTO users
                        (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
-                       VALUES ('admin', %s, %s, %s, %s, TRUE, NULL, NOW())""",
-                    (full_name, email, generate_password_hash(password), contact_number),
+                       VALUES (%s, %s, %s, %s, %s, TRUE, NULL, NOW())""",
+                    (role,full_name, email, generate_password_hash(password), contact_number),
                 )
         conn.commit()
         conn.close()
