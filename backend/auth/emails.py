@@ -31,7 +31,9 @@ def send_email(recipient, subject, body):
     username = os.getenv("MAIL_USERNAME")
     password = os.getenv("MAIL_PASSWORD")
     if not username or not password:
-        current_app.logger.warning("Email not configured: set MAIL_USERNAME and MAIL_PASSWORD")
+        current_app.logger.warning(
+            "Email not configured: set MAIL_USERNAME and MAIL_PASSWORD"
+        )
         return False
     message = EmailMessage()
     message["Subject"] = subject

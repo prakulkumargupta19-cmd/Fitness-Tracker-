@@ -68,10 +68,8 @@ def ensure_auth_schema_compatibility():
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            cursor.execute(
-                """ALTER TABLE otp_verifications
-                   MODIFY purpose ENUM('signup', 'login', 'password_reset') NOT NULL"""
-            )
+            cursor.execute("""ALTER TABLE otp_verifications
+                   MODIFY purpose ENUM('signup', 'login', 'password_reset') NOT NULL""")
         conn.commit()
         conn.close()
         return True
@@ -85,7 +83,9 @@ def init_db():
         conn = pymysql.connect(**ROOT_CONFIG)
         with conn.cursor() as cursor:
             cursor.execute("DROP DATABASE IF EXISTS fitness_tracker_auth")
-            cursor.execute("CREATE DATABASE fitness_tracker_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+            cursor.execute(
+                "CREATE DATABASE fitness_tracker_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+            )
         conn.commit()
         conn.close()
     except Exception as e:
@@ -123,38 +123,156 @@ def seed_admins():
     from werkzeug.security import generate_password_hash
 
     demo_users = [
-        ("admin", "Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", generate_password_hash("Sample@1234"), "9876543210", True, None),
-        ("admin", "Prakul Gupta", "guptaaprakul18@gmail.com", generate_password_hash("Secure@1234"), "9876543220", True, None),
-        ("coach", "Coach Verma", "verma@college.edu", generate_password_hash("Coach@1234"), "9876543211", True, "pending"),
-        ("coach", "Coach Sharma", "sharma@college.edu", generate_password_hash("Coach@1234"), "9876543212", True, "approved"),
-        ("student", "Arjun Roy", "arjun@college.edu", generate_password_hash("Student@1234"), "9876543213", True, None),
-        ("student", "Sneha Gupta", "sneha@college.edu", generate_password_hash("Student@1234"), "9876543214", True, None),
-        ("student", "Kabir Ali", "kabir@college.edu", generate_password_hash("Student@1234"), "9876543215", True, None),
-        ("student", "Meera Das", "meera@college.edu", generate_password_hash("Student@1234"), "9876543216", True, None),
-        ("student", "Rohan Singh", "rohan@college.edu", generate_password_hash("Student@1234"), "9876543217", True, None),
+        (
+            "coach",
+            "Coach Verma",
+            "verma@college.edu",
+            generate_password_hash("Coach@1234"),
+            "9876543211",
+            True,
+            "pending",
+        ),
+        (
+            "coach",
+            "Coach Sharma",
+            "sharma@college.edu",
+            generate_password_hash("Coach@1234"),
+            "9876543212",
+            True,
+            "approved",
+        ),
+        (
+            "student",
+            "Arjun Roy",
+            "arjun@college.edu",
+            generate_password_hash("Student@1234"),
+            "9876543213",
+            True,
+            None,
+        ),
+        (
+            "student",
+            "Sneha Gupta",
+            "sneha@college.edu",
+            generate_password_hash("Student@1234"),
+            "9876543214",
+            True,
+            None,
+        ),
+        (
+            "student",
+            "Kabir Ali",
+            "kabir@college.edu",
+            generate_password_hash("Student@1234"),
+            "9876543215",
+            True,
+            None,
+        ),
+        (
+            "student",
+            "Meera Das",
+            "meera@college.edu",
+            generate_password_hash("Student@1234"),
+            "9876543216",
+            True,
+            None,
+        ),
+        (
+            "student",
+            "Rohan Singh",
+            "rohan@college.edu",
+            generate_password_hash("Student@1234"),
+            "9876543217",
+            True,
+            None,
+        ),
     ]
 
     try:
         conn = pymysql.connect(**APP_CONFIG)
         cursor = conn.cursor()
         user_ids = {}
-        for role, full_name, email, password_hash, contact_number, is_verified, coach_status in demo_users:
+        for (
+            role,
+            full_name,
+            email,
+            password_hash,
+            contact_number,
+            is_verified,
+            coach_status,
+        ) in demo_users:
             cursor.execute(
                 """INSERT INTO users (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())""",
-                (role, full_name, email, password_hash, contact_number, is_verified, coach_status),
+                (
+                    role,
+                    full_name,
+                    email,
+                    password_hash,
+                    contact_number,
+                    is_verified,
+                    coach_status,
+                ),
             )
             user_ids[email] = cursor.lastrowid
 
         students_profiles = [
-            ("arjun@college.edu", "2005-03-12", "9876543220", 178.5, 72.0, "Win nationals in 100m sprint", "Athletics"),
-            ("sneha@college.edu", "2004-07-21", "9876543221", 162.0, 58.0, "Improve overall fitness & stamina", "Basketball"),
-            ("kabir@college.edu", "2003-11-18", "9876543222", 182.0, 78.0, "Build strength and endurance", "Football"),
-            ("meera@college.edu", "2006-02-02", "9876543223", 165.0, 62.0, "Increase endurance", "Athletics"),
-            ("rohan@college.edu", "2004-09-30", "9876543224", 180.0, 75.0, "Improve speed", "Basketball"),
+            (
+                "arjun@college.edu",
+                "2005-03-12",
+                "9876543220",
+                178.5,
+                72.0,
+                "Win nationals in 100m sprint",
+                "Athletics",
+            ),
+            (
+                "sneha@college.edu",
+                "2004-07-21",
+                "9876543221",
+                162.0,
+                58.0,
+                "Improve overall fitness & stamina",
+                "Basketball",
+            ),
+            (
+                "kabir@college.edu",
+                "2003-11-18",
+                "9876543222",
+                182.0,
+                78.0,
+                "Build strength and endurance",
+                "Football",
+            ),
+            (
+                "meera@college.edu",
+                "2006-02-02",
+                "9876543223",
+                165.0,
+                62.0,
+                "Increase endurance",
+                "Athletics",
+            ),
+            (
+                "rohan@college.edu",
+                "2004-09-30",
+                "9876543224",
+                180.0,
+                75.0,
+                "Improve speed",
+                "Basketball",
+            ),
         ]
 
-        for email, dob, emergency_contact, height, weight, goal, sport in students_profiles:
+        for (
+            email,
+            dob,
+            emergency_contact,
+            height,
+            weight,
+            goal,
+            sport,
+        ) in students_profiles:
             cursor.execute(
                 """INSERT INTO student_profiles (user_id, date_of_birth, emergency_contact, height_cm, weight_kg, goal, sport_activity)
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
@@ -163,6 +281,10 @@ def seed_admins():
 
         conn.commit()
         conn.close()
+
+        # Now ensure the builtin admins are present
+        if not ensure_builtin_admins():
+            return False
         return True
     except Exception as e:
         print(f"[ERROR] Error seeding demo accounts: {e}")
@@ -173,19 +295,29 @@ def ensure_builtin_admins():
     from werkzeug.security import generate_password_hash
 
     builtin_admins = [
-        ("admin","Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", "Sample@1234", "9876543210"),
-        ("admin","Prakul Gupta", "guptaaprakul18@gmail.com", "Secure@1234", "9876543220"),
+        (
+            "Gareema Kumari Gupta",
+            "gareema.k.gupta@gmail.com",
+            "Sample@1234",
+            "9876543210",
+        ),
+        (
+            "Prakul Gupta",
+            "guptaaprakul18@gmail.com",
+            "Secure@1234",
+            "9876543220",
+        ),
     ]
 
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            for role,full_name, email, password, contact_number in builtin_admins:
+            for full_name, email, password, contact_number in builtin_admins:
                 cursor.execute(
-                    """INSERT IGNORE INTO users
-                       (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
-                       VALUES (%s, %s, %s, %s, %s, TRUE, NULL, NOW())""",
-                    (role,full_name, email, generate_password_hash(password), contact_number),
+                    """INSERT IGNORE INTO admins
+                       (full_name, email, password_hash, contact_number, is_verified, created_at)
+                       VALUES (%s, %s, %s, %s, TRUE, NOW())""",
+                    (full_name, email, generate_password_hash(password), contact_number),
                 )
         conn.commit()
         conn.close()
@@ -221,6 +353,7 @@ def main():
 
     try:
         from app import app
+
         app.run(debug=True, host="0.0.0.0", port=5000)
     except Exception as e:
         print(f"[ERROR] Error starting Flask app: {e}")

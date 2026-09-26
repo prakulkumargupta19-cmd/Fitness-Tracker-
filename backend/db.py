@@ -22,6 +22,7 @@ DB_CONFIG = {
     "autocommit": False,
 }
 
+
 def get_db():
     """Return a new :class:`pymysql.connections.Connection`.
 
@@ -31,4 +32,3 @@ def get_db():
     import it without creating a circular dependency.
     """
     return pymysql.connect(**DB_CONFIG)
-

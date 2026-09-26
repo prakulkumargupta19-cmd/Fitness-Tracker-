@@ -15,11 +15,10 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, jsonify, request, session, send_from_directory
+from flask import Flask, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).parent.absolute()
-FRONTEND_DIR = BASE_DIR.parent / "frontend1"
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
@@ -40,7 +39,7 @@ from auth.emails import (  # noqa: E402
 )
 from auth.decorators import login_required, role_required  # noqa: E402
 
-app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
+app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "fitness-tracker-secret-key-2026")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -48,7 +47,7 @@ app.config["SESSION_COOKIE_SECURE"] = False
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
 
-VALID_ROLES = ("student", "coach", "admin")
+VALID_ROLES = ("student", "coach")
 
 
 @app.after_request
@@ -56,29 +55,13 @@ def add_cors_headers(response):
     origin = request.headers.get("Origin", "*")
     response.headers["Access-Control-Allow-Origin"] = origin if origin else "*"
     response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+    response.headers["Access-Control-Allow-Methods"] = (
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    )
+    response.headers["Access-Control-Allow-Headers"] = (
+        "Content-Type, Authorization, X-Requested-With"
+    )
     return response
-
-
-@app.route("/", methods=["GET"])
-@app.route("/index.html", methods=["GET"])
-def index():
-    if (FRONTEND_DIR / "index.html").is_file():
-        return send_from_directory(str(FRONTEND_DIR), "index.html")
-    return send_from_directory(str(FRONTEND_DIR), "mainlading.html")
-
-
-@app.route("/<path:path>", methods=["GET"])
-def serve_static_files(path):
-    file_path = FRONTEND_DIR / path
-    if file_path.is_file():
-        return send_from_directory(str(FRONTEND_DIR), path)
-    if (FRONTEND_DIR / f"{path}.html").is_file():
-        return send_from_directory(str(FRONTEND_DIR), f"{path}.html")
-    if (FRONTEND_DIR / path / "index.html").is_file():
-        return send_from_directory(str(FRONTEND_DIR), f"{path}/index.html")
-    return jsonify({"success": False, "message": "Resource not found"}), 404
 
 
 # =====================================================================
@@ -91,25 +74,50 @@ def signup():
     data = request.get_json(silent=True) or {}
     role = str(data.get("role") or "").strip().lower()
     full_name = str(
-        data.get("full_name")
-        or data.get("fullName")
-        or data.get("name")
-        or ""
+        data.get("full_name") or data.get("fullName") or data.get("name") or ""
     ).strip()
     email = str(data.get("email") or "").strip().lower()
     password = str(data.get("password") or "")
-    contact_number = str(data.get("contact_number") or data.get("contact") or "").strip()
+    contact_number = str(
+        data.get("contact_number") or data.get("contact") or ""
+    ).strip()
 
     if role not in ("student", "coach"):
-        return jsonify({"success": False, "message": "Role must be 'student' or 'coach'."}), 400
+        return (
+            jsonify(
+                {"success": False, "message": "Role must be 'student' or 'coach'."}
+            ),
+            400,
+        )
     if not full_name or not email or not password:
-        return jsonify({"success": False, "message": "Full name, email and password are required."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Full name, email and password are required.",
+                }
+            ),
+            400,
+        )
     if len(password) < 8:
-        return jsonify({"success": False, "message": "Password must be at least 8 characters."}), 400
+        return (
+            jsonify(
+                {"success": False, "message": "Password must be at least 8 characters."}
+            ),
+            400,
+        )
 
     existing = find_user_by_email(email)
     if existing:
-        return jsonify({"success": False, "message": "An account with this email already exists."}), 409
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "An account with this email already exists.",
+                }
+            ),
+            409,
+        )
 
     db = get_db()
     try:
@@ -120,8 +128,15 @@ def signup():
                 """INSERT INTO users
                        (role, full_name, email, password_hash, contact_number, is_verified, coach_status)
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (role, full_name, email, generate_password_hash(password), contact_number or None,
-                 is_verified, coach_status),
+                (
+                    role,
+                    full_name,
+                    email,
+                    generate_password_hash(password),
+                    contact_number or None,
+                    is_verified,
+                    coach_status,
+                ),
             )
             user_id = cursor.lastrowid
         db.commit()
@@ -132,12 +147,17 @@ def signup():
         message = "Registration received. An OTP has been sent to verify your email."
 
         session["pending_user_id"] = user_id
-        return jsonify({
-            "success": True,
-            "message": message,
-            "user_id": user_id,
-            "email": email,
-        }), 201
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": message,
+                    "user_id": user_id,
+                    "email": email,
+                }
+            ),
+            201,
+        )
     except Exception as exc:
         db.rollback()
         return jsonify({"success": False, "message": f"Signup failed: {exc}"}), 500
@@ -158,7 +178,10 @@ def login():
     password = str(data.get("password") or "")
     requested_role = str(data.get("role") or "").strip().lower()
     if not email or not password:
-        return jsonify({"success": False, "message": "Email and password are required."}), 400
+        return (
+            jsonify({"success": False, "message": "Email and password are required."}),
+            400,
+        )
 
     user = find_user_by_email(email)
     if not user or not check_password_hash(user["password_hash"], password):
@@ -166,15 +189,47 @@ def login():
 
     expected_role = "student" if requested_role == "player" else requested_role
     if expected_role and user["role"] != expected_role:
-        return jsonify({"success": False, "message": "This account does not belong to this login page."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "This account does not belong to this login page.",
+                }
+            ),
+            403,
+        )
 
     if user["role"] == "student" and not user["is_verified"]:
-        return jsonify({"success": False, "message": "Please verify your email before logging in."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Please verify your email before logging in.",
+                }
+            ),
+            403,
+        )
 
     if user["role"] == "coach" and user["coach_status"] == "pending":
-        return jsonify({"success": False, "message": "Your coach account is awaiting admin approval."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Your coach account is awaiting admin approval.",
+                }
+            ),
+            403,
+        )
     if user["role"] == "coach" and user["coach_status"] == "rejected":
-        return jsonify({"success": False, "message": "Your coach account was rejected by the admin."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Your coach account was rejected by the admin.",
+                }
+            ),
+            403,
+        )
 
     otp = generate_otp()
     store_otp(user["id"], "login", otp)
@@ -182,20 +237,25 @@ def login():
     session.clear()
     session["pending_login_user_id"] = user["id"]
     session["pending_login_role"] = user["role"]
-    return jsonify({
-        "success": True,
-        "otp_required": True,
-        "message": "A login OTP has been sent to your email.",
-        "user": {
-            "id": user["id"],
-            "role": user["role"],
-            "full_name": user["full_name"],
-            "email": user["email"],
-            "contact_number": user["contact_number"],
-            "is_verified": bool(user["is_verified"]),
-            "coach_status": user["coach_status"],
-        },
-    }), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "otp_required": True,
+                "message": "A login OTP has been sent to your email.",
+                "user": {
+                    "id": user["id"],
+                    "role": user["role"],
+                    "full_name": user["full_name"],
+                    "email": user["email"],
+                    "contact_number": user["contact_number"],
+                    "is_verified": bool(user["is_verified"]),
+                    "coach_status": user["coach_status"],
+                },
+            }
+        ),
+        200,
+    )
 
 
 def _complete_login(user):
@@ -203,7 +263,9 @@ def _complete_login(user):
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("UPDATE users SET last_login_at = NOW() WHERE id = %s", (user["id"],))
+            cursor.execute(
+                "UPDATE users SET last_login_at = NOW() WHERE id = %s", (user["id"],)
+            )
         db.commit()
     finally:
         db.close()
@@ -218,16 +280,39 @@ def verify_login_otp():
     otp = str(data.get("otp") or "").strip()
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "No account found with this email."}), 404
+        return (
+            jsonify({"success": False, "message": "No account found with this email."}),
+            404,
+        )
     if session.get("pending_login_user_id") != user["id"]:
-        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Login attempt expired. Please log in again.",
+                }
+            ),
+            400,
+        )
     valid, message = verify_stored_otp(user["id"], "login", otp)
     if not valid:
         return jsonify({"success": False, "message": message}), 400
     _complete_login(user)
-    return jsonify({"success": True, "message": "Login OTP verified.", "user": {
-        "id": user["id"], "role": user["role"], "full_name": user["full_name"], "email": user["email"]
-    }}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Login OTP verified.",
+                "user": {
+                    "id": user["id"],
+                    "role": user["role"],
+                    "full_name": user["full_name"],
+                    "email": user["email"],
+                },
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/api/login/resend-otp", methods=["POST"])
@@ -238,7 +323,15 @@ def resend_login_otp():
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user or session.get("pending_login_user_id") != (user or {}).get("id"):
-        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Login attempt expired. Please log in again.",
+                }
+            ),
+            400,
+        )
     otp = generate_otp()
     store_otp(user["id"], "login", otp)
     send_otp_email(email, user["full_name"], "login", otp)
@@ -256,7 +349,6 @@ def logout():
 @app.route("/session", methods=["GET"])
 @app.route("/api/session", methods=["GET"])
 @app.route("/api/auth/me", methods=["GET"])
-@app.route("/api/admin/session", methods=["GET"])
 @login_required
 def current_session():
     user = get_user_by_id(session.get("user_id"))
@@ -273,12 +365,17 @@ def current_session():
         "is_verified": bool(user["is_verified"]),
         "coach_status": user["coach_status"],
     }
-    return jsonify({
-        "success": True,
-        "authenticated": True,
-        "user": response_user,
-        "admin": response_user,
-    }), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "authenticated": True,
+                "user": response_user,
+                "admin": response_user,
+            }
+        ),
+        200,
+    )
 
 
 # =====================================================================
@@ -299,19 +396,35 @@ def _profile_response(user_id):
         db.close()
 
 
+@app.route("/api/admin/session", methods=["GET"])
+@role_required("admin")
+def admin_session():
+    """Return the current session for an authenticated administrator."""
+    return current_session()
+
+
 @app.route("/api/profile", methods=["GET"])
 @login_required
 def get_profile():
     user = get_user_by_id(session.get("user_id"))
     if not user:
         return jsonify({"success": False, "message": "Session expired."}), 401
-    return jsonify({"success": True, "user": {
-        "id": user["id"],
-        "role": user["role"],
-        "full_name": user["full_name"],
-        "email": user["email"],
-        "contact_number": user["contact_number"],
-    }, "profile": _profile_response(user["id"])}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "user": {
+                    "id": user["id"],
+                    "role": user["role"],
+                    "full_name": user["full_name"],
+                    "email": user["email"],
+                    "contact_number": user["contact_number"],
+                },
+                "profile": _profile_response(user["id"]),
+            }
+        ),
+        200,
+    )
 
 
 def _save_student_profile(user_id, data):
@@ -360,14 +473,38 @@ def _save_student_profile(user_id, data):
 def update_profile():
     user = get_user_by_id(session.get("user_id"))
     if not user or user["role"] != "student":
-        return jsonify({"success": False, "message": "Only students can update this profile."}), 403
+        return (
+            jsonify(
+                {"success": False, "message": "Only students can update this profile."}
+            ),
+            403,
+        )
     data = request.get_json(silent=True) or {}
-    if request.method == "PATCH" and data.get("current_password") and data.get("password"):
-        if not check_password_hash(user["password_hash"], str(data["current_password"])):
-            return jsonify({"success": False, "message": "Current password is incorrect."}), 400
+    if (
+        request.method == "PATCH"
+        and data.get("current_password")
+        and data.get("password")
+    ):
+        if not check_password_hash(
+            user["password_hash"], str(data["current_password"])
+        ):
+            return (
+                jsonify(
+                    {"success": False, "message": "Current password is incorrect."}
+                ),
+                400,
+            )
         password = str(data["password"])
         if len(password) < 8:
-            return jsonify({"success": False, "message": "Password must be at least 8 characters."}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "Password must be at least 8 characters.",
+                    }
+                ),
+                400,
+            )
         db = get_db()
         try:
             with db.cursor() as cursor:
@@ -378,12 +515,23 @@ def update_profile():
             db.commit()
         finally:
             db.close()
-        return jsonify({"success": True, "message": "Password updated successfully."}), 200
+        return (
+            jsonify({"success": True, "message": "Password updated successfully."}),
+            200,
+        )
     error = _save_student_profile(user["id"], data)
     if error:
         return jsonify({"success": False, "message": error}), 400
-    return jsonify({"success": True, "message": "Profile saved successfully.",
-                    "profile": _profile_response(user["id"])}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Profile saved successfully.",
+                "profile": _profile_response(user["id"]),
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/api/profile/setup", methods=["POST"])
@@ -391,7 +539,15 @@ def setup_pending_student_profile():
     user_id = session.get("pending_user_id")
     user = get_user_by_id(user_id) if user_id else None
     if not user or user["role"] != "student":
-        return jsonify({"success": False, "message": "Signup session expired. Please register again."}), 401
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Signup session expired. Please register again.",
+                }
+            ),
+            401,
+        )
     data = request.get_json(silent=True) or {}
     error = _save_student_profile(user["id"], data)
     if error:
@@ -406,19 +562,24 @@ def student_dashboard():
     if not user or user["role"] != "student":
         return jsonify({"success": False, "message": "Student access required."}), 403
     profile = _profile_response(user["id"])
-    return jsonify({
-        "success": True,
-        "name": user["full_name"],
-        "email": user["email"],
-        "profile": profile,
-        "overallScore": 0,
-        "benchmarks": {"labels": [], "current": [], "target": []},
-        "attributes": {"labels": [], "scores": []},
-        "progression": {"weeks": [], "history": []},
-        "attendance": {"percentage": 0, "present": 0, "absent": 0, "total": 0},
-        "goals": [],
-        "feedback": [],
-    }), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "name": user["full_name"],
+                "email": user["email"],
+                "profile": profile,
+                "overallScore": 0,
+                "benchmarks": {"labels": [], "current": [], "target": []},
+                "attributes": {"labels": [], "scores": []},
+                "progression": {"weeks": [], "history": []},
+                "attendance": {"percentage": 0, "present": 0, "absent": 0, "total": 0},
+                "goals": [],
+                "feedback": [],
+            }
+        ),
+        200,
+    )
 
 
 # =====================================================================
@@ -430,16 +591,33 @@ def send_verification_otp():
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "No account found with this email."}), 404
+        return (
+            jsonify({"success": False, "message": "No account found with this email."}),
+            404,
+        )
     if user["role"] not in ("student", "coach"):
-        return jsonify({"success": False, "message": "This account does not use signup verification."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "This account does not use signup verification.",
+                }
+            ),
+            400,
+        )
     if user["is_verified"]:
-        return jsonify({"success": False, "message": "This email is already verified."}), 400
+        return (
+            jsonify({"success": False, "message": "This email is already verified."}),
+            400,
+        )
 
     otp = generate_otp()
     store_otp(user["id"], "signup", otp)
     send_otp_email(email, user["full_name"], "signup", otp)
-    return jsonify({"success": True, "message": "Verification OTP sent to your email."}), 200
+    return (
+        jsonify({"success": True, "message": "Verification OTP sent to your email."}),
+        200,
+    )
 
 
 @app.route("/api/account-verification/verify", methods=["POST"])
@@ -449,7 +627,10 @@ def verify_account():
     otp = str(data.get("otp") or "").strip()
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "No account found with this email."}), 404
+        return (
+            jsonify({"success": False, "message": "No account found with this email."}),
+            404,
+        )
     if not otp:
         return jsonify({"success": False, "message": "OTP is required."}), 400
 
@@ -460,18 +641,39 @@ def verify_account():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("UPDATE users SET is_verified = 1 WHERE id = %s", (user["id"],))
+            cursor.execute(
+                "UPDATE users SET is_verified = 1 WHERE id = %s", (user["id"],)
+            )
         db.commit()
     except Exception as exc:
         db.rollback()
-        return jsonify({"success": False, "message": f"Verification failed: {exc}"}), 500
+        return (
+            jsonify({"success": False, "message": f"Verification failed: {exc}"}),
+            500,
+        )
     finally:
         db.close()
 
     if user["role"] == "coach":
-        return jsonify({"success": True, "message": "Email verified. Your coach application is waiting for admin approval."}), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "Email verified. Your coach application is waiting for admin approval.",
+                }
+            ),
+            200,
+        )
     send_account_created_email(email, user["full_name"], user["role"])
-    return jsonify({"success": True, "message": "Email verified successfully. You can now log in."}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Email verified successfully. You can now log in.",
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/api/coach/status", methods=["GET"])
@@ -479,12 +681,20 @@ def coach_registration_status():
     email = str(request.args.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user or user["role"] != "coach":
-        return jsonify({"success": False, "message": "Coach registration not found."}), 404
-    return jsonify({
-        "success": True,
-        "email_verified": bool(user["is_verified"]),
-        "coach_status": user["coach_status"],
-    }), 200
+        return (
+            jsonify({"success": False, "message": "Coach registration not found."}),
+            404,
+        )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "email_verified": bool(user["is_verified"]),
+                "coach_status": user["coach_status"],
+            }
+        ),
+        200,
+    )
 
 
 # =====================================================================
@@ -496,13 +706,24 @@ def forgot_password():
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "If this email exists, a reset OTP has been sent."}), 200
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "If this email exists, a reset OTP has been sent.",
+                }
+            ),
+            200,
+        )
 
     otp = generate_otp()
     store_otp(user["id"], "password_reset", otp)
     send_otp_email(email, user["full_name"], "password_reset", otp)
     session["reset_email"] = email
-    return jsonify({"success": True, "message": "Password reset OTP sent to your email."}), 200
+    return (
+        jsonify({"success": True, "message": "Password reset OTP sent to your email."}),
+        200,
+    )
 
 
 @app.route("/api/forgot-password/resend-otp", methods=["POST"])
@@ -517,7 +738,10 @@ def verify_reset_otp():
     otp = str(data.get("otp") or "").strip()
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "No account found with this email."}), 404
+        return (
+            jsonify({"success": False, "message": "No account found with this email."}),
+            404,
+        )
 
     valid, message = verify_stored_otp(user["id"], "password_reset", otp)
     if not valid:
@@ -525,7 +749,15 @@ def verify_reset_otp():
 
     session["reset_email"] = email
     session["reset_verified"] = True
-    return jsonify({"success": True, "message": "OTP verified. You can now reset your password."}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "OTP verified. You can now reset your password.",
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/api/reset-password", methods=["POST"])
@@ -535,15 +767,36 @@ def reset_password():
     password = str(data.get("password") or data.get("new_password") or "")
 
     if not email or not password:
-        return jsonify({"success": False, "message": "Email and new password are required."}), 400
+        return (
+            jsonify(
+                {"success": False, "message": "Email and new password are required."}
+            ),
+            400,
+        )
     if len(password) < 8:
-        return jsonify({"success": False, "message": "Password must be at least 8 characters."}), 400
+        return (
+            jsonify(
+                {"success": False, "message": "Password must be at least 8 characters."}
+            ),
+            400,
+        )
 
     user = find_user_by_email(email)
     if not user:
-        return jsonify({"success": False, "message": "No account found with this email."}), 404
+        return (
+            jsonify({"success": False, "message": "No account found with this email."}),
+            404,
+        )
     if session.get("reset_email") != email or not session.get("reset_verified"):
-        return jsonify({"success": False, "message": "Verify the reset OTP before choosing a new password."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Verify the reset OTP before choosing a new password.",
+                }
+            ),
+            403,
+        )
 
     db = get_db()
     try:
@@ -555,14 +808,25 @@ def reset_password():
         db.commit()
     except Exception as exc:
         db.rollback()
-        return jsonify({"success": False, "message": f"Password reset failed: {exc}"}), 500
+        return (
+            jsonify({"success": False, "message": f"Password reset failed: {exc}"}),
+            500,
+        )
     finally:
         db.close()
 
     session.pop("reset_email", None)
     session.pop("reset_verified", None)
     send_password_reset_success_email(email, user["full_name"])
-    return jsonify({"success": True, "message": "Password reset successful. You can now log in."}), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Password reset successful. You can now log in.",
+            }
+        ),
+        200,
+    )
 
 
 # =====================================================================
@@ -574,6 +838,25 @@ def reset_password():
 def admin_list_users():
     db = get_db()
     try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT id, role, full_name, email, contact_number, is_verified, coach_status,
+                           last_login_at, created_at
+                    FROM users
+                    UNION
+                    SELECT id, 'admin' as role, full_name, email, contact_number, is_verified,
+                           NULL as coach_status, last_login_at, created_at
+                    FROM admins
+                    ORDER BY created_at DESC"""
+            )
+            users = cursor.fetchall()
+        for u in users:
+            u["is_verified"] = bool(u["is_verified"])
+            if u.get("last_login_at"):
+                u["last_login_at"] = str(u["last_login_at"])
+            if u.get("created_at"):
+                u["created_at"] = str(u["created_at"])
+        return jsonify({"success": True, "users": users}), 200
         with db.cursor() as cursor:
             cursor.execute(
                 """SELECT id, role, full_name, email, contact_number, is_verified, coach_status,
@@ -617,15 +900,13 @@ def coach_athletes():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute(
-                """SELECT u.id, u.full_name, u.email, u.contact_number,
+            cursor.execute("""SELECT u.id, u.full_name, u.email, u.contact_number,
                           sp.date_of_birth, sp.sport_activity, sp.height_cm,
                           sp.weight_kg, sp.goal
                    FROM users u
                    LEFT JOIN student_profiles sp ON sp.user_id = u.id
                    WHERE u.role = 'student' AND u.is_verified = 1
-                   ORDER BY u.full_name ASC"""
-            )
+                   ORDER BY u.full_name ASC""")
             athletes = cursor.fetchall()
         for athlete in athletes:
             athlete["name"] = athlete.pop("full_name")
@@ -657,8 +938,15 @@ def review_coach_approval(user_id):
     data = request.get_json(silent=True) or {}
     decision = str(data.get("decision") or "").strip().lower()
     if decision not in ("approve", "reject"):
-        return jsonify({"success": False, "message": "Decision must be approve or reject."}), 400
-    return _set_coach_status(user_id, "approved" if decision == "approve" else "rejected")
+        return (
+            jsonify(
+                {"success": False, "message": "Decision must be approve or reject."}
+            ),
+            400,
+        )
+    return _set_coach_status(
+        user_id, "approved" if decision == "approve" else "rejected"
+    )
 
 
 def _set_coach_status(user_id, status):
@@ -673,7 +961,9 @@ def _set_coach_status(user_id, status):
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("UPDATE users SET coach_status = %s WHERE id = %s", (status, user_id))
+            cursor.execute(
+                "UPDATE users SET coach_status = %s WHERE id = %s", (status, user_id)
+            )
         db.commit()
     except Exception as exc:
         db.rollback()

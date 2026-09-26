@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- Fitness Performance Tracker — Auth Workflow Schema
 -- Scope: ONLY the signup / login / forgot-password / admin-approval
 -- flow from the workflow diagram. No assessments, sessions, etc.
@@ -12,20 +12,19 @@ USE fitness_tracker_auth;
 
 -- ------------------------------------------------------------
 -- 1. USERS
--- Shared identity table for all three roles — this is the
--- "basic info" step for both student and coach signup, plus
--- the two pre-seeded admin accounts (admin has no signup form).
+-- Shared identity table for student and coach roles — this is the
+-- "basic info" step for both student and coach signup.
 --
 --   is_verified  → only meaningful for a student (signup OTP).
---                  TRUE by default for coach/admin, who don't
+--                  TRUE by default for coach, who don't
 --                  go through that step in this workflow.
 --   coach_status → only set when role = 'coach'. NULL for
---                  student/admin. Captures "approval by admin?
+--                  student. Captures "approval by admin?
 --                  yes / no" — pending until an admin decides.
 -- ------------------------------------------------------------
 CREATE TABLE users (
     id             INT AUTO_INCREMENT PRIMARY KEY,
-    role           ENUM('student', 'coach', 'admin') NOT NULL,
+    role           ENUM('student', 'coach') NOT NULL,
     full_name      VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
@@ -55,6 +54,7 @@ CREATE TABLE student_profiles (
     weight_kg         DECIMAL(5,2),
     goal              VARCHAR(255),
     sport_activity    VARCHAR(100),
+    department        VARCHAR(100),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -77,6 +77,21 @@ CREATE TABLE otp_verifications (
 );
 
 -- ------------------------------------------------------------
+-- 4. ADMINS
+-- Admin users table
+-- ------------------------------------------------------------
+CREATE TABLE admins (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    full_name      VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) NOT NULL UNIQUE,
+    password_hash  VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15),
+    is_verified    BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at  DATETIME,
+    created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) AUTO_INCREMENT=1000000;
+
+-- ------------------------------------------------------------
 -- Optional convenience view: surfaces a student's age without
 -- ever storing it as a column.
 -- ------------------------------------------------------------
@@ -85,7 +100,7 @@ SELECT
     u.id, u.full_name, u.email, u.contact_number,
     sp.date_of_birth,
     TIMESTAMPDIFF(YEAR, sp.date_of_birth, CURDATE()) AS age,
-    sp.emergency_contact, sp.height_cm, sp.weight_kg,
+    sp.emergency_contact, sp.height_cm, sp.weight_kg, sp.department,
     sp.goal, sp.sport_activity
 FROM users u
 JOIN student_profiles sp ON sp.user_id = u.id

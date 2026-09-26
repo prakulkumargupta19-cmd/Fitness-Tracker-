@@ -22,11 +22,29 @@ def find_user_by_email(email):
     """Retrieve user dictionary by email."""
     if not email:
         return None
+    email = str(email).strip().lower()
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("SELECT * FROM users WHERE LOWER(email) = %s", (str(email).strip().lower(),))
-            return cursor.fetchone()
+            # First check users table (for student and coach)
+            cursor.execute(
+                "SELECT * FROM users WHERE LOWER(email) = %s",
+                (email,),
+            )
+            user = cursor.fetchone()
+            if user:
+                return user
+            # If not found, check admins table
+            cursor.execute(
+                """SELECT id, full_name, email, password_hash, contact_number, is_verified,
+                      last_login_at, created_at, 'admin' as role, NULL as coach_status
+                 FROM admins WHERE LOWER(email) = %s""",
+                (email,),
+            )
+            admin = cursor.fetchone()
+            if admin:
+                return admin
+            return None
     finally:
         db.close()
 
@@ -38,8 +56,25 @@ def get_user_by_id(user_id):
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-            return cursor.fetchone()
+            # First check users table
+            cursor.execute(
+                "SELECT * FROM users WHERE id = %s",
+                (user_id,),
+            )
+            user = cursor.fetchone()
+            if user:
+                return user
+            # If not found, check admins table
+            cursor.execute(
+                """SELECT id, full_name, email, password_hash, contact_number, is_verified,
+                      last_login_at, created_at, 'admin' as role, NULL as coach_status
+                 FROM admins WHERE id = %s""",
+                (user_id,),
+            )
+            admin = cursor.fetchone()
+            if admin:
+                return admin
+            return None
     finally:
         db.close()
 
@@ -80,14 +115,17 @@ def verify_stored_otp(user_id, purpose, otp):
             record = cursor.fetchone()
             if not record:
                 return False, "OTP expired or invalid. Please request a new OTP."
-            
+
             if record["expires_at"] < datetime.now():
                 return False, "OTP has expired. Please request a new OTP."
-            
+
             if not check_password_hash(record["otp_hash"], otp):
                 return False, "Invalid OTP code."
-            
-            cursor.execute("UPDATE otp_verifications SET is_used = 1 WHERE id = %s", (record["id"],))
+
+            cursor.execute(
+                "UPDATE otp_verifications SET is_used = 1 WHERE id = %s",
+                (record["id"],),
+            )
         db.commit()
         return True, "OTP verified successfully."
     finally:
@@ -108,12 +146,11 @@ def establish_session(user):
 
 def canonical_role(role):
     """Map display role strings to schema role ENUM."""
-    val = str(role or "").strip().lower()
-    if val in ("player", "athlete", "students", "student"):
+    value = str(role or "").strip().lower()
+    if value in ("player", "athlete", "students", "student"):
         return "student"
-    if val in ("coaches", "coach"):
+    if value in ("coaches", "coach"):
         return "coach"
-    if val in ("admins", "admin"):
+    if value in ("admins", "admin"):
         return "admin"
-    return val
-
+    return value
