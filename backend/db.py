@@ -26,9 +26,9 @@ DB_CONFIG = {
 def get_db():
     """Return a new :class:`pymysql.connections.Connection`.
 
-    The function simply forwards the configuration dictionary to
-    :func:`pymysql.connect`.  It is kept in a separate module so
-    that both :mod:`backend.app` and any future auth modules can
-    import it without creating a circular dependency.
+    If FITNESS_TEST_MODE is set, uses 'fitness_tracker_test' as the database.
     """
-    return pymysql.connect(**DB_CONFIG)
+    config = DB_CONFIG.copy()
+    if os.getenv("FITNESS_TEST_MODE") == "true":
+        config["database"] = "fitness_tracker_test"
+    return pymysql.connect(**config)

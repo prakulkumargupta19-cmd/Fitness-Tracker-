@@ -154,3 +154,9 @@ def canonical_role(role):
     if value in ("admins", "admin"):
         return "admin"
     return value
+
+
+
+def is_valid_domain(email):
+    """Check if email ends with @inspiria.edu.in"""
+    return str(email).strip().lower().endswith("@inspiria.edu.in")

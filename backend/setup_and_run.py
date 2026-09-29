@@ -278,6 +278,11 @@ def seed_admins():
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (user_ids[email], dob, emergency_contact, height, weight, goal, sport),
             )
+            cursor.execute(
+                """INSERT IGNORE INTO student_sports (student_id, sport_id)
+                   SELECT %s, id FROM sports WHERE name = %s""",
+                (user_ids[email], sport),
+            )
 
         conn.commit()
         conn.close()
@@ -299,31 +304,60 @@ def ensure_builtin_admins():
             "Gareema Kumari Gupta",
             "gareema.k.gupta@gmail.com",
             "Sample@1234",
-            "9876543210",
         ),
         (
             "Prakul Gupta",
             "guptaaprakul18@gmail.com",
             "Secure@1234",
-            "9876543220",
         ),
     ]
 
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            for full_name, email, password, contact_number in builtin_admins:
+            for full_name, email, password in builtin_admins:
                 cursor.execute(
                     """INSERT IGNORE INTO admins
-                       (full_name, email, password_hash, contact_number, is_verified, created_at)
-                       VALUES (%s, %s, %s, %s, TRUE, NOW())""",
-                    (full_name, email, generate_password_hash(password), contact_number),
+                       (full_name, email, password_hash, is_verified, created_at)
+                       VALUES (%s, %s, %s, TRUE, NOW())""",
+                    (full_name, email, generate_password_hash(password)),
                 )
+        conn.commit()
+        conn.close()
+        return _assign_seed_coach_sports()
+    except Exception as e:
+        print(f"[ERROR] Error ensuring built-in admins: {e}")
+        return False
+
+
+def _assign_seed_coach_sports():
+    """Give the approved demo coach the sports their seeded students play."""
+    try:
+        conn = pymysql.connect(**APP_CONFIG)
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT id FROM admins ORDER BY id ASC LIMIT 1"
+            )
+            admin = cursor.fetchone()
+            cursor.execute(
+                "SELECT id FROM users WHERE email = %s AND role = 'coach'",
+                ("sharma@college.edu",),
+            )
+            coach = cursor.fetchone()
+            if not admin or not coach:
+                conn.close()
+                return True
+            cursor.execute(
+                """INSERT IGNORE INTO coach_sports (coach_id, sport_id, assigned_by)
+                   SELECT %s, id, %s FROM sports
+                   WHERE name IN ('Athletics', 'Basketball', 'Football')""",
+                (coach["id"], admin["id"]),
+            )
         conn.commit()
         conn.close()
         return True
     except Exception as e:
-        print(f"[ERROR] Error ensuring built-in admins: {e}")
+        print(f"[ERROR] Error assigning demo coach sports: {e}")
         return False
 
 

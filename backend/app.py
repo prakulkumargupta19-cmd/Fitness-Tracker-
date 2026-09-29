@@ -30,6 +30,7 @@ from auth.helpers import (  # noqa: E402
     find_user_by_email,
     get_user_by_id,
     establish_session,
+    is_valid_domain,
 )
 from auth.emails import (  # noqa: E402
     send_otp_email,
@@ -38,6 +39,7 @@ from auth.emails import (  # noqa: E402
     send_password_reset_success_email,
 )
 from auth.decorators import login_required, role_required  # noqa: E402
+from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "fitness-tracker-secret-key-2026")
@@ -99,6 +101,14 @@ def signup():
             ),
             400,
         )
+    if not is_valid_domain(email):
+        return (
+            jsonify(
+                {"success": False, "message": "Only @inspiria.edu.in emails are allowed."}
+            ),
+            400,
+        )
+
     if len(password) < 8:
         return (
             jsonify(
@@ -163,6 +173,9 @@ def signup():
         return jsonify({"success": False, "message": f"Signup failed: {exc}"}), 500
     finally:
         db.close()
+    if not is_valid_domain(email):
+        return jsonify({"success": False, "message": "Only @inspiria.edu.in emails are allowed."}), 400
+
 
 
 # =====================================================================
@@ -573,7 +586,7 @@ def student_dashboard():
                 "benchmarks": {"labels": [], "current": [], "target": []},
                 "attributes": {"labels": [], "scores": []},
                 "progression": {"weeks": [], "history": []},
-                "attendance": {"percentage": 0, "present": 0, "absent": 0, "total": 0},
+                "attendance": student_attendance_payload(user["id"]),
                 "goals": [],
                 "feedback": [],
             }
@@ -973,3 +986,7 @@ def _set_coach_status(user_id, status):
     action = "approved" if status == "approved" else "rejected"
     send_coach_approval_email(user["email"], user["full_name"], status)
     return jsonify({"success": True, "message": f"Coach {action} successfully."}), 200
+
+
+register_attendance_routes(app)
+
