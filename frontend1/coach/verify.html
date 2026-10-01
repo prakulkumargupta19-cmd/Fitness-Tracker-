@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="../css/coach-verify.css">
     <link rel="stylesheet" href="../css/verification-portal.css">
 
+<script src="../js/config.js"></script>
 </head>
 
 
@@ -68,9 +69,7 @@
 
             OTP sent to:
 
-            <strong id="userEmail">
-                coach@example.com
-            </strong>
+            <strong id="userEmail">—</strong>
 
         </div>
 
@@ -217,7 +216,7 @@
    API
 ========================================================= */
 
-const API_BASE = window.location.origin;
+const API_BASE = window.FITNESS_API_BASE || "";
 
 
 /* =========================================================
@@ -253,7 +252,6 @@ const emailFromUrl =
 const email =
     (emailFromUrl ||
         sessionStorage.getItem("resetEmail") ||
-        localStorage.getItem("resetEmail") ||
         "")
     .trim()
     .toLowerCase();

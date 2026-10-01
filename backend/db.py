@@ -10,10 +10,16 @@ exact behaviour.
 """
 
 import os
+from pathlib import Path
+
 import pymysql
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", "3306")),
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", "password@1234"),
     "database": os.getenv("DB_NAME", "fitness_tracker_auth"),
@@ -26,9 +32,10 @@ DB_CONFIG = {
 def get_db():
     """Return a new :class:`pymysql.connections.Connection`.
 
-    If FITNESS_TEST_MODE is set, uses 'fitness_tracker_test' as the database.
+    If FITNESS_TEST_MODE is set, uses the isolated test database selected by
+    FITNESS_TEST_DB_NAME.
     """
     config = DB_CONFIG.copy()
     if os.getenv("FITNESS_TEST_MODE") == "true":
-        config["database"] = "fitness_tracker_test"
+        config["database"] = os.getenv("FITNESS_TEST_DB_NAME", "fitness_tracker_test")
     return pymysql.connect(**config)

@@ -65,8 +65,11 @@
         body
     ) {
 
+        const apiBase =
+            window.FITNESS_API_BASE || cfg.API_BASE || "";
+
         const url =
-            cfg.API_BASE + endpoint;
+            apiBase + endpoint;
 
 
         const options = {
@@ -759,48 +762,6 @@
                 "GET",
 
                 "/api/users"
-
-            );
-
-        },
-
-
-        updateUserStatus(
-            userId,
-            status
-        ) {
-
-            return apiRequest(
-
-                "PATCH",
-
-                "/api/users/" +
-                encodeURIComponent(
-                    userId
-                ) +
-                "/status",
-
-                {
-
-                    status:
-                        status
-
-                }
-
-            );
-
-        },
-
-
-        provisionAdmin(data) {
-
-            return apiRequest(
-
-                "POST",
-
-                "/api/admin/users",
-
-                data
 
             );
 

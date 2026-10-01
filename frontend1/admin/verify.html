@@ -330,6 +330,7 @@
     >
 >>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -553,7 +554,7 @@
             FLASK BACKEND
         ========================================= */
 
-        const API_BASE_URL = window.location.origin;
+        const API_BASE_URL = window.FITNESS_API_BASE || "";
 
 
         /* =========================================

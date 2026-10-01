@@ -65,6 +65,11 @@ def role_required(*roles):
 
             user_role = user["role"]
             session["role"] = user_role
+            if user_role == "coach" and user.get("coach_status") != "approved":
+                return jsonify(
+                    success=False,
+                    message="Your coach account is not approved for dashboard access.",
+                ), 403
             if user_role not in roles:
                 return (
                     jsonify(
