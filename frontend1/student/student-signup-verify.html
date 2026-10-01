@@ -254,6 +254,7 @@
             }
         }
     </style>
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -276,7 +277,7 @@
 
     <div class="email-display">
         OTP sent to:
-        <strong id="userEmail">student@example.com</strong>
+        <strong id="userEmail">—</strong>
     </div>
 
     <div class="otp-container">
@@ -397,15 +398,10 @@
     /* =========================================================
        API BASE URL
        
-       IMPORTANT:
-       This works with:
-       http://127.0.0.1:5000
-       AND
-       http://192.168.1.8:5000
+    API base can be overridden through FITNESS_API_BASE.
     ========================================================= */
 
-    const API_BASE =
-        window.location.origin;
+    const API_BASE = window.FITNESS_API_BASE || "";
 
 
     /* =========================================================
@@ -800,7 +796,7 @@
                 ================================================= */
 
                 showMessage(
-                    "Account verified successfully. Redirecting to Student Login...",
+                    "Account verified. Continue to complete your profile...",
                     "success"
                 );
 
@@ -835,14 +831,14 @@
 
 
                 /* =================================================
-                   REDIRECT TO STUDENT LOGIN
+                   REDIRECT TO PROFILE SETUP
                 ================================================= */
 
                 setTimeout(
                     function () {
 
                         window.location.replace(
-                            "student-login.html"
+                            "student-basicinfo.html"
                         );
 
                     },

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/coach-signup-verify.css">
     <link rel="stylesheet" href="../css/verification-portal.css">
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -49,9 +50,7 @@
 
             OTP sent to:
 
-            <strong id="userEmail">
-                coach@example.com
-            </strong>
+            <strong id="userEmail">—</strong>
 
         </div>
 
@@ -189,7 +188,7 @@
            API
         ========================================================= */
 
-        const API_BASE = window.location.origin;
+        const API_BASE = window.FITNESS_API_BASE || "";
 
 
         /* =========================================================

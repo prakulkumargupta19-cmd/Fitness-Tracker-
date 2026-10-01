@@ -1,327 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login | Fitness Performance Tracker</title>
 
-    <!-- Student Login CSS -->
-    <link
-        rel="stylesheet"
-        href="../css/student-login.css"
-    >
-
+    <link rel="stylesheet" href="../css/student-login.css">
+<script src="../js/config.js"></script>
 </head>
-
 
 <body>
 
+<div class="page-container">
 
     <!-- =========================================================
-         MAIN CONTAINER
+         BRAND SECTION
     ========================================================== -->
 
-    <div class="page-container">
+    <section class="brand-section">
 
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
 
-        <!-- =====================================================
-             LEFT BRANDING SECTION
-        ====================================================== -->
-
-        <section class="brand-section">
-
-            <div class="logo">
-
-                <div class="logo-icon">
-                    🏃
-                </div>
-
-                <div class="logo-text">
-                    FITNESS<br>
-                    <span>PERFORMANCE</span><br>
-                    TRACKER
-                </div>
-
+            <div class="logo-text">
+                FITNESS
+                <span>PERFORMANCE</span>
+                TRACKER
             </div>
+        </div>
+
+        <h1>
+            Track. Improve.
+            <span>Perform.</span>
+        </h1>
+
+        <p>
+            Stay connected with your fitness journey, monitor your goals,
+            understand your improvement areas, and receive feedback from
+            your coach.
+        </p>
+
+        <div class="brand-line"></div>
+
+    </section>
 
 
-            <h1>
-                Track.<br>
-                Improve.<br>
-                <span>Perform.</span>
-            </h1>
+    <!-- =========================================================
+         LOGIN SECTION
+    ========================================================== -->
 
+    <section class="login-section">
 
-            <p>
-                Stay connected with your fitness journey,
-                monitor your goals, understand your
-                improvement areas, and receive feedback
-                from your coach.
+        <div class="login-card">
+
+            <div class="student-icon">🎓</div>
+
+            <h2>
+                <span>Student</span> Login
+            </h2>
+
+            <p class="subtitle">
+                Sign in to view your fitness performance, goals,
+                improvement areas, and coach feedback.
             </p>
 
 
-            <div class="brand-line"></div>
+            <!-- MESSAGE -->
 
-        </section>
-
-
-        <!-- =====================================================
-             LOGIN SECTION
-        ====================================================== -->
-
-        <section class="login-section">
-
-            <div class="login-card">
+            <div
+                class="error-message"
+                id="errorMessage"
+                role="alert"
+                aria-live="polite">
+            </div>
 
 
-                <!-- STUDENT ICON -->
+            <!-- =================================================
+                 LOGIN FORM
+            ================================================== -->
 
-                <div class="student-icon">
-                    🎓
+            <form id="studentLoginForm" novalidate>
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Student Email
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your student email"
+                            autocomplete="username"
+                            required
+                        >
+
+                        <span class="input-icon">
+                            ✉
+                        </span>
+
+                    </div>
+
                 </div>
 
 
-                <!-- TITLE -->
+                <!-- PASSWORD -->
 
-                <h2>
-                    <span>Student</span> Login
-                </h2>
+                <div class="form-group">
 
+                    <label for="password">
+                        Password
+                    </label>
 
-                <p class="subtitle">
-                    Sign in to view your fitness performance,
-                    goals, improvement areas, and coach feedback.
-                </p>
+                    <div class="input-wrapper">
 
-
-                <!-- =================================================
-                     MESSAGE
-                ================================================== -->
-
-                <div
-                    class="error-message"
-                    id="errorMessage"
-                    role="alert"
-                    aria-live="polite"
-                ></div>
-
-
-                <!-- =================================================
-                     LOGIN FORM
-                ================================================== -->
-
-                <form
-                    id="studentLoginForm"
-                    novalidate
-                >
-
-
-                    <!-- EMAIL -->
-
-                    <div class="form-group">
-
-                        <label for="email">
-                            Student Email
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="Enter your student email"
-                                autocomplete="username"
-                                required
-                            >
-
-
-                            <span class="input-icon">
-                                ✉
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- PASSWORD -->
-
-                    <div class="form-group">
-
-                        <label for="password">
-                            Password
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                autocomplete="current-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                id="togglePassword"
-                                aria-label="Show password"
-                            >
-                                <span class="eye-icon" aria-hidden="true"></span>
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         REMEMBER ME / FORGOT PASSWORD
-                    ================================================== -->
-
-                    <div class="form-options">
-
-
-                        <label class="remember">
-
-                            <input
-                                type="checkbox"
-                                id="remember"
-                                name="remember"
-                            >
-
-                            <span>
-                                Remember Me
-                            </span>
-
-                        </label>
-
-
-                        <a
-                            href="forgot-password.html"
-                            class="forgot"
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
                         >
-                            Forgot Password?
-                        </a>
+
+                        <button
+                            type="button"
+                            class="input-icon password-toggle"
+                            id="togglePassword"
+                            aria-label="Show password">
+
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z">
+                                </path>
+
+                                <circle cx="12" cy="12" r="3">
+                                </circle>
+
+                            </svg>
+
+                        </button>
 
                     </div>
 
-
-                    <!-- =================================================
-                         LOGIN BUTTON
-                    ================================================== -->
-
-                    <button
-                        type="submit"
-                        class="login-button"
-                        id="loginButton"
-                    >
-                        Login as Student →
-                    </button>
+                </div>
 
 
-                </form>
+                <!-- OPTIONS -->
 
+                <div class="form-options">
 
-                <!-- =================================================
-                     SIGN UP
-                ================================================== -->
+                    <label class="remember">
 
-                <div class="signup-section">
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            name="remember"
+                        >
 
-                    Don't have an account?
+                        <span>
+                            Remember Me
+                        </span>
+
+                    </label>
+
 
                     <a
-                        href="student-signup.html"
-                        class="signup-link"
-                    >
-                        Sign Up
+                        href="forgot-password.html"
+                        class="forgot">
+
+                        Forgot Password?
+
                     </a>
 
                 </div>
 
 
-                <!-- =================================================
-                     BACK LINK
-                ================================================== -->
+                <!-- LOGIN BUTTON -->
+
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="loginButton">
+
+                    Login as Student →
+
+                </button>
+
+            </form>
+
+
+            <!-- SIGN UP -->
+
+            <div class="signup-section">
+
+                Don't have an account?
 
                 <a
-                    href="../mainlading.html"
-                    class="back-link"
-                >
-                    ← Back to role selection
+                    href="student-signup.html"
+                    class="signup-link">
+
+                    Sign Up
+
                 </a>
-
-
-                <!-- =================================================
-                     SECURITY MESSAGE
-                ================================================== -->
-
-                <div class="security-note">
-
-                    <span class="security-icon">
-                        🔒
-                    </span>
-
-                    <span>
-                        Your personal performance data is securely protected.
-                    </span>
-
-                </div>
-
 
             </div>
 
-        </section>
+
+            <!-- BACK -->
+
+            <a
+                href="../index.html"
+                class="back-link">
+
+                ← Back to role selection
+
+            </a>
 
 
-    </div>
+            <!-- SECURITY NOTE -->
+
+            <div class="security-note">
+
+                <span class="security-icon">
+                    🔒
+                </span>
+
+                <span>
+                    Your personal performance data is securely protected.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
 
 
-    <!-- =========================================================
-         STUDENT LOGIN JAVASCRIPT
-
-         REAL FLASK API
-
-         POST:
-             /api/login
-
-         Role:
-             student
-
-         Backend canonicalizes:
-             student → player
-
-         Authentication:
-             Flask session cookie
-
-         No login OTP.
-    ========================================================== -->
-
-    <script>
+<script>
 "use strict";
 
-const API_BASE = window.location.origin;
 
-const loginForm = document.getElementById("studentLoginForm");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const rememberInput = document.getElementById("remember");
-const loginButton = document.getElementById("loginButton");
-const errorMessage = document.getElementById("errorMessage");
-const togglePasswordButton = document.getElementById("togglePassword");
+/* =========================================================
+   API
+========================================================= */
+
+const API_BASE = window.FITNESS_API_BASE || "";
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const loginForm =
+    document.getElementById("studentLoginForm");
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const rememberInput =
+    document.getElementById("remember");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const togglePasswordButton =
+    document.getElementById("togglePassword");
 
 
 /* =========================================================
@@ -329,38 +295,126 @@ const togglePasswordButton = document.getElementById("togglePassword");
 ========================================================= */
 
 function showMessage(text, type = "error") {
+
     errorMessage.textContent = text;
+
     errorMessage.style.display = "block";
 
+
     if (type === "success") {
+
         errorMessage.style.background = "#ecfdf3";
+
         errorMessage.style.color = "#166534";
+
         errorMessage.style.borderColor = "#bbf7d0";
+
     } else {
+
         errorMessage.style.background = "#fff1f2";
+
         errorMessage.style.color = "#be123c";
+
         errorMessage.style.borderColor = "#fecdd3";
     }
 }
 
 
 function clearMessage() {
+
     errorMessage.textContent = "";
+
     errorMessage.style.display = "none";
 }
 
 
-togglePasswordButton.addEventListener("click", function () {
-    const isPassword = passwordInput.type === "password";
+/* =========================================================
+   PASSWORD TOGGLE
+========================================================= */
 
-    passwordInput.type = isPassword ? "text" : "password";
-    togglePasswordButton.classList.toggle("is-visible", isPassword);
-    togglePasswordButton.setAttribute(
-        "aria-label",
-        isPassword ? "Hide password" : "Show password"
-    );
-});
+togglePasswordButton.addEventListener(
+    "click",
+    function () {
 
+        const isPassword =
+            passwordInput.type === "password";
+
+
+        if (isPassword) {
+
+            passwordInput.type = "text";
+
+
+            togglePasswordButton.innerHTML = `
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                    </path>
+
+                    <line
+                        x1="1"
+                        y1="1"
+                        x2="23"
+                        y2="23">
+                    </line>
+
+                </svg>
+            `;
+
+
+            togglePasswordButton.setAttribute(
+                "aria-label",
+                "Hide password"
+            );
+
+
+        } else {
+
+            passwordInput.type = "password";
+
+
+            togglePasswordButton.innerHTML = `
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z">
+                    </path>
+
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="3">
+                    </circle>
+
+                </svg>
+            `;
+
+
+            togglePasswordButton.setAttribute(
+                "aria-label",
+                "Show password"
+            );
+        }
+
+    }
+);
 
 
 /* =========================================================
@@ -368,10 +422,13 @@ togglePasswordButton.addEventListener("click", function () {
 ========================================================= */
 
 const savedEmail =
-    localStorage.getItem("student_login_email");
+    sessionStorage.getItem("student_login_email");
+
 
 if (savedEmail) {
+
     emailInput.value = savedEmail;
+
     rememberInput.checked = true;
 }
 
@@ -380,226 +437,290 @@ if (savedEmail) {
    STUDENT LOGIN
 ========================================================= */
 
-loginForm.addEventListener("submit", async function (event) {
+loginForm.addEventListener(
+    "submit",
+    async function (event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    clearMessage();
-
-    const email =
-        emailInput.value.trim().toLowerCase();
-
-    const password =
-        passwordInput.value;
-
-    const remember =
-        rememberInput.checked;
+        clearMessage();
 
 
-    /* -----------------------------------------------------
-       VALIDATION
-    ----------------------------------------------------- */
+        /* -----------------------------------------------------
+           GET VALUES
+        ----------------------------------------------------- */
 
-    if (!email) {
+        const email =
+            emailInput.value.trim().toLowerCase();
 
-        showMessage(
-            "Please enter your student email."
-        );
+        const password =
+            passwordInput.value;
 
-        emailInput.focus();
-
-        return;
-    }
+        const remember =
+            rememberInput.checked;
 
 
-    if (!email.includes("@")) {
+        /* -----------------------------------------------------
+           VALIDATION
+        ----------------------------------------------------- */
 
-        showMessage(
-            "Please enter a valid email address."
-        );
+        if (!email) {
 
-        emailInput.focus();
-
-        return;
-    }
-
-
-    if (!password) {
-
-        showMessage(
-            "Please enter your password."
-        );
-
-        passwordInput.focus();
-
-        return;
-    }
-
-
-    /* -----------------------------------------------------
-       DISABLE BUTTON
-    ----------------------------------------------------- */
-
-    loginButton.disabled = true;
-
-    loginButton.textContent = "Signing in...";
-
-
-    try {
-
-        /* =================================================
-           LOGIN
-        ================================================= */
-
-        const response =
-            await fetch(
-                API_BASE + "/api/login",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                        role: "student"
-                    })
-                }
+            showMessage(
+                "Please enter your student email."
             );
 
+            emailInput.focus();
 
-        let data = {};
+            return;
+        }
+
+
+        if (!email.includes("@")) {
+
+            showMessage(
+                "Please enter a valid email address."
+            );
+
+            emailInput.focus();
+
+            return;
+        }
+
+
+        if (!password) {
+
+            showMessage(
+                "Please enter your password."
+            );
+
+            passwordInput.focus();
+
+            return;
+        }
+
+
+        /* -----------------------------------------------------
+           DISABLE BUTTON
+        ----------------------------------------------------- */
+
+        loginButton.disabled = true;
+
+        loginButton.textContent =
+            "Signing in...";
+
 
         try {
-            data = await response.json();
-        } catch (error) {
-            data = {};
-        }
+
+            /* =================================================
+               LOGIN REQUEST
+            ================================================= */
+
+            const response =
+                await fetch(
+                    API_BASE + "/api/login",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        /*
+                         * IMPORTANT:
+                         * This allows the browser to keep/send
+                         * the Flask session cookie.
+                         */
+
+                        credentials: "include",
+
+                        body: JSON.stringify({
+
+                            email: email,
+
+                            password: password,
+
+                            role: "student"
+
+                        })
+                    }
+                );
 
 
-        console.log(
-            "Student login response:",
-            response.status,
-            data
-        );
+            /* -------------------------------------------------
+               READ RESPONSE
+            ------------------------------------------------- */
+
+            let data = {};
+
+            try {
+
+                data = await response.json();
+
+            } catch (error) {
+
+                data = {};
+
+            }
 
 
-        /* =================================================
-           LOGIN FAILED
-        ================================================= */
-
-        if (!response.ok || !data.success) {
-
-            showMessage(
-                data.message ||
-                "Invalid student email or password."
+            console.log(
+                "Student login response:",
+                response.status,
+                data
             );
 
-            loginButton.disabled = false;
-            loginButton.textContent =
-                "Login as Student →";
 
-            return;
-        }
+            /* =================================================
+               LOGIN FAILED
+            ================================================= */
 
+            if (!response.ok || !data.success) {
 
-        /* =================================================
-           CHECK USER
-        ================================================= */
+                showMessage(
+                    data.message ||
+                    "Invalid student email or password."
+                );
 
-        if (!data.user) {
+                loginButton.disabled = false;
 
-            showMessage(
-                "Login succeeded, but user information was not returned."
-            );
+                loginButton.textContent =
+                    "Login as Student →";
 
-            loginButton.disabled = false;
-            loginButton.textContent =
-                "Login as Student →";
-
-            return;
-        }
+                return;
+            }
 
 
-        const role =
-            String(data.user.role || "")
-                .toLowerCase();
+            /* =================================================
+               CHECK USER
+            ================================================= */
+
+            if (!data.user) {
+
+                showMessage(
+                    "Login succeeded, but user information was not returned."
+                );
+
+                loginButton.disabled = false;
+
+                loginButton.textContent =
+                    "Login as Student →";
+
+                return;
+            }
 
 
-        /* =================================================
-           CHECK STUDENT ROLE
-        ================================================= */
+            /* =================================================
+               CHECK STUDENT ROLE
+            ================================================= */
 
-        if (
-            role !== "player" &&
-            role !== "student"
-        ) {
-
-            showMessage(
-                "This account is not registered as a student."
-            );
-
-            loginButton.disabled = false;
-            loginButton.textContent =
-                "Login as Student →";
-
-            return;
-        }
+            const role =
+                String(data.user.role || "")
+                    .toLowerCase();
 
 
-        /* =================================================
-           REMEMBER EMAIL
-        ================================================= */
+            if (
+                role !== "student" &&
+                role !== "player"
+            ) {
 
-        if (remember) {
+                showMessage(
+                    "This account is not registered as a student."
+                );
 
-            localStorage.setItem(
-                "student_login_email",
+                loginButton.disabled = false;
+
+                loginButton.textContent =
+                    "Login as Student →";
+
+                return;
+            }
+
+
+            /* =================================================
+               REMEMBER EMAIL
+            ================================================= */
+
+            if (remember) {
+
+                sessionStorage.setItem(
+                    "student_login_email",
+                    email
+                );
+
+            } else {
+
+                sessionStorage.removeItem(
+                    "student_login_email"
+                );
+            }
+
+
+            /* =================================================
+               SAVE EMAIL FOR OTP PAGE
+            =================================================
+            
+            The OTP page reads:
+
+                sessionStorage.getItem("loginOtpEmail")
+
+            Therefore we must save the email here before
+            redirecting to student-loginotp.html.
+            
+            ================================================= */
+
+            sessionStorage.setItem(
+                "loginOtpEmail",
                 email
             );
 
-        } else {
 
-            localStorage.removeItem(
-                "student_login_email"
+            /* =================================================
+               LOGIN SUCCESS
+            ================================================= */
+
+            showMessage(
+                "Login successful. Opening OTP verification...",
+                "success"
             );
+
+
+            loginButton.textContent =
+                "Opening OTP verification...";
+
+
+            /* =================================================
+               GO TO OTP PAGE
+            ================================================= */
+
+            window.location.replace(
+                "student-loginotp.html"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Student login error:",
+                error
+            );
+
+
+            showMessage(
+                "Unable to connect to the server. Please check that Flask is running."
+            );
+
+
+            loginButton.disabled = false;
+
+            loginButton.textContent =
+                "Login as Student →";
         }
 
-
-          /* =================================================
-              LOGIN SUCCESS: the backend requires OTP verification
-          ================================================= */
-
-        sessionStorage.setItem("loginOtpEmail", email);
-        showMessage("A verification code was sent to your email.", "success");
-        window.location.replace("student-loginotp.html");
-
-    } catch (error) {
-
-        console.error(
-            "Student login error:",
-            error
-        );
-
-        showMessage(
-            "Unable to connect to the server. Please check that Flask is running."
-        );
-
-        loginButton.disabled = false;
-
-        loginButton.textContent =
-            "Login as Student →";
     }
-
-});
+);
 </script>
 
-
 </body>
-
 </html>

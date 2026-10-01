@@ -1,26 +1,28 @@
 import os
+import re
 import sys
 import pymysql
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.absolute()
+load_dotenv(BASE_DIR.parent / ".env")
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 SCHEMA_PATH = BASE_DIR / "schema.sql"
 
 ROOT_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Prakul@2006",
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", "3306")),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", ""),
     "charset": "utf8mb4",
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
 APP_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Prakul@2006",
-    "database": "fitness_tracker_auth",
+    **ROOT_CONFIG,
+    "database": os.getenv("DB_NAME", "fitness_tracker_auth"),
     "charset": "utf8mb4",
     "cursorclass": pymysql.cursors.DictCursor,
 }
@@ -30,7 +32,7 @@ def db_exists():
     try:
         conn = pymysql.connect(**ROOT_CONFIG)
         with conn.cursor() as cursor:
-            cursor.execute("SHOW DATABASES LIKE 'fitness_tracker_auth'")
+            cursor.execute("SHOW DATABASES LIKE %s", (APP_CONFIG["database"],))
             result = cursor.fetchone()
         conn.close()
         return result is not None
@@ -43,22 +45,16 @@ def tables_exist():
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            cursor.execute("SHOW TABLES LIKE 'users'")
-            result = cursor.fetchone()
-        conn.close()
-        return result is not None
-    except Exception:
-        return False
-
-
-def users_seeded():
-    try:
-        conn = pymysql.connect(**APP_CONFIG)
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) AS cnt FROM users")
-            count = cursor.fetchone()["cnt"]
-        conn.close()
-        return count > 0
+            cursor.execute("SHOW TABLES")
+            existing = {next(iter(row.values())) for row in cursor.fetchall()}
+        required = {
+            "users", "student_profiles", "otp_verifications", "admin_otp_verifications", "admins", "sports",
+            "pending_registrations",
+            "coach_sports", "student_sports", "physical_assessments",
+            "training_sessions", "goals", "coach_feedback", "attendance_sessions",
+            "attendance_records",
+        }
+        return required.issubset(existing)
     except Exception:
         return False
 
@@ -68,10 +64,14 @@ def ensure_auth_schema_compatibility():
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            cursor.execute(
-                """ALTER TABLE otp_verifications
-                   MODIFY purpose ENUM('signup', 'login', 'password_reset') NOT NULL"""
-            )
+            cursor.execute("""ALTER TABLE otp_verifications
+                   MODIFY purpose ENUM('signup', 'login', 'password_reset') NOT NULL""")
+            for table in ("otp_verifications", "admin_otp_verifications"):
+                cursor.execute(f"SHOW COLUMNS FROM {table} LIKE 'attempt_count'")
+                if cursor.fetchone() is None:
+                    cursor.execute(
+                        f"ALTER TABLE {table} ADD COLUMN attempt_count TINYINT UNSIGNED NOT NULL DEFAULT 0"
+                    )
         conn.commit()
         conn.close()
         return True
@@ -80,12 +80,75 @@ def ensure_auth_schema_compatibility():
         return False
 
 
+def _ensure_student_profile_columns(cursor):
+    cursor.execute("SHOW COLUMNS FROM student_profiles LIKE 'department'")
+    if cursor.fetchone() is None:
+        cursor.execute(
+            "ALTER TABLE student_profiles ADD COLUMN department VARCHAR(100) NULL"
+        )
+
+
+def ensure_profile_schema_compatibility():
+    """Add profile columns expected by current routes without replacing data."""
+    conn = None
+    try:
+        conn = pymysql.connect(**APP_CONFIG)
+        with conn.cursor() as cursor:
+            _ensure_student_profile_columns(cursor)
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS pending_registrations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    role ENUM('student', 'coach') NOT NULL,
+                    full_name VARCHAR(100) NOT NULL,
+                    email VARCHAR(150) NOT NULL UNIQUE,
+                    password_hash VARCHAR(255) NOT NULL,
+                    contact_number VARCHAR(15),
+                    otp_hash VARCHAR(255) NOT NULL,
+                    otp_expires_at DATETIME NOT NULL,
+                    otp_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                    otp_sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    otp_send_count TINYINT UNSIGNED NOT NULL DEFAULT 1,
+                    status ENUM('pending_verification', 'pending_approval', 'rejected')
+                        NOT NULL DEFAULT 'pending_verification',
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    verified_at DATETIME NULL
+                )"""
+            )
+            pending_columns = {
+                "otp_attempts": "TINYINT UNSIGNED NOT NULL DEFAULT 0",
+                "otp_sent_at": "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP",
+                "otp_send_count": "TINYINT UNSIGNED NOT NULL DEFAULT 1",
+            }
+            for column, definition in pending_columns.items():
+                cursor.execute("SHOW COLUMNS FROM pending_registrations LIKE %s", (column,))
+                if cursor.fetchone() is None:
+                    cursor.execute(
+                        f"ALTER TABLE pending_registrations ADD COLUMN {column} {definition}"
+                    )
+        conn.commit()
+        return True
+    except Exception as exc:
+        if conn:
+            conn.rollback()
+        print(f"[ERROR] Student profile schema migration failed: {exc}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+
 def init_db():
+    database_name = APP_CONFIG["database"]
+    if not re.fullmatch(r"[A-Za-z0-9_]+", database_name):
+        print("[ERROR] DB_NAME may contain only letters, numbers, and underscores.")
+        return False
     try:
         conn = pymysql.connect(**ROOT_CONFIG)
         with conn.cursor() as cursor:
-            cursor.execute("DROP DATABASE IF EXISTS fitness_tracker_auth")
-            cursor.execute("CREATE DATABASE fitness_tracker_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+            cursor.execute(
+                f"CREATE DATABASE IF NOT EXISTS `{database_name}` "
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+            )
         conn.commit()
         conn.close()
     except Exception as e:
@@ -106,11 +169,25 @@ def init_db():
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
+            # Remove line comments before splitting so punctuation such as a
+            # semicolon inside documentation cannot split a SQL statement.
+            schema_sql = re.sub(r"(?m)^\s*--[^\r\n]*", "", schema_sql)
             for stmt in [s.strip() for s in schema_sql.split(";") if s.strip()]:
+                if not stmt or stmt.upper().startswith(("CREATE DATABASE", "USE ")):
+                    continue
+                if stmt.upper().startswith("CREATE TABLE "):
+                    stmt = re.sub(r"(?i)^CREATE TABLE\s+", "CREATE TABLE IF NOT EXISTS ", stmt, count=1)
+                elif stmt.upper().startswith("CREATE VIEW "):
+                    stmt = re.sub(r"(?i)^CREATE VIEW\s+", "CREATE OR REPLACE VIEW ", stmt, count=1)
+                elif stmt.upper().startswith("INSERT INTO SPORTS "):
+                    stmt = re.sub(r"(?i)^INSERT INTO\s+", "INSERT IGNORE INTO ", stmt, count=1)
                 try:
+                    if stmt.upper().startswith("CREATE OR REPLACE VIEW STUDENT_DETAILS"):
+                        _ensure_student_profile_columns(cursor)
                     cursor.execute(stmt)
-                except Exception:
-                    pass
+                except pymysql.err.ProgrammingError as exc:
+                    print(f"[ERROR] Schema statement failed: {exc}")
+                    raise
         conn.commit()
         conn.close()
         return True
@@ -119,74 +196,26 @@ def init_db():
         return False
 
 
-def seed_admins():
-    from werkzeug.security import generate_password_hash
-
-    demo_users = [
-        ("admin", "Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", generate_password_hash("Sample@1234"), "9876543210", True, None),
-        ("admin", "Prakul Gupta", "guptaaprakul18@gmail.com", generate_password_hash("Secure@1234"), "9876543220", True, None),
-        ("coach", "Coach Verma", "verma@college.edu", generate_password_hash("Coach@1234"), "9876543211", True, "pending"),
-        ("coach", "Coach Sharma", "sharma@college.edu", generate_password_hash("Coach@1234"), "9876543212", True, "approved"),
-        ("student", "Arjun Roy", "arjun@college.edu", generate_password_hash("Student@1234"), "9876543213", True, None),
-        ("student", "Sneha Gupta", "sneha@college.edu", generate_password_hash("Student@1234"), "9876543214", True, None),
-        ("student", "Kabir Ali", "kabir@college.edu", generate_password_hash("Student@1234"), "9876543215", True, None),
-        ("student", "Meera Das", "meera@college.edu", generate_password_hash("Student@1234"), "9876543216", True, None),
-        ("student", "Rohan Singh", "rohan@college.edu", generate_password_hash("Student@1234"), "9876543217", True, None),
-    ]
-
-    try:
-        conn = pymysql.connect(**APP_CONFIG)
-        cursor = conn.cursor()
-        user_ids = {}
-        for role, full_name, email, password_hash, contact_number, is_verified, coach_status in demo_users:
-            cursor.execute(
-                """INSERT INTO users (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())""",
-                (role, full_name, email, password_hash, contact_number, is_verified, coach_status),
-            )
-            user_ids[email] = cursor.lastrowid
-
-        students_profiles = [
-            ("arjun@college.edu", "2005-03-12", "9876543220", 178.5, 72.0, "Win nationals in 100m sprint", "Athletics"),
-            ("sneha@college.edu", "2004-07-21", "9876543221", 162.0, 58.0, "Improve overall fitness & stamina", "Basketball"),
-            ("kabir@college.edu", "2003-11-18", "9876543222", 182.0, 78.0, "Build strength and endurance", "Football"),
-            ("meera@college.edu", "2006-02-02", "9876543223", 165.0, 62.0, "Increase endurance", "Athletics"),
-            ("rohan@college.edu", "2004-09-30", "9876543224", 180.0, 75.0, "Improve speed", "Basketball"),
-        ]
-
-        for email, dob, emergency_contact, height, weight, goal, sport in students_profiles:
-            cursor.execute(
-                """INSERT INTO student_profiles (user_id, date_of_birth, emergency_contact, height_cm, weight_kg, goal, sport_activity)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (user_ids[email], dob, emergency_contact, height, weight, goal, sport),
-            )
-
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        print(f"[ERROR] Error seeding demo accounts: {e}")
-        return False
-
-
 def ensure_builtin_admins():
     from werkzeug.security import generate_password_hash
-
-    builtin_admins = [
-        ("Gareema Kumari Gupta", "gareema.k.gupta@gmail.com", "Sample@1234", "9876543210"),
-        ("Prakul Gupta", "guptaaprakul18@gmail.com", "Secure@1234", "9876543220"),
-    ]
+    name = os.getenv("INITIAL_ADMIN_NAME", "").strip()
+    email = os.getenv("INITIAL_ADMIN_EMAIL", "").strip().lower()
+    password = os.getenv("INITIAL_ADMIN_PASSWORD", "")
+    if not (name and email and password):
+        return True
+    if len(password) < 12:
+        print("[ERROR] INITIAL_ADMIN_PASSWORD must contain at least 12 characters.")
+        return False
 
     try:
         conn = pymysql.connect(**APP_CONFIG)
         with conn.cursor() as cursor:
-            for full_name, email, password, contact_number in builtin_admins:
-                cursor.execute(
-                    """INSERT IGNORE INTO users
-                       (role, full_name, email, password_hash, contact_number, is_verified, coach_status, created_at)
-                       VALUES ('admin', %s, %s, %s, %s, TRUE, NULL, NOW())""",
-                    (full_name, email, generate_password_hash(password), contact_number),
-                )
+            cursor.execute(
+                """INSERT IGNORE INTO admins
+                   (full_name, email, password_hash, is_verified, created_at)
+                   VALUES (%s, %s, %s, TRUE, NOW())""",
+                (name, email, generate_password_hash(password)),
+            )
         conn.commit()
         conn.close()
         return True
@@ -197,20 +226,22 @@ def ensure_builtin_admins():
 
 def main():
     init_only = "--init-only" in sys.argv
-    force_reset = "--reset" in sys.argv
+    if "--reset" in sys.argv:
+        print("[ERROR] --reset is disabled because startup must preserve existing data.")
+        sys.exit(2)
 
-    needs_init = force_reset or not db_exists() or not tables_exist()
+    needs_init = not db_exists() or not tables_exist()
     if needs_init:
         if not init_db():
             sys.exit(1)
 
+    if not ensure_profile_schema_compatibility():
+        sys.exit(1)
+
     if not ensure_auth_schema_compatibility():
         sys.exit(1)
 
-    if force_reset or not users_seeded():
-        if not seed_admins():
-            sys.exit(1)
-    elif not ensure_builtin_admins():
+    if not ensure_builtin_admins():
         sys.exit(1)
 
     if init_only:
@@ -221,7 +252,13 @@ def main():
 
     try:
         from app import app
-        app.run(debug=True, host="0.0.0.0", port=5000)
+
+        debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+        app.run(
+            debug=debug,
+            host=os.getenv("FLASK_HOST", "0.0.0.0"),
+            port=int(os.getenv("PORT", "5000")),
+        )
     except Exception as e:
         print(f"[ERROR] Error starting Flask app: {e}")
         sys.exit(1)

@@ -1,2927 +1,3160 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+<title>Admin Dashboard | Fitness Tracker</title>
+
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+>
+
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  rel="stylesheet"
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+>
+ <link
+        rel="stylesheet"
+        href="../css/admin-dashboard.css"
+    >
+<script src="../js/config.js"></script>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside
+  class="sidebar"
+  id="sidebar"
+>
+
+
+  <!-- LOGO -->
+
+  <div class="brand">
+
+    <div class="brand-icon">
+
+      <i class="bi bi-activity"></i>
+
+    </div>
+
+    <div>
+
+      <div class="brand-name">
+
+        Fit <span>Track</span>
+
+      </div>
+
+      <div class="brand-subtitle">
+
+        ADMIN PORTAL
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="menu-title">
+    MAIN MENU
+  </div>
+
+
+  <div class="nav-menu">
+
+
+    <button
+      class="nav-button active"
+      onclick="showSection('dashboard',this)"
     >
 
-    <title>Admin Dashboard | Fitness Performance Tracker</title>
+      <i class="bi bi-grid-1x2-fill"></i>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+      Dashboard
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </button>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
+
+    <button
+      class="nav-button"
+      onclick="showSection('athletes',this)"
     >
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" 
-        rel="stylesheet" 
-    > 
- 
-    <!-- Shared CSS --> 
-    <link 
-        rel="stylesheet" 
-        href="../css/style.css" 
-    > 
- 
-    <!-- Admin Dashboard CSS --> 
-    <link 
-        rel="stylesheet" 
-        href="../css/admin-dashboard.css" 
-    > 
- 
-    <script> 
- 
-        tailwind.config = { 
- 
-            theme: { 
- 
-                extend: { 
- 
-                    colors: { 
- 
-                        primary: "#2563eb", 
-                        "primary-dark": "#1d4ed8", 
-                        "primary-light": "#dbeafe", 
- 
-                        secondary: "#6366f1", 
- 
-                        success: "#10b981", 
-                        warning: "#f59e0b", 
-                        danger: "#ef4444", 
- 
-                        background: "#f8fafc", 
-                        surface: "#ffffff", 
-                        "surface-muted": "#f1f5f9", 
-                        "surface-hover": "#f8fafc", 
- 
-                        text: "#0f172a", 
-                        muted: "#64748b", 
-                        border: "#e2e8f0" 
- 
-                    }, 
- 
-                    fontFamily: { 
- 
-                        heading: [ 
-                            "Anybody", 
-                            "sans-serif" 
-                        ], 
- 
-                        body: [ 
-                            "Hanken Grotesk", 
-                            "sans-serif" 
-                        ], 
- 
-                        mono: [ 
-                            "JetBrains Mono", 
-                            "monospace" 
-                        ] 
- 
-                    } 
- 
-                } 
- 
-            } 
- 
-        }; 
- 
-    </script> 
- 
-</head> 
- 
- 
-<body class="min-h-screen bg-background"> 
- 
- 
-<!-- ========================================================= 
-     MOBILE OVERLAY 
-========================================================= --> 
- 
-<div 
-    id="sidebarOverlay" 
-    class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden" 
-></div> 
- 
- 
-<!-- ========================================================= 
-     SIDEBAR 
-========================================================= --> 
- 
-<aside 
-    id="sidebar" 
-    class="sidebar fixed left-0 top-0 z-50 h-screen w-64 bg-white border-r border-border 
-           -translate-x-full md:translate-x-0 transition-transform duration-300 
-           flex flex-col" 
-> 
- 
-    <!-- LOGO --> 
- 
-    <div class="h-20 px-6 flex items-center border-b border-border"> 
- 
-        <div class="flex items-center gap-3"> 
- 
-            <div 
-                class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center" 
-            > 
- 
-                <span class="material-symbols-outlined text-white text-2xl"> 
-                    fitness_center 
-                </span> 
- 
-            </div> 
- 
-            <div> 
- 
-                <h1 class="font-heading font-bold text-lg text-slate-900"> 
-                    Fitness Tracker 
-                </h1> 
- 
-                <p 
-                    class="text-[10px] uppercase tracking-widest 
-                           text-slate-400 font-mono" 
-                > 
-                    Admin Portal 
-                </p> 
- 
-            </div> 
- 
-        </div> 
- 
-    </div> 
- 
- 
-    <!-- ADMIN PROFILE --> 
- 
-    <div class="px-5 py-5 border-b border-border"> 
- 
-        <div class="flex items-center gap-3"> 
- 
-            <div 
-                id="sidebarInitials" 
-                class="w-11 h-11 rounded-full bg-primary-light 
-                       border border-blue-200 flex items-center 
-                       justify-center text-primary font-bold" 
-            > 
-                AD 
-            </div> 
- 
-            <div class="min-w-0"> 
- 
-                <div 
-                    id="sideNavName" 
-                    class="font-semibold text-sm text-slate-900 truncate" 
-                > 
-                    Loading... 
-                </div> 
- 
-                <div class="text-xs text-slate-500"> 
-                    System Administrator 
-                </div> 
- 
-            </div> 
- 
-        </div> 
- 
-    </div> 
- 
- 
-    <!-- NAVIGATION --> 
- 
-    <nav class="flex-1 px-4 py-5 overflow-y-auto scrollbar"> 
- 
-        <p 
-            class="px-3 mb-3 text-[10px] font-mono uppercase 
-                   tracking-widest text-slate-400" 
-        > 
-            Management 
-        </p> 
- 
- 
-        <div class="space-y-1"> 
- 
-            <button 
-                class="nav-btn nav-active w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="dashboard" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    dashboard 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Dashboard 
-                </span> 
- 
-            </button> 
- 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="students" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    school 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Students 
-                </span> 
- 
-            </button> 
- 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="coaches" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    sports 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Coaches 
-                </span> 
- 
-            </button> 
- 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="coach-approvals" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    how_to_reg 
-                </span> 
- 
-                <span class="text-sm font-semibold flex-1"> 
-                    Coach Approvals 
-                </span> 
- 
-                <span 
-                    id="coachApprovalNavCount" 
-                    class="hidden min-w-5 h-5 px-1 rounded-full 
-                           bg-amber-100 text-amber-700 
-                           text-[10px] font-bold items-center justify-center" 
-                > 
-                    0 
-                </span> 
- 
-            </button> 
- 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="performance" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    monitoring 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Performance 
-                </span> 
- 
-            </button> 
- 
-        </div> 
- 
- 
-        <p 
-            class="px-3 mt-8 mb-3 text-[10px] font-mono uppercase 
-                   tracking-widest text-slate-400" 
-        > 
-            System 
-        </p> 
- 
- 
-        <div class="space-y-1"> 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="reports" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    description 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Reports 
-                </span> 
- 
-            </button> 
- 
- 
-            <button 
-                class="nav-btn nav-item w-full rounded-lg px-3 py-3 
-                       flex items-center gap-3 text-left" 
-                data-section="settings" 
-            > 
- 
-                <span class="material-symbols-outlined text-[21px]"> 
-                    settings 
-                </span> 
- 
-                <span class="text-sm font-semibold"> 
-                    Settings 
-                </span> 
- 
-            </button> 
- 
-        </div> 
- 
-    </nav> 
- 
- 
-    <!-- ADD USER --> 
- 
-    <div class="px-4 pb-3"> 
- 
-        <button 
-            id="quickAddUserBtn" 
-            class="w-full rounded-lg bg-primary hover:bg-primary-dark 
-                   text-white font-semibold text-sm py-3 
-                   flex items-center justify-center gap-2 
-                   transition-colors shadow-sm" 
-        > 
- 
-            <span class="material-symbols-outlined text-lg"> 
-                person_add 
-            </span> 
- 
-            Add User 
- 
-        </button> 
- 
-    </div> 
- 
- 
-    <!-- LOGOUT --> 
- 
-    <div class="px-4 pb-5"> 
- 
-        <button 
-            id="logoutBtn" 
-            class="w-full rounded-lg px-3 py-2.5 
-                   flex items-center gap-3 text-red-500 
-                   hover:bg-red-50 transition-colors text-sm" 
-        > 
- 
-            <span class="material-symbols-outlined text-lg"> 
-                logout 
-            </span> 
- 
-            <span> 
-                Logout 
-            </span> 
- 
-        </button> 
- 
-    </div> 
- 
-</aside> 
- 
- 
-<!-- ========================================================= 
-     MAIN 
-========================================================= --> 
- 
-<main class="md:ml-64 min-h-screen"> 
- 
- 
-    <!-- TOP BAR --> 
- 
-    <header 
-        class="h-20 bg-white border-b border-border sticky top-0 z-30 
-               flex items-center justify-between px-5 md:px-8" 
-    > 
- 
-        <div class="flex items-center gap-4"> 
- 
-            <button 
-                id="mobileMenuBtn" 
-                class="md:hidden text-slate-500 hover:text-primary" 
-            > 
- 
-                <span class="material-symbols-outlined text-3xl"> 
-                    menu 
-                </span> 
- 
-            </button> 
- 
- 
-            <div> 
- 
-                <h2 
-                    id="pageTitle" 
-                    class="font-heading font-bold text-xl text-slate-900" 
-                > 
-                    Admin Dashboard 
-                </h2> 
- 
-                <p 
-                    id="pageSubtitle" 
-                    class="hidden sm:block text-xs text-slate-500" 
-                > 
-                    System overview, access control, and organization management. 
-                </p> 
- 
-            </div> 
- 
-        </div> 
- 
- 
-        <div class="flex items-center gap-3"> 
- 
- 
-            <!-- SEARCH --> 
- 
-            <div 
-                class="hidden lg:flex items-center w-64 
-                       bg-slate-50 border border-border 
-                       rounded-lg px-3" 
-            > 
- 
-                <span 
-                    class="material-symbols-outlined text-slate-400 text-lg" 
-                > 
-                    search 
-                </span> 
- 
-                <input 
-                    id="globalSearch" 
-                    type="text" 
-                    placeholder="Search users..." 
-                    class="ml-2 w-full bg-transparent border-0 
-                           outline-none focus:ring-0 text-sm" 
-                > 
- 
-            </div> 
- 
- 
-            <!-- DATE --> 
- 
-            <div 
-                class="hidden md:flex items-center gap-2 px-3 py-2 
-                       bg-slate-50 border border-border rounded-lg" 
-            > 
- 
-                <span class="material-symbols-outlined text-primary text-lg"> 
-                    calendar_today 
-                </span> 
- 
-                <span 
-                    id="currentDate" 
-                    class="text-xs font-mono text-slate-600" 
-                > 
-                    Loading... 
-                </span> 
- 
-            </div> 
- 
- 
-            <!-- NOTIFICATIONS --> 
- 
-            <div class="relative"> 
- 
-                <button 
-                    id="notificationTrigger" 
-                    class="relative w-10 h-10 rounded-lg 
-                           hover:bg-slate-50 flex items-center 
-                           justify-center text-slate-500" 
-                > 
- 
-                    <span class="material-symbols-outlined"> 
-                        notifications 
-                    </span> 
- 
-                    <span 
-                        id="notificationDot" 
-                        class="absolute top-2 right-2 w-2 h-2 
-                               rounded-full bg-red-500" 
-                    ></span> 
- 
-                </button> 
- 
- 
-                <div 
-                    id="notificationTray" 
-                    class="hidden absolute right-0 top-12 w-80 
-                           bg-white border border-border 
-                           rounded-xl shadow-xl p-4" 
-                > 
- 
-                    <div 
-                        class="flex justify-between pb-3 
-                               border-b border-border" 
-                    > 
- 
-                        <strong class="text-sm"> 
-                            Notifications 
-                        </strong> 
- 
-                        <span 
-                            id="notificationCount" 
-                            class="text-xs text-primary font-semibold" 
-                        > 
-                            0 New 
-                        </span> 
- 
-                    </div> 
- 
- 
-                    <div 
-                        id="notificationList" 
-                        class="space-y-2 mt-3" 
-                    > 
- 
-                        <div class="p-3 rounded-lg bg-slate-50"> 
- 
-                            <strong class="block text-sm"> 
-                                System Ready 
-                            </strong> 
- 
-                            <span class="text-xs text-slate-500"> 
-                                Administrator session is active. 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                </div> 
- 
-            </div> 
- 
- 
-            <!-- PROFILE --> 
- 
-            <div class="relative"> 
- 
-                <button 
-                    id="profileMenuToggle" 
-                    class="w-10 h-10 rounded-full bg-blue-50 
-                           border border-blue-100 text-primary font-bold" 
-                > 
-                    AD 
-                </button> 
- 
- 
-                <div 
-                    id="profileDropdown" 
-                    class="hidden absolute right-0 top-12 w-56 
-                           bg-white border border-border 
-                           rounded-xl shadow-xl p-2" 
-                > 
- 
-                    <div class="px-3 py-2"> 
- 
-                        <strong 
-                            id="dropdownAdminName" 
-                            class="block text-sm" 
-                        > 
-                            Administrator 
-                        </strong> 
- 
-                        <span 
-                            id="dropdownAdminEmail" 
-                            class="block text-xs text-slate-500 break-all" 
-                        > 
-                            Loading... 
-                        </span> 
- 
-                    </div> 
- 
- 
-                    <div class="border-t border-border my-1"></div> 
- 
- 
-                    <button 
-                        onclick="switchTab('settings')" 
-                        class="w-full px-3 py-2.5 rounded-lg 
-                               hover:bg-slate-50 text-left 
-                               flex items-center gap-2 text-sm" 
-                    > 
- 
-                        <span 
-                            class="material-symbols-outlined 
-                                   text-primary text-lg" 
-                        > 
-                            settings 
-                        </span> 
- 
-                        Settings 
- 
-                    </button> 
- 
- 
-                    <button 
-                        id="profileLogoutBtn" 
-                        class="w-full px-3 py-2.5 rounded-lg 
-                               hover:bg-red-50 text-left 
-                               flex items-center gap-2 text-sm 
-                               text-red-500" 
-                    > 
- 
-                        <span class="material-symbols-outlined text-lg"> 
-                            logout 
-                        </span> 
- 
-                        <span> 
-                            Logout 
-                        </span> 
- 
-                    </button> 
- 
-                </div> 
- 
-            </div> 
- 
-        </div> 
- 
-    </header> 
- 
- 
-    <!-- CONTENT --> 
- 
-    <div class="p-5 md:p-8 space-y-8"> 
- 
- 
-        <!-- ===================================================== 
-             DASHBOARD 
-        ===================================================== --> 
- 
-        <section 
-            id="section-dashboard" 
-            class="content-section space-y-8" 
-        > 
- 
- 
-            <!-- STATS --> 
- 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4"> 
- 
- 
-                <div class="card rounded-xl p-5"> 
- 
-                    <div class="flex justify-between items-center"> 
- 
-                        <span 
-                            class="text-xs uppercase tracking-wide 
-                                   text-slate-500 font-mono" 
-                        > 
-                            Total Students 
-                        </span> 
- 
-                        <div 
-                            class="w-10 h-10 rounded-lg bg-blue-50 
-                                   flex items-center justify-center" 
-                        > 
- 
-                            <span class="material-symbols-outlined text-primary"> 
-                                school 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                    <h3 
-                        id="studentCount" 
-                        class="mt-4 text-3xl font-heading font-bold" 
-                    > 
-                        0 
-                    </h3> 
- 
-                    <p class="mt-1 text-xs text-slate-500"> 
-                        Registered athletes 
-                    </p> 
- 
-                </div> 
- 
- 
-                <div class="card rounded-xl p-5"> 
- 
-                    <div class="flex justify-between items-center"> 
- 
-                        <span 
-                            class="text-xs uppercase tracking-wide 
-                                   text-slate-500 font-mono" 
-                        > 
-                            Total Coaches 
-                        </span> 
- 
-                        <div 
-                            class="w-10 h-10 rounded-lg bg-indigo-50 
-                                   flex items-center justify-center" 
-                        > 
- 
-                            <span 
-                                class="material-symbols-outlined text-indigo-600" 
-                            > 
-                                sports 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                    <h3 
-                        id="coachCount" 
-                        class="mt-4 text-3xl font-heading font-bold" 
-                    > 
-                        0 
-                    </h3> 
- 
-                    <p class="mt-1 text-xs text-slate-500"> 
-                        Registered coaches 
-                    </p> 
- 
-                </div> 
- 
- 
-                <div class="card rounded-xl p-5"> 
- 
-                    <div class="flex justify-between items-center"> 
- 
-                        <span 
-                            class="text-xs uppercase tracking-wide 
-                                   text-slate-500 font-mono" 
-                        > 
-                            Performance Records 
-                        </span> 
- 
-                        <div 
-                            class="w-10 h-10 rounded-lg bg-amber-50 
-                                   flex items-center justify-center" 
-                        > 
- 
-                            <span 
-                                class="material-symbols-outlined text-amber-500" 
-                            > 
-                                monitoring 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                    <h3 
-                        id="performanceCount" 
-                        class="mt-4 text-3xl font-heading font-bold" 
-                    > 
-                        0 
-                    </h3> 
- 
-                    <p class="mt-1 text-xs text-slate-500"> 
-                        Assessments and training records 
-                    </p> 
- 
-                </div> 
- 
- 
-                <div class="card rounded-xl p-5"> 
- 
-                    <div class="flex justify-between items-center"> 
- 
-                        <span 
-                            class="text-xs uppercase tracking-wide 
-                                   text-slate-500 font-mono" 
-                        > 
-                            Pending Accounts 
-                        </span> 
- 
-                        <div 
-                            class="w-10 h-10 rounded-lg bg-emerald-50 
-                                   flex items-center justify-center" 
-                        > 
- 
-                            <span 
-                                class="material-symbols-outlined text-emerald-500" 
-                            > 
-                                pending 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                    <h3 
-                        id="pendingCount" 
-                        class="mt-4 text-3xl font-heading font-bold" 
-                    > 
-                        0 
-                    </h3> 
- 
-                    <p class="mt-1 text-xs text-slate-500"> 
-                        Awaiting verification 
-                    </p> 
- 
-                </div> 
- 
-            </div> 
- 
- 
-            <!-- CHARTS --> 
- 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
- 
- 
-                <div class="card rounded-xl p-6 lg:col-span-2"> 
- 
-                    <div 
-                        class="flex flex-wrap items-center 
-                               justify-between gap-3 mb-6" 
-                    > 
- 
-                        <div> 
- 
-                            <h3 
-                                class="font-heading font-bold 
-                                       text-lg text-slate-900" 
-                            > 
-                                User Registrations 
-                            </h3> 
- 
-                            <p class="text-xs text-slate-500 mt-0.5"> 
-                                Registered students and coaches 
-                            </p> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                    <div class="relative h-72 w-full"> 
- 
-                        <canvas id="registrationBarChart"></canvas> 
- 
-                    </div> 
- 
-                </div> 
- 
- 
-                <div class="card rounded-xl p-6"> 
- 
-                    <div> 
- 
-                        <h3 
-                            class="font-heading font-bold 
-                                   text-lg text-slate-900" 
-                        > 
-                            User Distribution 
-                        </h3> 
- 
-                        <p class="text-xs text-slate-500 mt-0.5"> 
-                            Current database users 
-                        </p> 
- 
-                    </div> 
- 
- 
-                    <div 
-                        class="relative h-60 w-full my-auto 
-                               flex items-center justify-center" 
-                    > 
- 
-                        <canvas id="userStatusDoughnutChart"></canvas> 
- 
-                    </div> 
- 
- 
-                    <div 
-                        class="grid grid-cols-3 gap-2 pt-4 
-                               border-t border-border text-center" 
-                    > 
- 
-                        <div> 
- 
-                            <span 
-                                class="block text-[10px] font-mono 
-                                       uppercase text-slate-400" 
-                            > 
-                                Students 
-                            </span> 
- 
-                            <span 
-                                id="studentPercentage" 
-                                class="text-sm font-bold text-blue-600" 
-                            > 
-                                0% 
-                            </span> 
- 
-                        </div> 
- 
- 
-                        <div> 
- 
-                            <span 
-                                class="block text-[10px] font-mono 
-                                       uppercase text-slate-400" 
-                            > 
-                                Coaches 
-                            </span> 
- 
-                            <span 
-                                id="coachPercentage" 
-                                class="text-sm font-bold text-indigo-600" 
-                            > 
-                                0% 
-                            </span> 
- 
-                        </div> 
- 
- 
-                        <div> 
- 
-                            <span 
-                                class="block text-[10px] font-mono 
-                                       uppercase text-slate-400" 
-                            > 
-                                Pending 
-                            </span> 
- 
-                            <span 
-                                id="pendingPercentage" 
-                                class="text-sm font-bold text-amber-500" 
-                            > 
-                                0% 
-                            </span> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                </div> 
- 
-            </div> 
- 
- 
-            <!-- RECENT USERS --> 
- 
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6"> 
- 
- 
-                <div class="card rounded-xl xl:col-span-2"> 
- 
-                    <div 
-                        class="p-6 border-b border-border 
-                               flex items-center justify-between" 
-                    > 
- 
-                        <div> 
- 
-                            <h3 
-                                class="font-heading font-bold 
-                                       text-lg text-slate-900" 
-                            > 
-                                Recent Registered Users 
-                            </h3> 
- 
-                            <p class="text-xs text-slate-500 mt-1"> 
-                                Latest accounts from the database 
-                            </p> 
- 
-                        </div> 
- 
-                        <button 
-                            onclick="switchTab('students')" 
-                            class="text-primary text-xs 
-                                   font-semibold hover:underline" 
-                        > 
-                            View All 
-                        </button> 
- 
-                    </div> 
- 
- 
-                    <div class="overflow-x-auto scrollbar"> 
- 
-                        <table class="w-full text-left"> 
- 
-                            <thead> 
- 
-                                <tr 
-                                    class="border-b border-border 
-                                           text-xs uppercase text-slate-400" 
-                                > 
- 
-                                    <th class="px-6 py-3 font-mono"> 
-                                        User 
-                                    </th> 
- 
-                                    <th class="px-4 py-3 font-mono"> 
-                                        Role 
-                                    </th> 
- 
-                                    <th class="px-4 py-3 font-mono"> 
-                                        Status 
-                                    </th> 
- 
-                                    <th 
-                                        class="px-6 py-3 text-right font-mono" 
-                                    > 
-                                        Action 
-                                    </th> 
- 
-                                </tr> 
- 
-                            </thead> 
- 
-                            <tbody 
-                                id="dashboardRecentUsers" 
-                                class="divide-y divide-slate-100" 
-                            ></tbody> 
- 
-                        </table> 
- 
-                    </div> 
- 
-                </div> 
- 
- 
-                <!-- ACTIVITY --> 
- 
-                <div class="card rounded-xl p-6"> 
- 
-                    <div class="flex items-center gap-3 mb-5"> 
- 
-                        <div 
-                            class="w-10 h-10 rounded-lg bg-blue-50 
-                                   flex items-center justify-center" 
-                        > 
- 
-                            <span class="material-symbols-outlined text-primary"> 
-                                history 
-                            </span> 
- 
-                        </div> 
- 
-                        <div> 
- 
-                            <h3 class="font-heading font-bold text-lg"> 
-                                System Activity 
-                            </h3> 
- 
-                            <p class="text-xs text-slate-500"> 
-                                Current session information 
-                            </p> 
- 
-                        </div> 
- 
-                    </div> 
- 
- 
-                    <div class="space-y-3"> 
- 
-                        <div 
-                            class="p-3 rounded-lg bg-slate-50 
-                                   border border-border" 
-                        > 
- 
-                            <strong class="block text-sm"> 
-                                Administrator 
-                            </strong> 
- 
-                            <p 
-                                id="activityAdminName" 
-                                class="text-xs text-slate-500" 
-                            > 
-                                Loading... 
-                            </p> 
- 
-                        </div> 
- 
- 
-                        <div 
-                            class="p-3 rounded-lg bg-slate-50 
-                                   border border-border" 
-                        > 
- 
-                            <strong class="block text-sm"> 
-                                Email 
-                            </strong> 
- 
-                            <p 
-                                id="activityAdminEmail" 
-                                class="text-xs text-slate-500 break-all" 
-                            > 
-                                Loading... 
-                            </p> 
- 
-                        </div> 
- 
- 
-                        <div 
-                            class="p-3 rounded-lg bg-slate-50 
-                                   border border-border" 
-                        > 
- 
-                            <strong class="block text-sm"> 
-                                Account Role 
-                            </strong> 
- 
-                            <p class="text-xs text-slate-500"> 
-                                Administrator 
-                            </p> 
- 
-                        </div> 
- 
-                    </div> 
- 
-                </div> 
- 
-            </div> 
- 
- 
-            <!-- QUICK ACTIONS --> 
- 
-            <div class="card rounded-xl p-6"> 
- 
-                <div class="mb-5"> 
- 
-                    <h3 class="font-heading font-bold text-lg"> 
-                        Admin Management Shortcuts 
-                    </h3> 
- 
-                    <p class="text-xs text-slate-500 mt-1"> 
-                        Quickly manage users and system operations. 
-                    </p> 
- 
-                </div> 
- 
- 
-                <div 
-                    class="grid grid-cols-1 sm:grid-cols-2 
-                           lg:grid-cols-4 gap-4" 
-                > 
- 
-                    <button 
-                        onclick="switchTab('students')" 
-                        class="p-5 rounded-xl bg-slate-50 
-                               border border-border hover:border-blue-300 
-                               hover:bg-blue-50/50 text-left" 
-                    > 
- 
-                        <span 
-                            class="material-symbols-outlined 
-                                   text-primary text-2xl" 
-                        > 
-                            school 
-                        </span> 
- 
-                        <strong class="block mt-3 text-sm"> 
-                            Manage Students 
-                        </strong> 
- 
-                        <span class="block mt-1 text-xs text-slate-500"> 
-                            View student accounts 
-                        </span> 
- 
-                    </button> 
- 
- 
-                    <button 
-                        onclick="switchTab('coaches')" 
-                        class="p-5 rounded-xl bg-slate-50 
-                               border border-border hover:border-indigo-300 
-                               hover:bg-indigo-50/50 text-left" 
-                    > 
- 
-                        <span 
-                            class="material-symbols-outlined 
-                                   text-indigo-600 text-2xl" 
-                        > 
-                            sports 
-                        </span> 
- 
-                        <strong class="block mt-3 text-sm"> 
-                            Manage Coaches 
-                        </strong> 
- 
-                        <span class="block mt-1 text-xs text-slate-500"> 
-                            View coach accounts 
-                        </span> 
- 
-                    </button> 
- 
- 
-                    <button 
-                        onclick="switchTab('performance')" 
-                        class="p-5 rounded-xl bg-slate-50 
-                               border border-border hover:border-amber-300 
-                               hover:bg-amber-50/50 text-left" 
-                    > 
- 
-                        <span 
-                            class="material-symbols-outlined 
-                                   text-amber-500 text-2xl" 
-                        > 
-                            monitoring 
-                        </span> 
- 
-                        <strong class="block mt-3 text-sm"> 
-                            Performance 
-                        </strong> 
- 
-                        <span class="block mt-1 text-xs text-slate-500"> 
-                            View performance records 
-                        </span> 
- 
-                    </button> 
- 
- 
-                    <button 
-                        onclick="switchTab('settings')" 
-                        class="p-5 rounded-xl bg-slate-50 
-                               border border-border hover:border-emerald-300 
-                               hover:bg-emerald-50/50 text-left" 
-                    > 
- 
-                        <span 
-                            class="material-symbols-outlined 
-                                   text-emerald-500 text-2xl" 
-                        > 
-                            tune 
-                        </span> 
- 
-                        <strong class="block mt-3 text-sm"> 
-                            System Settings 
-                        </strong> 
- 
-                        <span class="block mt-1 text-xs text-slate-500"> 
-                            Configure administrator account 
-                        </span> 
- 
-                    </button> 
- 
-                </div> 
- 
-            </div> 
- 
-        </section> 
- 
- 
-        <!-- =====================================================  
-             STUDENTS  
-        ===================================================== -->  
- 
-        <section  
-            id="section-students"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="card rounded-xl">  
- 
-                <div class="p-6 border-b border-border">  
- 
-                    <div  
-                        class="flex flex-wrap justify-between  
-                               gap-4"  
-                    >  
- 
-                        <div>  
- 
-                            <h2 class="font-heading font-bold text-2xl">  
-                                Registered Students  
-                            </h2>  
- 
-                            <p class="text-sm text-slate-500 mt-1">  
-                                Manage student athlete accounts.  
-                            </p>  
- 
-                        </div>  
- 
- 
-                        <div class="flex gap-3">  
- 
-                            <div  
-                                class="flex items-center bg-slate-50  
-                                       border border-border rounded-lg px-3 w-60"  
-                            >  
- 
-                                <span class="material-symbols-outlined text-slate-400">  
-                                    search  
-                                </span>  
- 
-                                <input  
-                                    id="studentSearchInput"  
-                                    class="ml-2 w-full border-0  
-                                           bg-transparent focus:ring-0 text-sm"  
-                                    placeholder="Search students..."  
-                                >  
- 
-                            </div>  
- 
-                        </div>  
- 
-                    </div>  
- 
-                </div>  
- 
- 
-                <div class="overflow-x-auto scrollbar">  
- 
-                    <table class="w-full text-left">  
- 
-                        <thead>  
- 
-                            <tr  
-                                class="border-b border-border  
-                                       text-xs uppercase text-slate-400"  
-                            >  
- 
-                                <th class="px-6 py-3 font-mono">  
-                                    Student  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Email  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Status  
-                                </th>  
- 
-                                <th class="px-6 py-3 text-right font-mono">  
-                                    Action  
-                                </th>  
- 
-                            </tr>  
- 
-                        </thead>  
- 
-                        <tbody  
-                            id="studentTableBody"  
-                            class="divide-y divide-slate-100"  
-                        ></tbody>  
- 
-                    </table>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
- 
-        <!-- =====================================================  
-             COACHES  
-        ===================================================== -->  
- 
-        <section  
-            id="section-coaches"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="card rounded-xl">  
- 
-                <div class="p-6 border-b border-border">  
- 
-                    <div>  
- 
-                        <h2 class="font-heading font-bold text-2xl">  
-                            Coach Accounts  
-                        </h2>  
- 
-                        <p class="text-sm text-slate-500 mt-1">  
-                            Manage coaching staff.  
-                        </p>  
- 
-                    </div>  
- 
-                </div>  
- 
- 
-                <div class="overflow-x-auto scrollbar">  
- 
-                    <table class="w-full text-left">  
- 
-                        <thead>  
- 
-                            <tr  
-                                class="border-b border-border  
-                                       text-xs uppercase text-slate-400"  
-                            >  
- 
-                                <th class="px-6 py-3 font-mono">  
-                                    Coach  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Email  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Status  
-                                </th>  
- 
-                                <th class="px-6 py-3 text-right font-mono">  
-                                    Action  
-                                </th>  
- 
-                            </tr>  
- 
-                        </thead>  
- 
-                        <tbody  
-                            id="coachTableBody"  
-                            class="divide-y divide-slate-100"  
-                        ></tbody>  
- 
-                    </table>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
- 
-        <!-- =====================================================  
-             COACH APPROVALS  
-        ===================================================== -->  
- 
-        <section  
-            id="section-coach-approvals"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="card rounded-xl">  
- 
-                <div  
-                    class="p-6 border-b border-border  
-                           flex flex-wrap items-center justify-between gap-4"  
-                >  
- 
-                    <div>  
- 
-                        <h2 class="font-heading font-bold text-2xl">  
-                            Coach Approvals  
-                        </h2>  
- 
-                        <p class="text-sm text-slate-500 mt-1">  
-                            Review coach accounts waiting for administrator approval.  
-                        </p>  
- 
-                    </div>  
- 
-                    <div  
-                        id="coachApprovalSummary"  
-                        class="px-3 py-2 rounded-lg  
-                               bg-amber-50 border border-amber-200  
-                               text-amber-700 text-xs font-semibold"  
-                    >  
-                        0 pending approvals  
-                    </div>  
- 
-                </div>  
- 
- 
-                <div class="overflow-x-auto scrollbar">  
- 
-                    <table class="w-full text-left">  
- 
-                        <thead>  
- 
-                            <tr  
-                                class="border-b border-border  
-                                       text-xs uppercase text-slate-400"  
-                            >  
- 
-                                <th class="px-6 py-3 font-mono">  
-                                    Coach  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Email  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Registration Status  
-                                </th>  
- 
-                                <th class="px-4 py-3 font-mono">  
-                                    Email Verification  
-                                </th>  
- 
-                                <th class="px-6 py-3 text-right font-mono">  
-                                    Action  
-                                </th>  
- 
-                            </tr>  
- 
-                        </thead>  
- 
-                        <tbody  
-                            id="coachApprovalTableBody"  
-                            class="divide-y divide-slate-100"  
-                        ></tbody>  
- 
-                    </table>  
- 
-                </div>  
- 
-            </div>  
- 
- 
-            <div  
-                class="rounded-xl border border-blue-100  
-                       bg-blue-50/60 p-5"  
-            >  
- 
-                <div class="flex gap-3">  
- 
-                    <span  
-                        class="material-symbols-outlined text-primary mt-0.5"  
-                    >  
-                        info  
-                    </span>  
- 
-                    <div>  
- 
-                        <strong class="block text-sm text-slate-800">  
-                            Approval workflow  
-                        </strong>  
- 
-                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">  
-                            Approving activates a coach account. Rejecting the application  
-                            deactivates the account, preventing the coach from signing in.  
-                        </p>  
- 
-                    </div>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
- 
-        <!-- =====================================================  
-             PERFORMANCE  
-        ===================================================== -->  
- 
-        <section  
-            id="section-performance"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">  
- 
-                <div class="card rounded-xl p-5">  
- 
-                    <span class="text-xs uppercase font-mono text-slate-500">  
-                        Assessments  
-                    </span>  
- 
-                    <h3  
-                        id="assessmentCount"  
-                        class="text-3xl font-heading font-bold mt-3"  
-                    >  
-                        0  
-                    </h3>  
- 
-                    <p class="text-xs text-slate-500 mt-1">  
-                        Physical assessments  
-                    </p>  
- 
-                </div>  
- 
-                <div class="card rounded-xl p-5">  
- 
-                    <span class="text-xs uppercase font-mono text-slate-500">  
-                        Training Sessions  
-                    </span>  
- 
-                    <h3  
-                        id="trainingCount"  
-                        class="text-3xl font-heading font-bold mt-3"  
-                    >  
-                        0  
-                    </h3>  
- 
-                    <p class="text-xs text-slate-500 mt-1">  
-                        Recorded sessions  
-                    </p>  
- 
-                </div>  
- 
-                <div class="card rounded-xl p-5">  
- 
-                    <span class="text-xs uppercase font-mono text-slate-500">  
-                        Goals  
-                    </span>  
- 
-                    <h3  
-                        id="goalCount"  
-                        class="text-3xl font-heading font-bold mt-3"  
-                    >  
-                        0  
-                    </h3>  
- 
-                    <p class="text-xs text-slate-500 mt-1">  
-                        Athlete goals  
-                    </p>  
- 
-                </div>  
- 
-                <div class="card rounded-xl p-5">  
- 
-                    <span class="text-xs uppercase font-mono text-slate-500">  
-                        Feedback  
-                    </span>  
- 
-                    <h3  
-                        id="feedbackCount"  
-                        class="text-3xl font-heading font-bold mt-3"  
-                    >  
-                        0  
-                    </h3>  
- 
-                    <p class="text-xs text-slate-500 mt-1">  
-                        Coach feedback records  
-                    </p>  
- 
-                </div>  
- 
-            </div>  
- 
-            <div class="card rounded-xl p-6 md:p-8">  
- 
-                <div class="mb-6">  
- 
-                    <h2 class="font-heading font-bold text-xl">  
-                        Performance Records  
-                    </h2>  
- 
-                    <p class="text-sm text-slate-500 mt-1">  
-                        Records currently stored in the database.  
-                    </p>  
- 
-                </div>  
- 
-                <div class="relative h-80 w-full">  
- 
-                    <canvas id="performanceLineChart"></canvas>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
- 
-        <!-- =====================================================  
-             REPORTS  
-        ===================================================== -->  
- 
-        <section  
-            id="section-reports"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="card rounded-xl p-6 md:p-8">  
- 
-                <h2 class="font-heading font-bold text-2xl">  
-                    System Reports  
-                </h2>  
- 
-                <p class="text-sm text-slate-500 mt-1 mb-7">  
-                    Current database information.  
-                </p>  
- 
-                <div  
-                    class="grid grid-cols-1 md:grid-cols-2  
-                           gap-4"  
-                >  
- 
-                    <button  
-                        onclick="exportUsersCSV()"  
-                        class="p-5 rounded-xl bg-slate-50  
-                               border border-border hover:border-blue-300  
-                               hover:bg-blue-50 text-left"  
-                    >  
- 
-                        <span  
-                            class="material-symbols-outlined  
-                                   text-primary text-3xl"  
-                        >  
-                            download  
-                        </span>  
- 
-                        <strong class="block mt-3">  
-                            Export User Report  
-                        </strong>  
- 
-                        <p class="text-xs text-slate-500 mt-1">  
-                            Export current users as CSV.  
-                        </p>  
- 
-                    </button>  
- 
-                    <button  
-                        onclick="switchTab('performance')"  
-                        class="p-5 rounded-xl bg-slate-50  
-                               border border-border hover:border-indigo-300  
-                               hover:bg-indigo-50 text-left"  
-                    >  
- 
-                        <span  
-                            class="material-symbols-outlined  
-                                   text-indigo-600 text-3xl"  
-                        >  
-                            analytics  
-                        </span>  
- 
-                        <strong class="block mt-3">  
-                            Performance Records  
-                        </strong>  
- 
-                        <p class="text-xs text-slate-500 mt-1">  
-                            View current performance data.  
-                        </p>  
- 
-                    </button>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
- 
-        <!-- =====================================================  
-             SETTINGS  
-        ===================================================== -->  
- 
-        <section  
-            id="section-settings"  
-            class="content-section hidden space-y-6"  
-        >  
- 
-            <div class="card rounded-xl p-6 md:p-8">  
- 
-                <h2 class="font-heading font-bold text-2xl">  
-                    Admin Preferences & Security  
-                </h2>  
- 
-                <p class="text-sm text-slate-500 mt-1 mb-7">  
-                    Manage your administrator account.  
-                </p>  
- 
-                <div class="space-y-4">  
- 
-                    <!-- ADMIN PROFILE -->  
- 
-                    <div  
-                        class="p-5 rounded-xl bg-slate-50  
-                               border border-border"  
-                    >  
- 
-                        <h3 class="font-semibold">  
-                            Administrator Profile  
-                        </h3>  
- 
-                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">  
- 
-                            <div>  
- 
-                                <span  
-                                    class="text-xs text-slate-400 uppercase"  
-                                >  
-                                    Name  
-                                </span>  
- 
-                                <p  
-                                    id="settingsAdminName"  
-                                    class="font-semibold mt-1"  
-                                >  
-                                    Loading...  
-                                </p>  
- 
-                            </div>  
- 
-                            <div>  
- 
-                                <span  
-                                    class="text-xs text-slate-400 uppercase"  
-                                >  
-                                    Email  
-                                </span>  
- 
-                                <p  
-                                    id="settingsAdminEmail"  
-                                    class="font-semibold mt-1 break-all"  
-                                >  
-                                    Loading...  
-                                </p>  
- 
-                            </div>  
- 
-                        </div>  
- 
-                    </div>  
- 
-                    <!-- NOTIFICATIONS -->  
- 
-                    <div  
-                        class="p-5 rounded-xl bg-slate-50  
-                               border border-border flex items-center  
-                               justify-between gap-4"  
-                    >  
- 
-                        <div>  
- 
-                            <h3 class="font-semibold">  
-                                System Notifications  
-                            </h3>  
- 
-                            <p class="text-xs text-slate-500 mt-1">  
-                                Receive alerts for system events.  
-                            </p>  
- 
-                        </div>  
- 
-                        <label class="relative inline-flex cursor-pointer">  
- 
-                            <input  
-                                id="settingNotifToggle"  
-                                type="checkbox"  
-                                checked  
-                                class="sr-only peer"  
-                            >  
- 
-                            <div  
-                                class="w-11 h-6 rounded-full bg-slate-300  
-                                       peer-checked:bg-primary  
-                                       after:absolute after:top-[2px]  
-                                       after:left-[2px] after:h-5 after:w-5  
-                                       after:bg-white after:rounded-full  
-                                       after:transition-all  
-                                       peer-checked:after:translate-x-full"  
-                            ></div>  
- 
-                        </label>  
- 
-                    </div>  
- 
-                    <!-- DEACTIVATE -->  
- 
-                    <div  
-                        class="p-5 rounded-xl bg-amber-50  
-                               border border-amber-200  
-                               flex items-center justify-between gap-4"  
-                    >  
- 
-                        <div>  
- 
-                            <h3 class="font-semibold text-amber-900">  
-                                Deactivate Admin Account  
-                            </h3>  
- 
-                            <p class="text-xs text-amber-700 mt-1">  
-                                Temporarily disable administrator access.  
-                            </p>  
- 
-                        </div>  
- 
-                        <button  
-                            id="deactivateBtn"  
-                            class="px-4 py-2 rounded-lg  
-                                   bg-amber-500 hover:bg-amber-600  
-                                   text-white text-xs font-semibold"  
-                        >  
-                            Deactivate  
-                        </button>  
- 
-                    </div>  
- 
-                    <!-- DELETE -->  
- 
-                    <div  
-                        class="p-5 rounded-xl bg-red-50  
-                               border border-red-200  
-                               flex items-center justify-between gap-4"  
-                    >  
- 
-                        <div>  
- 
-                            <h3 class="font-semibold text-red-700">  
-                                Delete Administrator Account  
-                            </h3>  
- 
-                            <p class="text-xs text-red-500 mt-1">  
-                                Permanently disable this administrator account.  
-                            </p>  
- 
-                        </div>  
- 
-                        <button  
-                            id="deleteAccountBtn"  
-                            class="px-4 py-2 rounded-lg  
-                                   bg-red-500 hover:bg-red-600  
-                                   text-white text-xs font-semibold"  
-                        >  
-                            Delete Account  
-                        </button>  
- 
-                    </div>  
- 
-                </div>  
- 
-            </div>  
- 
-        </section>  
- 
-    </div>  
- 
-</main>  
-  
-<!-- =========================================================  
-     USER DETAIL MODAL  
-========================================================= -->  
- 
-<div  
-    id="userDetailModal"  
-    class="fixed inset-0 z-[60] hidden  
-           items-center justify-center p-4 modal-backdrop"  
->  
- 
-    <div  
-        class="w-full max-w-md bg-white rounded-2xl  
-               shadow-2xl border border-border p-6"  
-    >  
- 
-        <div  
-            class="flex justify-between items-center  
-                   pb-4 border-b border-border"  
-        >  
- 
-            <h3  
-                id="modalUserName"  
-                class="font-heading font-bold text-lg"  
-            >  
-                User Profile  
-            </h3>  
- 
-            <button  
-                id="userDetailClose"  
-                class="text-slate-400 hover:text-slate-700"  
-            >  
- 
-                <span class="material-symbols-outlined">  
-                    close  
-                </span>  
- 
-            </button>  
- 
-        </div>  
- 
-        <div  
-            id="userDetailBody"  
-            class="space-y-4 mt-5"  
-        ></div>  
- 
-        <div  
-            class="flex justify-end mt-6 pt-4  
-                   border-t border-border"  
-        >  
- 
-            <button  
-                id="userDetailOk"  
-                class="px-5 py-2 rounded-lg  
-                       bg-primary text-white text-sm font-semibold"  
-            >  
-                Close  
-            </button>  
- 
-        </div>  
- 
-    </div>  
- 
-</div>  
-  
-<!-- =========================================================  
-     TOAST  
-========================================================= -->  
- 
-<div  
-    id="toast"  
-    class="toast fixed right-5 bottom-5 z-[70]  
-           bg-slate-900 text-white px-5 py-3  
-           rounded-xl shadow-xl flex items-center gap-3"  
->  
- 
-    <span  
-        class="material-symbols-outlined text-emerald-400"  
-    >  
-        check_circle  
-    </span>  
- 
-    <span  
-        id="toastMessage"  
-        class="text-sm"  
-    >  
-        Success  
-    </span>  
- 
-</div>  
-  
-<script>  
-/* =========================================================  
-   API  
-========================================================= */  
-const API_BASE = window.location.origin;  
-  
-/* =========================================================  
-   STATE  
-========================================================= */  
-const adminState = {  
-    admin: null,  
-    users: [],  
-    assessments: [],  
-    trainingSessions: [],  
-    goals: [],  
-    feedback: []  
-};  
-  
-let registrationChart = null;  
-let distributionChart = null;  
-let performanceChart = null;  
-let toastTimer = null;  
-  
-/* =========================================================  
-   START  
-========================================================= */  
-document.addEventListener("DOMContentLoaded", initializeDashboard);  
-  
-async function initializeDashboard() {  
-    setupDate();  
-    setupNavigation();  
-    setupModals();  
-    setupAccountActions();  
-    setupSearch();  
-    setupNotifications();  
-  
-    await checkAdminSession();  
-}  
-  
-async function checkAdminSession() {  
-    try {  
-        const response = await fetch(`${API_BASE}/api/admin/session`, {  
-            method: "GET",  
-            credentials: "include",  
-            cache: "no-store"  
-        });  
-        const data = await response.json();  
-        if (!response.ok || data.success !== true || data.authenticated !== true) {  
-            window.location.replace("admin-login.html");
-            return;  
-        }  
-        adminState.admin = data.admin;  
-        updateAdminInformation();  
-        await loadDashboardData();  
-    } catch (error) {  
-        console.error("ADMIN SESSION ERROR:", error);  
-    }  
-}  
-  
-function updateAdminInformation() {  
-    if (!adminState.admin) return;  
-    const name = adminState.admin.name || "Administrator";  
-    const email = adminState.admin.email || "";  
-    const initials = avatarLetters(name);  
-  
-    document.getElementById("sideNavName").textContent = name;  
-    document.getElementById("sidebarInitials").textContent = initials;  
-    document.getElementById("profileMenuToggle").textContent = initials;  
-    document.getElementById("dropdownAdminName").textContent = name;  
-    document.getElementById("dropdownAdminEmail").textContent = email;  
-    document.getElementById("activityAdminName").textContent = name;  
-    document.getElementById("activityAdminEmail").textContent = email;  
-    document.getElementById("settingsAdminName").textContent = name;  
-    document.getElementById("settingsAdminEmail").textContent = email;  
-}  
-  
-async function loadDashboardData() {  
-    try {  
-        const users = await apiGet("/api/users");
-        adminState.users = Array.isArray(users.users)
-            ? users.users.map(user => ({
-                ...user,
-                name: user.full_name || user.name || "",
-                account_status: user.coach_status || user.account_status || "active",
-                email_verified: Number(user.is_verified)
-            }))
-            : [];
-        updateDashboard();  
+      <i class="bi bi-people-fill"></i>
 
-        // These record types are not part of the current backend schema.
-        adminState.assessments = [];
-        adminState.trainingSessions = [];
-        adminState.goals = [];
-        adminState.feedback = [];
-        updateDashboard();
-    } catch (error) {  
-        console.error("DASHBOARD DATA ERROR:", error);  
-        showToast(error.message || "Unable to load dashboard data.");  
-    }  
-}  
-  
-async function apiGet(endpoint) {  
-    const response = await fetch(`${API_BASE}${endpoint}`, {  
-        method: "GET",  
-        credentials: "include",  
-        cache: "no-store"  
-    });  
-    const data = await response.json().catch(() => ({ success: false, message: "Invalid server response." }));  
-    if (response.status === 401 || response.status === 403) {  
-        window.location.replace("admin-login.html");  
-        throw new Error(data.message || "Administrator session expired.");  
-    }  
-    if (!response.ok || data.success === false) {  
-        throw new Error(data.message || "API request failed.");  
-    }  
-    return data;  
-}  
-  
-function updateDashboard() {  
-    const students = adminState.users.filter(user => user.role === "player" || user.role === "student");  
-    const coaches = adminState.users.filter(user => user.role === "coach");  
-    const pending = adminState.users.filter(isPendingAccount);  
-    const performanceRecords = adminState.assessments.length + adminState.trainingSessions.length;  
-  
-    document.getElementById("studentCount").textContent = students.length;  
-    document.getElementById("coachCount").textContent = coaches.length;  
-    document.getElementById("pendingCount").textContent = pending.length;  
-    document.getElementById("performanceCount").textContent = performanceRecords;  
-    document.getElementById("assessmentCount").textContent = adminState.assessments.length;  
-    document.getElementById("trainingCount").textContent = adminState.trainingSessions.length;  
-    document.getElementById("goalCount").textContent = adminState.goals.length;  
-    document.getElementById("feedbackCount").textContent = adminState.feedback.length;  
-  
-    renderAllTables();  
-    updateDistribution(students.length, coaches.length, pending.length);  
-    initializeCharts();  
-}  
-  
-function renderAllTables() {  
-    renderRecentUsers();  
-    renderStudentTable();  
-    renderCoachTable();  
-    renderCoachApprovalTable();  
-}  
-  
-function renderRecentUsers() {  
-    const tbody = document.getElementById("dashboardRecentUsers");  
-    const users = adminState.users.slice(0, 5);  
-    if (!users.length) {  
-        tbody.innerHTML = emptyRow(4, "No users found.");  
-        return;  
-    }  
-    tbody.innerHTML = users.map(user => {  
-        const role = displayRole(user.role);  
-        return `  
-            <tr class="hover:bg-slate-50">  
-                <td class="px-6 py-4">  
-                    <div class="flex items-center gap-3">  
-                        <div class="w-9 h-9 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-xs">  
-                            ${escapeHTML(avatarLetters(user.name))}  
-                        </div>  
-                        <div>  
-                            <strong class="block text-sm text-slate-800">${escapeHTML(user.name)}</strong>  
-                            <span class="text-xs text-slate-400">${escapeHTML(user.email)}</span>  
-                        </div>  
-                    </div>  
-                </td>  
-                <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(role)}</td>  
-                <td class="px-4 py-4">${statusBadge(user)}</td>  
-                <td class="px-6 py-4 text-right">  
-                    <button onclick="viewUser(${Number(user.id)})" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-primary hover:text-white text-xs font-semibold">  
-                        View  
-                    </button>  
-                </td>  
-            </tr>  
-        `;  
-    }).join("");  
-}  
-  
-function renderStudentTable() {  
-    const tbody = document.getElementById("studentTableBody");  
-    const students = adminState.users.filter(user => user.role === "player" || user.role === "student");  
-    if (!students.length) {  
-        tbody.innerHTML = emptyRow(4, "No student accounts found.");  
-        return;  
-    }  
-    tbody.innerHTML = students.map(student => `  
-        <tr class="hover:bg-slate-50">  
-            <td class="px-6 py-4">  
-                <div class="flex items-center gap-3">  
-                    <div class="w-9 h-9 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-xs">  
-                        ${escapeHTML(avatarLetters(student.name))}  
-                    </div>  
-                    <strong class="text-sm">${escapeHTML(student.name)}</strong>  
-                </div>  
-            </td>  
-            <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(student.email)}</td>  
-            <td class="px-4 py-4">${statusBadge(student)}</td>  
-            <td class="px-6 py-4 text-right">  
-                <button onclick="viewUser(${Number(student.id)})" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-primary hover:text-white text-xs font-semibold">  
-                    View  
-                </button>  
-            </td>  
-        </tr>  
-    `).join("");  
-}  
-  
-function renderCoachTable() {  
-    const tbody = document.getElementById("coachTableBody");  
-    const coaches = adminState.users.filter(user => user.role === "coach");  
-    if (!coaches.length) {  
-        tbody.innerHTML = emptyRow(4, "No coach accounts found.");  
-        return;  
-    }  
-    tbody.innerHTML = coaches.map(coach => `  
-        <tr class="hover:bg-slate-50">  
-            <td class="px-6 py-4">  
-                <div class="flex items-center gap-3">  
-                    <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">  
-                        ${escapeHTML(avatarLetters(coach.name))}  
-                    </div>  
-                    <strong class="text-sm">${escapeHTML(coach.name)}</strong>  
-                </div>  
-            </td>  
-            <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(coach.email)}</td>  
-            <td class="px-4 py-4">${statusBadge(coach)}</td>  
-            <td class="px-6 py-4 text-right">  
-                <button onclick="viewUser(${Number(coach.id)})" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-primary hover:text-white text-xs font-semibold">  
-                    View  
-                </button>  
-            </td>  
-        </tr>  
-    `).join("");  
-}  
-  
-function renderCoachApprovalTable() {  
-    const tbody = document.getElementById("coachApprovalTableBody");  
-    const pendingCoaches = adminState.users.filter(user => {  
-        const role = String(user.role || "").toLowerCase();  
-        const status = String(user.coach_status || "").toLowerCase();  
-        return role === "coach" && status === "pending";  
-    });  
-  
-    const count = pendingCoaches.length;  
-    const navCount = document.getElementById("coachApprovalNavCount");  
-    const summary = document.getElementById("coachApprovalSummary");  
-  
-    if (navCount) {  
-        navCount.textContent = count;  
-        navCount.classList.toggle("hidden", count === 0);  
-        navCount.classList.toggle("flex", count > 0);  
-    }  
-  
-    if (summary) {  
-        summary.textContent = `${count} pending approval${count === 1 ? "" : "s"}`;  
-    }  
-  
-    if (!tbody) return;  
-  
-    if (!pendingCoaches.length) {  
-        tbody.innerHTML = emptyRow(5, "No coach accounts are currently waiting for approval.");  
-        return;  
-    }  
-  
-    tbody.innerHTML = pendingCoaches.map(coach => `  
-        <tr class="hover:bg-slate-50">  
-            <td class="px-6 py-4">  
-                <div class="flex items-center gap-3">  
-                    <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">  
-                        ${escapeHTML(avatarLetters(coach.full_name))}  
-                    </div>  
-                    <div>  
-                        <strong class="block text-sm text-slate-800">${escapeHTML(coach.full_name)}</strong>  
-                        <span class="text-xs text-slate-400">Coach account</span>  
-                    </div>  
-                </div>  
-            </td>  
-            <td class="px-4 py-4 text-sm text-slate-500">${escapeHTML(coach.email)}</td>  
-            <td class="px-4 py-4">  
-                <span class="inline-flex px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-mono uppercase font-bold">  
-                    ${escapeHTML(coach.coach_status || "pending")}  
-                </span>  
-            </td>  
-            <td class="px-4 py-4">  
-                ${Number(coach.is_verified) === 1  
-                    ? `<span class="inline-flex px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-bold">Verified</span>`  
-                    : `<span class="inline-flex px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-mono uppercase font-bold">Not Verified</span>`  
-                }  
-            </td>  
-            <td class="px-6 py-4">  
-                <div class="flex justify-end gap-2">  
-                    <button type="button" onclick="reviewCoachApproval(${Number(coach.id)}, 'approve')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors">  
-                        Approve  
-                    </button>  
-                    <button type="button" onclick="reviewCoachApproval(${Number(coach.id)}, 'reject')" class="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold transition-colors">  
-                        Reject  
-                    </button>  
-                </div>  
-            </td>  
-        </tr>  
-    `).join("");  
-}  
-  
-async function reviewCoachApproval(coachId, decision) {  
-    const action = decision === "approve" ? "approve" : "reject";  
-  
-    if (!confirm(`Are you sure you want to ${action} this coach application?`)) {  
-        return;  
-    }  
-  
-    const buttons = document.querySelectorAll(`button[onclick*="reviewCoachApproval(${Number(coachId)},"]`);  
-    buttons.forEach(button => {  
-        button.disabled = true;  
-        button.classList.add("opacity-60", "cursor-not-allowed");  
-    });  
-  
-    try {  
-        const response = await fetch(`${API_BASE}/api/coaches/${Number(coachId)}/approval`, {  
-            method: "POST",  
-            headers: { "Content-Type": "application/json" },  
-            credentials: "include",  
-            body: JSON.stringify({ decision: action })  
-        });  
-  
-        const data = await response.json().catch(() => ({}));  
-  
-        if (response.status === 401 || response.status === 403) {  
-            window.location.replace("admin-login.html");  
-            return;  
-        }  
-  
-        if (!response.ok || !data.success) {  
-            throw new Error(data.message || "Unable to review coach application.");  
-        }  
-  
-        showToast(data.message || "Coach application reviewed.");  
-        await loadDashboardData();  
-  
-    } catch (error) {  
-        console.error("COACH APPROVAL ERROR:", error);  
-        showToast(error.message || "Unable to review coach application.");  
-        buttons.forEach(button => {  
-            button.disabled = false;  
-            button.classList.remove("opacity-60", "cursor-not-allowed");  
-        });  
-    }  
-}  
-  
-function emptyRow(columns, message) {  
-    return `  
-        <tr>  
-            <td colspan="${columns}" class="px-6 py-10 text-center text-sm text-slate-400">  
-                ${escapeHTML(message)}  
-            </td>  
-        </tr>  
-    `;  
-}  
-  
-/* =========================================================  
-   STATUS  
-========================================================= */  
-function statusBadge(user) {  
-    const status = String(user.account_status || "").toLowerCase();  
-  
-    if (status === "deactivated") {  
-        return `<span class="inline-flex px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-mono uppercase font-bold">Deactivated</span>`;  
-    }  
-    if (status === "deleted") {  
-        return `<span class="inline-flex px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-mono uppercase font-bold">Deleted</span>`;  
-    }  
-    if (isPendingAccount(user)) {  
-        return `<span class="inline-flex px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-mono uppercase font-bold">Pending</span>`;  
-    }  
-    return `<span class="inline-flex px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-bold">Active</span>`;  
-}  
-  
-function displayRole(role) {  
-    if (role === "player" || role === "student") return "Student";  
-    if (role === "coach") return "Coach";  
-    if (role === "admin") return "Admin";  
-    return role || "Unknown";  
-}  
-  
-/* =========================================================  
-   CHARTS  
-========================================================= */  
-function initializeCharts() {  
-    if (typeof Chart === "undefined") return;  
-  
-    Chart.defaults.font.family = "'Hanken Grotesk', sans-serif";  
-    Chart.defaults.color = "#64748b";  
-  
-    createRegistrationChart();  
-    createDistributionChart();  
-    createPerformanceChart();  
-}  
-  
-function destroyChart(chart) {  
-    if (chart) chart.destroy();  
-}  
-  
-function createRegistrationChart() {  
-    const canvas = document.getElementById("registrationBarChart");  
-    if (!canvas) return;  
-    destroyChart(registrationChart);  
-  
-    const students = adminState.users.filter(user => user.role === "player" || user.role === "student").length;  
-    const coaches = adminState.users.filter(user => user.role === "coach").length;  
-  
-    registrationChart = new Chart(canvas, {  
-        type: "bar",  
-        data: {  
-            labels: ["Students", "Coaches"],  
-            datasets: [{  
-                label: "Users",  
-                data: [students, coaches],  
-                backgroundColor: ["#2563eb", "#6366f1"],  
-                borderRadius: 6  
-            }]  
-        },  
-        options: {  
-            responsive: true,  
-            maintainAspectRatio: false,  
-            plugins: { legend: { display: false } },  
-            scales: {  
-                x: { grid: { display: false } },  
-                y: { beginAtZero: true }  
-            }  
-        }  
-    });  
-}  
-  
-function updateDistribution(students, coaches, pending) {  
-    const total = students + coaches + pending;  
-    const studentPercentage = total ? Math.round(students / total * 100) : 0;  
-    const coachPercentage = total ? Math.round(coaches / total * 100) : 0;  
-    const pendingPercentage = total ? Math.round(pending / total * 100) : 0;  
-  
-    document.getElementById("studentPercentage").textContent = `${studentPercentage}%`;  
-    document.getElementById("coachPercentage").textContent = `${coachPercentage}%`;  
-    document.getElementById("pendingPercentage").textContent = `${pendingPercentage}%`;  
-}  
+      Athletes
 
-function isPendingAccount(user) {
-    return String(user.coach_status || "").toLowerCase() === "pending"
-        || Number(user.email_verified ?? user.is_verified) === 0;
+    </button>
+
+
+    <button
+      class="nav-button"
+      onclick="showSection('coaches',this)"
+    >
+
+      <i class="bi bi-person-badge-fill"></i>
+
+      Coaches
+
+    </button>
+
+
+    <button
+      class="nav-button"
+      onclick="showSection('attendance',this)"
+    >
+
+      <i class="bi bi-calendar-check-fill"></i>
+
+      Attendance
+
+    </button>
+
+  </div>
+
+
+  <div
+    class="menu-title"
+    style="margin-top:22px"
+  >
+
+    ACCOUNT
+
+  </div>
+
+
+  <div class="nav-menu">
+
+
+    <button
+      class="nav-button"
+      onclick="showSection('profile',this)"
+    >
+
+      <i class="bi bi-person-fill"></i>
+
+      My Profile
+
+    </button>
+
+
+    <button
+      class="nav-button"
+      onclick="showSection('settings',this)"
+    >
+
+      <i class="bi bi-gear-fill"></i>
+
+      Settings
+
+    </button>
+
+  </div>
+
+
+  <!-- SPACER -->
+
+  <div class="sidebar-spacer"></div>
+
+
+  <!-- ADMIN AT BOTTOM LEFT -->
+
+  <div class="admin-bottom-profile">
+
+    <div class="admin-mini-profile">
+
+      <div class="avatar" id="adminAvatar">
+        A
+      </div>
+
+      <div>
+
+        <strong id="adminName">
+          Loading…
+        </strong>
+
+        <span>
+          System Administrator
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN DASHBOARD
+===================================================== -->
+
+<div class="dashboard">
+
+
+  <!-- TOPBAR -->
+
+  <header class="topbar">
+
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+      "
+    >
+
+      <button
+        class="mobile-menu"
+        onclick="toggleSidebar()"
+      >
+
+        <i class="bi bi-list"></i>
+
+      </button>
+
+
+      <div>
+
+        <div
+          class="page-title"
+          id="pageTitle"
+        >
+
+          Admin Dashboard
+
+        </div>
+
+        <div class="page-subtitle">
+
+          Manage athletes, coaches and attendance
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOP RIGHT DATE -->
+
+    <div class="topbar-right">
+
+      <div class="top-date">
+
+        <i class="bi bi-calendar3"></i>
+
+        <input
+          type="date"
+          id="globalDate"
+          onchange="changeGlobalDate(this.value)"
+        >
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+
+  <main class="content">
+
+
+    <!-- =================================================
+         DASHBOARD
+    ================================================== -->
+
+    <section
+      id="dashboard"
+      class="section active"
+    >
+
+
+      <div class="hero">
+
+
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            ADMIN CONTROL CENTER
+          </div>
+
+          <h1>
+            Welcome, Administrator
+          </h1>
+
+          <p>
+
+            Manage athletes, approve coach registrations,
+            assign multiple sports roles and monitor
+            attendance across the entire sports program.
+
+          </p>
+
+
+          <div class="hero-actions">
+
+
+            <button
+              class="hero-primary"
+              onclick="
+                showSectionByName('coaches')
+              "
+            >
+
+              Manage Coaches
+
+              <i class="bi bi-arrow-right"></i>
+
+            </button>
+
+
+            <button
+              class="hero-secondary"
+              onclick="
+                showSectionByName('attendance')
+              "
+            >
+
+              View Attendance
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="hero-icon">
+
+          <i class="bi bi-shield-lock-fill"></i>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>
+            System Overview
+          </h2>
+
+          <p>
+            Current platform statistics.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="stats">
+
+
+        <div class="stat">
+
+          <div class="stat-icon blue">
+
+            <i
+              class="bi bi-people-fill"
+            ></i>
+
+          </div>
+
+          <div class="stat-info">
+
+            <span>
+              Total Athletes
+            </span>
+
+            <strong
+              id="totalAthletes"
+            >
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-icon purple">
+
+            <i
+              class="bi bi-person-badge-fill"
+            ></i>
+
+          </div>
+
+          <div class="stat-info">
+
+            <span>
+              Approved Coaches
+            </span>
+
+            <strong
+              id="approvedCoaches"
+            >
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-icon orange">
+
+            <i
+              class="bi bi-person-plus-fill"
+            ></i>
+
+          </div>
+
+          <div class="stat-info">
+
+            <span>
+              Pending Coach Requests
+            </span>
+
+            <strong
+              id="pendingRequests"
+            >
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-icon green">
+
+            <i
+              class="bi bi-calendar-check-fill"
+            ></i>
+
+          </div>
+
+          <div class="stat-info">
+
+            <span>
+              Attendance Records
+            </span>
+
+            <strong
+              id="attendanceRecords"
+            >
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>
+            Administration
+          </h2>
+
+          <p>
+            Frequently used management tools.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="quick-actions">
+
+
+        <button
+          class="quick-card"
+          onclick="
+            showSectionByName('athletes')
+          "
+        >
+
+          <div class="quick-icon">
+
+            <i
+              class="bi bi-people-fill"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Manage Athletes
+            </strong>
+
+            <span>
+              View all registered athletes.
+            </span>
+
+          </div>
+
+        </button>
+
+
+        <button
+          class="quick-card"
+          onclick="
+            showSectionByName('coaches')
+          "
+        >
+
+          <div class="quick-icon purple">
+
+            <i
+              class="bi bi-person-check-fill"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Manage Coaches
+            </strong>
+
+            <span>
+              Approve coaches and assign multiple roles.
+            </span>
+
+          </div>
+
+        </button>
+
+
+        <button
+          class="quick-card"
+          onclick="
+            showSectionByName('attendance')
+          "
+        >
+
+          <div class="quick-icon green">
+
+            <i
+              class="bi bi-calendar-check-fill"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Check Attendance
+            </strong>
+
+            <span>
+              View attendance submitted by coaches.
+            </span>
+
+          </div>
+
+        </button>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         ATHLETES
+    ================================================== -->
+
+    <section
+      id="athletes"
+      class="section"
+    >
+
+
+      <div class="page-heading">
+
+        <div class="eyebrow">
+          ATHLETE MANAGEMENT
+        </div>
+
+        <h1>
+          Athletes
+        </h1>
+
+        <p>
+          View all athletes registered in the system.
+        </p>
+
+      </div>
+
+
+      <div class="card-box">
+
+
+        <div class="card-header-custom">
+
+          <div>
+
+            <h3>
+              All Athletes
+            </h3>
+
+            <span>
+              Athletes currently registered.
+            </span>
+
+          </div>
+
+
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:10px;
+            "
+          >
+
+
+            <!-- SEARCH -->
+
+            <div class="search-box">
+
+              <i class="bi bi-search"></i>
+
+              <input
+                type="text"
+                id="athleteSearch"
+                placeholder="Search athletes..."
+                oninput="renderAthletes()"
+              >
+
+            </div>
+
+
+            <!-- LIST / BOX -->
+
+            <div class="view-toggle">
+
+              <button
+                id="boxViewButton"
+                class="active"
+                onclick="setAthleteView('box')"
+              >
+
+                <i class="bi bi-grid-fill"></i>
+
+                Box
+
+              </button>
+
+
+              <button
+                id="listViewButton"
+                onclick="setAthleteView('list')"
+              >
+
+                <i class="bi bi-list-ul"></i>
+
+                List
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="athletes-grid"
+          id="athletesGrid"
+        ></div>
+
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         COACHES
+    ================================================== -->
+
+    <section
+      id="coaches"
+      class="section"
+    >
+
+
+      <div class="page-heading">
+
+        <div class="eyebrow">
+          COACH MANAGEMENT
+        </div>
+
+        <h1>
+          Coaches
+        </h1>
+
+        <p>
+          Approve coaches and assign one or multiple
+          sports roles to each coach.
+        </p>
+
+      </div>
+
+
+      <!-- PENDING REQUESTS -->
+
+      <div
+        class="card-box"
+        style="margin-bottom:20px;"
+      >
+
+        <div class="card-header-custom">
+
+          <div>
+
+            <h3>
+              Coach Sign-up Requests
+            </h3>
+
+            <span>
+              Review new coach registration requests
+              and assign their roles.
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="table-container">
+
+
+          <table class="admin-table">
+
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Coach
+                </th>
+
+                <th>
+                  Email
+                </th>
+
+                <th>
+                  Requested
+                </th>
+
+                <th>
+                  Roles
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+                <th>
+                  Action
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody
+              id="coachRequestsBody"
+            ></tbody>
+
+
+          </table>
+
+
+        </div>
+
+      </div>
+
+
+
+      <!-- APPROVED COACHES -->
+
+      <div class="card-box">
+
+
+        <div class="card-header-custom">
+
+          <div>
+
+            <h3>
+              Approved Coaches
+            </h3>
+
+            <span>
+              Assign or update multiple sports roles.
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="table-container">
+
+
+          <table class="admin-table">
+
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Coach
+                </th>
+
+                <th>
+                  Email
+                </th>
+
+                <th>
+                  Assigned Roles
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+                <th>
+                  Update Roles
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody
+              id="coachesBody"
+            ></tbody>
+
+
+          </table>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         ATTENDANCE
+    ================================================== -->
+
+    <section
+      id="attendance"
+      class="section"
+    >
+
+
+      <div class="page-heading">
+
+        <div class="eyebrow">
+          ATTENDANCE MONITORING
+        </div>
+
+        <h1>
+          Athlete Attendance
+        </h1>
+
+        <p>
+          Check attendance recorded by coaches for all
+          athletes.
+        </p>
+
+      </div>
+
+
+      <div class="card-box">
+
+
+        <div class="attendance-toolbar">
+
+
+          <div class="form-group">
+
+            <label>
+              Date
+            </label>
+
+            <input
+              type="date"
+              id="adminAttendanceDate"
+              onchange="renderAttendance()"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Sport
+            </label>
+
+            <select
+              id="attendanceSport"
+              onchange="renderAttendance()"
+            >
+
+              <option value="all">
+                All Sports
+              </option>
+
+              <option>
+                Football
+              </option>
+
+              <option>
+                Volleyball
+              </option>
+
+              <option>
+                Basketball
+              </option>
+
+              <option>
+                Badminton
+              </option>
+
+              <option>
+                Cricket
+              </option>
+
+              <option>
+                Kickboxing
+              </option>
+
+              <option>
+                Athletics
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <button
+            class="btn-neutral"
+            onclick="renderAttendance()"
+          >
+
+            <i class="bi bi-search"></i>
+
+            Check Attendance
+
+          </button>
+
+        </div>
+
+
+        <div class="table-container">
+
+
+          <table class="admin-table">
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Athlete
+                </th>
+
+                <th>
+                  Sport
+                </th>
+
+                <th>
+                  Coach
+                </th>
+
+                <th>
+                  Date
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody
+              id="attendanceBody"
+            ></tbody>
+
+          </table>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         PROFILE
+    ================================================== -->
+
+    <section
+      id="profile"
+      class="section"
+    >
+
+
+      <div class="page-heading">
+
+        <div class="eyebrow">
+          ACCOUNT
+        </div>
+
+        <h1>
+          My Profile
+        </h1>
+
+        <p>
+          Administrator account information.
+        </p>
+
+      </div>
+
+
+      <div class="profile-card">
+
+
+        <div class="profile-header">
+
+          <div class="large-avatar">
+            A
+          </div>
+
+          <div>
+
+            <h2 id="adminProfileTitle">
+              Loading…
+            </h2>
+
+            <span class="profile-badge">
+
+              <i
+                class="bi bi-shield-check"
+              ></i>
+
+              System Administrator
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="profile-grid">
+
+
+          <div class="profile-field">
+
+            <label>
+              Full Name
+            </label>
+
+            <strong id="adminProfileName">
+              Loading…
+            </strong>
+
+          </div>
+
+
+          <div class="profile-field">
+
+            <label>
+              Role
+            </label>
+
+            <strong>
+              System Administrator
+            </strong>
+
+          </div>
+
+
+          <div class="profile-field">
+
+            <label>
+              Email
+            </label>
+
+            <strong id="adminProfileEmail">
+              —
+            </strong>
+
+          </div>
+
+
+          <div class="profile-field">
+
+            <label>
+              Access
+            </label>
+
+            <strong>
+              Full Management Access
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         SETTINGS
+    ================================================== -->
+
+    <section
+      id="settings"
+      class="section"
+    >
+
+
+      <div class="page-heading">
+
+        <div class="eyebrow">
+          ACCOUNT
+        </div>
+
+        <h1>
+          Settings
+        </h1>
+
+        <p>
+          Manage your administrator account.
+        </p>
+
+      </div>
+
+
+      <div class="profile-card">
+
+
+        <div class="settings-row">
+
+          <div class="settings-info">
+
+            <strong>
+              Account Information
+            </strong>
+
+            <span>
+              Manage your administrator profile information.
+            </span>
+
+          </div>
+
+
+          <button
+            class="btn-neutral"
+            onclick="
+              showSectionByName('profile')
+            "
+          >
+
+            View Profile
+
+          </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+          <div class="settings-info">
+
+            <strong>
+              Log Out
+            </strong>
+
+            <span>
+              Sign out of the administrator account.
+            </span>
+
+          </div>
+
+
+          <button
+            class="logout-settings"
+            onclick="logout()"
+          >
+
+            <i
+              class="bi bi-box-arrow-right"
+            ></i>
+
+            Log Out
+
+          </button>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+  </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+
+/* =====================================================
+   SPORTS / ROLES
+===================================================== */
+
+let sports = [];
+let sportIds = {};
+
+
+
+/* =====================================================
+   ATHLETES
+===================================================== */
+
+let athletes = [];
+
+
+
+/* =====================================================
+   COACH REQUESTS
+===================================================== */
+
+let coachRequests = [];
+
+
+
+/* =====================================================
+   APPROVED COACHES
+===================================================== */
+
+let approvedCoaches = [];
+
+
+
+/* =====================================================
+   ATTENDANCE
+===================================================== */
+
+let attendanceRecords = [];
+
+
+
+/* =====================================================
+   LOAD SAVED DATA
+===================================================== */
+
+const API_BASE = window.FITNESS_API_BASE || "";
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    credentials: "include"
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.message || "The request could not be completed.");
+    error.status = response.status;
+    throw error;
+  }
+  return data;
 }
-  
-function createDistributionChart() {  
-    const canvas = document.getElementById("userStatusDoughnutChart");  
-    if (!canvas) return;  
-    destroyChart(distributionChart);  
-  
-    const students = adminState.users.filter(user => user.role === "player" || user.role === "student").length;  
-    const coaches = adminState.users.filter(user => user.role === "coach").length;  
-    const pending = adminState.users.filter(isPendingAccount).length;  
-  
-    distributionChart = new Chart(canvas, {  
-        type: "doughnut",  
-        data: {  
-            labels: ["Students", "Coaches", "Pending"],  
-            datasets: [{  
-                data: [students, coaches, pending],  
-                backgroundColor: ["#2563eb", "#6366f1", "#f59e0b"],  
-                borderWidth: 0  
-            }]  
-        },  
-        options: {  
-            responsive: true,  
-            maintainAspectRatio: false,  
-            cutout: "72%",  
-            plugins: { legend: { display: false } }  
-        }  
-    });  
-}  
-  
-function createPerformanceChart() {  
-    const canvas = document.getElementById("performanceLineChart");  
-    if (!canvas) return;  
-    destroyChart(performanceChart);  
-  
-    performanceChart = new Chart(canvas, {  
-        type: "line",  
-        data: {  
-            labels: ["Assessments", "Training", "Goals", "Feedback"],  
-            datasets: [{  
-                label: "Records",  
-                data: [  
-                    adminState.assessments.length,  
-                    adminState.trainingSessions.length,  
-                    adminState.goals.length,  
-                    adminState.feedback.length  
-                ],  
-                borderColor: "#2563eb",  
-                backgroundColor: "rgba(37,99,235,0.08)",  
-                fill: true,  
-                tension: 0.35,  
-                pointRadius: 5  
-            }]  
-        },  
-        options: {  
-            responsive: true,  
-            maintainAspectRatio: false,  
-            plugins: { legend: { display: false } },  
-            scales: {  
-                y: { beginAtZero: true },  
-                x: { grid: { display: false } }  
-            }  
-        }  
-    });  
-}  
-  
-/* =========================================================  
-   NAVIGATION  
-========================================================= */  
-function setupNavigation() {  
-    document.querySelectorAll(".nav-btn").forEach(button => {  
-        button.addEventListener("click", () => {  
-            switchTab(button.dataset.section);  
-        });  
-    });  
-  
-    const mobileButton = document.getElementById("mobileMenuBtn");  
-    const sidebar = document.getElementById("sidebar");  
-    const overlay = document.getElementById("sidebarOverlay");  
-  
-    mobileButton.addEventListener("click", () => {  
-        sidebar.classList.remove("-translate-x-full");  
-        overlay.classList.remove("hidden");  
-    });  
-  
-    overlay.addEventListener("click", () => {  
-        sidebar.classList.add("-translate-x-full");  
-        overlay.classList.add("hidden");  
-    });  
-  
-    const profileToggle = document.getElementById("profileMenuToggle");  
-    const profileDropdown = document.getElementById("profileDropdown");  
-  
-    profileToggle.addEventListener("click", event => {  
-        event.stopPropagation();  
-        profileDropdown.classList.toggle("hidden");  
-    });  
-  
-    document.addEventListener("click", () => {  
-        profileDropdown.classList.add("hidden");  
-        document.getElementById("notificationTray").classList.add("hidden");  
-    });  
-}  
-  
-function switchTab(sectionId) {  
-    document.querySelectorAll(".nav-btn").forEach(button => {  
-        if (button.dataset.section === sectionId) {  
-            button.classList.remove("nav-item");  
-            button.classList.add("nav-active");  
-        } else {  
-            button.classList.remove("nav-active");  
-            button.classList.add("nav-item");  
-        }  
-    });  
-  
-    document.querySelectorAll(".content-section").forEach(section => {  
-        section.classList.add("hidden");  
-    });  
-  
-    const section = document.getElementById(`section-${sectionId}`);  
-    if (section) {  
-        section.classList.remove("hidden");  
-    }  
-  
-    const titles = {  
-        dashboard: ["Admin Dashboard", "System overview, access control, and organization management."],  
-        students: ["Students", "Manage and inspect all student athlete accounts."],  
-        coaches: ["Coaches", "Manage coaching staff and assigned training divisions."],  
-        "coach-approvals": ["Coach Approvals", "Review coach accounts waiting for administrator approval."],  
-        performance: ["Performance", "System-wide performance records."],  
-        reports: ["Reports", "Export current system information."],  
-        settings: ["Settings", "Manage administrator controls and account security."]  
-    };  
-  
-    document.getElementById("pageTitle").textContent = titles[sectionId]?.[0] || "Admin Dashboard";  
-    document.getElementById("pageSubtitle").textContent = titles[sectionId]?.[1] || "";  
-  
-    document.getElementById("sidebar").classList.add("-translate-x-full");  
-    document.getElementById("sidebarOverlay").classList.add("hidden");  
-  
-    window.scrollTo({ top: 0, behavior: "smooth" });  
-}  
-  
-/* =========================================================  
-   SEARCH  
-========================================================= */  
-function setupSearch() {  
-    document.getElementById("globalSearch").addEventListener("input", function () {  
-        filterTableRows(this.value);  
-    });  
-  
-    document.getElementById("studentSearchInput").addEventListener("input", function () {  
-        filterSpecificTable("studentTableBody", this.value);  
-    });  
-}  
-  
-function filterTableRows(query) {  
-    query = String(query || "").toLowerCase().trim();  
-    document.querySelectorAll("#dashboardRecentUsers tr, #studentTableBody tr, #coachTableBody tr").forEach(row => {  
-        row.style.display = !query || row.textContent.toLowerCase().includes(query) ? "" : "none";  
-    });  
-}  
-  
-function filterSpecificTable(tableId, query) {  
-    query = String(query || "").toLowerCase().trim();  
-    document.querySelectorAll(`#${tableId} tr`).forEach(row => {  
-        row.style.display = !query || row.textContent.toLowerCase().includes(query) ? "" : "none";  
-    });  
-}  
-  
-/* =========================================================  
-   MODALS  
-========================================================= */  
-function setupModals() {  
-    document.getElementById("userDetailClose").onclick = closeDetailModal;  
-    document.getElementById("userDetailOk").onclick = closeDetailModal;  
-}  
-  
-function viewUser(id) {  
-    const user = adminState.users.find(item => Number(item.id) === Number(id));  
-    if (!user) return;  
-  
-    document.getElementById("modalUserName").textContent = `${user.name} Profile`;  
-    document.getElementById("userDetailBody").innerHTML = `  
-        <div class="p-4 rounded-xl bg-slate-50 border border-border">  
-            <span class="block text-xs font-mono uppercase text-slate-400 mb-1">User Code</span>  
-            <strong>${escapeHTML(user.user_code)}</strong>  
-        </div>  
-        <div class="p-4 rounded-xl bg-slate-50 border border-border">  
-            <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Email</span>  
-            <strong>${escapeHTML(user.email)}</strong>  
-        </div>  
-        <div class="grid grid-cols-2 gap-4">  
-            <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">  
-                <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Role</span>  
-                <strong class="text-primary">${escapeHTML(displayRole(user.role))}</strong>  
-            </div>  
-            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">  
-                <span class="block text-xs font-mono uppercase text-slate-400 mb-1">Status</span>  
-                <strong class="text-emerald-600">${escapeHTML(user.account_status || "active")}</strong>  
-            </div>  
-        </div>  
-        <div class="flex gap-2 pt-3">  
-            <button onclick="changeUserStatus(${Number(user.id)}, 'active')" class="flex-1 px-3 py-2 rounded-lg bg-emerald-500 text-white text-xs font-semibold">  
-                Activate  
-            </button>  
-            <button onclick="changeUserStatus(${Number(user.id)}, 'deactivated')" class="flex-1 px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">  
-                Deactivate  
-            </button>  
-        </div>  
-    `;  
-  
-    const modal = document.getElementById("userDetailModal");  
-    modal.classList.remove("hidden");  
-    modal.classList.add("flex");  
-}  
-  
-function closeDetailModal() {  
-    const modal = document.getElementById("userDetailModal");  
-    modal.classList.add("hidden");  
-    modal.classList.remove("flex");  
-}  
-  
-async function changeUserStatus(userId, status) {  
-    if (!confirm(`Change this account status to "${status}"?`)) return;  
-  
-    try {  
-        const response = await fetch(`${API_BASE}/api/users/${userId}/status`, {  
-            method: "PATCH",  
-            headers: { "Content-Type": "application/json" },  
-            credentials: "include",  
-            body: JSON.stringify({ status: status })  
-        });  
-  
-        const data = await response.json().catch(() => ({}));  
-        if (response.status === 401 || response.status === 403) {  
-            window.location.replace("admin-login.html");  
-            return;  
-        }  
-        if (!response.ok || !data.success) {  
-            throw new Error(data.message || "Unable to update account status.");  
-        }  
-  
-        showToast(data.message || "Account status updated.");  
-        closeDetailModal();  
-        await loadDashboardData();  
-    } catch (error) {  
-        console.error("STATUS UPDATE ERROR:", error);  
-        showToast(error.message || "Unable to update account.");  
-    }  
-}  
-  
-/* =========================================================  
-   ACCOUNT ACTIONS  
-========================================================= */  
-function setupAccountActions() {  
-    document.getElementById("logoutBtn").addEventListener("click", logout);  
-    document.getElementById("profileLogoutBtn").addEventListener("click", logout);  
-    document.getElementById("deactivateBtn").addEventListener("click", deactivateOwnAccount);  
-    document.getElementById("deleteAccountBtn").addEventListener("click", deleteOwnAccount);  
-}  
-  
-async function logout(event) {  
-    if (event) event.preventDefault();  
-    if (!confirm("Are you sure you want to log out?")) return;  
-  
-    try {  
-        await fetch(`${API_BASE}/api/admin/logout`, { method: "POST", credentials: "include" });  
-    } catch (error) {  
-        console.error("LOGOUT ERROR:", error);  
-    }  
-  
-    sessionStorage.clear();  
-    window.location.replace("admin-login.html");  
-}  
-  
-async function deactivateOwnAccount() {  
-    if (!adminState.admin) return;  
-    if (!confirm("Deactivate your administrator account?")) return;  
-  
-    try {  
-        const response = await fetch(`${API_BASE}/api/users/${adminState.admin.id}/status`, {  
-            method: "PATCH",  
-            headers: { "Content-Type": "application/json" },  
-            credentials: "include",  
-            body: JSON.stringify({ status: "deactivated" })  
-        });  
-        const data = await response.json().catch(() => ({}));  
-        if (!response.ok) throw new Error(data.message || "Unable to deactivate account.");  
-        showToast(data.message || "Account deactivated.");  
-        setTimeout(logout, 1000);  
-    } catch (error) {  
-        showToast(error.message);  
-    }  
-}  
-  
-async function deleteOwnAccount() {  
-    if (!adminState.admin) return;  
-    const confirmation = prompt("Type DELETE to permanently deactivate this administrator account:");  
-    if (confirmation !== "DELETE") {  
-        if (confirmation !== null) showToast("Deletion cancelled.");  
-        return;  
-    }  
-  
-    try {  
-        const response = await fetch(`${API_BASE}/api/users/${adminState.admin.id}/status`, {  
-            method: "PATCH",  
-            headers: { "Content-Type": "application/json" },  
-            credentials: "include",  
-            body: JSON.stringify({ status: "deleted" })  
-        });  
-        const data = await response.json().catch(() => ({}));  
-        if (!response.ok) throw new Error(data.message || "Unable to delete account.");  
-        showToast(data.message || "Administrator account deleted.");  
-        setTimeout(async () => {  
-            await fetch(`${API_BASE}/api/admin/logout`, { method: "POST", credentials: "include" }).catch(() => {});  
-            sessionStorage.clear();  
-            window.location.replace("admin-login.html");  
-        }, 1000);  
-    } catch (error) {  
-        showToast(error.message);  
-    }  
-}  
-  
-/* =========================================================  
-   NOTIFICATIONS  
-========================================================= */  
-function setupNotifications() {  
-    const trigger = document.getElementById("notificationTrigger");  
-    const tray = document.getElementById("notificationTray");  
-  
-    trigger.addEventListener("click", event => {  
-        event.stopPropagation();  
-        tray.classList.toggle("hidden");  
-        document.getElementById("notificationDot").classList.add("hidden");  
-    });  
-}  
-  
-/* =========================================================  
-   DATE  
-========================================================= */  
-function setupDate() {  
-    document.getElementById("currentDate").textContent = new Date().toLocaleDateString("en-GB", {  
-        day: "2-digit",  
-        month: "short",  
-        year: "numeric"  
-    });  
-}  
-  
-/* =========================================================  
-   EXPORT CSV  
-========================================================= */  
-function exportUsersCSV() {  
-    if (!adminState.users.length) {  
-        showToast("There are no users to export.");  
-        return;  
-    }  
-  
-    const headers = ["ID", "User Code", "Name", "Email", "Role", "Sport", "Contact", "Gender", "Date of Birth", "Status", "Email Verified"];  
-    const rows = adminState.users.map(user => [  
-        user.id,  
-        user.user_code,  
-        user.name,  
-        user.email,  
-        displayRole(user.role),  
-        user.sport || "",  
-        user.contact_number || "",  
-        user.gender || "",  
-        user.date_of_birth || "",  
-        user.account_status || "",  
-        user.email_verified  
-    ]);  
-  
-    const csv = [headers, ...rows].map(row =>  
-        row.map(value => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")  
-    ).join("\n");  
-  
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });  
-    const url = URL.createObjectURL(blob);  
-    const link = document.createElement("a");  
-    link.href = url;  
-    link.download = "athlete-tracker-users.csv";  
-    document.body.appendChild(link);  
-    link.click();  
-    link.remove();  
-    URL.revokeObjectURL(url);  
-    showToast("User report exported.");  
-}  
-  
-/* =========================================================  
-   TOAST  
-========================================================= */  
-function showToast(message) {  
-    const toast = document.getElementById("toast");  
-    document.getElementById("toastMessage").textContent = message;  
-    clearTimeout(toastTimer);  
-    toast.classList.add("show");  
-    toastTimer = setTimeout(() => {  
-        toast.classList.remove("show");  
-    }, 2800);  
-}  
-  
-/* =========================================================  
-   HELPERS  
-========================================================= */  
-function avatarLetters(name) {  
-    return String(name || "Admin")  
-        .trim()  
-        .split(/\s+/)  
-        .map(word => word.charAt(0))  
-        .join("")  
-        .substring(0, 2)  
-        .toUpperCase();  
-}  
-  
-function escapeHTML(value) {  
-    return String(value ?? "").replace(/[&<>'"]/g, character => ({  
-        "&": "&amp;",  
-        "<": "&lt;",  
-        ">": "&gt;",  
-        "'": "&#39;",  
-        '"': "&quot;"  
-    })[character]);  
-}  
-</script>  
 
-</body>  
+async function loadAdminData() {
+  try {
+    const sessionData = await apiRequest("/api/admin/session");
+    const [sportData, studentData, pendingData, userData, assignmentData] = await Promise.all([
+      apiRequest("/api/sports"),
+      apiRequest("/api/admin/students"),
+      apiRequest("/api/admin/coaches/pending"),
+      apiRequest("/api/admin/users"),
+      apiRequest("/api/admin/coach-sports")
+    ]);
 
+    sportIds = Object.fromEntries(sportData.sports.map(sport => [sport.name, sport.id]));
+    sports = sportData.sports.map(sport => sport.name);
+    athletes = studentData.students.map(student => ({
+      id: student.id,
+      name: student.full_name,
+      email: student.email,
+      contact: student.contact_number,
+      dob: student.date_of_birth,
+      height: student.height_cm,
+      weight: student.weight_kg,
+      department: student.department,
+      sports: student.sports || [],
+      sport: (student.sports || []).join(", "),
+      verified: student.is_verified,
+      registered: student.registration_date
+    }));
+    coachRequests = pendingData.coaches.map(coach => ({
+      id: coach.registration_id ? -Number(coach.registration_id) : Number(coach.user_id),
+      registrationId: coach.registration_id,
+      userId: coach.user_id,
+      name: coach.full_name,
+      email: coach.email,
+      requested: coach.created_at ? coach.created_at.slice(0, 10) : "",
+      status: "pending",
+      roles: []
+    }));
+    const assignedByCoach = new Map();
+    assignmentData.assignments.forEach(assignment => {
+      const roles = assignedByCoach.get(assignment.coach_id) || [];
+      roles.push(assignment.sport_name);
+      assignedByCoach.set(assignment.coach_id, roles);
+    });
+    approvedCoaches = userData.users
+      .filter(user => user.role === "coach" && user.coach_status === "approved")
+      .map(coach => ({
+        id: coach.id,
+        name: coach.full_name,
+        email: coach.email,
+        roles: assignedByCoach.get(coach.id) || [],
+        status: coach.coach_status
+      }));
+    const currentAdmin = sessionData.user || sessionData.admin;
+    const adminName = document.getElementById("adminName");
+    if (adminName && currentAdmin) adminName.textContent = currentAdmin.full_name;
+    if (currentAdmin) {
+      document.getElementById("adminProfileTitle").textContent = currentAdmin.full_name;
+      document.getElementById("adminProfileName").textContent = currentAdmin.full_name;
+      document.getElementById("adminProfileEmail").textContent = currentAdmin.email;
+      const initials = currentAdmin.full_name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
+      document.getElementById("adminAvatar").textContent = initials || "A";
+      document.querySelector(".profile-header .large-avatar").textContent = initials || "A";
+    }
+    await renderAttendance();
+    renderAthletes();
+    renderCoachRequests();
+    renderCoaches();
+    updateDashboardStats();
+  } catch (error) {
+    alert(error.message);
+    if (error.status === 401 || error.status === 403) {
+      window.location.href = "admin-login.html";
+    }
+  }
+}
+
+
+
+/* =====================================================
+   INITIALS
+===================================================== */
+
+function getInitials(name) {
+
+  return name
+
+    .split(" ")
+
+    .map(
+      word =>
+        word[0]
+    )
+
+    .join("")
+
+    .substring(0,2)
+
+    .toUpperCase();
+
+}
+
+
+
+/* =====================================================
+   TODAY
+===================================================== */
+
+function getToday() {
+
+  const date =
+    new Date();
+
+
+  const localDate =
+
+    new Date(
+
+      date.getTime()
+
+      -
+
+      date.getTimezoneOffset()
+      * 60000
+
+    );
+
+
+  return localDate
+
+    .toISOString()
+
+    .split("T")[0];
+
+}
+
+
+
+/* =====================================================
+   GLOBAL DATE
+===================================================== */
+
+function changeGlobalDate(value) {
+
+  if (!value) return;
+
+  const attendanceDate =
+    document.getElementById(
+      "adminAttendanceDate"
+    );
+
+  if (attendanceDate) {
+
+    attendanceDate.value =
+      value;
+
+  }
+
+}
+
+
+
+/* =====================================================
+   ATHLETE VIEW
+===================================================== */
+
+let athleteView =
+  "box";
+
+
+function setAthleteView(view) {
+
+  athleteView =
+    view;
+
+
+  const grid =
+    document.getElementById(
+      "athletesGrid"
+    );
+
+
+  const boxButton =
+    document.getElementById(
+      "boxViewButton"
+    );
+
+
+  const listButton =
+    document.getElementById(
+      "listViewButton"
+    );
+
+
+  if (
+    view ===
+    "list"
+  ) {
+
+    grid.classList.add(
+      "list-view"
+    );
+
+
+    listButton.classList.add(
+      "active"
+    );
+
+
+    boxButton.classList.remove(
+      "active"
+    );
+
+  }
+
+  else {
+
+    grid.classList.remove(
+      "list-view"
+    );
+
+
+    boxButton.classList.add(
+      "active"
+    );
+
+
+    listButton.classList.remove(
+      "active"
+    );
+
+  }
+
+}
+
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function showSection(
+  sectionName,
+  button
+) {
+
+
+  document
+    .querySelectorAll(".section")
+    .forEach(
+      section =>
+        section.classList.remove(
+          "active"
+        )
+    );
+
+
+  document
+    .getElementById(sectionName)
+    .classList.add("active");
+
+
+  document
+    .querySelectorAll(".nav-button")
+    .forEach(
+      button =>
+        button.classList.remove(
+          "active"
+        )
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+
+  }
+
+
+  const titles = {
+
+    dashboard:
+      "Admin Dashboard",
+
+    athletes:
+      "Athletes",
+
+    coaches:
+      "Coaches",
+
+    attendance:
+      "Attendance",
+
+    profile:
+      "My Profile",
+
+    settings:
+      "Settings"
+
+  };
+
+
+  document.getElementById(
+    "pageTitle"
+  ).textContent =
+    titles[sectionName];
+
+
+  if (
+    sectionName ===
+    "athletes"
+  ) {
+
+    renderAthletes();
+
+  }
+
+
+  if (
+    sectionName ===
+    "coaches"
+  ) {
+
+    renderCoachRequests();
+
+    renderCoaches();
+
+  }
+
+
+  if (
+    sectionName ===
+    "attendance"
+  ) {
+
+    renderAttendance();
+
+  }
+
+
+  updateDashboardStats();
+
+  closeSidebar();
+
+}
+
+
+
+function showSectionByName(
+  sectionName
+) {
+
+  const button =
+
+    [...document
+      .querySelectorAll(
+        ".nav-button"
+      )]
+
+      .find(
+        btn =>
+          btn
+            .getAttribute(
+              "onclick"
+            )
+            ?.includes(
+              `'${sectionName}'`
+            )
+      );
+
+
+  showSection(
+    sectionName,
+    button
+  );
+
+}
+
+
+
+/* =====================================================
+   ATHLETES
+===================================================== */
+
+function renderAthletes() {
+
+  const grid =
+    document.getElementById(
+      "athletesGrid"
+    );
+
+
+  const search =
+
+    document.getElementById(
+      "athleteSearch"
+    )
+      ?.value
+      .toLowerCase()
+      .trim() || "";
+
+
+  const filtered =
+    athletes.filter(
+      athlete =>
+
+        athlete.name
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        athlete.sport
+          .toLowerCase()
+          .includes(search)
+    );
+
+
+  grid.innerHTML = "";
+
+
+  filtered.forEach(
+    athlete => {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "athlete-card";
+
+
+      card.innerHTML = `
+
+        <div class="athlete-header">
+
+          <div class="athlete-avatar">
+
+            ${getInitials(
+              athlete.name
+            )}
+
+          </div>
+
+          <div>
+
+            <strong>
+              ${athlete.name}
+            </strong>
+
+            <span>${athlete.sports.join(", ") || "No sports selected"}</span>
+
+          </div>
+
+        </div>
+
+
+        <div class="athlete-details">
+
+          <div class="athlete-detail">
+
+            <span>
+              Email
+            </span>
+
+            <strong>
+              ${athlete.email}
+            </strong>
+
+          </div>
+
+
+          <div class="athlete-detail">
+
+            <span>Contact</span>
+
+            <strong>${athlete.contact || "Not provided"}</strong>
+
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:14px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+          "
+        >
+
+          <span
+            class="badge-custom badge-role"
+          >
+
+            ${athlete.sport}
+
+          </span>
+
+
+          <button
+            class="btn-neutral"
+            onclick="
+              viewAthlete(
+                ${athlete.id}
+              )
+            "
+          >
+
+            View
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      grid.appendChild(card);
+
+    }
+  );
+
+
+  setAthleteView(
+    athleteView
+  );
+
+}
+
+
+
+function viewAthlete(id) {
+
+  const athlete =
+    athletes.find(
+      athlete =>
+        athlete.id === id
+    );
+
+
+  if (!athlete) return;
+
+
+  alert(
+
+    `${athlete.name}\n\n` +
+
+    `Sport: ${athlete.sport}\n` +
+
+    `Email: ${athlete.email}\n` +
+    `Contact: ${athlete.contact || "Not provided"}\n` +
+    `Department: ${athlete.department || "Not provided"}\n` +
+    `Date of birth: ${athlete.dob || "Not provided"}\n` +
+    `Height: ${athlete.height || "Not provided"} cm\n` +
+    `Weight: ${athlete.weight || "Not provided"} kg\n` +
+    `Verified: ${athlete.verified ? "Yes" : "No"}`
+
+  );
+
+}
+
+
+
+/* =====================================================
+   MULTI-ROLE SLIDE DOWN DROPDOWN
+===================================================== */
+
+function createRoleDropdown(
+  id,
+  selectedRoles,
+  prefix
+) {
+
+  const selected =
+    selectedRoles || [];
+
+
+  const selectedText =
+    selected.length > 0
+
+      ? selected.join(", ")
+
+      : "Select roles";
+
+
+  return `
+
+    <div
+      class="role-dropdown"
+      id="${prefix}-dropdown-${id}"
+    >
+
+
+      <button
+        type="button"
+        class="role-dropdown-button"
+        onclick="
+          toggleRoleDropdown(
+            '${prefix}',
+            ${id}
+          )
+        "
+      >
+
+        <span
+          class="selected-role-text"
+          id="${prefix}-selected-${id}"
+        >
+
+          ${selectedText}
+
+        </span>
+
+
+        <i
+          class="
+            bi
+            bi-chevron-down
+            role-dropdown-arrow
+          "
+        ></i>
+
+      </button>
+
+
+      <div
+        class="role-dropdown-menu"
+      >
+
+        ${sports.map(
+          sport => `
+
+            <label
+              class="role-option"
+            >
+
+              <input
+                type="checkbox"
+                value="${sport}"
+                ${
+                  selected.includes(
+                    sport
+                  )
+                    ? "checked"
+                    : ""
+                }
+                onchange="
+                  updateRoleDropdown(
+                    '${prefix}',
+                    ${id}
+                  )
+                "
+              >
+
+              <span>
+                ${sport}
+              </span>
+
+            </label>
+
+          `
+        ).join("")}
+
+
+        <div
+          class="role-dropdown-footer"
+        >
+
+          <span
+            class="role-count"
+            id="${prefix}-count-${id}"
+          >
+
+            ${selected.length}
+            role(s) selected
+
+          </span>
+
+
+          <button
+            type="button"
+            class="role-done"
+            onclick="
+              closeRoleDropdown(
+                '${prefix}',
+                ${id}
+              )
+            "
+          >
+
+            Done
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+
+/* =====================================================
+   OPEN/CLOSE ROLE DROPDOWN
+===================================================== */
+
+function toggleRoleDropdown(
+  prefix,
+  id
+) {
+
+  const dropdown =
+    document.getElementById(
+      `${prefix}-dropdown-${id}`
+    );
+
+
+  document
+    .querySelectorAll(
+      ".role-dropdown.open"
+    )
+    .forEach(
+      element => {
+
+        if (
+          element !==
+          dropdown
+        ) {
+
+          element.classList.remove(
+            "open"
+          );
+
+        }
+
+      }
+    );
+
+
+  dropdown.classList.toggle(
+    "open"
+  );
+
+}
+
+
+
+function closeRoleDropdown(
+  prefix,
+  id
+) {
+
+  const dropdown =
+    document.getElementById(
+      `${prefix}-dropdown-${id}`
+    );
+
+
+  if (dropdown) {
+
+    dropdown.classList.remove(
+      "open"
+    );
+
+  }
+
+}
+
+
+
+/* =====================================================
+   UPDATE DROPDOWN ROLES
+===================================================== */
+
+async function updateRoleDropdown(
+  prefix,
+  id
+) {
+
+  const dropdown =
+    document.getElementById(
+      `${prefix}-dropdown-${id}`
+    );
+
+
+  if (!dropdown) return;
+
+
+  const selected = [
+
+    ...dropdown
+      .querySelectorAll(
+        'input[type="checkbox"]:checked'
+      )
+
+  ].map(
+    checkbox =>
+      checkbox.value
+  );
+
+
+  const selectedText =
+    document.getElementById(
+      `${prefix}-selected-${id}`
+    );
+
+
+  const count =
+    document.getElementById(
+      `${prefix}-count-${id}`
+    );
+
+
+  if (selected.length) {
+
+    selectedText.textContent =
+      selected.join(", ");
+
+  }
+
+  else {
+
+    selectedText.textContent =
+      "Select roles";
+
+  }
+
+
+  count.textContent =
+
+    `${selected.length} role(s) selected`;
+
+
+  if (
+    prefix ===
+    "request"
+  ) {
+
+    const request =
+      coachRequests.find(
+        request =>
+          request.id === id
+      );
+
+
+    if (request) {
+
+      request.roles =
+        selected;
+
+    }
+
+  }
+
+
+  if (
+    prefix ===
+    "coach"
+  ) {
+
+    const coach =
+      approvedCoaches.find(
+        coach =>
+          coach.id === id
+      );
+
+
+    if (coach) {
+
+      coach.roles =
+        selected;
+
+    }
+
+  }
+
+
+  if (prefix === "coach") {
+    try {
+      await apiRequest("/api/admin/coach-sports", {
+        method: "PUT",
+        body: JSON.stringify({ coach_id: id, sports: selected })
+      });
+    } catch (error) {
+      alert(error.message);
+      await loadAdminData();
+      return;
+    }
+  }
+
+
+  renderCoachesBadgesOnly();
+
+  updateDashboardStats();
+
+}
+
+
+
+/* =====================================================
+   APPROVE REQUEST
+===================================================== */
+
+async function approveCoach(id) {
+
+  const request =
+    coachRequests.find(
+      request =>
+        request.id === id
+    );
+
+
+  if (!request) return;
+
+
+  const dropdown =
+    document.getElementById(
+      `request-dropdown-${id}`
+    );
+
+
+  let roles =
+    request.roles || [];
+
+
+  if (dropdown) {
+
+    roles = [
+
+      ...dropdown
+        .querySelectorAll(
+          'input[type="checkbox"]:checked'
+        )
+
+    ].map(
+      checkbox =>
+        checkbox.value
+    );
+
+  }
+
+
+  if (roles.length === 0) {
+
+    alert(
+      "Please select at least one sport role before approving this coach."
+    );
+
+    return;
+
+  }
+
+
+  request.roles =
+    roles;
+
+
+  try {
+    if (request.registrationId) {
+      await apiRequest("/api/admin/coaches/approve", {
+        method: "POST",
+        body: JSON.stringify({ registration_id: request.registrationId, sports: roles })
+      });
+    } else {
+      await apiRequest("/api/admin/coaches/approve", {
+        method: "POST",
+        body: JSON.stringify({ user_id: request.userId })
+      });
+      await apiRequest("/api/admin/coach-sports", {
+        method: "PUT",
+        body: JSON.stringify({ coach_id: request.userId, sports: roles })
+      });
+    }
+    await loadAdminData();
+    alert(`${request.name} has been approved with ${roles.length} sport(s).`);
+  } catch (error) {
+    alert(error.message);
+    await loadAdminData();
+  }
+
+}
+
+
+
+/* =====================================================
+   COACH REQUESTS
+===================================================== */
+
+function renderCoachRequests() {
+
+  const tbody =
+
+    document.getElementById(
+      "coachRequestsBody"
+    );
+
+
+  tbody.innerHTML = "";
+
+
+  const pendingRequests =
+
+    coachRequests.filter(
+      request =>
+        request.status ===
+        "pending"
+    );
+
+
+  if (
+    pendingRequests.length === 0
+  ) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="6"
+          style="
+            text-align:center;
+            padding:30px;
+            color:#94a3b8;
+          "
+        >
+
+          <i
+            class="bi bi-check-circle"
+            style="
+              font-size:24px;
+              display:block;
+              margin-bottom:8px;
+            "
+          ></i>
+
+          No pending coach requests.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  pendingRequests.forEach(
+    request => {
+
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      row.innerHTML = `
+
+        <td>
+
+          <div class="person">
+
+            <div class="person-avatar">
+
+              ${getInitials(
+                request.name
+              )}
+
+            </div>
+
+            <div>
+
+              <strong>
+                ${request.name}
+              </strong>
+
+              <span>
+                Coach applicant
+              </span>
+
+            </div>
+
+          </div>
+
+        </td>
+
+
+        <td>
+          ${request.email}
+        </td>
+
+
+        <td>
+          ${request.requested}
+        </td>
+
+
+        <td>
+
+          ${createRoleDropdown(
+            request.id,
+            request.roles || [],
+            "request"
+          )}
+
+        </td>
+
+
+        <td>
+
+          <span
+            class="
+              badge-custom
+              badge-pending
+            "
+          >
+
+            Pending
+
+          </span>
+
+        </td>
+
+
+        <td>
+
+          <div
+            style="
+              display:flex;
+              gap:5px;
+            "
+          >
+
+            <button
+              class="btn-success-custom"
+              onclick="
+                approveCoach(
+                  ${request.id}
+                )
+              "
+            >
+
+              <i
+                class="bi bi-check-lg"
+              ></i>
+
+              Approve
+
+            </button>
+
+
+            <button
+              class="btn-danger-custom"
+              onclick="
+                rejectCoach(
+                  ${request.id}
+                )
+              "
+            >
+
+              <i
+                class="bi bi-x-lg"
+              ></i>
+
+              Reject
+
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      tbody.appendChild(row);
+
+    }
+  );
+
+}
+
+
+
+/* =====================================================
+   REJECT COACH
+===================================================== */
+
+async function rejectCoach(id) {
+
+  const request =
+    coachRequests.find(
+      request =>
+        request.id === id
+    );
+
+
+  if (!request) return;
+
+
+  try {
+    await apiRequest("/api/admin/coaches/reject", {
+      method: "POST",
+      body: request.registrationId
+        ? { registration_id: request.registrationId }
+        : { user_id: request.userId }
+    });
+    await loadAdminData();
+  } catch (error) {
+    alert(error.message);
+  }
+
+}
+
+
+
+/* =====================================================
+   APPROVED COACHES
+===================================================== */
+
+function renderCoaches() {
+
+  const tbody =
+
+    document.getElementById(
+      "coachesBody"
+    );
+
+
+  tbody.innerHTML = "";
+
+
+  approvedCoaches.forEach(
+    coach => {
+
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      const roles =
+        coach.roles || [];
+
+
+      row.innerHTML = `
+
+        <td>
+
+          <div class="person">
+
+            <div class="person-avatar">
+
+              ${getInitials(
+                coach.name
+              )}
+
+            </div>
+
+            <div>
+
+              <strong>
+                ${coach.name}
+              </strong>
+
+              <span>
+                Coach
+              </span>
+
+            </div>
+
+          </div>
+
+        </td>
+
+
+        <td>
+          ${coach.email}
+        </td>
+
+
+        <td>
+
+          <div
+            id="
+              coach-badges-${coach.id}
+            "
+          >
+
+            ${
+              roles.length
+
+                ?
+
+                roles.map(
+                  role => `
+
+                    <span
+                      class="
+                        badge-custom
+                        badge-role
+                      "
+                    >
+
+                      ${role}
+
+                    </span>
+
+                  `
+                ).join("")
+
+                :
+
+                `
+
+                  <span
+                    style="
+                      color:#94a3b8;
+                      font-size:8px;
+                    "
+                  >
+
+                    No role assigned
+
+                  </span>
+
+                `
+            }
+
+          </div>
+
+        </td>
+
+
+        <td>
+
+          <span
+            class="
+              badge-custom
+              badge-approved
+            "
+          >
+
+            Active
+
+          </span>
+
+        </td>
+
+
+        <td>
+
+          ${createRoleDropdown(
+            coach.id,
+            roles,
+            "coach"
+          )}
+
+        </td>
+
+      `;
+
+
+      tbody.appendChild(row);
+
+    }
+  );
+
+}
+
+
+
+/* =====================================================
+   UPDATE COACH BADGES WITHOUT CLOSING DROPDOWN
+===================================================== */
+
+function renderCoachesBadgesOnly() {
+
+  approvedCoaches.forEach(
+    coach => {
+
+      const container =
+        document.getElementById(
+          `coach-badges-${coach.id}`
+        );
+
+
+      if (!container) return;
+
+
+      const roles =
+        coach.roles || [];
+
+
+      container.innerHTML =
+
+        roles.length
+
+          ?
+
+          roles.map(
+            role => `
+
+              <span
+                class="
+                  badge-custom
+                  badge-role
+                "
+              >
+
+                ${role}
+
+              </span>
+
+            `
+          ).join("")
+
+          :
+
+          `
+
+            <span
+              style="
+                color:#94a3b8;
+                font-size:8px;
+              "
+            >
+
+              No role assigned
+
+            </span>
+
+          `;
+
+    }
+  );
+
+}
+
+
+
+/* =====================================================
+   ATTENDANCE
+===================================================== */
+
+async function renderAttendance() {
+
+  const dateInput =
+
+    document.getElementById(
+      "adminAttendanceDate"
+    );
+
+
+  if (!dateInput.value) {
+
+    dateInput.value =
+      getToday();
+
+  }
+
+
+  const selectedDate =
+    dateInput.value;
+
+
+  const sportFilter =
+    document.getElementById(
+      "attendanceSport"
+    ).value;
+
+
+  const tbody =
+    document.getElementById(
+      "attendanceBody"
+    );
+
+
+  tbody.innerHTML = "";
+
+
+  const query = new URLSearchParams({ session_date: selectedDate });
+  if (sportFilter !== "all" && sportIds[sportFilter]) {
+    query.set("sport_id", sportIds[sportFilter]);
+  }
+  let records;
+  try {
+    const result = await apiRequest(`/api/admin/attendance?${query}`);
+    records = result.records;
+    attendanceRecords = records;
+  } catch (error) {
+    tbody.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
+    return;
+  }
+
+
+  if (!records.length) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="5"
+          style="
+            text-align:center;
+            padding:35px;
+            color:#94a3b8;
+          "
+        >
+
+          <i
+            class="bi bi-calendar-x"
+            style="
+              font-size:25px;
+              display:block;
+              margin-bottom:8px;
+            "
+          ></i>
+
+          No attendance records found
+          for this date.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  records.forEach(
+    record => {
+
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      let statusClass =
+        "attendance-absent";
+
+
+      if (
+        record.status ===
+        "present"
+      ) {
+
+        statusClass =
+          "attendance-present";
+
+      }
+
+      row.innerHTML = `
+
+        <td>
+
+          <div class="person">
+
+            <div class="person-avatar">
+
+              ${getInitials(
+                record.student_name
+              )}
+
+            </div>
+
+            <div>
+
+              <strong>
+                ${record.student_name}
+              </strong>
+
+              <span>
+                ${record.email}
+              </span>
+
+            </div>
+
+          </div>
+
+        </td>
+
+
+        <td>
+
+          <span
+            class="
+              badge-custom
+              badge-role
+            "
+          >
+
+            ${record.sport_name}
+
+          </span>
+
+        </td>
+
+
+        <td>
+          ${record.coach_name}
+        </td>
+
+
+        <td>
+          ${record.session_date}
+        </td>
+
+
+        <td>
+
+          <span
+            class="
+              attendance-status
+              ${statusClass}
+            "
+          >
+
+            ${capitalize(
+              record.status
+            )}
+
+          </span>
+
+        </td>
+
+      `;
+
+
+      tbody.appendChild(row);
+
+    }
+  );
+
+}
+
+
+
+/* =====================================================
+   DASHBOARD STATS
+===================================================== */
+
+function updateDashboardStats() {
+
+
+  document.getElementById(
+    "totalAthletes"
+  ).textContent =
+    athletes.length;
+
+
+  document.getElementById(
+    "approvedCoaches"
+  ).textContent =
+    approvedCoaches.length;
+
+
+  document.getElementById(
+    "pendingRequests"
+  ).textContent =
+
+    coachRequests.filter(
+      request =>
+        request.status ===
+        "pending"
+    ).length;
+
+
+  document.getElementById(
+    "attendanceRecords"
+  ).textContent =
+    attendanceRecords.length;
+
+}
+
+
+
+/* =====================================================
+   CAPITALIZE
+===================================================== */
+
+function capitalize(value) {
+
+  return value
+    .charAt(0)
+    .toUpperCase()
+    +
+    value.slice(1);
+
+}
+
+
+
+/* =====================================================
+   MOBILE SIDEBAR
+===================================================== */
+
+function toggleSidebar() {
+
+  document
+    .getElementById(
+      "sidebar"
+    )
+    .classList.toggle(
+      "open"
+    );
+
+}
+
+
+function closeSidebar() {
+
+  document
+    .getElementById(
+      "sidebar"
+    )
+    .classList.remove(
+      "open"
+    );
+
+}
+
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout() {
+  await apiRequest("/api/logout", { method: "POST" }).catch(() => {});
+  window.location.href = "admin-login.html";
+}
+
+
+
+/* =====================================================
+   CLOSE ROLE DROPDOWNS WHEN CLICKING OUTSIDE
+===================================================== */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    if (
+      !event.target.closest(
+        ".role-dropdown"
+      )
+    ) {
+
+      document
+        .querySelectorAll(
+          ".role-dropdown.open"
+        )
+        .forEach(
+          dropdown =>
+            dropdown.classList.remove(
+              "open"
+            )
+        );
+
+    }
+
+  }
+);
+
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+document.getElementById(
+  "adminAttendanceDate"
+).value =
+  getToday();
+
+
+document.getElementById(
+  "globalDate"
+).value =
+  getToday();
+
+
+loadAdminData();
+
+</script>
+
+
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+></script>
+
+</body>
 </html>

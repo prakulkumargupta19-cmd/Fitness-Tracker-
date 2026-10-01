@@ -17,6 +17,7 @@
         href="../css/admin-login.css"
     >
 
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -44,6 +45,7 @@
         </div>
 
 
+        <p>
             Manage athletes, coaches, accounts,
             permissions, and system performance
             from the administrator portal.
@@ -224,7 +226,7 @@
             <!-- BACK LINK -->
 
             <a
-                href="../mainlading.html"
+                href="../landing-page.html"
                 class="back-link"
             >
                 ← Back to role selection
@@ -255,7 +257,7 @@
 <script>
 
     /* =====================================================
-       PASSWORD VISIBILITY
+        PASSWORD VISIBILITY
     ====================================================== */
 
     const password =
@@ -376,15 +378,15 @@
 
 
     /* =====================================================
-       BACKEND
-    ====================================================== */
+        BACKEND
+    ===================================================== */
 
-    const API_URL = "";
+    const API_URL = window.FITNESS_API_BASE || "";
 
 
     /* =====================================================
-       ADMIN LOGIN
-    ====================================================== */
+        ADMIN LOGIN
+    ===================================================== */
 
     const form =
         document.getElementById("adminLoginForm");

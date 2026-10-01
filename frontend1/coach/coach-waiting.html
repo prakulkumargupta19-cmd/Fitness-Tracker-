@@ -17,6 +17,7 @@
 
 
 
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -82,7 +83,7 @@
 
     async function checkApprovalStatus() {
         if (!coachEmail) return;
-        const response = await fetch("/api/coach/status?email=" + encodeURIComponent(coachEmail));
+        const response = await fetch(`${window.FITNESS_API_BASE || ""}/api/coach/status?email=` + encodeURIComponent(coachEmail));
         const data = await response.json().catch(() => ({}));
         if (data.success && data.coach_status === "approved") {
             window.location.href = "coach-login.html";

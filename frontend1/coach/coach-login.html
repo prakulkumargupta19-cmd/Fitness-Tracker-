@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <meta charset="UTF-8">
@@ -53,6 +52,7 @@
         href="../css/coach-login.css"
     >
 
+<script src="../js/config.js"></script>
 </head>
 
 
@@ -76,7 +76,7 @@
 
                 <div class="logo-text">
                     FITNESS<br>
-                    PERFORMANCE<br>
+                    <span>PERFORMANCE</span><br>
                     TRACKER
                 </div>
 
@@ -173,7 +173,7 @@
                                 type="email"
                                 id="email"
                                 name="email"
-                                placeholder="coach@example.com"
+                                placeholder="Enter your coach email"
                                 autocomplete="username"
                                 required
                             >
@@ -312,7 +312,7 @@
                 ================================================== -->
 
                 <a
-                    href="../mainlading.html"
+                    href="../landing-page.html"
                     class="back-link"
                 >
                     ← Return to Role Selection
@@ -362,10 +362,7 @@
                API BASE URL
             ===================================================== */
 
-            const API_BASE =
-                window.location.protocol === "file:"
-                    ? "http://127.0.0.1:5000"
-                    : window.location.origin;
+            const API_BASE = window.FITNESS_API_BASE || "";
 
 
 
@@ -495,7 +492,7 @@
             ===================================================== */
 
             const savedEmail =
-                localStorage.getItem(
+                sessionStorage.getItem(
                     "coach_login_email"
                 );
 
@@ -756,14 +753,14 @@
                             rememberMe.checked
                         ) {
 
-                            localStorage.setItem(
+                            sessionStorage.setItem(
                                 "coach_login_email",
                                 email
                             );
 
                         } else {
 
-                            localStorage.removeItem(
+                            sessionStorage.removeItem(
                                 "coach_login_email"
                             );
 

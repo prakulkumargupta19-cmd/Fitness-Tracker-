@@ -1,1678 +1,1554 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>Student Performance Dashboard | Fitness Tracker</title>
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-<title>
-    Student Performance Dashboard
-</title>
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
 
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-<!-- =========================================================
-     CSS
-========================================================= -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<link
-    rel="stylesheet"
-    href="../css/student-dashboard.css"
->
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="../css/student-dashboard.css">
 
-
-<!-- =========================================================
-     CHART.JS
-========================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/chart.js"
-></script>
-
+    <style>
+        .sports-hub-logo {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            display: block;
+        }
+        .footer-sports-logo {
+            width: 42px;
+            height: 42px;
+        }
+    </style>
+<script src="../js/config.js"></script>
 </head>
 
-
 <body>
-
 
 <!-- =========================================================
      SIDEBAR
 ========================================================= -->
 
-<aside
-    class="sidebar"
-    id="sidebar"
->
+<aside class="sidebar" id="sidebar">
 
-    <div class="logo">
-
-        <div class="logo-icon">
-            🎓
+    <div class="sidebar-brand">
+        <div class="brand-icon logo-brand-icon">
+            <img src="data:image/png;base64,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" alt="Sports Hub Logo" class="sports-hub-logo">
         </div>
 
-        <div
-            class="logo-text"
-            id="studentBrandName"
-        >
-            Student
+        <div>
+            <div class="brand-title">
+                FITNESS <span>TRACKER</span>
+            </div>
+            <div class="brand-subtitle">
+                STUDENT PORTAL
+            </div>
         </div>
-
     </div>
-
-
-    <div class="navigation">
-
-        <div class="nav-title">
-            Student Menu
-        </div>
-
-
-        <button
-            class="nav-item active"
-            data-section="dashboard"
-        >
-            <span class="nav-icon">
-                📊
-            </span>
-
-            Dashboard
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-section="analytics"
-        >
-            <span class="nav-icon">
-                📈
-            </span>
-
-            Performance Analytics
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-section="improvement"
-        >
-            <span class="nav-icon">
-                🎯
-            </span>
-
-            Scope of Improvement
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-section="goals"
-        >
-            <span class="nav-icon">
-                📅
-            </span>
-
-            Goal Progress
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-section="attendance"
-        >
-            <span class="nav-icon">
-                ✓
-            </span>
-
-            Attendance
-        </button>
-
-
-        <button
-            class="nav-item"
-            data-section="feedback"
-        >
-            <span class="nav-icon">
-                💬
-            </span>
-
-            Coach Feedback
-        </button>
-
-
-        <button
-            class="nav-item"
-            id="settingsNav"
-        >
-            <span class="nav-icon">
-                ⚙️
-            </span>
-
-            Settings
-        </button>
-
-    </div>
-
 
     <div class="sidebar-profile">
+        <div class="sidebar-avatar" id="sidebarAvatar">S</div>
 
-        <div
-            class="profile-avatar"
-            id="sidebarAvatar"
+        <div class="sidebar-profile-info">
+            <strong id="sidebarStudentName">Student</strong>
+            <span>Student Athlete</span>
+        </div>
+    </div>
+
+    <div class="sidebar-label">
+        MAIN MENU
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <button
+            class="sidebar-link active"
+            data-section="dashboard"
         >
-            S
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Dashboard</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="analytics"
+        >
+            <i class="bi bi-bar-chart-fill"></i>
+            <span>Performance Analytics</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="improvement"
+        >
+            <i class="bi bi-bullseye"></i>
+            <span>Scope of Improvement</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="goals"
+        >
+            <i class="bi bi-calendar2-check-fill"></i>
+            <span>Goal Progress</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="attendance"
+        >
+            <i class="bi bi-calendar-check-fill"></i>
+            <span>Attendance</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="feedback"
+        >
+            <i class="bi bi-chat-left-text-fill"></i>
+            <span>Coach Feedback</span>
+        </button>
+
+        <div class="sidebar-label mt-4">
+            ACCOUNT
         </div>
 
+        <button
+            class="sidebar-link"
+            data-section="profile-view"
+        >
+            <i class="bi bi-person-fill"></i>
+            <span>My Profile</span>
+        </button>
 
-        <div class="profile-info">
+        <button
+            class="sidebar-link"
+            data-section="settings-view"
+        >
+            <i class="bi bi-gear-fill"></i>
+            <span>Settings</span>
+        </button>
 
-            <div
-                class="profile-name"
-                id="sidebarStudentName"
-            >
-                Student
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <div class="sidebar-support">
+            <div class="support-icon">
+                <i class="bi bi-shield-check"></i>
             </div>
 
-
-            <div class="profile-role">
-                Athlete
+            <div>
+                <strong>Secure Portal</strong>
+                <span>Your data is protected</span>
             </div>
-
         </div>
+
+        <button
+            class="sidebar-logout"
+            id="sidebarLogoutBtn"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+        </button>
 
     </div>
 
 </aside>
 
 
-
 <!-- =========================================================
-     MAIN CONTENT
+     MOBILE OVERLAY
 ========================================================= -->
 
-<main class="main-content">
-
-
-<header class="topbar">
-
-    <div class="topbar-left">
-
-        <button
-            class="mobile-menu"
-            id="mobileMenu"
-        >
-            ☰
-        </button>
-
-
-        <div>
-
-            <div
-                class="top-student-name"
-                id="topStudentName"
-            >
-                Student
-            </div>
-
-
-            <div class="top-student-subtitle">
-                Performance and development overview
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="top-actions">
-
-        <button
-            class="top-button"
-            id="themeButton"
-            title="Toggle theme"
-        >
-            🌙
-        </button>
-
-
-        <button
-            class="top-button"
-            id="topSettings"
-            title="Settings"
-        >
-            ⚙️
-        </button>
-
-    </div>
-
-</header>
-
-
-
-<div class="content">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 
 <!-- =========================================================
-     DASHBOARD
+     MAIN WRAPPER
 ========================================================= -->
 
-<section id="dashboard">
+<div class="dashboard-wrapper">
 
-    <div class="welcome-card">
+    <!-- TOP BAR -->
 
-        <div class="welcome-text">
+    <header class="topbar">
 
-            <div class="welcome-label">
-                Welcome back
-            </div>
+        <div class="topbar-left">
 
-
-            <div
-                class="welcome-title"
-                id="welcomeName"
+            <button
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+                type="button"
             >
-                Student
-            </div>
-
-
-            <div class="welcome-description">
-
-                Keep working toward your goals.
-                Review your latest performance insights,
-                focus areas and coach feedback to continue
-                improving.
-
-            </div>
-
-        </div>
-
-
-        <div class="welcome-stat">
-
-            <div
-                class="overall-score"
-                id="overallScore"
-            >
-                --
-            </div>
-
-
-            <div class="overall-score-label">
-                Overall Performance
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     ANALYTICS
-========================================================= -->
-
-<section id="analytics">
-
-    <div class="section-header">
-
-        <div>
-
-            <div class="section-title">
-                Performance Analytics
-            </div>
-
-            <div class="section-description">
-                Interactive metrics and visual performance tracking
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="charts-grid">
-
-
-        <div class="chart-card">
-
-            <div class="chart-header">
-
-                <div class="chart-title">
-                    Skill & Fitness Benchmark Comparison
-                </div>
-
-                <div class="chart-score-label">
-                    Score / 100
-                </div>
-
-            </div>
-
-
-            <div class="chart-container">
-
-                <canvas
-                    id="categoryBarChart"
-                ></canvas>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="chart-card">
-
-            <div class="chart-header">
-
-                <div class="chart-title">
-                    Attribute Balance
-                </div>
-
-            </div>
-
-
-            <div class="chart-container">
-
-                <canvas
-                    id="attributeRadarChart"
-                ></canvas>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="chart-card"
-        style="margin-top:16px;"
-    >
-
-        <div class="chart-header">
+                <i class="bi bi-list"></i>
+            </button>
 
             <div>
-
-                <div class="chart-title">
-                    Weekly Performance Progression
+                <div class="topbar-page-title" id="currentPageTitle">
+                    Dashboard
                 </div>
 
-                <div
-                    class="section-description"
-                    style="margin-top:2px;"
+                <div class="topbar-page-subtitle">
+                    Student Performance Portal
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+            <button
+                class="icon-btn"
+                id="themeButton"
+                title="Toggle Theme"
+                type="button"
+            >
+                <i class="bi bi-moon-fill"></i>
+            </button>
+
+            <div class="topbar-divider"></div>
+
+            <div class="dropdown">
+
+                <button
+                    class="profile-menu-btn"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
                 >
-                    Track improvements over the last 8 weeks
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div
-            class="chart-container"
-            style="height:260px;"
-        >
-
-            <canvas
-                id="progressionLineChart"
-            ></canvas>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     IMPROVEMENT
-========================================================= -->
-
-<section id="improvement">
-
-    <div class="section-header">
-
-        <div>
-
-            <div class="section-title">
-                Scope of Improvement
-            </div>
-
-            <div class="section-description">
-                Areas that deserve your attention next
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="improvement-grid">
-
-
-        <div class="card">
-
-            <div class="card-icon">
-                ⚠️
-            </div>
-
-            <div class="card-label">
-                Weakest Performance Area
-            </div>
-
-            <div
-                class="card-title"
-                id="weakestArea"
-            >
-                Endurance
-            </div>
-
-            <div
-                class="card-description"
-                id="weakestAreaDesc"
-            >
-                Your endurance score is currently
-                below your other performance areas.
-            </div>
-
-            <span class="priority-badge high">
-                High Priority
-            </span>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-icon">
-                🎯
-            </div>
-
-            <div class="card-label">
-                Skill Improvement Priority
-            </div>
-
-            <div
-                class="card-title"
-                id="skillPriority"
-            >
-                Ball Control
-            </div>
-
-            <div
-                class="card-description"
-                id="skillPriorityDesc"
-            >
-                Additional technical training can
-                improve consistency and control.
-            </div>
-
-            <span class="priority-badge medium">
-                Medium Priority
-            </span>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-icon">
-                💪
-            </div>
-
-            <div class="card-label">
-                Physical Area
-            </div>
-
-            <div
-                class="card-title"
-                id="physicalArea"
-            >
-                Lower Body Strength
-            </div>
-
-            <div
-                class="card-description"
-                id="physicalAreaDesc"
-            >
-                Building lower-body strength can
-                support speed and movement quality.
-            </div>
-
-            <span class="priority-badge medium">
-                Focus Area
-            </span>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-icon">
-                🚀
-            </div>
-
-            <div class="card-label">
-                Recommended Next Focus
-            </div>
-
-            <div
-                class="card-title"
-                id="nextFocus"
-            >
-                Endurance Training
-            </div>
-
-            <div
-                class="card-description"
-                id="nextFocusDesc"
-            >
-                Prioritize conditioning sessions
-                during your next training cycle.
-            </div>
-
-            <span class="priority-badge low">
-                Recommended
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     GOALS
-========================================================= -->
-
-<section id="goals">
-
-    <div class="section-header">
-
-        <div>
-
-            <div class="section-title">
-                Goal Progress
-            </div>
-
-            <div class="section-description">
-                Your weekly training and goal schedule
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="week-calendar">
-
-        <div class="calendar-header">
-
-            <div class="calendar-title">
-                Weekly Goal Calendar
-            </div>
-
-            <div class="calendar-week">
-                Current Training Week
-            </div>
-
-        </div>
-
-
-        <div
-            class="week-days"
-            id="goalCalendarDays"
-        >
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Monday
-                </div>
-
-                <div class="day-number">
-                    01
-                </div>
-
-                <div class="goal-task completed">
-
-                    <div class="task-title">
-                        100m Sprint
-                    </div>
-
-                    <div class="task-status">
-                        ✓ Completed
-                    </div>
-
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Lower Body Strength
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 45 min
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Tuesday
-                </div>
-
-                <div class="day-number">
-                    02
-                </div>
-
-                <div class="goal-task completed">
-
-                    <div class="task-title">
-                        Ball Control
-                    </div>
-
-                    <div class="task-status">
-                        ✓ Completed
-                    </div>
-
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Recovery
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 20 min
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day today">
-
-                <div class="day-name">
-                    Wednesday
-                </div>
-
-                <div class="day-number">
-                    03
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Endurance
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 40 min
-                    </div>
-
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Stamina
-                    </div>
-
-                    <div class="task-status">
-                        Target: 80%
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Thursday
-                </div>
-
-                <div class="day-number">
-                    04
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Vertical Jump
-                    </div>
-
-                    <div class="task-status">
-                        Target: 60cm
-                    </div>
-
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Sprint Training
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 6 sets
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Friday
-                </div>
-
-                <div class="day-number">
-                    05
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Ball Control
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 45 min
-                    </div>
-
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Strength
-                    </div>
-
-                    <div class="task-status">
-                        Goal: 40 min
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Saturday
-                </div>
-
-                <div class="day-number">
-                    06
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Match Training
-                    </div>
-
-                    <div class="task-status">
-                        Goal: Full Session
-                    </div>
-
-                </div>
-
-                <div class="goal-task completed">
-
-                    <div class="task-title">
-                        Recovery
-                    </div>
-
-                    <div class="task-status">
-                        ✓ Completed
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="week-day">
-
-                <div class="day-name">
-                    Sunday
-                </div>
-
-                <div class="day-number">
-                    07
-                </div>
-
-                <div class="goal-task">
-
-                    <div class="task-title">
-                        Recovery Day
-                    </div>
-
-                    <div class="task-status">
-                        Goal: Full Recovery
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="calendar-legend">
-
-            <div class="legend-item">
-
-                <span class="legend-box completed"></span>
-
-                Completed
-
-            </div>
-
-            <div class="legend-item">
-
-                <span class="legend-box"></span>
-
-                Upcoming
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     ATTENDANCE
-========================================================= -->
-
-<section id="attendance">
-
-    <div class="section-header">
-
-        <div>
-
-            <div class="section-title">
-                Student Attendance
-            </div>
-
-            <div class="section-description">
-                Track your training and session attendance
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="attendance-grid">
-
-
-        <div class="attendance-card">
-
-            <div class="attendance-heading">
-                Overall Attendance
-            </div>
-
-            <div
-                class="attendance-percentage"
-                id="attendancePercentage"
-            >
-                92%
-            </div>
-
-            <div
-                class="attendance-label"
-                id="attendanceLabel"
-            >
-                Excellent attendance rate
-            </div>
-
-            <div class="attendance-progress">
-
-                <div
-                    class="attendance-progress-fill"
-                    id="attendanceProgressFill"
-                ></div>
-
-            </div>
-
-
-            <div class="attendance-stats">
-
-                <div class="attendance-stat">
 
                     <div
-                        class="attendance-stat-number"
-                        id="attendancePresent"
+                        class="topbar-avatar"
+                        id="topbarAvatar"
                     >
-                        23
+                        S
                     </div>
 
-                    <div class="attendance-stat-label">
-                        Present
+                    <div class="topbar-user">
+                        <strong id="topStudentName">
+                            Student
+                        </strong>
+
+                        <span>
+                            Student Athlete
+                        </span>
+                    </div>
+
+                    <i class="bi bi-chevron-down"></i>
+
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
+
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            onclick="switchSection('profile-view')"
+                        >
+                            <i class="bi bi-person"></i>
+                            My Profile
+                        </button>
+                    </li>
+
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            onclick="switchSection('settings-view')"
+                        >
+                            <i class="bi bi-gear"></i>
+                            Settings
+                        </button>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <button
+                            class="dropdown-item logout-item"
+                            id="dropdownLogoutBtn"
+                        >
+                            <i class="bi bi-box-arrow-right"></i>
+                            Logout
+                        </button>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+===================================================== -->
+
+    <main class="main-content">
+
+        <div class="content-container">
+
+
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
+
+            <section
+                id="dashboard"
+                class="content-section active"
+            >
+
+                <div class="hero-dashboard">
+
+                    <div class="hero-content">
+
+                        <div class="eyebrow">
+                            <i class="bi bi-stars"></i>
+                            STUDENT PERFORMANCE OVERVIEW
+                        </div>
+
+                        <h1>
+                            Welcome back,
+                            <span id="welcomeName">
+                                Student
+                            </span>
+                        </h1>
+
+                        <p>
+                            Monitor your performance, track your goals,
+                            review your attendance and stay connected
+                            with your coach.
+                        </p>
+
+                        <div class="hero-actions">
+
+                            <button
+                                class="primary-action"
+                                onclick="switchSection('analytics')"
+                            >
+                                View Performance
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+
+                            <button
+                                class="secondary-action"
+                                onclick="switchSection('goals')"
+                            >
+                                View Goals
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-score">
+
+                        <div class="score-ring">
+
+                            <div class="score-inner">
+
+                                <span
+                                    class="score-number"
+                                    id="overallScore"
+                                >
+                                    --
+                                </span>
+
+                                <span>
+                                    / 100
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="score-label">
+                            Overall Performance
+                        </div>
+
+                        <div class="score-status">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            Performance Index
+                        </div>
+
                     </div>
 
                 </div>
 
 
-                <div class="attendance-stat">
+                <!-- QUICK STATS -->
+
+                <div class="section-heading-row">
+
+                    <div>
+                        <h2>Performance Snapshot</h2>
+                        <p>
+                            A quick overview of your current progress.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon blue">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Performance</span>
+                            <strong id="dashboardPerformance">
+                                --
+                            </strong>
+                        </div>
+
+                        <div class="stat-trend">
+                            <i class="bi bi-arrow-up"></i>
+                            Tracking
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon green">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Attendance</span>
+                            <strong id="dashboardAttendance">
+                                -
+                            </strong>
+                        </div>
+
+                        <div class="stat-trend">
+                            Active
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon purple">
+                            <i class="bi bi-bullseye"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Goal Progress</span>
+                            <strong id="dashboardGoalProgress">
+                                -
+                            </strong>
+                        </div>
+
+                        <div class="stat-trend">
+                            On track
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon orange">
+                            <i class="bi bi-chat-square-text-fill"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Coach Rating</span>
+                            <strong id="dashboardCoachRating">
+                                -
+                            <div class="week-days" id="goalCalendarDays"></div>
+                        Live Performance Data
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-grid">
+
+                    <div class="dashboard-card chart-card-large">
+
+                        <div class="card-heading">
+
+                            <div>
+                                <h3>
+                                    Skill & Fitness Benchmark
+                                </h3>
+
+                                <span>
+                                    Current performance vs target
+                                </span>
+                            </div>
+
+                            <span class="chart-label">
+                                SCORE / 100
+                            </span>
+
+                        </div>
+
+                        <div class="chart-area">
+                            <canvas id="categoryBarChart"></canvas>
+                        </div>
+
+                    </div>
+
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+
+                            <div>
+                                <h3>Attribute Balance</h3>
+
+                                <span>
+                                    Performance distribution
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="chart-area radar-area">
+                            <canvas id="attributeRadarChart"></canvas>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card mt-4">
+
+                    <div class="card-heading">
+
+                        <div>
+                            <h3>Weekly Performance Progression</h3>
+
+                            <span>
+                                Your performance index over the last
+                                8 weeks
+                            </span>
+                        </div>
+
+                        <div class="performance-pill">
+                            <i class="bi bi-graph-up"></i>
+                            Trending
+                        </div>
+
+                    </div>
+
+                    <div class="chart-area line-area">
+                        <canvas id="progressionLineChart"></canvas>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 IMPROVEMENT
+            ================================================== -->
+
+            <section
+                id="improvement"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            DEVELOPMENT
+                        </div>
+
+                        <h1>Scope of Improvement</h1>
+
+                        <p>
+                            Focus areas identified from your current
+                            performance data.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="improvement-grid">
+
+                    <div class="improvement-card danger">
+
+                        <div class="improvement-top">
+                            <div class="improvement-icon">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+
+                            <span class="priority high">
+                                High Priority
+                            </span>
+                        </div>
+
+                        <span class="card-label">
+                            Weakest Performance Area
+                        </span>
+
+                        <h3 id="weakestArea">
+                            Endurance
+                        </h3>
+
+                        <p id="weakestAreaDesc">
+                            Your endurance score is currently below
+                            your other performance areas.
+                        </p>
+
+                        <div class="focus-link">
+                            Focus area
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="improvement-card purple">
+
+                        <div class="improvement-top">
+                            <div class="improvement-icon">
+                                <i class="bi bi-bullseye"></i>
+                            </div>
+
+                            <span class="priority medium">
+                                Medium Priority
+                            </span>
+                        </div>
+
+                        <span class="card-label">
+                            Skill Improvement Priority
+                        </span>
+
+                        <h3 id="skillPriority">
+                            Ball Control
+                        </h3>
+
+                        <p id="skillPriorityDesc">
+                            Additional technical training can improve
+                            consistency and control.
+                        </p>
+
+                        <div class="focus-link">
+                            Technical focus
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="improvement-card blue">
+
+                        <div class="improvement-top">
+                            <div class="improvement-icon">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+
+                            <span class="priority medium">
+                                Focus Area
+                            </span>
+                        </div>
+
+                        <span class="card-label">
+                            Physical Area
+                        </span>
+
+                        <h3 id="physicalArea">
+                            Lower Body Strength
+                        </h3>
+
+                        <p id="physicalAreaDesc">
+                            Building lower-body strength can support
+                            speed and movement quality.
+                        </p>
+
+                        <div class="focus-link">
+                            Physical focus
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="improvement-card green">
+
+                        <div class="improvement-top">
+                            <div class="improvement-icon">
+                                <i class="bi bi-rocket-takeoff-fill"></i>
+                            </div>
+
+                            <span class="priority low">
+                                Recommended
+                            </span>
+                        </div>
+
+                        <span class="card-label">
+                            Recommended Next Focus
+                        </span>
+
+                        <h3 id="nextFocus">
+                            Endurance Training
+                        </h3>
+
+                        <p id="nextFocusDesc">
+                            Prioritize conditioning sessions during
+                            your next training cycle.
+                        </p>
+
+                        <div class="focus-link">
+                            Recommended
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 GOALS
+            ================================================== -->
+
+            <section
+                id="goals"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            TRAINING
+                        </div>
+
+                        <h1>Goal Progress</h1>
+
+                        <p>
+                            Keep track of your weekly training targets
+                            and activities.
+                        </p>
+                    </div>
+
+                    <div class="heading-badge">
+                        <i class="bi bi-calendar2-week"></i>
+                        Current Training Week
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="calendar-top">
+
+                        <div>
+                            <h3>Weekly Goal Calendar</h3>
+                            <span>
+                                Current training schedule
+                            </span>
+                        </div>
+
+                        <div class="week-indicator">
+                            WEEK 01
+                        </div>
+
+                    </div>
+
 
                     <div
-                        class="attendance-stat-number"
-                        id="attendanceAbsent"
+                        class="week-days"
+                        id="goalCalendarDays"
                     >
-                        2
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Monday
+                            </span>
+
+                            <strong>01</strong>
+
+                            <div class="goal-task completed">
+                                <b>100m Sprint</b>
+                                <span>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Completed
+                                </span>
+                            </div>
+
+                            <div class="goal-task">
+                                <b>Strength</b>
+                                <span>Goal: 45 min</span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Tuesday
+                            </span>
+
+                            <strong>02</strong>
+
+                            <div class="goal-task completed">
+                                <b>Ball Control</b>
+                                <span>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Completed
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day today">
+
+                            <span class="day-name">
+                                Wednesday
+                            </span>
+
+                            <strong>03</strong>
+
+                            <div class="goal-task">
+                                <b>Endurance</b>
+                                <span>Goal: 40 min</span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Thursday
+                            </span>
+
+                            <strong>04</strong>
+
+                            <div class="goal-task">
+                                <b>Vertical Jump</b>
+                                <span>Target: 60cm</span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Friday
+                            </span>
+
+                            <strong>05</strong>
+
+                            <div class="goal-task">
+                                <b>Agility Drills</b>
+                                <span>Goal: 45 min</span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Saturday
+                            </span>
+
+                            <strong>06</strong>
+
+                            <div class="goal-task completed">
+                                <b>Match Training</b>
+                                <span>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Full Session
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="week-day">
+
+                            <span class="day-name">
+                                Sunday
+                            </span>
+
+                            <strong>07</strong>
+
+                            <div class="goal-task">
+                                <b>Recovery</b>
+                                <span>Full Rest</span>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <div class="attendance-stat-label">
-                        Absent
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ATTENDANCE
+            ================================================== -->
+
+            <section
+                id="attendance"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            TRAINING RECORD
+                        </div>
+
+                        <h1>Attendance</h1>
+
+                        <p>
+                            Track your participation in training sessions.
+                        </p>
                     </div>
 
                 </div>
 
 
-                <div class="attendance-stat">
+                <div class="attendance-layout">
 
-                    <div
-                        class="attendance-stat-number"
-                        id="attendanceTotal"
-                    >
-                        25
+                    <div class="dashboard-card attendance-main">
+
+                        <div class="card-heading">
+                            <div>
+                                <h3>Overall Attendance</h3>
+                                <span>
+                                    Training participation rate
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="attendance-score">
+
+                            <strong id="attendancePercentage">
+                                0%
+                            </strong>
+
+                            <span id="attendanceLabel">
+                                No sessions yet
+                            </span>
+
+                        </div>
+
+                        <div class="attendance-progress">
+                            <div
+                                class="attendance-progress-fill"
+                                id="attendanceProgressFill"
+                                style="width:0%;"
+                            ></div>
+                        </div>
+
+
+                        <div class="attendance-stats">
+
+                            <div>
+                                <strong
+                                    id="attendancePresent"
+                                    class="text-success"
+                                >
+                                    0
+                                </strong>
+                                <span>Present</span>
+                            </div>
+
+                            <div>
+                                <strong
+                                    id="attendanceAbsent"
+                                    class="text-danger"
+                                >
+                                    0
+                                </strong>
+                                <span>Absent</span>
+                            </div>
+
+                            <div>
+                                <strong id="attendanceTotal">
+                                    0
+                                </strong>
+                                <span>Total</span>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <div class="attendance-stat-label">
-                        Total
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+                            <div>
+                                <h3>This Week</h3>
+                                <span>
+                                    Session attendance
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="attendance-week"
+                            id="attendanceWeekContainer"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="dashboard-card attendance-status-card">
+
+                        <div class="status-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+
+                        <span class="card-label">
+                            Attendance Status
+                        </span>
+
+                        <strong id="attendanceStatusText">
+                            Not started
+                        </strong>
+
+                        <p id="attendanceStatusDesc">
+                            Attendance will appear here after a coach records a session.
+                        </p>
+
                     </div>
 
                 </div>
 
-            </div>
+            </section>
+
+
+            <!-- =================================================
+                 FEEDBACK
+            ================================================== -->
+
+            <section
+                id="feedback"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            COACHING
+                        </div>
+
+                        <h1>Coach Feedback</h1>
+
+                        <p>
+                            Review observations and recommendations
+                            from your coaching team.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="feedback-grid">
+
+                    <div class="dashboard-card feedback-main">
+
+                        <div class="feedback-header">
+                            <div class="feedback-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+
+                            <div>
+                                <span>Overall Feedback</span>
+                                <strong>Recent Coach Assessment</strong>
+                            </div>
+                        </div>
+
+                        <p
+                            class="feedback-text"
+                            id="coachFeedbackText"
+                        >
+                            No coach feedback yet.
+                        </p>
+
+                        <div class="rating-box">
+
+                            <strong id="coachRatingNumber">
+                                -
+                            </strong>
+
+                            <div>
+                                <div
+                                    class="stars"
+                                    id="coachRatingStars"
+                                >
+                                    No rating
+                                </div>
+
+                                <span>
+                                    Coach rating
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+                            <h3>Your Strengths</h3>
+                        </div>
+
+                        <ul
+                            class="feedback-list"
+                            id="coachStrengthsList"
+                        >
+                        </ul>
+
+                    </div>
+
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+                            <h3>Areas to Improve</h3>
+                        </div>
+
+                        <ul
+                            class="feedback-list improvement-list"
+                            id="coachImprovementsList"
+                        >
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PROFILE
+            ================================================== -->
+
+            <section
+                id="profile-view"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            ACCOUNT
+                        </div>
+
+                        <h1>My Profile</h1>
+
+                        <p>
+                            Your personal, academic and physical
+                            information.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-container">
+
+                    <div class="profile-header">
+
+                        <div
+                            class="profile-avatar-lg"
+                            id="profileTabAvatar"
+                        >
+                            S
+                        </div>
+
+                        <div>
+
+                            <h2 id="profileTabName">
+                                Student Athlete
+                            </h2>
+
+                            <span class="profile-badge">
+                                <i class="bi bi-patch-check-fill"></i>
+                                Student / Athlete Account
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Personal -->
+
+                    <div class="profile-block">
+
+                        <div class="profile-block-title">
+                            <i class="bi bi-person-fill"></i>
+                            Personal Information
+                        </div>
+
+                        <div class="profile-grid">
+
+                            <div class="profile-field">
+                                <label>Full Name</label>
+                                <strong id="profileName">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Gender</label>
+                                <strong id="profileGender">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Date of Birth</label>
+                                <strong id="profileDob">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Email Address</label>
+                                <strong id="profileEmail">—</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Contact -->
+
+                    <div class="profile-block">
+
+                        <div class="profile-block-title">
+                            <i class="bi bi-telephone-fill"></i>
+                            Contact Information
+                        </div>
+
+                        <div class="profile-grid">
+
+                            <div class="profile-field">
+                                <label>Phone Number</label>
+                                <strong id="profilePhone">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Emergency Number</label>
+                                <strong id="profileEmergency">—</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Academic -->
+
+                    <div class="profile-block">
+
+                        <div class="profile-block-title">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            Academic Information
+                        </div>
+
+                        <div class="profile-grid">
+
+                            <div class="profile-field">
+                                <label>Year</label>
+                                <strong id="profileYear">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Semester</label>
+                                <strong id="profileSemester">—</strong>
+                            </div>
+
+                            <div class="profile-field wide">
+                                <label>Department</label>
+                                <strong id="profileDepartment">
+                                    Sports Management
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Physical -->
+
+                    <div class="profile-block">
+
+                        <div class="profile-block-title">
+                            <i class="bi bi-activity"></i>
+                            Physical & Sports Information
+                        </div>
+
+                        <div class="profile-grid">
+
+                            <div class="profile-field">
+                                <label>Height</label>
+                                <strong id="profileHeight">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Weight</label>
+                                <strong id="profileWeight">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Sport / Activity</label>
+                                <strong id="profileSport">—</strong>
+                            </div>
+
+                            <div class="profile-field">
+                                <label>Fitness Goal</label>
+                                <strong id="profileGoal">—</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SETTINGS
+            ================================================== -->
+
+            <section
+                id="settings-view"
+                class="content-section"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow">
+                            ACCOUNT
+                        </div>
+
+                        <h1>Settings</h1>
+
+                        <p>
+                            Manage your dashboard preferences and
+                            account security.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="settings-container">
+
+                    <div class="settings-card">
+
+                        <div class="settings-card-header">
+                            <div class="settings-header-icon">
+                                <i class="bi bi-sliders"></i>
+                            </div>
+
+                            <div>
+                                <h3>Interface Preferences</h3>
+                                <span>
+                                    Customize your dashboard
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+
+                                <div class="setting-icon">
+                                    <i class="bi bi-moon-stars-fill"></i>
+                                </div>
+
+                                <div>
+                                    <strong>
+                                        Dark Mode Interface
+                                    </strong>
+
+                                    <span>
+                                        Switch between light and dark
+                                        themes.
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="darkModeToggle"
+                                >
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-card danger-settings">
+
+                        <div class="settings-card-header">
+                            <div class="settings-header-icon danger">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </div>
+
+                            <div>
+                                <h3>Session Logout</h3>
+                                <span>
+                                    Sign out securely from your
+                                    student account.
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div class="setting-info">
+
+                                <div class="setting-icon danger">
+                                    <i class="bi bi-power"></i>
+                                </div>
+
+                                <div>
+                                    <strong>
+                                        Logout
+                                    </strong>
+
+                                    <span>
+                                        End your current dashboard
+                                        session.
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <button
+                                class="logout-action"
+                                id="logoutBtnMain"
+                            >
+                                Logout
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
 
         </div>
 
+    </main>
 
 
-        <div class="attendance-card">
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
 
-            <div class="attendance-heading">
-                This Week
-            </div>
+    <footer class="dashboard-footer">
 
-            <div
-                class="attendance-week"
-                id="attendanceWeekContainer"
-            >
+        <div class="footer-content">
 
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Mon</div>
-                    <div class="attendance-mark attendance-present">✓</div>
-                </div>
+            <div class="footer-brand">
 
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Tue</div>
-                    <div class="attendance-mark attendance-present">✓</div>
-                </div>
-
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Wed</div>
-                    <div class="attendance-mark attendance-present">✓</div>
-                </div>
-
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Thu</div>
-                    <div class="attendance-mark attendance-present">✓</div>
-                </div>
-
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Fri</div>
-                    <div class="attendance-mark attendance-absent">—</div>
-                </div>
-
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Sat</div>
-                    <div class="attendance-mark attendance-present">✓</div>
-                </div>
-
-                <div class="attendance-day">
-                    <div class="attendance-day-name">Sun</div>
-                    <div class="attendance-mark attendance-absent">—</div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="attendance-card">
-
-            <div class="attendance-heading">
-                Attendance Status
-            </div>
-
-            <div
-                id="attendanceStatusText"
-                style="
-                    font-size:28px;
-                    font-weight:800;
-                    color:#2563eb;
-                    margin-bottom:8px;
-                "
-            >
-                Excellent
-            </div>
-
-            <div
-                id="attendanceStatusDesc"
-                style="
-                    color:#64748b;
-                    font-size:12px;
-                    line-height:1.6;
-                "
-            >
-                Your attendance is above the
-                recommended 90% target. Keep
-                maintaining your regular training
-                schedule.
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     FEEDBACK
-========================================================= -->
-
-<section id="feedback">
-
-    <div class="section-header">
-
-        <div>
-
-            <div class="section-title">
-                Coach Feedback
-            </div>
-
-            <div class="section-description">
-                Feedback from your coaching team
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="feedback-grid">
-
-
-        <div class="feedback-card">
-
-            <div class="feedback-heading">
-                Overall Feedback
-            </div>
-
-            <div
-                class="feedback-text"
-                id="coachFeedbackText"
-            >
-                You have shown good consistency during
-                recent training sessions. Your technical
-                execution is improving, but additional
-                conditioning work will help you maintain
-                performance throughout longer sessions.
-            </div>
-
-
-            <div class="rating">
-
-                <div
-                    class="rating-number"
-                    id="coachRatingNumber"
-                >
-                    4.2
+                <div class="footer-logo logo-brand-icon">
+                    <img src="data:image/png;base64,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" alt="Sports Hub Logo" class="sports-hub-logo">
                 </div>
 
                 <div>
-
-                    <div
-                        class="stars"
-                        id="coachRatingStars"
-                    >
-                        ★★★★★
-                    </div>
-
-                    <div
-                        class="muted"
-                        style="
-                            font-size:10px;
-                            margin-top:3px;
-                            color:#64748b;
-                        "
-                    >
-                        Coach rating
-                    </div>
-
+                    <strong>SPORTS HUB</strong>
+                    <span>
+                        SPORTS MANAGEMENT DEPARTMENT
+                    </span>
                 </div>
 
             </div>
 
-        </div>
+            <p>
+                Empowering student athletes through technology,
+                performance tracking and better sports management.
+            </p>
 
+            <div class="footer-bottom">
 
+                <span>
+                    © 2026 Sports Management Department.
+                    All Rights Reserved.
+                </span>
 
-        <div class="feedback-card">
+                <span>
+                    Train • Track • Triumph
+                </span>
 
-            <div class="feedback-heading">
-                Your Strengths
             </div>
 
-            <ul
-                class="feedback-list"
-                id="coachStrengthsList"
-            >
-                <li>
-                    Good technical consistency
-                </li>
-
-                <li>
-                    Strong training attendance
-                </li>
-
-                <li>
-                    Positive response to coaching
-                </li>
-
-                <li>
-                    Good movement quality
-                </li>
-
-            </ul>
-
         </div>
 
-
-
-        <div class="feedback-card">
-
-            <div class="feedback-heading">
-                Areas to Improve
-            </div>
-
-            <ul
-                class="feedback-list weakness-list"
-                id="coachImprovementsList"
-            >
-                <li>
-                    Improve endurance
-                </li>
-
-                <li>
-                    Develop lower-body strength
-                </li>
-
-                <li>
-                    Improve late-session consistency
-                </li>
-
-                <li>
-                    Increase recovery quality
-                </li>
-
-            </ul>
-
-        </div>
-
-    </div>
-
-</section>
-
+    </footer>
 
 </div>
-
-</main>
-
-
-
-<!-- =========================================================
-     SETTINGS
-========================================================= -->
-
-<div
-    class="settings-overlay"
-    id="settingsOverlay"
->
-
-    <div class="settings-panel">
-
-
-        <div class="settings-header">
-
-            <div class="settings-title">
-                Settings
-            </div>
-
-            <button
-                class="close-settings"
-                id="closeSettings"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="settings-section-title">
-            Account
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Student Profile
-                </div>
-
-                <div class="setting-description">
-                    View your account information
-                </div>
-
-            </div>
-
-            <button
-                class="modal-button save-button"
-                id="profileButton"
-            >
-                View
-            </button>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Change Password
-                </div>
-
-                <div class="setting-description">
-                    Update your account password
-                </div>
-
-            </div>
-
-            <button
-                class="modal-button save-button"
-                id="passwordButton"
-            >
-                Change
-            </button>
-
-        </div>
-
-
-        <div class="settings-section-title">
-            Appearance
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Dark Mode
-                </div>
-
-                <div class="setting-description">
-                    Switch between light and dark theme
-                </div>
-
-            </div>
-
-
-            <label class="switch">
-
-                <input
-                    type="checkbox"
-                    id="darkModeToggle"
-                >
-
-                <span class="slider"></span>
-
-            </label>
-
-        </div>
-
-
-        <div class="settings-section-title">
-            Notifications
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Training Reminders
-                </div>
-
-                <div class="setting-description">
-                    Receive reminders for upcoming training
-                </div>
-
-            </div>
-
-
-            <label class="switch">
-
-                <input
-                    type="checkbox"
-                    id="trainingNotifications"
-                    checked
-                >
-
-                <span class="slider"></span>
-
-            </label>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Goal Updates
-                </div>
-
-                <div class="setting-description">
-                    Get notified when goal progress changes
-                </div>
-
-            </div>
-
-
-            <label class="switch">
-
-                <input
-                    type="checkbox"
-                    id="goalNotifications"
-                    checked
-                >
-
-                <span class="slider"></span>
-
-            </label>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Coach Feedback
-                </div>
-
-                <div class="setting-description">
-                    Notify when your coach leaves feedback
-                </div>
-
-            </div>
-
-
-            <label class="switch">
-
-                <input
-                    type="checkbox"
-                    id="feedbackNotifications"
-                    checked
-                >
-
-                <span class="slider"></span>
-
-            </label>
-
-        </div>
-
-
-        <div class="settings-section-title">
-            Dashboard
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Default Section
-                </div>
-
-                <div class="setting-description">
-                    Section opened when dashboard loads
-                </div>
-
-            </div>
-
-
-            <select
-                class="setting-select"
-                id="defaultSection"
-            >
-
-                <option value="dashboard">
-                    Dashboard
-                </option>
-
-                <option value="analytics">
-                    Analytics
-                </option>
-
-                <option value="improvement">
-                    Improvement
-                </option>
-
-                <option value="goals">
-                    Goals
-                </option>
-
-                <option value="attendance">
-                    Attendance
-                </option>
-
-                <option value="feedback">
-                    Feedback
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Compact View
-                </div>
-
-                <div class="setting-description">
-                    Reduce spacing between dashboard cards
-                </div>
-
-            </div>
-
-
-            <label class="switch">
-
-                <input
-                    type="checkbox"
-                    id="compactView"
-                >
-
-                <span class="slider"></span>
-
-            </label>
-
-        </div>
-
-
-        <div class="settings-section-title">
-            Account Actions
-        </div>
-
-
-        <div class="setting-row">
-
-            <div>
-
-                <div class="setting-name">
-                    Log Out
-                </div>
-
-                <div class="setting-description">
-                    Sign out of your student account
-                </div>
-
-            </div>
-
-
-            <button
-                class="modal-button"
-                id="logoutButton"
-            >
-                Logout
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-     PROFILE MODAL
-========================================================= -->
-
-<div
-    class="modal-overlay"
-    id="profileModal"
->
-
-    <div class="modal">
-
-        <div class="modal-title">
-            Student Profile
-        </div>
-
-        <div class="modal-description">
-            Your student account information.
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                Name
-            </label>
-
-            <input
-                class="input"
-                id="profileName"
-                readonly
-            >
-
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                Email
-            </label>
-
-            <input
-                class="input"
-                id="profileEmail"
-                readonly
-            >
-
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                Account Type
-            </label>
-
-            <input
-                class="input"
-                value="Student / Athlete"
-                readonly
-            >
-
-        </div>
-
-
-        <div class="modal-actions">
-
-            <button
-                class="modal-button cancel-button"
-                onclick="closeModal('profileModal')"
-            >
-                Close
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
 
 
 <!-- =========================================================
@@ -1680,85 +1556,96 @@
 ========================================================= -->
 
 <div
-    class="modal-overlay"
+    class="modal fade"
     id="passwordModal"
+    tabindex="-1"
+    aria-hidden="true"
 >
 
-    <div class="modal">
+    <div class="modal-dialog modal-dialog-centered">
 
-        <div class="modal-title">
-            Change Password
-        </div>
+        <div class="modal-content password-modal">
 
-        <div class="modal-description">
-            Enter your new password below.
-        </div>
+            <div class="modal-header">
 
+                <div>
+                    <div class="modal-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
 
-        <div class="input-group">
+                    <h5>
+                        Change Password
+                    </h5>
 
-            <label class="input-label">
-                Current Password
-            </label>
+                    <span>
+                        Keep your account secure.
+                    </span>
+                </div>
 
-            <input
-                type="password"
-                class="input"
-                id="currentPassword"
-                placeholder="Current password"
-            >
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
 
-        </div>
-
-
-        <div class="input-group">
-
-            <label class="input-label">
-                New Password
-            </label>
-
-            <input
-                type="password"
-                class="input"
-                id="newPassword"
-                placeholder="New password"
-            >
-
-        </div>
+            </div>
 
 
-        <div class="input-group">
+            <div class="modal-body">
 
-            <label class="input-label">
-                Confirm Password
-            </label>
+                <div class="password-field">
+                    <label>Current Password</label>
 
-            <input
-                type="password"
-                class="input"
-                id="confirmPassword"
-                placeholder="Confirm new password"
-            >
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="currentPassword"
+                    >
+                </div>
 
-        </div>
+                <div class="password-field">
+                    <label>New Password</label>
+
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="newPassword"
+                    >
+                </div>
+
+                <div class="password-field">
+                    <label>Confirm New Password</label>
+
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="confirmPassword"
+                    >
+                </div>
+
+            </div>
 
 
-        <div class="modal-actions">
+            <div class="modal-footer">
 
-            <button
-                class="modal-button cancel-button"
-                onclick="closeModal('passwordModal')"
-            >
-                Cancel
-            </button>
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                >
+                    Cancel
+                </button>
 
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="savePassword"
+                >
+                    Update Password
+                </button>
 
-            <button
-                class="modal-button save-button"
-                id="savePassword"
-            >
-                Save Password
-            </button>
+            </div>
 
         </div>
 
@@ -1767,162 +1654,269 @@
 </div>
 
 
-
 <!-- =========================================================
      TOAST
 ========================================================= -->
 
 <div
-    class="toast"
+    class="toast-custom"
     id="toast"
-></div>
+>
+
+    <i class="bi bi-check-circle-fill"></i>
+
+    <span id="toastMessage">
+        Success
+    </span>
+
+</div>
 
 
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- =========================================================
+     DASHBOARD JAVASCRIPT
+========================================================= -->
 
 <script>
-
 "use strict";
 
-
-/* =========================================================
-   API
-========================================================= */
-
-const API_BASE_URL = "/api";
+const API_BASE_URL = `${window.FITNESS_API_BASE || ""}/api`;
 
 
 /* =========================================================
-   STUDENT DISPLAY DATA
+   STUDENT INFORMATION
 ========================================================= */
 
-function getStoredStudentName() {
+let studentName = "Student";
+let studentEmail = "";
+let studentProfileData = {};
 
-    const values = [
 
-        localStorage.getItem("studentName"),
+/* =========================================================
+   PROFILE
+========================================================= */
 
-        localStorage.getItem("studentFullName"),
+function updateStudentProfile(data = {}) {
 
-        localStorage.getItem("name"),
+    const profile =
+        data.student ||
+        data.user ||
+        data.profile ||
+        data ||
+        {};
 
-        sessionStorage.getItem("studentName"),
+    studentProfileData = {
+        ...studentProfileData,
+        ...profile
+    };
 
-        sessionStorage.getItem("studentFullName")
 
+    const setValue = (
+        id,
+        value,
+        fallback = "Not provided"
+    ) => {
+
+        const element =
+            document.getElementById(id);
+
+        if (!element) return;
+
+        element.textContent =
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== ""
+                ? String(value)
+                : fallback;
+    };
+
+
+    setValue(
+        "profileName",
+        profile.name ||
+        profile.full_name ||
+        studentName
+    );
+
+    setValue(
+        "profileEmail",
+        profile.email ||
+        studentEmail
+    );
+
+    setValue(
+        "profileGender",
+        profile.gender
+    );
+
+    setValue(
+        "profileDob",
+        profile.date_of_birth ||
+        profile.dob
+    );
+
+    setValue(
+        "profilePhone",
+        profile.contact_number ||
+        profile.phone ||
+        profile.phone_number
+    );
+
+    setValue(
+        "profileEmergency",
+        profile.emergency_contact ||
+        profile.emergency_number
+    );
+
+    setValue(
+        "profileYear",
+        profile.year
+            ? `Year ${profile.year}`
+            : null
+    );
+
+    setValue(
+        "profileSemester",
+        profile.semester
+            ? `Semester ${profile.semester}`
+            : null
+    );
+
+    setValue(
+        "profileDepartment",
+        profile.department
+    );
+
+    setValue(
+        "profileHeight",
+        profile.height
+            ? `${profile.height} cm`
+            : profile.height_cm
+                ? `${profile.height_cm} cm`
+                : null
+    );
+
+    setValue(
+        "profileWeight",
+        profile.weight
+            ? `${profile.weight} kg`
+            : profile.weight_kg
+                ? `${profile.weight_kg} kg`
+                : null
+    );
+
+    setValue(
+        "profileSport",
+        profile.sport ||
+        profile.activity ||
+        profile.sport_activity
+    );
+
+    setValue(
+        "profileGoal",
+        profile.goal
+    );
+
+
+    const initials =
+        (
+            profile.name ||
+            profile.full_name ||
+            studentName ||
+            "Student"
+        )
+        .charAt(0)
+        .toUpperCase();
+
+
+    const avatarIds = [
+        "topbarAvatar",
+        "sidebarAvatar",
+        "profileTabAvatar"
     ];
 
 
-    for (const value of values) {
+    avatarIds.forEach(id => {
 
-        if (
-            value &&
-            value.trim() !== ""
-        ) {
+        const element =
+            document.getElementById(id);
 
-            return value.trim();
-
+        if (element) {
+            element.textContent = initials;
         }
 
-    }
+    });
 
 
-    return "Student";
+    const profileName =
+        document.getElementById("profileTabName");
 
-}
+    if (profileName) {
 
-
-function getStoredStudentEmail() {
-
-    const values = [
-
-        localStorage.getItem("studentEmail"),
-
-        localStorage.getItem("email"),
-
-        sessionStorage.getItem("studentEmail"),
-
-        sessionStorage.getItem("signupEmail")
-
-    ];
-
-
-    for (const value of values) {
-
-        if (
-            value &&
-            value.trim() !== ""
-        ) {
-
-            return value.trim();
-
-        }
+        profileName.textContent =
+            profile.name ||
+            profile.full_name ||
+            studentName;
 
     }
-
-
-    return "";
-
 }
-
-
-let studentName =
-    getStoredStudentName();
-
-
-let studentEmail =
-    getStoredStudentEmail();
 
 
 /* =========================================================
-   UPDATE HEADER
+   HEADER UI
 ========================================================= */
 
 function updateProfileHeaderUI() {
 
-    document.getElementById(
-        "studentBrandName"
-    ).textContent =
-        studentName;
+    const elements = {
+        studentBrandName: studentName,
+        topStudentName: studentName,
+        sidebarStudentName: studentName,
+        welcomeName: studentName
+    };
 
 
-    document.getElementById(
-        "topStudentName"
-    ).textContent =
-        studentName;
+    Object.entries(elements).forEach(
+        ([id, value]) => {
+
+            const element =
+                document.getElementById(id);
+
+            if (element) {
+                element.textContent = value;
+            }
+
+        }
+    );
 
 
-    document.getElementById(
-        "welcomeName"
-    ).textContent =
-        studentName;
-
-
-    document.getElementById(
-        "sidebarStudentName"
-    ).textContent =
-        studentName;
-
-
-    document.getElementById(
-        "sidebarAvatar"
-    ).textContent =
+    const initials =
         studentName
             .charAt(0)
             .toUpperCase();
 
 
-    document.getElementById(
-        "profileName"
-    ).value =
-        studentName;
+    [
+        "topbarAvatar",
+        "sidebarAvatar",
+        "profileTabAvatar"
+    ].forEach(id => {
 
+        const element =
+            document.getElementById(id);
 
-    document.getElementById(
-        "profileEmail"
-    ).value =
-        studentEmail;
+        if (element) {
+            element.textContent = initials;
+        }
 
+    });
 }
+
+
+updateProfileHeaderUI();
 
 
 /* =========================================================
@@ -1938,37 +1932,13 @@ async function checkStudentSession() {
                 `${API_BASE_URL}/session`,
                 {
                     method: "GET",
-
-                    credentials:
-                        "include",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
+                    credentials: "include"
                 }
             );
 
 
-        /*
-         * Any unsuccessful session request
-         * means the user cannot access the
-         * student dashboard.
-         */
-
         if (!response.ok) {
-
-            console.error(
-                "Session request failed:",
-                response.status
-            );
-
-            window.location.replace(
-                "student-login.html"
-            );
-
             return false;
-
         }
 
 
@@ -1976,182 +1946,42 @@ async function checkStudentSession() {
             await response.json();
 
 
-        console.log(
-            "Student session response:",
-            data
-        );
-
-
-        /*
-         * IMPORTANT:
-         *
-         * Flask returns the authenticated
-         * user inside:
-         *
-         * data.user
-         *
-         * Example:
-         *
-         * {
-         *     authenticated: true,
-         *     user: {
-         *         id: 12,
-         *         name: "Student Name",
-         *         email: "student@example.com",
-         *         role: "player"
-         *     }
-         * }
-         */
-
-        if (!data.authenticated) {
-
-            console.warn(
-                "No authenticated session."
-            );
-
-            window.location.replace(
-                "student-login.html"
-            );
-
-            return false;
-
-        }
-
-
-        /*
-         * Get the authenticated user.
-         */
-
-        const user =
-            data.user;
-
-
-        if (!user) {
-
-            console.error(
-                "Authenticated session contains no user data."
-            );
-
-            window.location.replace(
-                "student-login.html"
-            );
-
-            return false;
-
-        }
-
-
-        /*
-         * The backend stores student accounts
-         * using the role "player".
-         *
-         * We also accept "student" for
-         * compatibility with older records.
-         */
-
-        const role =
-            String(
-                user.role ||
-                data.role ||
-                ""
-            ).toLowerCase();
-
-
-        console.log(
-            "Authenticated student role:",
-            role
-        );
-
-
-        /*
-         * Only player/student accounts
-         * can access this dashboard.
-         */
-
         if (
-            role !== "player" &&
-            role !== "student"
+            data.authenticated &&
+            data.user &&
+            data.user.role === "student"
         ) {
 
-            console.warn(
-                "Wrong role for student dashboard:",
-                role
-            );
-
-            window.location.replace(
-                "student-login.html"
-            );
-
-            return false;
-
-        }
-
-
-        /*
-         * Use authenticated server data
-         * instead of relying only on
-         * localStorage/sessionStorage.
-         */
-
-        if (user.name) {
-
             studentName =
-                user.name;
-
-            localStorage.setItem(
-                "studentName",
-                studentName
-            );
-
-        }
-
-
-        if (user.email) {
+                data.user.name ||
+                studentName;
 
             studentEmail =
-                user.email;
+                data.user.email ||
+                studentEmail;
 
-            localStorage.setItem(
-                "studentEmail",
-                studentEmail
+
+            updateProfileHeaderUI();
+
+            updateStudentProfile(
+                data.user
             );
 
+            return true;
         }
-
-
-        /*
-         * Update all dashboard identity
-         * elements.
-         */
-
-        updateProfileHeaderUI();
-
-
-        console.log(
-            "Student session verified successfully."
-        );
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Session check error:",
-            error
-        );
-
-
-        showToast(
-            "Unable to verify your login session."
-        );
 
 
         return false;
 
-    }
+    } catch (error) {
 
+        console.error(
+            "Session check failed:",
+            error
+        );
+
+        return false;
+    }
 }
 
 
@@ -2159,14 +1989,9 @@ async function checkStudentSession() {
    CHARTS
 ========================================================= */
 
-let categoryBarChartInstance =
-    null;
-
-let attributeRadarChartInstance =
-    null;
-
-let progressionLineChartInstance =
-    null;
+let barChart = null;
+let radarChart = null;
+let lineChart = null;
 
 
 function initCharts() {
@@ -2185,110 +2010,59 @@ function initCharts() {
 
     const gridColor =
         isDark
-            ? "#263449"
-            : "#f1f5f9";
+            ? "#263653"
+            : "#e7edf5";
 
 
     Chart.defaults.color =
         textColor;
 
 
-    Chart.defaults.font.family =
-        "Arial, Helvetica, sans-serif";
+    /* BAR */
 
-
-    /* =====================================================
-       BAR CHART
-    ===================================================== */
-
-    const ctxBar =
+    const barCanvas =
         document.getElementById(
             "categoryBarChart"
         );
 
 
-    if (ctxBar) {
+    if (barCanvas) {
 
-        categoryBarChartInstance =
+        if (barChart) {
+            barChart.destroy();
+        }
+
+
+        barChart =
             new Chart(
-                ctxBar,
+                barCanvas,
                 {
-
                     type: "bar",
 
                     data: {
 
-                        labels: [
-                            "Speed",
-                            "Endurance",
-                            "Ball Control",
-                            "Lower Strength",
-                            "Agility",
-                            "Tactical"
-                        ],
+                        labels: ["Speed", "Endurance", "Strength", "Agility", "Flexibility", "Reaction time"],
 
                         datasets: [
 
                             {
+                                label: "Current",
 
-                                label:
-                                    "Current Score",
-
-                                data: [
-                                    84,
-                                    62,
-                                    70,
-                                    68,
-                                    88,
-                                    76
-                                ],
+                                data: [],
 
                                 backgroundColor:
                                     "#2563eb",
 
-                                borderRadius:
-                                    6,
-
-                                barPercentage:
-                                    0.6
-
+                                borderRadius: 8
                             },
-
-
-                            {
-
-                                label:
-                                    "Target Score",
-
-                                data: [
-                                    90,
-                                    80,
-                                    85,
-                                    80,
-                                    90,
-                                    85
-                                ],
-
-                                backgroundColor:
-                                    "#93c5fd",
-
-                                borderRadius:
-                                    6,
-
-                                barPercentage:
-                                    0.6
-
-                            }
 
                         ]
 
                     },
 
-
                     options: {
 
-                        responsive:
-                            true,
+                        responsive: true,
 
                         maintainAspectRatio:
                             false,
@@ -2296,57 +2070,28 @@ function initCharts() {
                         plugins: {
 
                             legend: {
-
-                                position:
-                                    "top",
-
-                                align:
-                                    "end"
-
-                            },
-
-                            tooltip: {
-
-                                backgroundColor:
-                                    isDark
-                                        ? "#111827"
-                                        : "#0f172a",
-
-                                padding:
-                                    10,
-
-                                cornerRadius:
-                                    8
-
+                                position: "bottom"
                             }
 
                         },
 
-
                         scales: {
 
                             x: {
-
                                 grid: {
-                                    display:
-                                        false
+                                    display: false
                                 }
-
                             },
 
                             y: {
 
-                                beginAtZero:
-                                    true,
+                                beginAtZero: true,
 
-                                max:
-                                    100,
+                                max: 100,
 
                                 grid: {
-
                                     color:
                                         gridColor
-
                                 }
 
                             }
@@ -2354,224 +2099,156 @@ function initCharts() {
                         }
 
                     }
-
                 }
             );
 
     }
 
 
+    /* RADAR */
 
-    /* =====================================================
-       RADAR
-    ===================================================== */
-
-    const ctxRadar =
+    const radarCanvas =
         document.getElementById(
             "attributeRadarChart"
         );
 
 
-    if (ctxRadar) {
+    if (radarCanvas) {
 
-        attributeRadarChartInstance =
+        if (radarChart) {
+            radarChart.destroy();
+        }
+
+
+        radarChart =
             new Chart(
-                ctxRadar,
+                radarCanvas,
                 {
-
-                    type:
-                        "radar",
+                    type: "radar",
 
                     data: {
 
-                        labels: [
-                            "Speed",
-                            "Endurance",
-                            "Control",
-                            "Strength",
-                            "Agility",
-                            "Tactical"
-                        ],
+                        labels: ["Speed", "Endurance", "Strength", "Agility", "Flexibility", "Reaction time"],
 
                         datasets: [
 
                             {
+                                label: "Performance",
 
-                                label:
-                                    "Performance Level",
-
-                                data: [
-                                    84,
-                                    62,
-                                    70,
-                                    68,
-                                    88,
-                                    76
-                                ],
+                                data: [],
 
                                 backgroundColor:
-                                    "rgba(37,99,235,0.2)",
+                                    "rgba(37,99,235,.15)",
 
                                 borderColor:
                                     "#2563eb",
 
-                                borderWidth:
-                                    2,
-
-                                pointBackgroundColor:
-                                    "#2563eb",
-
-                                pointRadius:
-                                    4
-
+                                borderWidth: 2
                             }
 
                         ]
 
                     },
 
-
                     options: {
 
-                        responsive:
-                            true,
+                        responsive: true,
 
                         maintainAspectRatio:
                             false,
 
-                        plugins: {
-
-                            legend: {
-                                display:
-                                    false
-                            }
-
-                        },
-
                         scales: {
 
                             r: {
+
+                                suggestedMin: 40,
+
+                                suggestedMax: 100,
+
+                                grid: {
+                                    color:
+                                        gridColor
+                                },
 
                                 angleLines: {
                                     color:
                                         gridColor
                                 },
 
-                                grid: {
-                                    color:
-                                        gridColor
-                                },
-
-                                suggestedMin:
-                                    40,
-
-                                suggestedMax:
-                                    100,
-
                                 ticks: {
-                                    display:
-                                        false
+                                    display: false
                                 }
 
                             }
 
+                        },
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
                         }
 
                     }
-
                 }
             );
 
     }
 
 
+    /* LINE */
 
-    /* =====================================================
-       LINE
-    ===================================================== */
-
-    const ctxLine =
+    const lineCanvas =
         document.getElementById(
             "progressionLineChart"
         );
 
 
-    if (ctxLine) {
+    if (lineCanvas) {
 
-        progressionLineChartInstance =
+        if (lineChart) {
+            lineChart.destroy();
+        }
+
+
+        lineChart =
             new Chart(
-                ctxLine,
+                lineCanvas,
                 {
-
-                    type:
-                        "line",
+                    type: "line",
 
                     data: {
 
-                        labels: [
-                            "W1",
-                            "W2",
-                            "W3",
-                            "W4",
-                            "W5",
-                            "W6",
-                            "W7",
-                            "W8"
-                        ],
+                        labels: [],
 
                         datasets: [
 
                             {
-
                                 label:
-                                    "Overall Index",
+                                    "Performance Index",
 
-                                data: [
-                                    68,
-                                    70,
-                                    71,
-                                    74,
-                                    73,
-                                    76,
-                                    77,
-                                    78
-                                ],
+                                data: [],
 
                                 borderColor:
                                     "#2563eb",
 
                                 backgroundColor:
-                                    "rgba(37,99,235,0.08)",
+                                    "rgba(37,99,235,.08)",
 
-                                fill:
-                                    true,
+                                fill: true,
 
-                                tension:
-                                    0.35,
+                                tension: .4,
 
-                                borderWidth:
-                                    3,
-
-                                pointRadius:
-                                    4,
-
-                                pointHoverRadius:
-                                    6,
-
-                                pointBackgroundColor:
-                                    "#2563eb"
-
+                                borderWidth: 3
                             }
 
                         ]
 
                     },
 
-
                     options: {
 
-                        responsive:
-                            true,
+                        responsive: true,
 
                         maintainAspectRatio:
                             false,
@@ -2579,8 +2256,7 @@ function initCharts() {
                         plugins: {
 
                             legend: {
-                                display:
-                                    false
+                                display: false
                             }
 
                         },
@@ -2588,27 +2264,20 @@ function initCharts() {
                         scales: {
 
                             x: {
-
                                 grid: {
-                                    display:
-                                        false
+                                    display: false
                                 }
-
                             },
 
                             y: {
 
-                                min:
-                                    50,
+                                min: 50,
 
-                                max:
-                                    95,
+                                max: 100,
 
                                 grid: {
-
                                     color:
                                         gridColor
-
                                 }
 
                             }
@@ -2616,7 +2285,6 @@ function initCharts() {
                         }
 
                     }
-
                 }
             );
 
@@ -2626,86 +2294,10 @@ function initCharts() {
 
 
 /* =========================================================
-   THEME
+   DASHBOARD DATA
 ========================================================= */
 
-function updateChartsTheme() {
-
-    const isDark =
-        document.body.classList.contains(
-            "dark-mode"
-        );
-
-
-    const textColor =
-        isDark
-            ? "#94a3b8"
-            : "#64748b";
-
-
-    const gridColor =
-        isDark
-            ? "#263449"
-            : "#f1f5f9";
-
-
-    [
-        categoryBarChartInstance,
-        attributeRadarChartInstance,
-        progressionLineChartInstance
-    ].forEach(
-        chart => {
-
-            if (!chart)
-                return;
-
-
-            if (chart.options.scales?.x) {
-
-                chart.options.scales.x.ticks.color =
-                    textColor;
-
-            }
-
-
-            if (chart.options.scales?.y) {
-
-                chart.options.scales.y.ticks.color =
-                    textColor;
-
-                chart.options.scales.y.grid.color =
-                    gridColor;
-
-            }
-
-
-            if (chart.options.scales?.r) {
-
-                chart.options.scales.r.angleLines.color =
-                    gridColor;
-
-                chart.options.scales.r.grid.color =
-                    gridColor;
-
-                chart.options.scales.r.pointLabels.color =
-                    textColor;
-
-            }
-
-
-            chart.update();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   DASHBOARD API
-========================================================= */
-
-async function fetchStudentDashboardData() {
+async function fetchDashboardData() {
 
     try {
 
@@ -2714,54 +2306,13 @@ async function fetchStudentDashboardData() {
                 `${API_BASE_URL}/student/dashboard`,
                 {
                     method: "GET",
-
-                    credentials:
-                        "include",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
+                    credentials: "include"
                 }
             );
 
 
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            window.location.replace(
-                "student-login.html"
-            );
-
-            return;
-
-        }
-
-
-        /*
-         * If this endpoint does not exist yet,
-         * don't destroy the dashboard.
-         */
-
-        if (response.status === 404) {
-
-            console.warn(
-                "/api/student/dashboard is not implemented yet."
-            );
-
-            return;
-
-        }
-
-
         if (!response.ok) {
-
-            throw new Error(
-                `Dashboard API error: ${response.status}`
-            );
-
+            return;
         }
 
 
@@ -2769,603 +2320,399 @@ async function fetchStudentDashboardData() {
             await response.json();
 
 
-        populateDashboardUI(
-            data
-        );
+        updateStudentProfile(data);
+        updateAttendanceView(data.attendance || {});
 
+        const [assessments, training, goals, feedback] = await Promise.all([
+            fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(response => response.json()),
+            fetch(`${API_BASE_URL}/training-sessions`, { credentials: "include" }).then(response => response.json()),
+            fetch(`${API_BASE_URL}/goals`, { credentials: "include" }).then(response => response.json()),
+            fetch(`${API_BASE_URL}/feedback`, { credentials: "include" }).then(response => response.json())
+        ]);
+        const assessmentRows = assessments.data || [];
+        const trainingRows = training.data || [];
+        const goalRows = goals.data || [];
+        const feedbackRows = feedback.data || [];
+        renderLiveRecords("analytics", "assessmentRecords", "Physical Assessments", assessmentRows,
+            ["assessment_date", "overall_score", "speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "notes"]);
+        renderLiveRecords("improvement", "trainingRecords", "Training History", trainingRows,
+            ["session_date", "training_type", "duration_minutes", "description", "performance_notes"]);
+        renderLiveRecords("goals", "goalRecords", "My Goals", goalRows,
+            ["title", "description", "target_value", "current_value", "target_date", "status"]);
+        renderLiveRecords("feedback", "feedbackRecords", "Coach Feedback", feedbackRows,
+            ["feedback", "rating", "created_at"]);
+        renderFeedbackView(feedbackRows);
+        const scores = assessmentRows.map(row => Number(row.overall_score)).filter(Number.isFinite);
+        const overallScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "-";
+        document.getElementById("overallScore").textContent = overallScore;
+        document.getElementById("dashboardPerformance").textContent = overallScore;
+        document.getElementById("dashboardGoalProgress").textContent = goalRows.length
+            ? `${Math.round(goalRows.filter(goal => goal.status === "completed").length / goalRows.length * 100)}%`
+            : "-";
+        document.getElementById("dashboardCoachRating").textContent = feedbackRows.find(row => row.rating !== null && row.rating !== undefined)?.rating ?? "-";
+        document.getElementById("goalCalendarDays")?.replaceChildren();
+        updateAssessmentCharts(assessmentRows);
 
     } catch (error) {
 
-        console.warn(
-            "Dashboard API unavailable:",
+        console.error(
+            "Dashboard data error:",
             error
         );
 
     }
+}
 
+function updateAssessmentCharts(records) {
+    const metrics = [
+        ["Speed", "speed"],
+        ["Endurance", "endurance"],
+        ["Strength", "strength"],
+        ["Agility", "agility"],
+        ["Flexibility", "flexibility"],
+        ["Reaction time", "reaction_time"]
+    ];
+    const latest = [...records].sort((left, right) =>
+        String(right.assessment_date).localeCompare(String(left.assessment_date))
+    )[0] || {};
+    const labels = metrics.filter(([, field]) => latest[field] !== null && latest[field] !== undefined)
+        .map(([label]) => label);
+    const values = metrics.filter(([, field]) => latest[field] !== null && latest[field] !== undefined)
+        .map(([, field]) => Number(latest[field]));
+    if (barChart) {
+        barChart.data.labels = labels;
+        barChart.data.datasets[0].data = values;
+        barChart.update();
+    }
+    if (radarChart) {
+        radarChart.data.labels = labels;
+        radarChart.data.datasets[0].data = values;
+        radarChart.update();
+    }
+    const progression = [...records]
+        .filter(record => record.overall_score !== null && record.overall_score !== undefined)
+        .sort((left, right) => String(left.assessment_date).localeCompare(String(right.assessment_date)));
+    if (lineChart) {
+        lineChart.data.labels = progression.map(record => record.assessment_date);
+        lineChart.data.datasets[0].data = progression.map(record => Number(record.overall_score));
+        lineChart.update();
+    }
+}
+
+function renderLiveRecords(sectionId, containerId, title, records, fields) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement("div");
+        container.id = containerId;
+        container.className = "dashboard-card";
+        section.appendChild(container);
+    }
+    container.replaceChildren();
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    container.appendChild(heading);
+    if (!records.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "No records yet.";
+        container.appendChild(empty);
+        return;
+    }
+    records.forEach(record => {
+        const article = document.createElement("article");
+        article.className = "live-record";
+        fields.forEach(field => {
+            const value = record[field];
+            if (value === null || value === undefined || value === "") return;
+            const line = document.createElement("p");
+            line.textContent = `${field.replaceAll("_", " ")}: ${value}`;
+            article.appendChild(line);
+        });
+        container.appendChild(article);
+    });
+}
+
+function updateAttendanceView(attendance) {
+    const summary = attendance || {};
+    const percentage = Number(summary.percentage || 0);
+    document.getElementById("attendancePercentage").textContent = `${percentage}%`;
+    document.getElementById("dashboardAttendance").textContent = summary.total ? `${percentage}%` : "-";
+    document.getElementById("attendanceProgressFill").style.width = `${percentage}%`;
+    document.getElementById("attendancePresent").textContent = summary.present || 0;
+    document.getElementById("attendanceAbsent").textContent = summary.absent || 0;
+    document.getElementById("attendanceTotal").textContent = summary.total || 0;
+    document.getElementById("attendanceLabel").textContent = summary.label || "No sessions yet";
+    document.getElementById("attendanceStatusText").textContent = summary.statusText || "Not started";
+    document.getElementById("attendanceStatusDesc").textContent = summary.statusDesc || "Attendance will appear here after a coach records a session.";
+    const week = document.getElementById("attendanceWeekContainer");
+    week.replaceChildren();
+    (summary.weekly || []).forEach(day => {
+        const item = document.createElement("div");
+        item.className = "attendance-day";
+        const name = document.createElement("span");
+        name.textContent = day.day;
+        const status = document.createElement("strong");
+        status.className = day.present ? "present" : "absent";
+        status.textContent = day.present ? "Present" : "Absent";
+        item.append(name, status);
+        week.appendChild(item);
+    });
+}
+
+function renderFeedbackView(records) {
+    const latest = records[0];
+    document.getElementById("coachFeedbackText").textContent = latest?.feedback || "No coach feedback yet.";
+    document.getElementById("coachRatingNumber").textContent = latest?.rating ?? "-";
+    document.getElementById("coachRatingStars").textContent = latest?.rating
+        ? "★".repeat(Math.min(5, Number(latest.rating)))
+        : "No rating";
+    document.getElementById("coachStrengthsList").replaceChildren();
+    document.getElementById("coachImprovementsList").replaceChildren();
 }
 
 
 /* =========================================================
-   POPULATE DASHBOARD
+   SECTION SWITCHER
 ========================================================= */
 
-function populateDashboardUI(data) {
+const sectionTitles = {
 
-    if (!data)
-        return;
+    dashboard:
+        "Dashboard",
 
+    analytics:
+        "Performance Analytics",
 
-    /* =====================================================
-       IDENTITY
-    ===================================================== */
+    improvement:
+        "Scope of Improvement",
 
-    if (data.name) {
+    goals:
+        "Goal Progress",
 
-        studentName =
-            data.name;
+    attendance:
+        "Attendance",
 
-        localStorage.setItem(
-            "studentName",
-            data.name
-        );
+    feedback:
+        "Coach Feedback",
 
-    }
+    "profile-view":
+        "My Profile",
 
+    "settings-view":
+        "Settings"
 
-    if (data.email) {
+};
 
-        studentEmail =
-            data.email;
 
-        localStorage.setItem(
-            "studentEmail",
-            data.email
-        );
+function switchSection(sectionId) {
 
-    }
+    document
+        .querySelectorAll(
+            ".content-section"
+        )
+        .forEach(section => {
 
-
-    updateProfileHeaderUI();
-
-
-    /* =====================================================
-       SCORE
-    ===================================================== */
-
-    if (
-        data.overallScore !==
-        undefined
-    ) {
-
-        document.getElementById(
-            "overallScore"
-        ).textContent =
-            data.overallScore;
-
-    }
-
-
-    /* =====================================================
-       BENCHMARKS
-    ===================================================== */
-
-    if (
-        data.benchmarks &&
-        categoryBarChartInstance
-    ) {
-
-        if (
-            data.benchmarks.labels
-        ) {
-
-            categoryBarChartInstance.data.labels =
-                data.benchmarks.labels;
-
-        }
-
-
-        if (
-            data.benchmarks.current
-        ) {
-
-            categoryBarChartInstance
-                .data
-                .datasets[0]
-                .data =
-                    data.benchmarks.current;
-
-        }
-
-
-        if (
-            data.benchmarks.target
-        ) {
-
-            categoryBarChartInstance
-                .data
-                .datasets[1]
-                .data =
-                    data.benchmarks.target;
-
-        }
-
-
-        categoryBarChartInstance.update();
-
-    }
-
-
-    /* =====================================================
-       ATTRIBUTES
-    ===================================================== */
-
-    if (
-        data.attributes &&
-        attributeRadarChartInstance
-    ) {
-
-        if (
-            data.attributes.labels
-        ) {
-
-            attributeRadarChartInstance
-                .data
-                .labels =
-                    data.attributes.labels;
-
-        }
-
-
-        if (
-            data.attributes.scores
-        ) {
-
-            attributeRadarChartInstance
-                .data
-                .datasets[0]
-                .data =
-                    data.attributes.scores;
-
-        }
-
-
-        attributeRadarChartInstance.update();
-
-    }
-
-
-    /* =====================================================
-       PROGRESSION
-    ===================================================== */
-
-    if (
-        data.progression &&
-        progressionLineChartInstance
-    ) {
-
-        if (
-            data.progression.weeks
-        ) {
-
-            progressionLineChartInstance
-                .data
-                .labels =
-                    data.progression.weeks;
-
-        }
-
-
-        if (
-            data.progression.history
-        ) {
-
-            progressionLineChartInstance
-                .data
-                .datasets[0]
-                .data =
-                    data.progression.history;
-
-        }
-
-
-        progressionLineChartInstance.update();
-
-    }
-
-
-    /* =====================================================
-       IMPROVEMENT
-    ===================================================== */
-
-    if (data.improvement) {
-
-        const improvement =
-            data.improvement;
-
-
-        if (
-            improvement.weakestArea
-        ) {
-
-            document.getElementById(
-                "weakestArea"
-            ).textContent =
-                improvement.weakestArea;
-
-        }
-
-
-        if (
-            improvement.weakestAreaDesc
-        ) {
-
-            document.getElementById(
-                "weakestAreaDesc"
-            ).textContent =
-                improvement.weakestAreaDesc;
-
-        }
-
-
-        if (
-            improvement.skillPriority
-        ) {
-
-            document.getElementById(
-                "skillPriority"
-            ).textContent =
-                improvement.skillPriority;
-
-        }
-
-
-        if (
-            improvement.skillPriorityDesc
-        ) {
-
-            document.getElementById(
-                "skillPriorityDesc"
-            ).textContent =
-                improvement.skillPriorityDesc;
-
-        }
-
-
-        if (
-            improvement.physicalArea
-        ) {
-
-            document.getElementById(
-                "physicalArea"
-            ).textContent =
-                improvement.physicalArea;
-
-        }
-
-
-        if (
-            improvement.physicalAreaDesc
-        ) {
-
-            document.getElementById(
-                "physicalAreaDesc"
-            ).textContent =
-                improvement.physicalAreaDesc;
-
-        }
-
-
-        if (
-            improvement.nextFocus
-        ) {
-
-            document.getElementById(
-                "nextFocus"
-            ).textContent =
-                improvement.nextFocus;
-
-        }
-
-
-        if (
-            improvement.nextFocusDesc
-        ) {
-
-            document.getElementById(
-                "nextFocusDesc"
-            ).textContent =
-                improvement.nextFocusDesc;
-
-        }
-
-    }
-
-
-    /* =====================================================
-       ATTENDANCE
-    ===================================================== */
-
-    if (data.attendance) {
-
-        const attendance =
-            data.attendance;
-
-
-        if (
-            attendance.percentage !==
-            undefined
-        ) {
-
-            document.getElementById(
-                "attendancePercentage"
-            ).textContent =
-                `${attendance.percentage}%`;
-
-
-            document.getElementById(
-                "attendanceProgressFill"
-            ).style.width =
-                `${attendance.percentage}%`;
-
-        }
-
-
-        if (attendance.label) {
-
-            document.getElementById(
-                "attendanceLabel"
-            ).textContent =
-                attendance.label;
-
-        }
-
-
-        if (
-            attendance.present !==
-            undefined
-        ) {
-
-            document.getElementById(
-                "attendancePresent"
-            ).textContent =
-                attendance.present;
-
-        }
-
-
-        if (
-            attendance.absent !==
-            undefined
-        ) {
-
-            document.getElementById(
-                "attendanceAbsent"
-            ).textContent =
-                attendance.absent;
-
-        }
-
-
-        if (
-            attendance.total !==
-            undefined
-        ) {
-
-            document.getElementById(
-                "attendanceTotal"
-            ).textContent =
-                attendance.total;
-
-        }
-
-
-        if (attendance.statusText) {
-
-            document.getElementById(
-                "attendanceStatusText"
-            ).textContent =
-                attendance.statusText;
-
-        }
-
-
-        if (attendance.statusDesc) {
-
-            document.getElementById(
-                "attendanceStatusDesc"
-            ).textContent =
-                attendance.statusDesc;
-
-        }
-
-
-        if (
-            Array.isArray(
-                attendance.weekly
-            )
-        ) {
-
-            const container =
-                document.getElementById(
-                    "attendanceWeekContainer"
-                );
-
-
-            container.innerHTML = "";
-
-
-            attendance.weekly.forEach(
-                item => {
-
-                    const dayDiv =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    dayDiv.className =
-                        "attendance-day";
-
-
-                    dayDiv.innerHTML = `
-
-                        <div
-                            class="attendance-day-name"
-                        >
-                            ${item.day}
-                        </div>
-
-                        <div
-                            class="attendance-mark ${
-                                item.present
-                                    ? "attendance-present"
-                                    : "attendance-absent"
-                            }"
-                        >
-                            ${
-                                item.present
-                                    ? "✓"
-                                    : "—"
-                            }
-                        </div>
-
-                    `;
-
-
-                    container.appendChild(
-                        dayDiv
-                    );
-
-                }
+            section.classList.remove(
+                "active"
             );
 
-        }
+        });
+
+
+    const target =
+        document.getElementById(
+            sectionId
+        );
+
+
+    if (!target) {
+        return;
+    }
+
+
+    target.classList.add(
+        "active"
+    );
+
+
+    document
+        .querySelectorAll(
+            ".sidebar-link"
+        )
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.section ===
+                    sectionId
+            );
+
+        });
+
+
+    const title =
+        document.getElementById(
+            "currentPageTitle"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            sectionTitles[sectionId] ||
+            "Dashboard";
 
     }
 
 
-    /* =====================================================
-       FEEDBACK
-    ===================================================== */
-
-    if (data.feedback) {
-
-        const feedback =
-            data.feedback;
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
 
-        if (feedback.text) {
-
-            document.getElementById(
-                "coachFeedbackText"
-            ).textContent =
-                feedback.text;
-
-        }
+    closeMobileSidebar();
 
 
-        if (
-            feedback.rating !==
-            undefined
-        ) {
+    if (
+        sectionId === "analytics"
+    ) {
 
-            document.getElementById(
-                "coachRatingNumber"
-            ).textContent =
-                feedback.rating;
-
-        }
-
-
-        if (
-            Array.isArray(
-                feedback.strengths
-            )
-        ) {
-
-            const list =
-                document.getElementById(
-                    "coachStrengthsList"
-                );
-
-
-            list.innerHTML =
-                feedback.strengths
-                    .map(
-                        item =>
-                            `<li>${item}</li>`
-                    )
-                    .join("");
-
-        }
-
-
-        if (
-            Array.isArray(
-                feedback.improvements
-            )
-        ) {
-
-            const list =
-                document.getElementById(
-                    "coachImprovementsList"
-                );
-
-
-            list.innerHTML =
-                feedback.improvements
-                    .map(
-                        item =>
-                            `<li>${item}</li>`
-                    )
-                    .join("");
-
-        }
+        setTimeout(
+            initCharts,
+            100
+        );
 
     }
 
 }
 
 
+document
+    .querySelectorAll(
+        ".sidebar-link"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                switchSection(
+                    button.dataset.section
+                );
+
+            }
+        );
+
+    });
+
+
 /* =========================================================
-   SETTINGS
+   MOBILE SIDEBAR
 ========================================================= */
 
-const savedTheme =
-    localStorage.getItem(
-        "studentTheme"
+const sidebar =
+    document.getElementById(
+        "sidebar"
+    );
+
+const sidebarOverlay =
+    document.getElementById(
+        "sidebarOverlay"
+    );
+
+const mobileMenuBtn =
+    document.getElementById(
+        "mobileMenuBtn"
     );
 
 
-const savedTrainingNotifications =
-    localStorage.getItem(
-        "studentTrainingNotifications"
+function openMobileSidebar() {
+
+    sidebar.classList.add(
+        "mobile-open"
+    );
+
+    sidebarOverlay.classList.add(
+        "show"
+    );
+
+}
+
+
+function closeMobileSidebar() {
+
+    sidebar.classList.remove(
+        "mobile-open"
+    );
+
+    sidebarOverlay.classList.remove(
+        "show"
+    );
+
+}
+
+
+mobileMenuBtn?.addEventListener(
+    "click",
+    openMobileSidebar
+);
+
+sidebarOverlay?.addEventListener(
+    "click",
+    closeMobileSidebar
+);
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    const text =
+        document.getElementById(
+            "toastMessage"
+        );
+
+
+    text.textContent =
+        message;
+
+
+    clearTimeout(
+        toastTimer
     );
 
 
-const savedGoalNotifications =
-    localStorage.getItem(
-        "studentGoalNotifications"
+    toast.classList.add(
+        "show"
     );
 
 
-const savedFeedbackNotifications =
-    localStorage.getItem(
-        "studentFeedbackNotifications"
-    );
+    toastTimer =
+        setTimeout(
+            () => {
 
+                toast.classList.remove(
+                    "show"
+                );
 
-const savedCompactView =
-    localStorage.getItem(
-        "studentCompactView"
-    );
+            },
+            2500
+        );
 
-
-const savedDefaultSection =
-    localStorage.getItem(
-        "studentDefaultSection"
-    );
+}
 
 
 /* =========================================================
@@ -3376,7 +2723,6 @@ const darkModeToggle =
     document.getElementById(
         "darkModeToggle"
     );
-
 
 const themeButton =
     document.getElementById(
@@ -3392,14 +2738,24 @@ function applyTheme(isDark) {
     );
 
 
-    darkModeToggle.checked =
-        isDark;
+    if (darkModeToggle) {
+
+        darkModeToggle.checked =
+            isDark;
+
+    }
 
 
-    themeButton.textContent =
-        isDark
-            ? "☀️"
-            : "🌙";
+    if (themeButton) {
+
+        themeButton.innerHTML =
+            isDark
+
+                ? '<i class="bi bi-sun-fill"></i>'
+
+                : '<i class="bi bi-moon-fill"></i>';
+
+    }
 
 
     localStorage.setItem(
@@ -3410,17 +2766,23 @@ function applyTheme(isDark) {
     );
 
 
-    updateChartsTheme();
+    initCharts();
 
 }
 
 
-applyTheme(
-    savedTheme === "dark"
-);
+if (
+    localStorage.getItem(
+        "studentTheme"
+    ) === "dark"
+) {
+
+    applyTheme(true);
+
+}
 
 
-darkModeToggle.addEventListener(
+darkModeToggle?.addEventListener(
     "change",
     function () {
 
@@ -3430,17 +2792,17 @@ darkModeToggle.addEventListener(
 
         showToast(
             this.checked
-                ? "Dark mode enabled."
-                : "Light mode enabled."
+                ? "Dark mode enabled"
+                : "Light mode enabled"
         );
 
     }
 );
 
 
-themeButton.addEventListener(
+themeButton?.addEventListener(
     "click",
-    function () {
+    () => {
 
         applyTheme(
             !document.body.classList.contains(
@@ -3453,762 +2815,64 @@ themeButton.addEventListener(
 
 
 /* =========================================================
-   SETTINGS PANEL
-========================================================= */
-
-const settingsOverlay =
-    document.getElementById(
-        "settingsOverlay"
-    );
-
-
-function openSettings() {
-
-    settingsOverlay.classList.add(
-        "open"
-    );
-
-}
-
-
-function closeSettings() {
-
-    settingsOverlay.classList.remove(
-        "open"
-    );
-
-}
-
-
-document.getElementById(
-    "settingsNav"
-).addEventListener(
-    "click",
-    openSettings
-);
-
-
-document.getElementById(
-    "topSettings"
-).addEventListener(
-    "click",
-    openSettings
-);
-
-
-document.getElementById(
-    "closeSettings"
-).addEventListener(
-    "click",
-    closeSettings
-);
-
-
-settingsOverlay.addEventListener(
-    "click",
-    function (event) {
-
-        if (
-            event.target ===
-            settingsOverlay
-        ) {
-
-            closeSettings();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-const trainingNotifications =
-    document.getElementById(
-        "trainingNotifications"
-    );
-
-
-const goalNotifications =
-    document.getElementById(
-        "goalNotifications"
-    );
-
-
-const feedbackNotifications =
-    document.getElementById(
-        "feedbackNotifications"
-    );
-
-
-trainingNotifications.checked =
-    savedTrainingNotifications !==
-    "false";
-
-
-goalNotifications.checked =
-    savedGoalNotifications !==
-    "false";
-
-
-feedbackNotifications.checked =
-    savedFeedbackNotifications !==
-    "false";
-
-
-trainingNotifications.addEventListener(
-    "change",
-    function () {
-
-        localStorage.setItem(
-            "studentTrainingNotifications",
-            this.checked
-        );
-
-        showToast(
-            this.checked
-                ? "Training reminders enabled."
-                : "Training reminders disabled."
-        );
-
-    }
-);
-
-
-goalNotifications.addEventListener(
-    "change",
-    function () {
-
-        localStorage.setItem(
-            "studentGoalNotifications",
-            this.checked
-        );
-
-        showToast(
-            this.checked
-                ? "Goal notifications enabled."
-                : "Goal notifications disabled."
-        );
-
-    }
-);
-
-
-feedbackNotifications.addEventListener(
-    "change",
-    function () {
-
-        localStorage.setItem(
-            "studentFeedbackNotifications",
-            this.checked
-        );
-
-        showToast(
-            this.checked
-                ? "Coach feedback notifications enabled."
-                : "Coach feedback notifications disabled."
-        );
-
-    }
-);
-
-
-/* =========================================================
-   DEFAULT SECTION
-========================================================= */
-
-const defaultSection =
-    document.getElementById(
-        "defaultSection"
-    );
-
-
-if (savedDefaultSection) {
-
-    defaultSection.value =
-        savedDefaultSection;
-
-}
-
-
-defaultSection.addEventListener(
-    "change",
-    function () {
-
-        localStorage.setItem(
-            "studentDefaultSection",
-            this.value
-        );
-
-        showToast(
-            "Default dashboard section saved."
-        );
-
-    }
-);
-
-
-/* =========================================================
-   COMPACT VIEW
-========================================================= */
-
-const compactView =
-    document.getElementById(
-        "compactView"
-    );
-
-
-compactView.checked =
-    savedCompactView ===
-    "true";
-
-
-function applyCompactView(
-    enabled
-) {
-
-    document
-        .querySelectorAll(
-            ".card, .chart-card, .attendance-card, .feedback-card"
-        )
-        .forEach(
-            card => {
-
-                card.style.padding =
-                    enabled
-                        ? "14px"
-                        : "";
-
-            }
-        );
-
-
-    localStorage.setItem(
-        "studentCompactView",
-        enabled
-    );
-
-}
-
-
-applyCompactView(
-    compactView.checked
-);
-
-
-compactView.addEventListener(
-    "change",
-    function () {
-
-        applyCompactView(
-            this.checked
-        );
-
-        showToast(
-            this.checked
-                ? "Compact view enabled."
-                : "Compact view disabled."
-        );
-
-    }
-);
-
-
-/* =========================================================
-   MODALS
-========================================================= */
-
-document.getElementById(
-    "profileButton"
-).addEventListener(
-    "click",
-    function () {
-
-        document.getElementById(
-            "profileModal"
-        ).classList.add(
-            "open"
-        );
-
-    }
-);
-
-
-document.getElementById(
-    "passwordButton"
-).addEventListener(
-    "click",
-    function () {
-
-        document.getElementById(
-            "passwordModal"
-        ).classList.add(
-            "open"
-        );
-
-    }
-);
-
-
-function closeModal(id) {
-
-    document.getElementById(
-        id
-    ).classList.remove(
-        "open"
-    );
-
-}
-
-
-/* =========================================================
-   CHANGE PASSWORD
-========================================================= */
-
-document.getElementById(
-    "savePassword"
-).addEventListener(
-    "click",
-    async function () {
-
-        const currentPassword =
-            document.getElementById(
-                "currentPassword"
-            ).value;
-
-
-        const newPassword =
-            document.getElementById(
-                "newPassword"
-            ).value;
-
-
-        const confirmPassword =
-            document.getElementById(
-                "confirmPassword"
-            ).value;
-
-
-        if (
-            !currentPassword ||
-            !newPassword ||
-            !confirmPassword
-        ) {
-
-            showToast(
-                "Please complete all password fields."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            newPassword !==
-            confirmPassword
-        ) {
-
-            showToast(
-                "New passwords do not match."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            newPassword.length < 6
-        ) {
-
-            showToast(
-                "Password must contain at least 6 characters."
-            );
-
-            return;
-
-        }
-
-
-        const saveButton =
-            document.getElementById(
-                "savePassword"
-            );
-
-
-        saveButton.disabled =
-            true;
-
-
-        saveButton.textContent =
-            "Updating...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API_BASE_URL}/profile`,
-                    {
-                        method: "PATCH",
-
-                        credentials:
-                            "include",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                current_password:
-                                    currentPassword,
-
-                                password:
-                                    newPassword
-
-                            })
-
-                        }
-                    );
-
-
-            const result =
-                await response.json();
-
-
-            if (
-                response.ok &&
-                result.success
-            ) {
-
-                showToast(
-                    result.message ||
-                    "Password updated successfully."
-                );
-
-
-                document.getElementById(
-                    "currentPassword"
-                ).value = "";
-
-
-                document.getElementById(
-                    "newPassword"
-                ).value = "";
-
-
-                document.getElementById(
-                    "confirmPassword"
-                ).value = "";
-
-
-                closeModal(
-                    "passwordModal"
-                );
-
-            } else {
-
-                showToast(
-                    result.message ||
-                    "Failed to update password."
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Change password error:",
-                error
-            );
-
-
-            showToast(
-                "Unable to connect to the server."
-            );
-
-        } finally {
-
-            saveButton.disabled =
-                false;
-
-            saveButton.textContent =
-                "Save Password";
-
-        }
-
-    }
-);
-
-
-/* =========================================================
    LOGOUT
 ========================================================= */
 
-document.getElementById(
-    "logoutButton"
-).addEventListener(
-    "click",
-    async function () {
+async function handleLogout() {
 
-        const confirmed =
-            confirm(
-                "Are you sure you want to log out?"
-            );
+    if (
+        !confirm(
+            "Are you sure you want to log out?"
+        )
+    ) {
 
-
-        if (!confirmed)
-            return;
-
-
-        try {
-
-            await fetch(
-                `${API_BASE_URL}/logout`,
-                {
-                    method: "POST",
-
-                    credentials:
-                        "include",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
-
-        } catch (error) {
-
-            console.warn(
-                "Logout request failed:",
-                error
-            );
-
-        } finally {
-
-            localStorage.removeItem(
-                "studentName"
-            );
-
-            localStorage.removeItem(
-                "studentEmail"
-            );
-
-            sessionStorage.removeItem(
-                "studentName"
-            );
-
-            sessionStorage.removeItem(
-                "studentEmail"
-            );
-
-
-            window.location.href =
-                "student-login.html";
-
-        }
+        return;
 
     }
-);
 
 
-/* =========================================================
-   MOBILE MENU
-========================================================= */
+    sessionStorage.clear();
 
-const sidebar =
-    document.getElementById(
-        "sidebar"
+    await fetch(`${API_BASE_URL}/logout`, {
+        method: "POST",
+        credentials: "include"
+    }).catch(() => {});
+
+
+    window.location.replace(
+        "student-login.html"
     );
-
-
-document.getElementById(
-    "mobileMenu"
-).addEventListener(
-    "click",
-    function () {
-
-        sidebar.classList.toggle(
-            "open"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-const navItems =
-    document.querySelectorAll(
-        ".nav-item[data-section]"
-    );
-
-
-navItems.forEach(
-    item => {
-
-        item.addEventListener(
-            "click",
-            function () {
-
-                navItems.forEach(
-                    nav =>
-                        nav.classList.remove(
-                            "active"
-                        )
-                );
-
-
-                this.classList.add(
-                    "active"
-                );
-
-
-                const section =
-                    document.getElementById(
-                        this.dataset.section
-                    );
-
-
-                if (section) {
-
-                    section.scrollIntoView({
-                        behavior:
-                            "smooth"
-                    });
-
-                }
-
-
-                sidebar.classList.remove(
-                    "open"
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-let toastTimer =
-    null;
-
-
-function showToast(text) {
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-
-    toast.textContent =
-        text;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    if (toastTimer) {
-
-        clearTimeout(
-            toastTimer
-        );
-
-    }
-
-
-    toastTimer =
-        setTimeout(
-            function () {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            2500
-        );
 
 }
 
 
-/* =========================================================
-   KEYBOARD
-========================================================= */
+document
+    .getElementById(
+        "logoutBtnMain"
+    )
+    ?.addEventListener(
+        "click",
+        handleLogout
+    );
 
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-
-            closeSettings();
-
-            closeModal(
-                "profileModal"
-            );
-
-            closeModal(
-                "passwordModal"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   MODAL OUTSIDE CLICK
-========================================================= */
 
 document
-    .querySelectorAll(
-        ".modal-overlay"
+    .getElementById(
+        "dropdownLogoutBtn"
     )
-    .forEach(
-        overlay => {
+    ?.addEventListener(
+        "click",
+        handleLogout
+    );
 
-            overlay.addEventListener(
-                "click",
-                function (event) {
 
-                    if (
-                        event.target ===
-                        overlay
-                    ) {
-
-                        overlay.classList.remove(
-                            "open"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
+document
+    .getElementById(
+        "sidebarLogoutBtn"
+    )
+    ?.addEventListener(
+        "click",
+        handleLogout
     );
 
 
@@ -4218,75 +2882,26 @@ document
 
 document.addEventListener(
     "DOMContentLoaded",
-    async function () {
+    async () => {
+
+        const authenticated = await checkStudentSession();
+        if (!authenticated) {
+            window.location.replace("student-login.html");
+            return;
+        }
 
         updateProfileHeaderUI();
 
-
-        /*
-         * First verify the Flask session.
-         */
-
-        const authenticated =
-            await checkStudentSession();
-
-
-        if (!authenticated) {
-
-            return;
-
-        }
-
-
-        /*
-         * Only initialize the dashboard
-         * after a valid student session
-         * has been confirmed.
-         */
-
         initCharts();
 
-
-        /*
-         * Fetch actual student dashboard
-         * information if the endpoint exists.
-         */
-
-        await fetchStudentDashboardData();
-
-
-        /*
-         * Open saved default section.
-         */
-
-        if (
-            savedDefaultSection &&
-            savedDefaultSection !==
-                "dashboard"
-        ) {
-
-            const targetSection =
-                document.getElementById(
-                    savedDefaultSection
-                );
-
-
-            if (targetSection) {
-
-                targetSection.scrollIntoView({
-                    behavior:
-                        "smooth"
-                });
-
-            }
-
-        }
+        await fetchDashboardData();
 
     }
 );
 
 </script>
 
-</body>
+<script src="../js/auth-flow.js"></script>
 
+</body>
 </html>

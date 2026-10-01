@@ -1,0 +1,103 @@
+import pytest
+from backend.app import app
+
+def test_signup_domain_restriction():
+    with app.test_client() as client:
+        response = client.post("/api/signup", json={
+            "role": "student",
+            "full_name": "Test User",
+            "email": "test@gmail.com",
+            "password": "Password123"
+        })
+        assert response.status_code == 400
+        assert "Only @inspiria.edu.in emails are allowed." in response.get_json()["message"]
+
+def test_signup_creates_user_and_sends_verification(monkeypatch):
+    statements = []
+
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params):
+            statements.append((query, params))
+
+        def fetchone(self):
+            return None
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: None)
+    monkeypatch.setattr("backend.app.get_db", Connection)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: True)
+    with app.test_client() as client:
+        response = client.post("/api/signup", json={
+            "role": "student",
+            "full_name": "New Test Student",
+            "email": "new.student@inspiria.edu.in",
+            "password": "Password123"
+        })
+    assert response.status_code == 202
+    assert "pending email verification" in response.get_json()["message"]
+    assert any("INSERT INTO pending_registrations" in query for query, _ in statements)
+    assert not any("INSERT INTO users" in query for query, _ in statements)
+
+
+def test_signup_does_not_create_account_when_mail_fails(monkeypatch):
+    statements = []
+
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params):
+            statements.append(query)
+
+        def fetchone(self):
+            return None
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: None)
+    monkeypatch.setattr("backend.app.get_db", Connection)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: False)
+    with app.test_client() as client:
+        response = client.post("/api/signup", json={
+            "role": "student",
+            "full_name": "Mail Pending Student",
+            "email": "mail.pending@inspiria.edu.in",
+            "password": "Password123",
+        })
+
+    assert response.status_code == 503
+    assert "no account was created" in response.get_json()["message"]
+    assert any("pending_registrations" in query for query in statements)
+    assert not any("INSERT INTO users" in query for query in statements)

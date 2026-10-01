@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login OTP</title>
+    <script src="../js/config.js"></script>
     <link rel="stylesheet" href="../css/verification-portal.css">
 </head>
 <body>
@@ -45,6 +46,7 @@
 
     <script>
         (function () {
+            const API_BASE = window.FITNESS_API_BASE || "";
             const email = (sessionStorage.getItem("loginOtpEmail") || "").trim().toLowerCase();
             const otpInputs = document.querySelectorAll(".otp-input");
             const verifyButton = document.getElementById("verifyButton");
@@ -139,7 +141,7 @@
                 verifyButton.disabled = true;
                 verifyButton.textContent = "Verifying...";
                 try {
-                    const response = await fetch("/api/login/verify-otp", {
+                    const response = await fetch(`${API_BASE}/api/login/verify-otp`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
@@ -163,7 +165,7 @@
                 resendButton.disabled = true;
                 resendButton.textContent = "Sending...";
                 try {
-                    const response = await fetch("/api/login/resend-otp", {
+                    const response = await fetch(`${API_BASE}/api/login/resend-otp`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",

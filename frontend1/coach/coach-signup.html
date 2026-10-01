@@ -44,6 +44,7 @@
 
     <!-- Coach Signup CSS -->
     <link rel="stylesheet" href="../css/coach-signup.css">
+<script src="../js/config.js"></script>
 </head>
 
 
@@ -827,7 +828,7 @@
                BACKEND REGISTRATION
             ================================== */
 
-                fetch("/api/signup", {
+                fetch(`${window.FITNESS_API_BASE || ""}/api/signup`, {
 
                 method: "POST",
 

@@ -14,11 +14,14 @@ from pathlib import Path
 from flask import current_app
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Match the semantics used by backend.app (no import from it).
 TEST_MODE = os.getenv("FITNESS_TEST_MODE", "false").lower() == "true"
-OTP_LOG_TO_TERMINAL = os.getenv("OTP_LOG_TO_TERMINAL", "true").lower() == "true"
+OTP_LOG_TO_TERMINAL = (
+    os.getenv("OTP_LOG_TO_TERMINAL", "false").lower() == "true"
+    and os.getenv("APP_ENV", "development").lower() != "production"
+)
 OTP_MINUTES = 10
 
 
@@ -31,7 +34,9 @@ def send_email(recipient, subject, body):
     username = os.getenv("MAIL_USERNAME")
     password = os.getenv("MAIL_PASSWORD")
     if not username or not password:
-        current_app.logger.warning("Email not configured: set MAIL_USERNAME and MAIL_PASSWORD")
+        current_app.logger.warning(
+            "Email not configured: set MAIL_USERNAME and MAIL_PASSWORD"
+        )
         return False
     message = EmailMessage()
     message["Subject"] = subject

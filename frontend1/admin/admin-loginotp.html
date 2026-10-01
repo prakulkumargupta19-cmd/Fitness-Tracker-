@@ -6,6 +6,7 @@
     <title>Admin OTP Verification | Fitness Performance Tracker</title>
 
     <link rel="stylesheet" href="../css/admin-loginotp.css">
+    <script src="../js/config.js?v=admin-otp-api-2"></script>
 </head>
 
 <body>
@@ -100,7 +101,11 @@
 
 (function () {
 
-    const API_URL = "";
+    const localHosts = ["localhost", "127.0.0.1", "::1", "[::1]"];
+    const API_URL = window.FITNESS_API_BASE ||
+        (localHosts.includes(window.location.hostname)
+            ? "http://localhost:5000"
+            : "");
 
     const otpForm = document.getElementById("otpForm");
     const otpInput = document.getElementById("otp");

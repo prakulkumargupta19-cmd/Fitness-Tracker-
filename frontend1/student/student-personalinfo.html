@@ -1,27 +1,125 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Personal Information | Fitness Performance Tracker</title>
 
-   <link
+    <link
         rel="stylesheet"
         href="../css/student-personalinfo.css"
     >
 
+    <style>
+        /* SPORTS SELECTION */
 
+        .sports-group {
+            margin-bottom: 24px;
+        }
+
+        .sports-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #10213f;
+        }
+
+        .sports-hint {
+            font-size: 13px;
+            color: #6b7a90;
+            margin: -4px 0 14px;
+        }
+
+        .sports-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .sport-option {
+            position: relative;
+        }
+
+        .sport-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sport-option label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid #e4eaf2;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #10213f;
+            transition: all 0.2s ease;
+        }
+
+        .sport-option label:hover {
+            border-color: #087cff;
+            background: #f7fbff;
+        }
+
+        .sport-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .sport-check::after {
+            content: "✓";
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: none;
+        }
+
+        .sport-option input:checked + label {
+            border-color: #087cff;
+            background: #eef6ff;
+            color: #0564d6;
+        }
+
+        .sport-option input:checked + label .sport-check {
+            background: #087cff;
+            border-color: #087cff;
+        }
+
+        .sport-option input:checked + label .sport-check::after {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .sports-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+<script src="../js/config.js"></script>
 </head>
 
 
 <body>
 
-
     <div class="form-container">
-
 
         <!-- HEADER -->
 
@@ -58,7 +156,6 @@
 
             </div>
 
-
             <div class="progress-bar">
 
                 <div class="progress"></div>
@@ -70,63 +167,7 @@
 
         <!-- FORM -->
 
-        <form id="personalInfoForm" action="student-signup-verify.html" method="get">
-
-
-            <!-- SEMESTER -->
-
-            <div class="form-group">
-
-                <label for="semester">
-                    Semester <span class="required">*</span>
-                </label>
-
-                <select
-                    id="semester"
-                    name="semester"
-                    required
-                >
-
-                    <option value="" disabled selected>
-                        Select your semester
-                    </option>
-
-                    <option value="1">
-                        Semester 1
-                    </option>
-
-                    <option value="2">
-                        Semester 2
-                    </option>
-
-                    <option value="3">
-                        Semester 3
-                    </option>
-
-                    <option value="4">
-                        Semester 4
-                    </option>
-
-                    <option value="5">
-                        Semester 5
-                    </option>
-
-                    <option value="6">
-                        Semester 6
-                    </option>
-
-                    <option value="7">
-                        Semester 7
-                    </option>
-
-                    <option value="8">
-                        Semester 8
-                    </option>
-
-                </select>
-
-            </div>
-
+        <form id="personalInfoForm">
 
             <!-- HEIGHT -->
 
@@ -148,7 +189,6 @@
                         step="0.1"
                         required
                     >
-
 
                     <select
                         id="height-unit"
@@ -193,7 +233,6 @@
                         required
                     >
 
-
                     <select
                         id="weight-unit"
                         name="weight_unit"
@@ -216,96 +255,140 @@
             </div>
 
 
-            <!-- FITNESS GOAL -->
+            <!-- SPORTS -->
 
-            <div class="form-group">
+            <div class="sports-group">
 
-                <label for="goal">
-                    Fitness Goal <span class="required">*</span>
+                <label class="sports-label">
+                    Sports <span class="required">*</span>
                 </label>
 
-                <select
-                    id="goal"
-                    name="goal"
-                    required
-                >
+                <p class="sports-hint">
+                    Select one or more sports you participate in.
+                </p>
 
-                    <option value="" disabled selected>
-                        Select your fitness goal
-                    </option>
+                <div class="sports-options">
 
-                    <option value="weight-loss">
-                        Weight Loss
-                    </option>
+                    <!-- CRICKET -->
 
-                    <option value="weight-gain">
-                        Weight Gain
-                    </option>
+                    <div class="sport-option">
 
-                    <option value="muscle-gain">
-                        Muscle Gain
-                    </option>
+                        <input
+                            type="checkbox"
+                            id="cricket"
+                            name="sports"
+                            value="Cricket"
+                        >
 
-                    <option value="strength">
-                        Improve Strength
-                    </option>
+                        <label for="cricket">
 
-                    <option value="endurance">
-                        Improve Endurance
-                    </option>
+                            <span class="sport-check"></span>
 
-                    <option value="fitness">
-                        General Fitness
-                    </option>
+                            Cricket
 
-                    <option value="flexibility">
-                        Improve Flexibility
-                    </option>
+                        </label>
 
-                </select>
-
-            </div>
+                    </div>
 
 
-            <!-- ACTIVITY LEVEL -->
+                    <!-- FOOTBALL -->
 
-            <div class="form-group">
+                    <div class="sport-option">
 
-                <label for="activity">
-                    Activity Level <span class="required">*</span>
-                </label>
+                        <input
+                            type="checkbox"
+                            id="football"
+                            name="sports"
+                            value="Football"
+                        >
 
-                <select
-                    id="activity"
-                    name="activity"
-                    required
-                >
+                        <label for="football">
 
-                    <option value="" disabled selected>
-                        Select your activity level
-                    </option>
+                            <span class="sport-check"></span>
 
-                    <option value="sedentary">
-                        Sedentary - Little or no exercise
-                    </option>
+                            Football
 
-                    <option value="light">
-                        Lightly Active - 1 to 3 days/week
-                    </option>
+                        </label>
 
-                    <option value="moderate">
-                        Moderately Active - 3 to 5 days/week
-                    </option>
+                    </div>
 
-                    <option value="very-active">
-                        Very Active - 6 to 7 days/week
-                    </option>
 
-                    <option value="extra-active">
-                        Extremely Active - Intense daily exercise
-                    </option>
+                    <!-- BASKETBALL -->
 
-                </select>
+                    <div class="sport-option">
+
+                        <input
+                            type="checkbox"
+                            id="basketball"
+                            name="sports"
+                            value="Basketball"
+                        >
+
+                        <label for="basketball">
+
+                            <span class="sport-check"></span>
+
+                            Basketball
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- VOLLEYBALL -->
+
+                    <div class="sport-option">
+
+                        <input
+                            type="checkbox"
+                            id="volleyball"
+                            name="sports"
+                            value="Volleyball"
+                        >
+
+                        <label for="volleyball">
+
+                            <span class="sport-check"></span>
+
+                            Volleyball
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- KICKBOXING -->
+
+                    <div class="sport-option">
+
+                        <input
+                            type="checkbox"
+                            id="kickboxing"
+                            name="sports"
+                            value="Kickboxing"
+                        >
+
+                        <label for="kickboxing">
+
+                            <span class="sport-check"></span>
+
+                            Kickboxing
+
+                        </label>
+
+                    </div>
+
+                    <div class="sport-option">
+                        <input type="checkbox" id="badminton" name="sports" value="Badminton">
+                        <label for="badminton"><span class="sport-check"></span>Badminton</label>
+                    </div>
+
+                    <div class="sport-option">
+                        <input type="checkbox" id="athletics" name="sports" value="Athletics">
+                        <label for="athletics"><span class="sport-check"></span>Athletics</label>
+                    </div>
+
+                </div>
 
             </div>
 
@@ -314,14 +397,12 @@
 
             <div class="button-container">
 
-
                 <a
                     href="student-basicinfo.html"
                     class="back-button"
                 >
                     ← Back
                 </a>
-
 
                 <button
                     type="submit"
@@ -330,9 +411,7 @@
                     Continue →
                 </button>
 
-
             </div>
-
 
         </form>
 
@@ -343,42 +422,218 @@
             Fitness Performance Tracker
         </div>
 
-
     </div>
 
-    <script>
-    document.getElementById("personalInfoForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
-        const basic = JSON.parse(sessionStorage.getItem("studentProfileBasic") || "{}");
-        const height = Number(document.getElementById("height").value);
-        const weight = Number(document.getElementById("weight").value);
-        const heightCm = document.getElementById("height-unit").value === "ft" ? height * 30.48 : height;
-        const weightKg = document.getElementById("weight-unit").value === "lbs" ? weight * 0.453592 : weight;
-        const apiBase = window.location.protocol === "file:" ? "http://127.0.0.1:5000" : "";
-        const response = await fetch(apiBase + "/api/profile/setup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-                ...basic,
-                height_cm: heightCm.toFixed(2),
-                weight_kg: weightKg.toFixed(2),
-                goal: document.getElementById("goal").value,
-                sport_activity: document.getElementById("activity").value
-            })
-        });
-        const data = await response.json().catch(function () { return {}; });
-        if (!response.ok || !data.success) {
-            window.alert(data.message || "Unable to save your profile.");
-            return;
-        }
-        sessionStorage.removeItem("studentProfileBasic");
-        window.location.href = "student-signup-verify.html";
-    });
-    </script>
 
+    <script>
+
+        document
+            .getElementById("personalInfoForm")
+            .addEventListener("submit", async function (event) {
+
+                event.preventDefault();
+
+
+                /* =========================================
+                   BASIC INFORMATION FROM PAGE 2
+                ========================================= */
+
+                const basic =
+                    JSON.parse(
+                        sessionStorage.getItem(
+                            "studentProfileBasic"
+                        ) || "{}"
+                    );
+
+
+                /* =========================================
+                   HEIGHT
+                ========================================= */
+
+                const height =
+                    Number(
+                        document.getElementById("height").value
+                    );
+
+
+                /* =========================================
+                   WEIGHT
+                ========================================= */
+
+                const weight =
+                    Number(
+                        document.getElementById("weight").value
+                    );
+
+
+                /* =========================================
+                   CONVERT HEIGHT TO CM
+                ========================================= */
+
+                const heightCm =
+                    document.getElementById("height-unit").value === "ft"
+                        ? height * 30.48
+                        : height;
+
+
+                /* =========================================
+                   CONVERT WEIGHT TO KG
+                ========================================= */
+
+                const weightKg =
+                    document.getElementById("weight-unit").value === "lbs"
+                        ? weight * 0.453592
+                        : weight;
+
+
+                /* =========================================
+                   GET SELECTED SPORTS
+                ========================================= */
+
+                const selectedSports =
+                    Array.from(
+                        document.querySelectorAll(
+                            'input[name="sports"]:checked'
+                        )
+                    ).map(function (checkbox) {
+                        return checkbox.value;
+                    });
+
+
+                /* =========================================
+                   SPORTS VALIDATION
+                ========================================= */
+
+                if (selectedSports.length === 0) {
+
+                    alert(
+                        "Please select at least one sport."
+                    );
+
+                    return;
+                }
+
+
+                /* =========================================
+                   API BASE URL
+                ========================================= */
+
+                const apiBase = window.FITNESS_API_BASE || "";
+
+
+                try {
+
+                    /* =========================================
+                       SAVE COMPLETE PROFILE
+                    ========================================= */
+
+                    const response =
+                        await fetch(
+                            apiBase + "/api/profile/setup",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials: "include",
+
+                                body: JSON.stringify({
+
+                                    ...basic,
+
+                                    emergency_contact:
+                                        sessionStorage.getItem("signupEmergencyContact") || "",
+
+                                    height_cm:
+                                        heightCm.toFixed(2),
+
+                                    weight_kg:
+                                        weightKg.toFixed(2),
+                                    sports: selectedSports,
+                                    sport_activity: selectedSports.join(",")
+
+                                })
+                            }
+                        );
+
+
+                    /* =========================================
+                       SERVER RESPONSE
+                    ========================================= */
+
+                    const data =
+                        await response
+                            .json()
+                            .catch(function () {
+                                return {};
+                            });
+
+
+                    /* =========================================
+                       ERROR HANDLING
+                    ========================================= */
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+
+                        alert(
+                            data.message ||
+                            "Unable to save your profile."
+                        );
+
+                        return;
+                    }
+
+
+                    /* =========================================
+                       PROFILE SAVED SUCCESSFULLY
+                    ========================================= */
+
+                    sessionStorage.removeItem(
+                        "studentProfileBasic"
+                    );
+
+                    sessionStorage.setItem(
+                        "student_login_email",
+                        sessionStorage.getItem("studentEmail") || ""
+                    );
+
+                    sessionStorage.removeItem("signupName");
+                    sessionStorage.removeItem("signupMobileNumber");
+                    sessionStorage.removeItem("signupEmergencyContact");
+
+
+                          /* =========================================
+                              GO TO STUDENT LOGIN
+                          ========================================= */
+
+                    window.location.href =
+                                "student-login.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "PROFILE SETUP ERROR:",
+                        error
+                    );
+
+                    alert(
+                        "Unable to connect to the server. Please try again."
+                    );
+
+                }
+
+            });
+
+    </script>
 
 </body>
 
 </html>
-

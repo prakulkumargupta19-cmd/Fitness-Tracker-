@@ -10,25 +10,32 @@ exact behaviour.
 """
 
 import os
+from pathlib import Path
+
 import pymysql
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", "3306")),
     "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", "Prakul@2006"),
+    "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "fitness_tracker_auth"),
     "charset": "utf8mb4",
     "cursorclass": pymysql.cursors.DictCursor,
     "autocommit": False,
 }
 
+
 def get_db():
     """Return a new :class:`pymysql.connections.Connection`.
 
-    The function simply forwards the configuration dictionary to
-    :func:`pymysql.connect`.  It is kept in a separate module so
-    that both :mod:`backend.app` and any future auth modules can
-    import it without creating a circular dependency.
+    If FITNESS_TEST_MODE is set, uses the isolated test database selected by
+    FITNESS_TEST_DB_NAME.
     """
-    return pymysql.connect(**DB_CONFIG)
-
+    config = DB_CONFIG.copy()
+    if os.getenv("FITNESS_TEST_MODE") == "true":
+        config["database"] = os.getenv("FITNESS_TEST_DB_NAME", "fitness_tracker_test")
+    return pymysql.connect(**config)
