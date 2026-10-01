@@ -15,7 +15,8 @@ from pathlib import Path
 import pymysql
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+# Load the .env file that lives in the backend directory itself.
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "127.0.0.1"),

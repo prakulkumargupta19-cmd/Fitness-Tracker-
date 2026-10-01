@@ -14,8 +14,6 @@ from pathlib import Path
 from flask import current_app
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parents[2] / ".env")
-
 # Match the semantics used by backend.app (no import from it).
 TEST_MODE = os.getenv("FITNESS_TEST_MODE", "false").lower() == "true"
 OTP_LOG_TO_TERMINAL = (

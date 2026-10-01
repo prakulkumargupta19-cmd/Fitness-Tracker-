@@ -6,7 +6,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.absolute()
-load_dotenv(BASE_DIR.parent / ".env")
+# The .env file resides in the backend directory, not the project root.
+# Load environment variables from the local .env to avoid authentication failures.
+load_dotenv(BASE_DIR / ".env")
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 SCHEMA_PATH = BASE_DIR / "schema.sql"
