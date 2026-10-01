@@ -42,6 +42,7 @@ from auth.emails import (  # noqa: E402
     send_account_created_email,
     send_coach_approval_email,
     send_password_reset_success_email,
+    OTP_LOG_TO_TERMINAL,
 )
 from auth.decorators import login_required, role_required  # noqa: E402
 from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
@@ -1080,8 +1081,10 @@ def forgot_password():
 
     otp = generate_otp()
     if not (store_admin_otp if user["role"] == "admin" else store_otp)(user["id"], "password_reset", otp):
-        return jsonify({"success": True, "message": "If this email exists, a reset OTP has been sent."}), 200
-    send_otp_email(email, user["full_name"], "password_reset", otp)
+        return jsonify({"success": False, "message": "Too many reset code requests. Please try again later."}), 429
+    if not send_otp_email(email, user["full_name"], "password_reset", otp):
+        app.logger.error("Password reset OTP email could not be sent")
+        return jsonify({"success": False, "message": "Unable to send the reset code right now. Please try again later."}), 503
     session["reset_email"] = email
     return (
         jsonify({"success": True, "message": "Password reset OTP sent to your email."}),
@@ -1129,6 +1132,12 @@ def reset_password():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email") or "").strip().lower()
     password = str(data.get("password") or data.get("new_password") or "")
+
+    if not session.get("reset_verified") or session.get("reset_email") != email:
+        return (
+            jsonify({"success": False, "message": "OTP verification required."}),
+            403,
+        )
 
     if not email or not password:
         return (
@@ -1188,6 +1197,7 @@ def reset_password():
             {
                 "success": True,
                 "message": "Password reset successful. You can now log in.",
+                "role": user["role"]
             }
         ),
         200,

@@ -10,7 +10,7 @@ try:
 except ModuleNotFoundError:
     from db import get_db
 
-OTP_MINUTES = 10
+OTP_MINUTES = 3
 
 
 def generate_otp():

@@ -101,3 +101,39 @@ def test_signup_does_not_create_account_when_mail_fails(monkeypatch):
     assert "no account was created" in response.get_json()["message"]
     assert any("pending_registrations" in query for query in statements)
     assert not any("INSERT INTO users" in query for query in statements)
+
+
+def test_forgot_password_reports_email_delivery_failure(monkeypatch):
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: {
+        "id": 42,
+        "full_name": "Test User",
+        "email": email,
+        "role": "student",
+    })
+    monkeypatch.setattr("backend.app.store_otp", lambda *args: True)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: False)
+
+    with app.test_client() as client:
+        response = client.post("/api/forgot-password", json={"email": "test@example.test"})
+
+    assert response.status_code == 503
+    assert response.get_json()["success"] is False
+    assert "Unable to send" in response.get_json()["message"]
+
+
+def test_forgot_password_reports_otp_request_limit(monkeypatch):
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: {
+        "id": 42,
+        "full_name": "Test User",
+        "email": email,
+        "role": "student",
+    })
+    monkeypatch.setattr("backend.app.store_otp", lambda *args: False)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: True)
+
+    with app.test_client() as client:
+        response = client.post("/api/forgot-password", json={"email": "test@example.test"})
+
+    assert response.status_code == 429
+    assert response.get_json()["success"] is False
+    assert "Too many" in response.get_json()["message"]

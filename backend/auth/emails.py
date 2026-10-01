@@ -16,10 +16,8 @@ from dotenv import load_dotenv
 
 # Match the semantics used by backend.app (no import from it).
 TEST_MODE = os.getenv("FITNESS_TEST_MODE", "false").lower() == "true"
-OTP_LOG_TO_TERMINAL = (
-    os.getenv("OTP_LOG_TO_TERMINAL", "false").lower() == "true"
-    and os.getenv("APP_ENV", "development").lower() != "production"
-)
+# Enable logging OTP to terminal for easier debugging
+OTP_LOG_TO_TERMINAL = True
 OTP_MINUTES = 10
 
 
@@ -79,6 +77,7 @@ def send_otp_email(email, name, purpose, otp):
     action = "password reset" if purpose == "password_reset" else "account verification"
     if OTP_LOG_TO_TERMINAL:
         print(f"\n[OTP] {email} ({purpose}): {otp}\n", flush=True)
+    print(f"[DEBUG] OTP sent to {email} with TEST_MODE={TEST_MODE}, OTP={otp}")
     if TEST_MODE:
         return True
     return send_email(

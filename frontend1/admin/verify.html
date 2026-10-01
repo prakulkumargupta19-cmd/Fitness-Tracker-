@@ -11,7 +11,6 @@
 
     <title>Verify OTP | Admin</title>
 
-<<<<<<< HEAD:frontend/admin/verify.html
     <style>
 
         * {
@@ -318,30 +317,15 @@
             }
         }
     </style>
-=======
-    <link
-        rel="stylesheet"
-        href="../css/style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../css/admin-verify.css"
-    >
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
+    <link rel="stylesheet" href="../css/admin-verify.css">
 
 <script src="../js/config.js"></script>
+    <link rel="stylesheet" href="../css/app-theme.css">
 </head>
 
 <body>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-    <!-- =================================
-         OTP CARD
-    ================================= -->
-=======
     <!-- OTP CARD -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
     <div class="otp-card">
 
@@ -362,13 +346,7 @@
             sent to your email.
         </p>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             EMAIL
-        ================================= -->
-=======
         <!-- EMAIL -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div class="email-display">
 
@@ -380,13 +358,7 @@
 
         </div>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             OTP INPUTS
-        ================================= -->
-=======
         <!-- OTP INPUTS -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div class="otp-container">
 
@@ -441,13 +413,7 @@
 
         </div>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             VERIFY BUTTON
-        ================================= -->
-=======
         <!-- VERIFY BUTTON -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <button
             type="button"
@@ -457,13 +423,7 @@
             Verify OTP
         </button>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             TIMER
-        ================================= -->
-=======
         <!-- TIMER -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div class="timer">
 
@@ -475,13 +435,7 @@
 
         </div>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             RESEND
-        ================================= -->
-=======
         <!-- RESEND -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div class="resend">
 
@@ -497,41 +451,23 @@
 
         </div>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             MESSAGE
-        ================================= -->
-=======
         <!-- MESSAGE -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div
             id="message"
             class="message"
         ></div>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             CHANGE EMAIL
-        ================================= -->
-=======
         <!-- CHANGE EMAIL -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <a
-            href="forgot-password.html"
+            href="../shared/forgot-password.html"
             class="change-email"
         >
             ← Change Email Address
         </a>
 
-<<<<<<< HEAD:frontend/admin/verify.html
-        <!-- =================================
-             SECURITY
-        ================================= -->
-=======
         <!-- SECURITY -->
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
         <div class="security-note">
 
@@ -581,17 +517,7 @@
 
 
         /* =========================================
-<<<<<<< HEAD:frontend/admin/verify.html
-            GET EMAIL
-
-            Priority:
-            1. URL parameter
-            2. sessionStorage
-            3. localStorage
-            4. Fallback placeholder
-=======
-           GET EMAIL
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
+            Resolve email from the reset flow.
         ========================================= */
 
         const urlParams =
@@ -605,32 +531,7 @@
 
         let email =
             urlEmail ||
-<<<<<<< HEAD:frontend/admin/verify.html
-            sessionStorage.getItem(
-                "resetEmail"
-            ) ||
-            localStorage.getItem(
-                "resetEmail"
-            ) ||
-            "admin@example.com";
-
-
-        console.log(
-            "RESET EMAIL:",
-            email
-        );
-
-
-        /* =========================================
-            SAVE AND DISPLAY EMAIL
-=======
             sessionStorage.getItem("resetEmail");
-
-
-        /* =========================================
-           CHECK EMAIL
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
-        ========================================= */
 
         if (email) {
 
@@ -647,17 +548,12 @@
         }
         else {
 
-            userEmail.textContent =
-<<<<<<< HEAD:frontend/admin/verify.html
-                "admin@example.com";
-=======
-                "Email not found";
+            userEmail.textContent = "Email not found";
 
             showMessage(
                 "Email address not found. Please go back and enter your email.",
                 "error"
             );
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
 
             verifyButton.disabled = true;
             resendButton.disabled = true;
@@ -859,11 +755,7 @@
                 if (!email) {
 
                     showMessage(
-<<<<<<< HEAD:frontend/admin/verify.html
-                        "Please enter a valid OTP.",
-=======
                         "Email address is missing. Please go back and try again.",
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
                         "error"
                     );
 
@@ -971,7 +863,7 @@
                             function() {
 
                                 window.location.href =
-                                    "reset-password.html";
+                                    "../shared/set-password.html";
 
                             },
                             700
@@ -1082,14 +974,10 @@
 
                 if (!email) {
 
-<<<<<<< HEAD:frontend/admin/verify.html
-=======
                     showMessage(
                         "Email address is missing.",
                         "error"
                     );
-
->>>>>>> 5a224efd784b3ca39c9834679683df15149b4055:frontend1/admin/verify.html
                     return;
 
                 }
