@@ -1,0 +1,53 @@
+- generic [ref=f7e2]:
+  - generic [ref=f7e3]:
+    - heading "Personal Information" [level=1] [ref=f7e4]
+    - paragraph [ref=f7e5]: Help us understand your fitness profile and goals.
+  - generic [ref=f7e7]:
+    - generic [ref=f7e8]: Account
+    - generic [ref=f7e9]: Basic Information
+    - generic [ref=f7e10]: Personal Information
+  - generic [ref=f7e13]:
+    - generic [ref=f7e14]:
+      - generic [ref=f7e15]: Height *
+      - generic [ref=f7e16]:
+        - spinbutton "Height *" [ref=f7e17]
+        - combobox [ref=f7e18]:
+          - option "cm" [selected]
+          - option "ft"
+    - generic [ref=f7e19]:
+      - generic [ref=f7e20]: Weight *
+      - generic [ref=f7e21]:
+        - spinbutton "Weight *" [ref=f7e22]
+        - combobox [ref=f7e23]:
+          - option "kg" [selected]
+          - option "lbs"
+    - generic [ref=f7e24]:
+      - generic [ref=f7e25]: Sports *
+      - paragraph [ref=f7e26]: Select one or more sports you participate in.
+      - generic [ref=f7e27]:
+        - generic [ref=f7e28]:
+          - checkbox "Cricket"
+          - generic [ref=f7e29] [cursor=pointer]: Cricket
+        - generic [ref=f7e31]:
+          - checkbox "Football"
+          - generic [ref=f7e32] [cursor=pointer]: Football
+        - generic [ref=f7e34]:
+          - checkbox "Basketball"
+          - generic [ref=f7e35] [cursor=pointer]: Basketball
+        - generic [ref=f7e37]:
+          - checkbox "Volleyball"
+          - generic [ref=f7e38] [cursor=pointer]: Volleyball
+        - generic [ref=f7e40]:
+          - checkbox "Kickboxing"
+          - generic [ref=f7e41] [cursor=pointer]: Kickboxing
+        - generic [ref=f7e43]:
+          - checkbox "Badminton"
+          - generic [ref=f7e44] [cursor=pointer]: Badminton
+        - generic [ref=f7e46]:
+          - checkbox "Athletics"
+          - generic [ref=f7e47] [cursor=pointer]: Athletics
+    - generic [ref=f7e49]:
+      - link "← Back" [ref=f7e50] [cursor=pointer]:
+        - /url: student-basicinfo.html
+      - button "Continue →" [ref=f7e51] [cursor=pointer]
+  - generic [ref=f7e52]: Fitness Performance Tracker

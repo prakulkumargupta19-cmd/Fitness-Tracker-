@@ -12,92 +12,36 @@
     <title>Coach Login | Fitness Performance Tracker</title>
 
 
-    <!-- =========================================================
-         GOOGLE FONTS
-    ========================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- =========================================================
-         MATERIAL SYMBOLS
-    ========================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-    >
-
-
-    <!-- =========================================================
-         COACH LOGIN CSS
-    ========================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="../css/coach/coach-login.css"
-    >
-
-<script src="../js/config.js"></script>
-    <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <script src="../js/config.js"></script>
+    <style>
+        .message:empty { display: none; }
+        .message:not(:empty) { width: calc(var(--u)*33.3); margin: 0 0 calc(var(--u)*1.3); padding: calc(var(--u)*1.1); border: 1px solid #fecdd3; border-radius: calc(var(--u)*.7); background: #fff1f2; color: #be123c; font-size: calc(var(--u)*1.05); }
+        .message.success { border-color: #bbf7d0; background: #ecfdf3; color: #15803d; }
+    </style>
+    <style>.auth{--img:url("../demo/coach.jpg");--hx:6.2cqw;--hy:11.8cqw;--hs:4.05;--hl:1.03;--bw:4.7;--bt:2.6cqw;--pt:1.7cqw;--pw:23.5;--ps:1.25;--pl:1.55;--btn:linear-gradient(90deg,#0a66ff,#0a46d6);}</style>
 </head>
 
 
 <body>
 
 
-    <div class="page-container">
+    <main class="auth">
 
 
         <!-- =====================================================
              BRAND / LEFT HERO SECTION
         ====================================================== -->
 
-        <section class="brand-section">
-
-            <div class="logo">
-
-                <div class="logo-icon">
-                    🏃
-                </div>
-
-                <div class="logo-text">
-                    FITNESS<br>
-                    <span>PERFORMANCE</span><br>
-                    TRACKER
-                </div>
-
+        <section class="art">
+            <div class="copy">
+                <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
+                <div class="bar"></div>
+                <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
             </div>
-
-
-            <h1>
-                Coach <span>Portal</span>
-            </h1>
-
-
-            <p>
-                Manage athletes, monitor live squad telemetry,
-                log physical benchmarks, and deliver
-                data-driven coaching feedback.
-            </p>
-
-
-            <div class="brand-line"></div>
-
         </section>
 
 
@@ -106,29 +50,9 @@
              LOGIN SECTION
         ====================================================== -->
 
-        <section class="login-section">
-
-            <div class="login-card">
-
-
-                <!-- COACH ICON -->
-
-                <div class="coach-icon">
-                    📋
-                </div>
-
-
-                <!-- TITLE -->
-
-                <h2>
-                    Coach <span>Sign In</span>
-                </h2>
-
-
-                <p class="subtitle">
-                    Access your coaching squad dashboard
-                    and athlete records.
-                </p>
+        <section class="panel">
+                <h1><span>Coach</span> Login</h1>
+                <p class="sub">Sign in to manage your athletes, training plans, progress reports, and feedback.</p>
 
 
 
@@ -154,55 +78,24 @@
 
                     <!-- EMAIL -->
 
-                    <div class="form-group">
+                    <label class="lbl" for="email">Coach Email</label>
 
-                        <label for="email">
-                            Email Address
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <span
-                                class="material-symbols-outlined input-icon"
-                            >
-                                mail
-                            </span>
-
-
+                        <div class="field">
                             <input
                                 type="email"
                                 id="email"
                                 name="email"
                                 placeholder="Enter your coach email"
                                 autocomplete="username"
+                                autofocus
                                 required
                             >
 
                         </div>
 
-                    </div>
+                    <label class="lbl" for="password">Password</label>
 
-
-
-                    <!-- PASSWORD -->
-
-                    <div class="form-group">
-
-                        <label for="password">
-                            Password
-                        </label>
-
-
-                        <div class="input-wrapper">
-
-                            <span
-                                class="material-symbols-outlined input-icon"
-                            >
-                                lock
-                            </span>
-
-
+                        <div class="field has-eye">
                             <input
                                 type="password"
                                 id="password"
@@ -217,24 +110,17 @@
 
                             <button
                                 type="button"
-                                class="password-toggle"
+                                class="eye password-toggle"
                                 id="togglePassword"
                                 aria-label="Show password"
                                 aria-pressed="false"
                             >
 
-                                <span
-                                    class="material-symbols-outlined"
-                                    id="toggleIcon"
-                                >
-                                    visibility
-                                </span>
+                                <svg id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
 
                             </button>
 
                         </div>
-
-                    </div>
 
 
 
@@ -242,7 +128,7 @@
                          FORM OPTIONS
                     ================================================== -->
 
-                    <div class="form-options">
+                    <div class="row">
 
 
                         <label class="remember">
@@ -259,12 +145,7 @@
                         </label>
 
 
-                        <a
-                            href="../shared/forgot-password.html"
-                            class="forgot"
-                        >
-                            Forgot password?
-                        </a>
+                        <a href="../shared/forgot-password.html">Forgot Password?</a>
 
                     </div>
 
@@ -276,13 +157,15 @@
 
                     <button
                         type="submit"
-                        class="login-button"
+                        class="btn"
                         id="loginButton"
                     >
 
                         <span id="loginButtonText">
-                            Sign In
+                            Login as Coach
                         </span>
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
 
                     </button>
 
@@ -294,57 +177,13 @@
                      SIGNUP LINK
                 ================================================== -->
 
-                <div class="signup-section">
-
-                    <span>
-                        Don't have a coach account?
-                    </span>
-
-                    <a href="coach-signup.html">
-                        Register here
-                    </a>
-
-                </div>
-
-
-
-                <!-- =================================================
-                     BACK LINK
-                ================================================== -->
-
-                <a
-                    href="../landing-page.html"
-                    class="back-link"
-                >
-                    ← Return to Role Selection
-                </a>
-
-
-
-                <!-- =================================================
-                     SECURITY MESSAGE
-                ================================================== -->
-
-                <div class="security-note">
-
-                    <span
-                        class="material-symbols-outlined security-icon"
-                    >
-                        verified_user
-                    </span>
-
-                    <span>
-                        256-Bit Encrypted Coach Terminal
-                    </span>
-
-                </div>
-
-
-            </div>
+                <div class="or">OR</div>
+                <div class="alt"><span>Don't have an account? <a href="coach-signup.html">Sign Up</a></span></div>
+                <a class="back" href="../index.html">← Back to role selection</a>
 
         </section>
 
-    </div>
+    </main>
 
 
 
@@ -457,10 +296,9 @@
                                 : "password";
 
 
-                        toggleIcon.textContent =
-                            isPassword
-                                ? "visibility_off"
-                                : "visibility";
+                        toggleIcon.innerHTML = isPassword
+                            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+                            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
 
 
                         togglePassword.setAttribute(

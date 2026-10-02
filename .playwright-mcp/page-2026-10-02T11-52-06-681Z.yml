@@ -1,0 +1,40 @@
+- generic [ref=f1e2]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: ⚡
+      - generic [ref=f1e6]: FITNESS PERFORMANCE TRACKER
+    - heading "Track. Improve. Perform." [level=1] [ref=f1e7]
+    - paragraph [ref=f1e8]: Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.
+  - generic [ref=f1e11]:
+    - generic [ref=f1e12]: 🎓
+    - heading "Student Login" [level=2] [ref=f1e13]
+    - paragraph [ref=f1e14]: Sign in to view your fitness performance, goals, improvement areas, and coach feedback.
+    - generic [ref=f1e15]:
+      - generic [ref=f1e16]:
+        - generic [ref=f1e17]: Student Email
+        - generic [ref=f1e18]:
+          - textbox "Student Email" [ref=f1e19]:
+            - /placeholder: Enter your student email
+          - generic [ref=f1e20]: ✉
+      - generic [ref=f1e21]:
+        - generic [ref=f1e22]: Password
+        - generic [ref=f1e23]:
+          - textbox "Password" [ref=f1e24]:
+            - /placeholder: Enter your password
+          - button "Show password" [ref=f1e25] [cursor=pointer]
+      - generic [ref=f1e27]:
+        - generic [ref=f1e28] [cursor=pointer]:
+          - checkbox "Remember Me" [ref=f1e29]
+          - generic [ref=f1e30]: Remember Me
+        - link "Forgot Password?" [ref=f1e31] [cursor=pointer]:
+          - /url: ../shared/forgot-password.html
+      - button "Login as Student →" [ref=f1e32] [cursor=pointer]
+    - generic [ref=f1e33]:
+      - text: Don't have an account?
+      - link "Sign Up" [ref=f1e34] [cursor=pointer]:
+        - /url: student-signup.html
+    - link "← Back to role selection" [ref=f1e35] [cursor=pointer]:
+      - /url: ../index.html
+    - generic [ref=f1e36]:
+      - generic [ref=f1e37]: 🔒
+      - generic [ref=f1e38]: Your personal performance data is securely protected.

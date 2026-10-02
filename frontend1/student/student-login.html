@@ -5,253 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login | Fitness Performance Tracker</title>
 
-    <link rel="stylesheet" href="../css/student/student-login.css">
-<script src="../js/config.js"></script>
-    <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <script src="../js/config.js"></script>
+    <style>
+        .error-message { display: none; width: calc(var(--u)*33.3); margin-bottom: calc(var(--u)*1.3); padding: calc(var(--u)*1.1); border: 1px solid #fecdd3; border-radius: calc(var(--u)*.7); background: #fff1f2; color: #be123c; font-size: calc(var(--u)*1.05); }
+    </style>
+    <style>.auth{--img:url("../demo/student.jpg");--hx:5.6cqw;--hy:11.5cqw;--hfont:Montserrat,Inter,Poppins,sans-serif;--hw:800;--hs:4.7;--hl:.93;--hls:-.03em;--bw:4.6;--bt:2.3cqw;--barbg:linear-gradient(90deg,#fff,#2d8cff);--pt:2.5cqw;--pw:26;--ps:1.3;--pl:1.45;}</style>
 </head>
 
 <body>
 
-<div class="page-container">
-
-    <!-- =========================================================
-         BRAND SECTION
-    ========================================================== -->
-
-    <section class="brand-section">
-
-        <div class="logo">
-            <div class="logo-icon">⚡</div>
-
-            <div class="logo-text">
-                FITNESS
-                <span>PERFORMANCE</span>
-                TRACKER
-            </div>
+<main class="auth">
+    <section class="art">
+        <div class="copy">
+            <h2>Track.<br>Improve.<br><span class="accent">Perform.</span></h2>
+            <div class="bar"></div>
+            <p>Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.</p>
         </div>
-
-        <h1>
-            Track. Improve.
-            <span>Perform.</span>
-        </h1>
-
-        <p>
-            Stay connected with your fitness journey, monitor your goals,
-            understand your improvement areas, and receive feedback from
-            your coach.
-        </p>
-
-        <div class="brand-line"></div>
-
     </section>
 
+    <section class="panel">
+        <h1><span>Student</span> Login</h1>
+        <p class="sub">Sign in to view your fitness performance, goals, improvement areas, and coach feedback.</p>
 
-    <!-- =========================================================
-         LOGIN SECTION
-    ========================================================== -->
+        <div class="error-message" id="errorMessage" role="alert" aria-live="polite"></div>
 
-    <section class="login-section">
+        <form id="studentLoginForm" novalidate>
+            <label class="lbl" for="email">Student Email</label>
+            <div class="field"><input id="email" name="email" type="email" placeholder="Enter your student email" autocomplete="username" required></div>
 
-        <div class="login-card">
-
-            <div class="student-icon">🎓</div>
-
-            <h2>
-                <span>Student</span> Login
-            </h2>
-
-            <p class="subtitle">
-                Sign in to view your fitness performance, goals,
-                improvement areas, and coach feedback.
-            </p>
-
-
-            <!-- MESSAGE -->
-
-            <div
-                class="error-message"
-                id="errorMessage"
-                role="alert"
-                aria-live="polite">
-            </div>
-
-
-            <!-- =================================================
-                 LOGIN FORM
-            ================================================== -->
-
-            <form id="studentLoginForm" novalidate>
-
-                <!-- EMAIL -->
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Student Email
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your student email"
-                            autocomplete="username"
-                            required
-                        >
-
-                        <span class="input-icon">
-                            ✉
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PASSWORD -->
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="input-icon password-toggle"
-                            id="togglePassword"
-                            aria-label="Show password">
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z">
-                                </path>
-
-                                <circle cx="12" cy="12" r="3">
-                                </circle>
-
-                            </svg>
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- OPTIONS -->
-
-                <div class="form-options">
-
-                    <label class="remember">
-
-                        <input
-                            type="checkbox"
-                            id="remember"
-                            name="remember"
-                        >
-
-                        <span>
-                            Remember Me
-                        </span>
-
-                    </label>
-
-
-                    <a
-                        href="../shared/forgot-password.html"
-                        class="forgot">
-
-                        Forgot Password?
-
-                    </a>
-
-                </div>
-
-
-                <!-- LOGIN BUTTON -->
-
-                <button
-                    type="submit"
-                    class="login-button"
-                    id="loginButton">
-
-                    Login as Student →
-
+            <label class="lbl" for="password">Password</label>
+            <div class="field has-eye">
+                <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+                <button type="button" class="eye password-toggle" id="togglePassword" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
-
-            </form>
-
-
-            <!-- SIGN UP -->
-
-            <div class="signup-section">
-
-                Don't have an account?
-
-                <a
-                    href="student-signup.html"
-                    class="signup-link">
-
-                    Sign Up
-
-                </a>
-
             </div>
 
-
-            <!-- BACK -->
-
-            <a
-                href="../index.html"
-                class="back-link">
-
-                ← Back to role selection
-
-            </a>
-
-
-            <!-- SECURITY NOTE -->
-
-            <div class="security-note">
-
-                <span class="security-icon">
-                    🔒
-                </span>
-
-                <span>
-                    Your personal performance data is securely protected.
-                </span>
-
+            <div class="row">
+                <label><input type="checkbox" id="remember" name="remember"> Remember Me</label>
+                <a href="../shared/forgot-password.html">Forgot Password?</a>
             </div>
 
-        </div>
+            <button class="btn" type="submit" id="loginButton">Login as Student <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+        </form>
 
+        <div class="or">OR</div>
+        <div class="alt"><span>Don't have an account? <a href="student-signup.html">Sign Up</a></span></div>
+        <a class="back" href="../index.html">← Back to role selection</a>
     </section>
-
-</div>
+</main>
 
 
 <script>
