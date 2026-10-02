@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<style>.auth{--img:url("student.jpg");--hx:5.6cqw;--hy:11.5cqw;--hfont:Montserrat,Inter,Poppins,sans-serif;--hw:800;--hs:4.7;--hl:.93;--hls:-.03em;--bw:4.6;--bt:2.3cqw;--barbg:linear-gradient(90deg,#fff,#2d8cff);--pt:2.5cqw;--pw:26;--ps:1.3;--pl:1.45;}</style>
+</head>
+<body>
+<main class="auth">
+  <section class="art">
+    <div class="copy">
+      <h2>Track.<br>Improve.<br><span class="accent">Perform.</span></h2>
+      <div class="bar"></div>
+      <p>Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h1><span>Student</span> Login</h1>
+    <p class="sub">Sign in to view your fitness performance, goals, improvement areas, and coach feedback.</p>
+
+    <form id="loginForm">
+      <label class="lbl" for="email">Student Email</label>
+      <div class="field"><input id="email" type="email" placeholder="Enter your student email" required></div>
+
+      <label class="lbl" for="password">Password</label>
+      <div class="field"><input id="password" type="password" placeholder="Enter your password" required></div>
+
+      <div class="row">
+        <label><input type="checkbox"> Remember Me</label>
+        <a href="forgot-password.html">Forgot Password?</a>
+      </div>
+
+      <button class="btn" type="submit">Login as Student <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+    </form>
+
+    <div class="or">OR</div>
+    <div class="alt"><span>Don't have an account? <a href="student-signup.html">Sign Up</a></span></div>
+    <a class="back" href="index.html">← Back to role selection</a>
+  </section>
+</main>
+<script>
+  const t = document.getElementById("toggle");
+  if (t) t.onclick = () => {
+    const p = document.getElementById("password");
+    p.type = p.type === "password" ? "text" : "password";
+  };
+  document.getElementById("loginForm").onsubmit = e => {
+    e.preventDefault();
+    // TODO: call your student login API here
+  };
+</script>
+</body>
+</html>
