@@ -18,7 +18,7 @@
     const PUBLIC_PAGES = [
         "index.html",
         "student-login.html",
-        "student-loginotp.html",
+        "login-otp.html",
         "student-signup.html",
         "coach-login.html",
         "admin-login.html",

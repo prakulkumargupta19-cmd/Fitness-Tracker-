@@ -80,9 +80,9 @@ Role-specific styles are under `frontend1/css/admin/`, `frontend1/css/coach/`, a
 | Area | Pages |
 | --- | --- |
 | Public | `frontend1/index.html` |
-| Student | `student-login.html`, `student-loginotp.html`, `student-signup.html`, `student-signup-verify.html`, `student-basicinfo.html`, `student-personalinfo.html`, `student-dashboard.html`, `verify.html` |
-| Coach | `coach-login.html`, `coach-loginotp.html`, `coach-signup.html`, `coach-signup-verify.html`, `coach-waiting.html`, `coach-dashboard.html`, `verify.html` |
-| Admin | `admin-login.html`, `admin-loginotp.html`, `admin-signup.html`, `admin-signup-verify.html`, `admin-dashboard.html`, `verify.html` |
+| Student | `student-login.html`, shared `login-otp.html`, `student-signup.html`, `student-signup-verify.html`, `student-basicinfo.html`, `student-personalinfo.html`, `student-dashboard.html`, `verify.html` |
+| Coach | `coach-login.html`, shared `login-otp.html`, `coach-signup.html`, `coach-signup-verify.html`, `coach-waiting.html`, `coach-dashboard.html`, `verify.html` |
+| Admin | `admin-login.html`, shared `login-otp.html`, `admin-signup.html`, `admin-signup-verify.html`, `admin-dashboard.html`, `verify.html` |
 | Shared password recovery | `forgot-password.html`, `verify-otp.html`, `set-password.html` |
 | Demo/redirect | `demo/assessment-form.html`, `demo/session-form.html`; a separate legacy `demo/session_form.html` is also present at repository root. |
 

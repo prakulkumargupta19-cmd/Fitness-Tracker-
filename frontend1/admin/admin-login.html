@@ -479,7 +479,10 @@
                                         email,
 
                                     password:
-                                        passwordValue
+                                        passwordValue,
+
+                                    role:
+                                        "admin"
                                 })
                         }
                     );
@@ -512,7 +515,9 @@
 
                 }
 
-                sessionStorage.setItem("adminLoginEmail", email);
+                if (!result.otp_required || !result.user || result.user.role !== "admin") {
+                    throw new Error("The server did not confirm administrator login verification.");
+                }
 
 
                 loginButton.textContent =
@@ -523,7 +528,7 @@
                     function() {
 
                         window.location.href =
-                            "admin-loginotp.html";
+                            "../shared/login-otp.html";
 
                     },
                     300

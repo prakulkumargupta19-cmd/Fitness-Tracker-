@@ -49,13 +49,29 @@ def find_user_by_email(email):
         db.close()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id, role=None):
     """Retrieve user dictionary by user ID."""
     if not user_id:
         return None
+    if role is None and user_id == session.get("user_id"):
+        role = session.get("role")
     db = get_db()
     try:
         with db.cursor() as cursor:
+            if role == "admin":
+                cursor.execute(
+                    """SELECT id, full_name, email, password_hash, NULL AS contact_number, is_verified,
+                          last_login_at, created_at, 'admin' as role, NULL as coach_status
+                       FROM admins WHERE id = %s""",
+                    (user_id,),
+                )
+                return cursor.fetchone()
+            if role in ("student", "coach"):
+                cursor.execute(
+                    "SELECT * FROM users WHERE id = %s AND role = %s",
+                    (user_id, role),
+                )
+                return cursor.fetchone()
             # First check users table
             cursor.execute(
                 "SELECT * FROM users WHERE id = %s",

@@ -156,9 +156,96 @@ def test_admin_login_verification_uses_admin_otp_and_updates_admin(monkeypatch):
     with app.test_client() as client:
         with client.session_transaction() as state:
             state["pending_login_user_id"] = 1_000_001
+            state["pending_login_role"] = "admin"
         response = client.post("/api/admin/login/verify-otp", json={
-            "email": "admin@example.test", "otp": "123456",
+            "otp": "123456",
         })
 
     assert response.status_code == 200
     assert any("UPDATE admins SET last_login_at" in query for query, _ in statements)
+
+
+def test_login_otp_uses_pending_session_identity_not_submitted_email(monkeypatch):
+    user = {
+        "id": 42,
+        "role": "student",
+        "full_name": "Student",
+        "email": "student@example.test",
+        "contact_number": None,
+        "is_verified": True,
+        "coach_status": None,
+    }
+    lookups = []
+    verified = []
+
+    class LoginCursor(Cursor):
+        def execute(self, query, params=()):
+            lookups.append((query, params))
+
+    connection = Connection(LoginCursor())
+    monkeypatch.setattr("backend.app.get_user_by_id", lambda user_id, role=None: user if (user_id, role) in ((42, "student"), (42, None)) else None)
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: pytest.fail("email must not select the OTP account"))
+    monkeypatch.setattr("backend.app.verify_stored_otp", lambda user_id, purpose, otp: verified.append((user_id, purpose, otp)) or (True, "Verified"))
+    monkeypatch.setattr("backend.app.get_db", lambda: connection)
+
+    with app.test_client() as client:
+        with client.session_transaction() as state:
+            state["pending_login_user_id"] = 42
+            state["pending_login_role"] = "student"
+        response = client.post("/api/login/verify-otp", json={
+            "email": "someone-else@example.test",
+            "role": "admin",
+            "otp": "123456",
+        })
+        session_response = client.get("/api/session")
+
+    assert response.status_code == 200
+    assert response.get_json()["user"]["role"] == "student"
+    assert verified == [(42, "login", "123456")]
+    assert session_response.get_json()["user"]["role"] == "student"
+    assert any("UPDATE users SET last_login_at" in query for query, _ in lookups)
+
+
+def test_pending_login_details_come_from_server_session(monkeypatch):
+    user = {"id": 42, "role": "coach", "email": "coach@example.test"}
+    lookups = []
+    monkeypatch.setattr("backend.app.get_user_by_id", lambda user_id, role: lookups.append((user_id, role)) or user)
+
+    with app.test_client() as client:
+        with client.session_transaction() as state:
+            state["pending_login_user_id"] = 42
+            state["pending_login_role"] = "coach"
+        response = client.get("/api/login/pending-otp")
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "success": True,
+        "role": "coach",
+        "email": "c***@example.test",
+    }
+    assert lookups == [(42, "coach")]
+
+
+def test_login_otp_resend_uses_pending_account_email(monkeypatch):
+    user = {
+        "id": 42,
+        "role": "student",
+        "full_name": "Student",
+        "email": "student@example.test",
+    }
+    sent = []
+    monkeypatch.setattr("backend.app.get_user_by_id", lambda user_id, role: user if (user_id, role) == (42, "student") else None)
+    monkeypatch.setattr("backend.app.generate_otp", lambda: "123456")
+    monkeypatch.setattr("backend.app.store_otp", lambda *args: True)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: sent.append(args) or True)
+
+    with app.test_client() as client:
+        with client.session_transaction() as state:
+            state["pending_login_user_id"] = 42
+            state["pending_login_role"] = "student"
+        response = client.post("/api/login/resend-otp", json={
+            "email": "attacker@example.test",
+        })
+
+    assert response.status_code == 200
+    assert sent == [("student@example.test", "Student", "login", "123456")]

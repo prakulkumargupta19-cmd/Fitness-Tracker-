@@ -659,27 +659,15 @@ loginForm.addEventListener(
 
 
             /* =================================================
-               SAVE EMAIL FOR OTP PAGE
-            =================================================
-            
-            The OTP page reads:
-
-                sessionStorage.getItem("loginOtpEmail")
-
-            Therefore we must save the email here before
-            redirecting to student-loginotp.html.
-            
-            ================================================= */
-
-            sessionStorage.setItem(
-                "loginOtpEmail",
-                email
-            );
-
-
-            /* =================================================
                LOGIN SUCCESS
             ================================================= */
+
+            if (!data.otp_required) {
+                showMessage("The server did not start login verification.");
+                loginButton.disabled = false;
+                loginButton.textContent = "Login as Student →";
+                return;
+            }
 
             showMessage(
                 "Login successful. Opening OTP verification...",
@@ -696,7 +684,7 @@ loginForm.addEventListener(
             ================================================= */
 
             window.location.replace(
-                "student-loginotp.html"
+                "../shared/login-otp.html"
             );
 
 

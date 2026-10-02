@@ -245,6 +245,8 @@ def login():
     email = str(data.get("email") or "").strip().lower()
     password = str(data.get("password") or "")
     requested_role = str(data.get("role") or "").strip().lower()
+    if not requested_role and request.path in ("/api/admin-login", "/api/admin/login"):
+        requested_role = "admin"
     if not email or not password:
         return (
             jsonify({"success": False, "message": "Email and password are required."}),
@@ -374,15 +376,10 @@ def _complete_login(user):
 @app.route("/api/admin/login/verify-otp", methods=["POST"])
 def verify_login_otp():
     data = request.get_json(silent=True) or {}
-    email = str(data.get("email") or "").strip().lower()
     otp = str(data.get("otp") or "").strip()
-    user = find_user_by_email(email)
-    if not user:
-        return (
-            jsonify({"success": False, "message": "No account found with this email."}),
-            404,
-        )
-    if session.get("pending_login_user_id") != user["id"]:
+    user_id = session.get("pending_login_user_id")
+    role = session.get("pending_login_role")
+    if not user_id or role not in ("student", "coach", "admin"):
         return (
             jsonify(
                 {
@@ -392,6 +389,11 @@ def verify_login_otp():
             ),
             400,
         )
+    user = get_user_by_id(user_id, role)
+    if not user or user["role"] != role:
+        session.pop("pending_login_user_id", None)
+        session.pop("pending_login_role", None)
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
     verifier = verify_admin_otp if user["role"] == "admin" else verify_stored_otp
     valid, message = verifier(user["id"], "login", otp)
     if not valid:
@@ -418,10 +420,9 @@ def verify_login_otp():
 @app.route("/api/admin-login/resend-otp", methods=["POST"])
 @app.route("/api/admin/login/resend-otp", methods=["POST"])
 def resend_login_otp():
-    data = request.get_json(silent=True) or {}
-    email = str(data.get("email") or "").strip().lower()
-    user = find_user_by_email(email)
-    if not user or session.get("pending_login_user_id") != (user or {}).get("id"):
+    user_id = session.get("pending_login_user_id")
+    role = session.get("pending_login_role")
+    if not user_id or role not in ("student", "coach", "admin"):
         return (
             jsonify(
                 {
@@ -431,12 +432,36 @@ def resend_login_otp():
             ),
             400,
         )
+    user = get_user_by_id(user_id, role)
+    if not user or user["role"] != role:
+        session.pop("pending_login_user_id", None)
+        session.pop("pending_login_role", None)
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
     otp = generate_otp()
     if not (store_admin_otp if user["role"] == "admin" else store_otp)(user["id"], "login", otp):
         return jsonify({"success": False, "message": "Too many login codes were requested. Try again in an hour."}), 429
-    if not send_otp_email(email, user["full_name"], "login", otp):
+    if not send_otp_email(user["email"], user["full_name"], "login", otp):
         return jsonify({"success": False, "message": "Login OTP could not be emailed. Check SMTP configuration and try again."}), 503
     return jsonify({"success": True, "message": "A new login OTP has been sent."}), 200
+
+
+@app.route("/api/login/pending-otp", methods=["GET"])
+def pending_login_otp():
+    user_id = session.get("pending_login_user_id")
+    role = session.get("pending_login_role")
+    if not user_id or role not in ("student", "coach", "admin"):
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
+    user = get_user_by_id(user_id, role)
+    if not user or user["role"] != role:
+        session.pop("pending_login_user_id", None)
+        session.pop("pending_login_role", None)
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
+    email_name, separator, email_domain = user["email"].partition("@")
+    masked_email = (
+        f"{email_name[0]}***@{email_domain}" if separator and email_name
+        else "your registered email address"
+    )
+    return jsonify({"success": True, "role": role, "email": masked_email}), 200
 
 
 @app.route("/api/logout", methods=["GET", "POST"])

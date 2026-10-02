@@ -652,8 +652,11 @@
 
                         }
 
-                        sessionStorage.setItem("loginOtpEmail", email);
-                        window.location.assign("coach-loginotp.html");
+                        if (!loginData.otp_required || !loginData.user || loginData.user.role !== "coach") {
+                            throw new Error("The server did not confirm coach login verification.");
+                        }
+
+                        window.location.assign("../shared/login-otp.html");
                         return;
 
 
