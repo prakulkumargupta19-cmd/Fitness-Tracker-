@@ -9,24 +9,27 @@
 
     <link rel="stylesheet" href="../css/coach/coach-signup-verify.css">
     <link rel="stylesheet" href="../css/common/verification-portal.css">
-<script src="../js/config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <script src="../js/config.js"></script>
     <link rel="stylesheet" href="../css/common/app-theme.css">
-    <link rel="stylesheet" href="../css/common/portal-refresh.css">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <link rel="stylesheet" href="../css/coach/coach-portal.css?v=6">
 </head>
 
 <body data-portal-role="coach">
 
-    <!-- ==============================
-         OTP CARD
-    ============================== -->
+    <main class="auth">
+        <section class="art">
+            <div class="copy">
+                <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
+                <div class="bar"></div>
+                <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
+            </div>
+        </section>
 
-    <div class="otp-card">
-
-        <!-- ICON -->
-
-        <div class="otp-icon">
-            🔐
-        </div>
+        <section class="panel otp-panel">
 
 
         <!-- HEADING -->
@@ -175,12 +178,13 @@
 
         <div class="security-note">
 
-            🔒 Never share your OTP with anyone.
+            Never share your OTP with anyone.
             Our team will never ask you for your OTP.
 
         </div>
 
-    </div>
+        </section>
+    </main>
 
 
     <script>
