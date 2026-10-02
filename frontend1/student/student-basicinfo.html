@@ -7,15 +7,26 @@
 
     <title>Basic Information | Fitness Performance Tracker</title>
 
-    <link
-        rel="stylesheet"
-        href="../css/student-basicinfo.css"
-    >
     <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <link rel="stylesheet" href="../css/student/student-portal.css?v=8">
 </head>
 
-<body>
+<body data-portal-role="student">
 
+    <main class="auth">
+        <section class="art">
+            <div class="copy">
+                <h2>Track.<br>Improve.<br><span class="accent">Perform.</span></h2>
+                <div class="bar"></div>
+                <p>Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.</p>
+            </div>
+        </section>
+
+        <section class="panel student-profile-panel">
     <div class="form-container">
 
         <!-- HEADER -->
@@ -215,14 +226,9 @@
         </form>
 
 
-        <!-- FOOTER -->
-
-        <div class="footer">
-            Fitness Performance Tracker
-        </div>
-
-
     </div>
+        </section>
+    </main>
 
 
     <script>

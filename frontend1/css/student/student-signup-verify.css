@@ -1,6 +1,6 @@
-/* =====================================================
-   RESET & BASE STYLES
-===================================================== */
+/* =========================================================
+   STUDENT SIGNUP OTP VERIFICATION
+   ========================================================= */
 
 * {
     margin: 0;
@@ -8,262 +8,538 @@
     box-sizing: border-box;
 }
 
+
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Inter", Arial, Helvetica, sans-serif;
+
     min-height: 100vh;
+
+    background: #f4f7fb;
+
+    color: #111827;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.verify-page {
+    min-height: 100vh;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
 
-    background:
-        linear-gradient(
-            rgba(5, 15, 25, 0.80),
-            rgba(5, 15, 25, 0.90)
-        ),
-        url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2000&q=85")
-        center center / cover no-repeat;
+    padding: 30px 20px;
 }
 
-/* =====================================================
-   CARD CONTAINER
-===================================================== */
 
-.otp-card {
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.verify-card {
     width: 100%;
-    max-width: 470px;
+    max-width: 390px;
+
     background: #ffffff;
-    border-radius: 20px;
-    padding: 40px;
+
+    border-radius: 14px;
+
+    padding: 30px 34px 27px;
+
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+
+    box-shadow:
+        0 8px 30px rgba(15, 23, 42, 0.10);
+
+    border: 1px solid #eef2f7;
 }
 
-.otp-icon {
-    width: 75px;
-    height: 75px;
-    margin: 0 auto 20px;
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.verify-icon {
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 18px;
+
     border-radius: 50%;
-    background: #ecfdf3;
-    border: 2px solid #62bbe8;
+
+    background: #e8f0ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.verify-icon span {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background: #1769e0;
+
+    color: #ffffff;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 34px;
+    font-size: 19px;
+
+    line-height: 1;
 }
 
-h1 {
-    font-size: 30px;
-    color: #111;
-    margin-bottom: 10px;
+
+/* =========================================================
+   HEADING
+   ========================================================= */
+
+.verify-card h1 {
+    margin: 0 0 8px;
+
+    font-size: 26px;
+
+    line-height: 1.25;
+
+    font-weight: 800;
+
+    color: #111827;
 }
 
-h1 span {
-    color: #62bbe8;
+
+.verify-card h1 span {
+    color: #0969df;
 }
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
 
 .description {
-    color: #666;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 25px;
+    max-width: 285px;
+
+    margin: 0 auto 19px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    line-height: 1.55;
 }
+
+
+/* =========================================================
+   EMAIL
+   ========================================================= */
 
 .email-display {
-    background: #f5f5f5;
-    border-radius: 8px;
-    padding: 11px;
-    margin-bottom: 22px;
-    font-size: 13px;
-    color: #555;
+    margin-bottom: 18px;
+
+    padding: 9px 12px;
+
+    background: #f7f9fc;
+
+    border-radius: 7px;
+
+    color: #7a8494;
+
+    font-size: 11px;
+
+    line-height: 1.4;
 }
+
 
 .email-display strong {
-    color: #222;
+    margin-left: 4px;
+
+    color: #263244;
+
+    font-weight: 600;
 }
 
-/* =====================================================
-   INPUT FIELDS
-===================================================== */
+
+/* =========================================================
+   OTP
+   ========================================================= */
 
 .otp-container {
     display: flex;
+
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 22px;
+
+    gap: 7px;
+
+    margin-bottom: 13px;
 }
+
 
 .otp-input {
-    width: 48px;
-    height: 55px;
+    width: 45px;
+    height: 47px;
 
-    border: 1px solid #d5d5d5;
-    border-radius: 8px;
+    padding: 0;
+
+    border: 1px solid #d9dee7;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #111827;
 
     text-align: center;
-    font-size: 22px;
-    font-weight: bold;
+
+    font-family: inherit;
+
+    font-size: 19px;
+
+    font-weight: 600;
 
     outline: none;
-    transition: 0.2s;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
+
 
 .otp-input:focus {
-    border-color: #62bbe8;
-    box-shadow: 0 0 0 3px rgba(98, 187, 232, 0.15);
+    border-color: #1769e0;
+
+    background: #fbfdff;
+
+    box-shadow:
+        0 0 0 2px rgba(23, 105, 224, 0.12);
 }
 
-/* =====================================================
-   BUTTONS & ACTIONS
-===================================================== */
 
-.verify-button {
-    width: 100%;
-    padding: 14px;
+/* =========================================================
+   RESEND
+   ========================================================= */
+
+.resend-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: #6b7280;
+}
+
+
+.resend-row button {
+    padding: 0;
 
     border: none;
-    border-radius: 8px;
 
-    background: #62bbe8;
-    color: white;
+    background: transparent;
 
-    font-size: 14px;
-    font-weight: bold;
+    color: #1268d9;
 
-    cursor: pointer;
-    transition: 0.25s;
-}
+    font-family: inherit;
 
-.verify-button:hover {
-    background: #5ebae9;
-    transform: translateY(-1px);
-}
+    font-size: 11px;
 
-.verify-button:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.timer {
-    margin-top: 18px;
-    color: #777;
-    font-size: 13px;
-}
-
-.timer span {
-    color: #62bbe8;
-    font-weight: bold;
-}
-
-.resend {
-    margin-top: 15px;
-    font-size: 13px;
-    color: #777;
-}
-
-.resend button {
-    border: none;
-    background: none;
-
-    color: #62bbe8;
-
-    font-size: 13px;
-    font-weight: bold;
+    font-weight: 700;
 
     cursor: pointer;
 }
 
-.resend button:disabled {
-    color: #999;
-    cursor: not-allowed;
-}
 
-.resend button:hover:not(:disabled) {
+.resend-row button:hover:not(:disabled) {
     text-decoration: underline;
 }
 
-.change-email {
-    display: inline-block;
-    margin-top: 22px;
 
-    color: #555;
-    font-size: 13px;
-    text-decoration: none;
+.resend-row button:disabled {
+    color: #aab2be;
+
+    cursor: not-allowed;
 }
 
-.change-email:hover {
-    color: #62bbe8;
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+
+.timer {
+    margin-top: 7px;
+
+    color: #9aa3af;
+
+    font-size: 10px;
+
+    line-height: 1.4;
 }
 
-/* =====================================================
-   MESSAGES & FOOTER
-===================================================== */
+
+.timer strong {
+    color: #1769e0;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   VERIFY BUTTON
+   ========================================================= */
+
+.verify-button {
+    width: 100%;
+
+    height: 41px;
+
+    margin-top: 17px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: linear-gradient(
+        90deg,
+        #1168df,
+        #087cf2
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 13px rgba(17, 104, 223, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.verify-button span {
+    margin-left: 4px;
+
+    font-size: 14px;
+}
+
+
+.verify-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px rgba(17, 104, 223, 0.25);
+}
+
+
+.verify-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+.verify-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
 
 .message {
     display: none;
 
-    margin-top: 18px;
-    padding: 11px;
+    margin-top: 12px;
 
-    border-radius: 7px;
+    padding: 9px 10px;
 
-    font-size: 13px;
-    line-height: 1.4;
+    border-radius: 6px;
+
+    font-size: 10px;
+
+    line-height: 1.45;
+
+    text-align: left;
 }
 
-.success {
+
+.message.success {
     display: block;
+
     background: #ecfdf3;
-    color: #1683b8;
-    border: 1px solid #b7e2f5;
+
+    color: #16803c;
+
+    border: 1px solid #b9ebcb;
 }
 
-.error {
+
+.message.error {
     display: block;
+
     background: #fff1f2;
+
     color: #be123c;
+
     border: 1px solid #fecdd3;
 }
 
-.security-note {
-    border-top: 1px solid #eeeeee;
 
-    margin-top: 25px;
-    padding-top: 18px;
+/* =========================================================
+   DIVIDER
+   ========================================================= */
 
-    color: #888;
-    font-size: 11px;
-    line-height: 1.5;
+.divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 19px 0 16px;
 }
 
-/* =====================================================
+
+.divider span {
+    flex: 1;
+
+    height: 1px;
+
+    background: #e5e7eb;
+}
+
+
+.divider strong {
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   BACK TO LOGIN
+   ========================================================= */
+
+.back-login {
+    display: inline-block;
+
+    color: #1769e0;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+
+.back-login:hover {
+    color: #0754bd;
+
+    text-decoration: underline;
+}
+
+
+/* =========================================================
    RESPONSIVE
-===================================================== */
+   ========================================================= */
 
 @media (max-width: 500px) {
-    body {
-        padding: 15px;
+
+    .verify-page {
+        padding: 20px 15px;
     }
 
-    .otp-card {
-        padding: 30px 20px;
-        border-radius: 15px;
+
+    .verify-card {
+        max-width: 360px;
+
+        padding: 27px 22px 24px;
+
+        border-radius: 13px;
     }
 
-    h1 {
-        font-size: 26px;
+
+    .verify-icon {
+        width: 54px;
+        height: 54px;
+
+        margin-bottom: 16px;
     }
+
+
+    .verify-card h1 {
+        font-size: 24px;
+    }
+
+
+    .description {
+        font-size: 11px;
+
+        max-width: 270px;
+    }
+
 
     .otp-container {
-        gap: 6px;
+        gap: 5px;
     }
+
 
     .otp-input {
         width: 42px;
-        height: 50px;
-        font-size: 20px;
+        height: 45px;
+
+        font-size: 18px;
     }
+
+}
+
+
+@media (max-width: 350px) {
+
+    .verify-card {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+
+    .otp-container {
+        gap: 4px;
+    }
+
+
+    .otp-input {
+        width: 39px;
+        height: 43px;
+    }
+
 }

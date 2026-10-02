@@ -2,15 +2,15 @@
 
 :root {
     color-scheme: light;
-    --app-blue: #087cff;
-    --app-blue-hover: #006de8;
-    --app-ink: #101828;
-    --app-muted: #596a82;
-    --app-line: #e4edf7;
-    --app-soft: #f4f9ff;
-    --app-tint: #eaf4ff;
-    --app-radius: 10px;
-    --app-shadow: 0 18px 48px rgba(26, 69, 112, 0.12);
+    --app-blue: #0a63ff;
+    --app-blue-hover: #0754db;
+    --app-ink: #0b1228;
+    --app-muted: #7b86a3;
+    --app-line: #dce4f2;
+    --app-soft: #f7f9fd;
+    --app-tint: #eef5ff;
+    --app-radius: 11px;
+    --app-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
 }
 
 *,
@@ -29,9 +29,14 @@ body.bg-slate-900 {
     width: 100%;
     min-height: 100vh;
     margin: 0;
-    padding: 32px 20px;
+    padding: clamp(16px, 3vw, 32px) clamp(14px, 3vw, 28px);
+    display: flex;
+    align-items: safe center;
+    justify-content: center;
     color: var(--app-ink);
-    background: linear-gradient(135deg, #ffffff 0%, var(--app-soft) 100%);
+    background:
+        radial-gradient(ellipse at 12% 12%, rgba(35, 103, 233, 0.24), transparent 38%),
+        linear-gradient(120deg, #06143f 0%, #0a2a80 55%, #1d62e8 100%);
     font-family: "Inter", sans-serif;
     overflow-x: hidden;
 }
@@ -95,8 +100,7 @@ body > div.relative {
 body > div.relative > div:first-child {
     color: #fff;
     background-image:
-        linear-gradient(135deg, rgba(8, 124, 255, 0.88), rgba(0, 99, 217, 0.84)),
-        url("https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=85");
+        linear-gradient(135deg, rgba(7, 26, 82, 0.8), rgba(10, 47, 149, 0.66));
     background-position: center;
     background-size: cover;
 }
@@ -516,6 +520,306 @@ select:disabled {
 
 .waiting-icon {
     color: var(--app-blue);
+}
+
+body.auth-student .brand-section {
+    background-image:
+        linear-gradient(135deg, rgba(7, 26, 82, 0.8), rgba(10, 47, 149, 0.66)),
+        url("../../demo/student.jpg");
+}
+
+body.auth-coach .brand-section,
+body.auth-coach > div.relative > div:first-child {
+    background-image:
+        linear-gradient(135deg, rgba(7, 26, 82, 0.8), rgba(10, 47, 149, 0.66)),
+        url("../../demo/coach.jpg");
+}
+
+body.auth-admin .brand-section {
+    background-image:
+        linear-gradient(135deg, rgba(7, 26, 82, 0.8), rgba(10, 47, 149, 0.66)),
+        url("../../demo/admin.jpg");
+}
+
+body.auth-student,
+body.auth-coach,
+body.auth-admin {
+    color: var(--app-ink);
+}
+
+.page-container,
+.signup-page,
+body > div.relative {
+    flex: 0 1 1120px;
+    width: min(100%, 1120px);
+    margin: auto;
+    border-color: rgba(110, 165, 255, 0.35);
+    border-radius: 22px;
+    box-shadow: 0 0 0 6px rgba(30, 90, 220, 0.18), 0 24px 72px rgba(0, 0, 0, 0.5);
+}
+
+.brand-section h1 span {
+    background: linear-gradient(90deg, #4da0ff, #19b3ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.login-section,
+.signup-section,
+body > div.relative > div:last-child {
+    padding: clamp(28px, 4vw, 48px);
+}
+
+.form-container,
+.otp-card,
+.card,
+.waiting-container {
+    border-color: var(--app-line);
+    border-radius: 20px;
+    box-shadow: 0 18px 48px rgba(0, 10, 60, 0.24);
+}
+
+.form-container {
+    width: min(100%, 760px);
+    margin: auto;
+}
+
+.otp-page {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.field input,
+.group input,
+.form-container input:not([type="checkbox"]):not([type="radio"]),
+.form-container select,
+.form-container textarea,
+.form-group input:not([type="checkbox"]):not([type="radio"]),
+.form-group select,
+.form-group textarea,
+.signup-card input:not([type="checkbox"]):not([type="radio"]),
+.signup-card select,
+.signup-card textarea,
+#otpForm > .otp-input {
+    border-radius: 11px;
+    background-color: var(--app-soft);
+}
+
+.login-button,
+.verify-button,
+.verify-btn,
+.reset-button,
+#signupButton,
+#sendButton,
+#verifyButton,
+#resetButton,
+form button[type="submit"] {
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(90deg, #0a66ff, #00a6ff);
+    box-shadow: 0 8px 22px rgba(10, 99, 255, 0.28);
+}
+
+.login-button:hover:not(:disabled),
+.verify-button:hover:not(:disabled),
+.verify-btn:hover:not(:disabled),
+.reset-button:hover:not(:disabled),
+#signupButton:hover:not(:disabled),
+#sendButton:hover:not(:disabled),
+#verifyButton:hover:not(:disabled),
+#resetButton:hover:not(:disabled),
+form button[type="submit"]:hover:not(:disabled) {
+    background: linear-gradient(90deg, #0754db, #078fe8);
+}
+
+.message.error,
+.error-message {
+    border-color: #fecdd3;
+    border-radius: 9px;
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.message.success,
+.success-message {
+    border-color: #bbf7d0;
+    border-radius: 9px;
+    background: #ecfdf3;
+    color: #15803d;
+}
+
+.standalone-form {
+    color: var(--app-ink);
+}
+
+body.auth-long-form,
+body.standalone-form {
+    align-items: flex-start;
+}
+
+.standalone-form .container {
+    display: grid;
+    width: min(100%, 900px);
+    gap: 16px;
+    margin: auto;
+}
+
+.standalone-form .header,
+.standalone-form .session-card,
+.standalone-form .athletes-section {
+    border: 1px solid var(--app-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(0, 10, 60, 0.18);
+}
+
+.standalone-form .header h1,
+.standalone-form .session-card h2 {
+    color: var(--app-ink);
+}
+
+.standalone-form .form-group input,
+.standalone-form .form-group select,
+.standalone-form .form-group textarea {
+    border-color: var(--app-line);
+    border-radius: 10px;
+    background: var(--app-soft);
+}
+
+.standalone-form .form-group input:focus,
+.standalone-form .form-group select:focus,
+.standalone-form .form-group textarea:focus {
+    border-color: var(--app-blue);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(10, 99, 255, 0.16);
+}
+
+.standalone-form .session-card h2,
+.standalone-form .athletes-header h2 {
+    color: var(--app-ink);
+}
+
+.standalone-form .header .coach-badge,
+.standalone-form .session-card .form-group label {
+    color: var(--app-muted);
+}
+
+.standalone-form .coach-badge .avatar,
+.standalone-form .btn-primary,
+.standalone-form .btn-success {
+    background: linear-gradient(90deg, #0a66ff, #00a6ff);
+}
+
+.standalone-form .quick-actions,
+.standalone-form .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.standalone-form .btn {
+    border: 0;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.standalone-form .btn:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(10, 99, 255, 0.22);
+}
+
+.standalone-form .btn-secondary {
+    border: 1px solid var(--app-line);
+    background: var(--app-soft);
+    color: var(--app-blue);
+}
+
+.standalone-form .athlete-row {
+    border-color: var(--app-line);
+    background: #fff;
+}
+
+.standalone-form .athlete-row:hover,
+.standalone-form .athlete-row.absent {
+    background: var(--app-soft);
+}
+
+.standalone-form .athlete-avatar {
+    background: var(--app-tint);
+    color: var(--app-blue);
+}
+
+.standalone-form .athlete-name {
+    color: var(--app-ink);
+}
+
+.standalone-form .athlete-code,
+.standalone-form .footer-left {
+    color: var(--app-muted);
+}
+
+.standalone-form .toggle-btn.active-present {
+    border-color: var(--app-blue);
+    background: var(--app-blue);
+}
+
+.standalone-form .pill-total {
+    background: var(--app-tint);
+    color: var(--app-muted);
+}
+
+@media (max-width: 600px) {
+    .standalone-form .quick-actions > .btn,
+    .standalone-form .footer-right > .btn {
+        flex: 1 1 100%;
+    }
+}
+
+@media (min-height: 1101px) {
+    body.auth-long-form,
+    body.standalone-form {
+        align-items: center;
+    }
+}
+
+@media (max-width: 850px) {
+    .page-container,
+    .signup-page,
+    body > div.relative {
+        flex: 0 1 auto;
+        margin: auto;
+    }
+
+    .form-container {
+        padding: 32px;
+    }
+}
+
+@media (max-width: 540px) {
+    body,
+    body.bg-slate-900 {
+        padding: 14px;
+    }
+
+    .page-container,
+    .signup-page,
+    body > div.relative {
+        border-radius: 18px;
+    }
+
+    .form-container,
+    .otp-card,
+    .card,
+    .waiting-container {
+        padding: 28px 20px;
+    }
 }
 
 body > div.relative {

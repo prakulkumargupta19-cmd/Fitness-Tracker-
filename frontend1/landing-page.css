@@ -580,6 +580,33 @@ footer a:hover {
 
 
 /* =========================================================
+   FOOTER CENTERING
+========================================================= */
+
+/* Move the footer's three content columns toward the center */
+footer .row {
+    justify-content: center;
+}
+
+/* Keep the content inside each column left-aligned */
+footer .row > div {
+    text-align: left;
+}
+
+/* Keep the divider centered */
+footer > .container > hr {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Center the copyright text */
+footer > .container > small {
+    display: block;
+    text-align: center;
+}
+
+
+/* =========================================================
    RESPONSIVE - TABLET
 ========================================================= */
 

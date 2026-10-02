@@ -41,186 +41,33 @@
 
     <!-- Coach Signup CSS -->
     <link rel="stylesheet" href="../css/coach/coach-signup.css">
-<script src="../js/config.js"></script>
+    <script src="../js/config.js"></script>
     <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <link rel="stylesheet" href="../css/coach/coach-portal.css?v=6">
 </head>
 
 
-<body class="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans relative overflow-x-hidden">
+<body data-portal-role="coach">
 
 
-    <!-- BACKGROUND -->
-
-    <div
-        class="fixed inset-0 bg-cover bg-center blur-xl opacity-30 scale-105 pointer-events-none"
-        style="background-image: url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1920&auto=format&fit=crop');">
-    </div>
-
-
-    <!-- MAIN CARD -->
-
-    <div
-        class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 z-10"
-    >
-
-
-        <!-- =================================
-             LEFT COLUMN
-        ================================== -->
-
-        <div
-            class="relative bg-slate-950 p-8 sm:p-12 flex flex-col justify-between overflow-hidden min-h-[450px] lg:min-h-[620px]"
-        >
-
-            <img
-                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1000&auto=format&fit=crop"
-                alt="Fitness"
-                class="absolute inset-0 w-full h-full object-cover object-center opacity-40"
-            >
-
-            <div
-                class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/80"
-            ></div>
-
-
-            <!-- LOGO -->
-
-            <div class="relative z-10 flex items-center gap-3">
-
-                <div
-                    class="w-10 h-10 rounded-full border-2 border-brand flex items-center justify-center bg-slate-900/80"
-                >
-
-                    <svg
-                        class="w-5 h-5 text-brand"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-
-                    </svg>
-
-                </div>
-
-
-                <div class="leading-tight">
-
-                    <span
-                        class="block text-[11px] font-extrabold tracking-wider text-white uppercase"
-                    >
-                        FITNESS
-                    </span>
-
-                    <span
-                        class="block text-[11px] font-extrabold tracking-wider text-brand uppercase"
-                    >
-                        PERFORMANCE TRACKER
-                    </span>
-
-                </div>
-
+    <main class="auth">
+        <section class="art">
+            <div class="copy">
+                <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
+                <div class="bar"></div>
+                <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
             </div>
-
-
-            <!-- HERO -->
-
-            <div class="relative z-10 my-auto py-8">
-
-                <h1
-                    class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-4"
-                >
-
-                    Coach.<br>
-                    Guide.<br>
-
-                    <span class="text-brand">
-                        Perform.
-                    </span>
-
-                </h1>
-
-
-                <p
-                    class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm"
-                >
-
-                    Manage athlete performance,
-                    monitor progress, provide feedback,
-                    and help your players reach their goals.
-
-                </p>
-
-
-                <div class="w-12 h-1 bg-brand rounded-full mt-6"></div>
-
-            </div>
-
-
-            <!-- FOOTER -->
-
-            <div
-                class="relative z-10 text-[10px] text-slate-500 uppercase tracking-widest font-semibold"
-            >
-
-                PerformX Engine Platform
-
-            </div>
-
-        </div>
+        </section>
 
 
         <!-- =================================
              RIGHT COLUMN
         ================================== -->
 
-        <div
-            class="bg-white p-8 sm:p-12 flex flex-col justify-between"
-        >
+        <section class="panel coach-signup-panel">
 
-            <div>
-
-
-                <!-- ICON -->
-
-                <div class="flex justify-center mb-4">
-
-                    <div
-                        class="w-14 h-14 rounded-full border-2 border-brand/40 flex items-center justify-center bg-brand-light"
-                    >
-
-                        <svg
-                            class="w-7 h-7 text-slate-700"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="1.5"
-                                d="M12 14l9-5-9-5-9 5 9 5z"
-                            />
-
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="1.5"
-                                d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-                            />
-
-                        </svg>
-
-                    </div>
-
-                </div>
+            <div class="coach-signup-content">
 
 
                 <!-- TITLE -->
@@ -303,6 +150,50 @@
                         </div>
 
                     </div>
+
+                    <!-- CONTACT NUMBER -->
+
+                    <div>
+
+                        <label
+                            for="contactNumber"
+                            class="block text-xs font-bold text-slate-800 mb-1"
+                        >
+                            Contact Number
+                        </label>
+
+                        <div class="relative">
+
+                            <input
+                                type="tel"
+                                id="contactNumber"
+                                required
+                                placeholder="Enter your contact number"
+                                class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
+                            >
+
+                            <span class="absolute right-3.5 top-2.5 text-slate-400">
+
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                    />
+                                </svg>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
 
 
                     <!-- COACH EMAIL -->
@@ -556,35 +447,9 @@
             </div>
 
 
-            <!-- SECURITY NOTICE -->
+        </section>
 
-            <div
-                class="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-4 border-t border-slate-100"
-            >
-
-                <svg
-                    class="w-3.5 h-3.5 text-amber-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                >
-
-                    <path
-                        fill-rule="evenodd"
-                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                        clip-rule="evenodd"
-                    />
-
-                </svg>
-
-                <span>
-                    Your account information is securely protected.
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
+    </main>
 
 
     <!-- =================================
@@ -721,6 +586,12 @@
                     .value
                     .trim();
 
+            const contactNumber =
+                document
+                    .getElementById("contactNumber")
+                    .value
+                    .trim();
+
             const email =
                 document
                     .getElementById("coachEmail")
@@ -750,6 +621,19 @@
 
                 errorMessage.textContent =
                     "Please enter your full name.";
+
+                errorMessage.classList.remove("hidden");
+
+                return;
+            }
+
+
+            /* VALIDATE CONTACT NUMBER */
+
+            if (!contactNumber) {
+
+                errorMessage.textContent =
+                    "Please enter your contact number.";
 
                 errorMessage.classList.remove("hidden");
 
@@ -839,6 +723,7 @@
                 body: JSON.stringify({
                     name: fullName,
                     email: email,
+                    contact_number: contactNumber,
                     password: password,
                     confirm_password: confirmPassword,
                     role: "coach"
