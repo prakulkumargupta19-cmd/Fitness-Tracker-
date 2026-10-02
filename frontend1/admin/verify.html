@@ -9,7 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Verify OTP | Admin</title>
+    <title>Admin OTP Verification | Fitness Performance Tracker</title>
 
     <style>
 
@@ -317,167 +317,76 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="../css/admin/verify.css">
-
-<script src="../js/config.js"></script>
-    <link rel="stylesheet" href="../css/common/app-theme.css">
-    <link rel="stylesheet" href="../css/common/portal-refresh.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <script src="../js/config.js"></script>
+    <style>
+        .auth { --img: url("../demo/admin.jpg"); --hx: 4.2cqw; --hy: 15.4cqw; --hs: 3.8; --hl: .98; --bw: 4.2; --bt: 2.4cqw; --pt: 2.2cqw; --pw: 24.5; --ps: 1.26; --pl: 1.45; }
+        .panel .description { width: calc(var(--u)*33.3); margin: calc(var(--u)*.9) 0 calc(var(--u)*2); color: var(--muted); font-size: calc(var(--u)*1.25); line-height: 1.45; }
+        .panel .email-display { width: calc(var(--u)*33.3); margin: 0 0 calc(var(--u)*1.4); padding: calc(var(--u)*.9) calc(var(--u)*1.1); border: 1px solid var(--line); border-radius: calc(var(--u)*.7); background: var(--field); color: var(--muted); font-size: calc(var(--u)*1.05); line-height: 1.4; text-align: left; overflow-wrap: anywhere; }
+        .panel .email-display strong { color: var(--ink); }
+        .panel .otp-container { width: calc(var(--u)*33.3); justify-content: space-between; gap: calc(var(--u)*.5); margin: 0 0 calc(var(--u)*1.5); }
+        .panel .otp-input { flex: 0 1 calc(var(--u)*4.2); width: calc(var(--u)*4.2); min-width: 0; height: calc(var(--u)*3.8); padding: 0; border: 1px solid var(--line); border-radius: calc(var(--u)*.7); background: var(--field); color: var(--ink); font: 700 calc(var(--u)*1.8)/1 "Inter", sans-serif; }
+        .panel .otp-input:focus { border-color: #8dbcff; outline: 0; background: #eef5ff; box-shadow: 0 0 0 .3cqw rgba(60,135,255,.18); }
+        .panel .verify-button { width: calc(var(--u)*33.3); height: calc(var(--u)*3.7); padding: 0; border: 0; border-radius: calc(var(--u)*.95); background: linear-gradient(90deg,#0a66ff,#00a6ff); color: #fff; font: 700 calc(var(--u)*1.25) "Inter", sans-serif; box-shadow: 0 .7cqw 1.6cqw rgba(10,99,255,.3); cursor: pointer; }
+        .panel .verify-button:disabled { opacity: .6; cursor: not-allowed; }
+        .panel .timer, .panel .resend { width: calc(var(--u)*33.3); color: var(--muted); font-size: calc(var(--u)*1.02); line-height: 1.45; text-align: center; }
+        .panel .timer { margin-top: calc(var(--u)*1.3); }
+        .panel .timer span { color: var(--blue); font-weight: 700; }
+        .panel .resend { margin-top: calc(var(--u)*1.1); }
+        .panel .resend button { border: 0; background: none; color: var(--blue); font: inherit; font-weight: 700; cursor: pointer; }
+        .panel .resend button:disabled { color: #9aa5b8; cursor: not-allowed; }
+        .panel .message { width: calc(var(--u)*33.3); margin: calc(var(--u)*1.2) 0 0; padding: calc(var(--u)*.9); border-radius: calc(var(--u)*.7); font-size: calc(var(--u)*1.02); line-height: 1.4; text-align: center; }
+        .panel .message.success { display: block; border: 1px solid #bbf7d0; background: #ecfdf3; color: #15803d; }
+        .panel .message.error { display: block; border: 1px solid #fecdd3; background: #fff1f2; color: #be123c; }
+        .panel .change-email { display: block; width: calc(var(--u)*33.3); margin-top: calc(var(--u)*1.3); color: var(--blue); font-size: calc(var(--u)*1.05); text-align: center; }
+        .panel .security-note { width: calc(var(--u)*33.3); margin-top: calc(var(--u)*1.2); color: var(--muted); font-size: calc(var(--u)*.9); line-height: 1.4; text-align: center; }
+        @media (max-width: 860px) {
+            .panel .description, .panel .email-display, .panel .otp-container, .panel .verify-button, .panel .timer, .panel .resend, .panel .message, .panel .change-email, .panel .security-note { width: 100%; }
+            .panel .otp-container { justify-content: center; gap: 6px; }
+            .panel .otp-input { flex: 0 0 42px; width: 42px; height: 50px; font-size: 20px; }
+            .panel .verify-button { height: 52px; font-size: 1rem; }
+            .panel .description, .panel .timer, .panel .resend, .panel .message, .panel .change-email, .panel .security-note { font-size: .9rem; }
+        }
+    </style>
 </head>
 
-<body data-portal-role="admin">
+<body>
 
-    <!-- OTP CARD -->
-
-    <div class="otp-card">
-
-        <!-- ICON -->
-
-        <div class="otp-icon">
-            🔐
+<main class="auth">
+    <section class="art">
+        <div class="copy">
+            <h2>Manage.<br>Monitor.<br><span class="accent">Grow Stronger<br>Together.</span></h2>
+            <div class="bar"></div>
+            <p>Oversee users, manage coach approvals, monitor activity, and keep the platform running smoothly.</p>
         </div>
+    </section>
 
-        <!-- HEADING -->
+    <section class="panel">
+        <h1><span>Verify</span> OTP</h1>
+        <p class="description">Enter the 6-digit verification code sent to your email.</p>
 
-        <h1>
-            <span>Verify</span> OTP
-        </h1>
-
-        <p class="description">
-            Enter the 6-digit verification code
-            sent to your email.
-        </p>
-
-        <!-- EMAIL -->
-
-        <div class="email-display">
-
-            OTP sent to:
-
-            <strong id="userEmail">
-                Loading...
-            </strong>
-
-        </div>
-
-        <!-- OTP INPUTS -->
+        <div class="email-display">OTP sent to: <strong id="userEmail">Loading...</strong></div>
 
         <div class="otp-container">
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                autofocus
-            >
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-            >
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-            >
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-            >
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-            >
-
-            <input
-                type="text"
-                class="otp-input"
-                maxlength="1"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-            >
-
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" autofocus>
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
         </div>
 
-        <!-- VERIFY BUTTON -->
-
-        <button
-            type="button"
-            class="verify-button"
-            id="verifyButton"
-        >
-            Verify OTP
-        </button>
-
-        <!-- TIMER -->
-
-        <div class="timer">
-
-            OTP expires in:
-
-            <span id="timer">
-                02:00
-            </span>
-
-        </div>
-
-        <!-- RESEND -->
-
-        <div class="resend">
-
-            Didn't receive the code?
-
-            <button
-                type="button"
-                id="resendButton"
-                disabled
-            >
-                Resend OTP
-            </button>
-
-        </div>
-
-        <!-- MESSAGE -->
-
-        <div
-            id="message"
-            class="message"
-        ></div>
-
-        <!-- CHANGE EMAIL -->
-
-        <a
-            href="../shared/forgot-password.html"
-            class="change-email"
-        >
-            ← Change Email Address
-        </a>
-
-        <!-- SECURITY -->
-
-        <div class="security-note">
-
-            🔒 Never share your OTP with anyone.
-            Our team will never ask you for your OTP.
-
-        </div>
-
-    </div>
+        <button type="button" class="verify-button" id="verifyButton">Verify OTP</button>
+        <div class="timer">OTP expires in: <span id="timer">02:00</span></div>
+        <div class="resend">Didn't receive the code? <button type="button" id="resendButton" disabled>Resend OTP</button></div>
+        <div id="message" class="message"></div>
+        <a href="../shared/forgot-password.html" class="change-email">← Change Email Address</a>
+        <div class="security-note">Never share your OTP with anyone. Our team will never ask you for your OTP.</div>
+    </section>
+</main>
 
     <!-- =================================
          JAVASCRIPT
