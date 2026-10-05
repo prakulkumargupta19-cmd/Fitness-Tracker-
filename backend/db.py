@@ -1,42 +1,42 @@
-"""Database configuration and connection helper.
-
-This module provides a single source of truth for the database
-configuration used by the application.  It is intentionally
-minimal to avoid circular imports – it only imports :mod:`pymysql`
-and exposes :data:`DB_CONFIG` and :func:`get_db`.
-
-The values are copied verbatim from :mod:`backend.app` to preserve
-exact behaviour.
-"""
+"""Supabase PostgreSQL database connection."""
 
 import os
 from pathlib import Path
 
-import pymysql
+import psycopg
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
-# Load the .env file that lives in the backend directory itself.
-load_dotenv(Path(__file__).resolve().parent / ".env")
+# Load the repository-root .env during local development. Environment values
+# configured by a deployment platform take precedence over this optional file.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "127.0.0.1"),
-    "port": int(os.getenv("DB_PORT", "3306")),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", "password@1234"),
-    "database": os.getenv("DB_NAME", "fitness_tracker_auth"),
-    "charset": "utf8mb4",
-    "cursorclass": pymysql.cursors.DictCursor,
-    "autocommit": False,
-}
+
+class DatabaseConnectionError(RuntimeError):
+    """Safe database connection error that never includes the connection URL."""
 
 
 def get_db():
-    """Return a new :class:`pymysql.connections.Connection`.
-
-    If FITNESS_TEST_MODE is set, uses the isolated test database selected by
-    FITNESS_TEST_DB_NAME.
     """
-    config = DB_CONFIG.copy()
-    if os.getenv("FITNESS_TEST_MODE") == "true":
-        config["database"] = os.getenv("FITNESS_TEST_DB_NAME", "fitness_tracker_test")
-    return pymysql.connect(**config)
+    Create and return a PostgreSQL connection to Supabase.
+
+    Uses SUPABASE_DB_URL from the environment.
+    """
+
+    database_url = os.getenv("SUPABASE_DB_URL")
+
+    if not database_url:
+        raise RuntimeError(
+            "SUPABASE_DB_URL environment variable is not configured."
+        )
+
+    try:
+        return psycopg.connect(
+            database_url,
+            row_factory=dict_row,
+            connect_timeout=int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+        )
+    except psycopg.Error as error:
+        raise DatabaseConnectionError(
+            "Could not connect to the configured PostgreSQL database."
+        ) from error

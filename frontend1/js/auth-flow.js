@@ -19,9 +19,9 @@
    COACH
    -----
    /api/login
-       ↓
-   Shared Login OTP
-       ↓
+        ↓
+   Direct Flask Session
+        ↓
    Coach Dashboard
 
 
@@ -362,38 +362,120 @@ async function handleLoginForm(form) {
             );
 
 
-        if (!["admin", "coach", "player"].includes(returnedRole)) {
-            throw new Error("Unable to determine account role.");
-        }
+        /*
+         * ============================================================
+         * COACH
+         * ============================================================
+         *
+         * Coach authentication is password-only.
+         *
+         * The backend already created the Flask session.
+         */
 
-        if (pageRole && canonicalRole(pageRole) !== returnedRole) {
-            throw new Error("This account does not belong to this login page.");
-        }
+        if (returnedRole === "coach") {
 
-        if (!data.otp_required) {
-            throw new Error("The server did not start login verification.");
-        }
+            if (pageRole && pageRole !== "coach") {
+
+                throw new Error(
+                    "This account does not belong to this login page."
+                );
+
+            }
 
 
-        showAuthMessage(
-            messageElement,
-            "Verification code sent. Redirecting...",
-            "success"
-        );
+            showAuthMessage(
+                messageElement,
+                "Coach login successful. Redirecting...",
+                "success"
+            );
 
 
             setTimeout(
                 function () {
 
                     window.location.href =
-                        "/shared/login-otp.html";
+                        dashboardForRole("coach");
 
                 },
                 300
             );
 
 
-        return;
+            return;
+
+        }
+
+
+        /*
+         * ============================================================
+         * ADMIN / STUDENT OTP FLOW
+         * ============================================================
+         */
+
+        if (
+            returnedRole === "admin" ||
+            returnedRole === "player"
+        ) {
+
+            /*
+             * Store email temporarily so the OTP page knows
+             * which account is being verified.
+             */
+
+            sessionStorage.setItem(
+                "otp_email",
+                email
+            );
+
+
+            sessionStorage.setItem(
+                "otp_role",
+                returnedRole
+            );
+
+
+            /*
+             * The backend may return an explicit OTP-required
+             * response or the login endpoint may already indicate
+             * that verification is required.
+             */
+
+            const otpPage =
+                returnedRole === "admin"
+                    ? "/admin/admin-loginotp.html"
+                    : "/student/student-loginotp.html";
+
+
+            showAuthMessage(
+                messageElement,
+                "Verification code sent. Redirecting...",
+                "success"
+            );
+
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        otpPage;
+
+                },
+                300
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+         * Unknown role
+         */
+
+        throw new Error(
+            "Unable to determine account role."
+        );
 
 
     } catch (error) {

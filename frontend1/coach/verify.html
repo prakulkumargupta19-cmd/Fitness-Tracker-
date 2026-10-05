@@ -182,7 +182,7 @@
         ================================================== -->
 
         <a
-            href="forgot-password.html"
+            href="../shared/forgot-password.html"
             class="change-email"
         >
             ← Change Email Address
@@ -565,6 +565,10 @@ verifyButton.addEventListener(
 
             }
 
+            if (data.reset_token) {
+                sessionStorage.setItem("resetToken", data.reset_token);
+            }
+
 
             /* ---------------------------------------------
                OTP verified
@@ -577,19 +581,6 @@ verifyButton.addEventListener(
             );
 
 
-            /*
-             * The backend has now verified the OTP.
-             *
-             * Store a temporary flag so the reset-password
-             * page knows the verification step was completed.
-             */
-
-            sessionStorage.setItem(
-                "otpVerified",
-                "true"
-            );
-
-
             /* ---------------------------------------------
                Redirect to password reset
             ---------------------------------------------- */
@@ -597,7 +588,7 @@ verifyButton.addEventListener(
             setTimeout(function () {
 
                 window.location.href =
-                    "reset-password.html";
+                    "../shared/set-password.html";
 
             }, 1000);
 

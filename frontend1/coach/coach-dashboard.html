@@ -276,7 +276,7 @@
             </span>
 
             <strong id="totalAthletes">
-              8
+              0
             </strong>
 
           </div>
@@ -297,7 +297,7 @@
             </span>
 
             <strong id="presentToday">
-              7
+              0
             </strong>
 
           </div>
@@ -314,11 +314,11 @@
           <div class="stat-info">
 
             <span>
-              Attendance Records
+              Attendance Rate
             </span>
 
-            <strong id="recordCount">
-              0
+            <strong id="attendanceRate">
+              0%
             </strong>
 
           </div>
@@ -890,6 +890,7 @@
   let attendanceAthletes = [];
   let assignedSports = [];
   let attendanceRecords = [];
+  let attendanceSummary = {};
   let currentAttendance = {};
   let activeRecordStudentId = null;
   let activeRecordType = null;
@@ -904,6 +905,24 @@
     if (!response.ok) throw new Error(data.message || "The request could not be completed.");
     return data;
   }
+
+  async function getCoachSession() {
+    const sessionData = await apiRequest("/api/session");
+    const currentUser = sessionData.user || {};
+    if (currentUser.role === "coach") return sessionData;
+
+    const roleDashboard = currentUser.role === "admin"
+      ? "../admin/admin-dashboard.html"
+      : currentUser.role === "student"
+        ? "../student/student-dashboard.html"
+        : "coach-login.html";
+    window.location.replace(roleDashboard);
+    return null;
+  }
+
+  window.addEventListener("focus", () => {
+    getCoachSession().catch(() => {});
+  });
 
   function openRecordForm(studentId, resource) {
     const athlete = athletes.find(item => item.id === studentId);
@@ -964,6 +983,7 @@
 
   document.getElementById("performanceForm").addEventListener("submit", async event => {
     event.preventDefault();
+    if (!(await getCoachSession())) return;
     const payload = Object.fromEntries(new FormData(event.currentTarget));
     payload.student_id = activeRecordStudentId;
     if (activeRecordType === "training-sessions") payload.sport_id = Number(payload.sport_id);
@@ -980,11 +1000,15 @@
   });
   async function initializeCoachDashboard() {
     try {
-      const [athleteData, sportData, sessionData, attendanceSessions] = await Promise.all([
+      const sessionData = await getCoachSession();
+      if (!sessionData) return;
+      const currentUser = sessionData.user || {};
+
+      const [athleteData, sportData, attendanceSessions, summaryData] = await Promise.all([
         apiRequest("/api/coach/athletes"),
         apiRequest("/api/coach/sports"),
-        apiRequest("/api/session"),
-        apiRequest("/api/coach/attendance/sessions")
+        apiRequest("/api/coach/attendance/sessions"),
+        apiRequest("/api/coach/attendance/summary")
       ]);
       athletes = athleteData.athletes.map(athlete => ({
         ...athlete,
@@ -994,7 +1018,8 @@
       }));
       assignedSports = sportData.sports;
       attendanceRecords = attendanceSessions.data || [];
-      const coach = sessionData.user || {};
+      attendanceSummary = summaryData.summary || {};
+      const coach = currentUser;
       const coachName = coach.full_name || "Coach";
       document.getElementById("coachDisplayName").textContent = coachName;
       document.getElementById("coachProfileTitle").textContent = coachName;
@@ -1015,8 +1040,11 @@
       renderAthletes();
       updateDashboardStats();
     } catch (error) {
-      alert(error.message);
-      if (/coach|session/i.test(error.message)) window.location.href = "coach-login.html";
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Coach dashboard data could not be loaded.");
     }
   }
 
@@ -1207,6 +1235,16 @@
   ========================= */
 
   async function loadAttendance() {
+    try {
+      if (!(await getCoachSession())) return;
+    } catch (error) {
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Could not verify coach access.");
+      return;
+    }
 
     const dateInput =
       document.getElementById(
@@ -1337,6 +1375,9 @@
                 Absent
               </button>
 
+              <button class="${status === "late" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'late')">Late</button>
+              <button class="${status === "excused" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'excused')">Excused</button>
+
 
             </div>
 
@@ -1430,6 +1471,16 @@
 
 
   async function saveAttendance() {
+    try {
+      if (!(await getCoachSession())) return;
+    } catch (error) {
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Could not verify coach access.");
+      return;
+    }
 
     const date =
       document.getElementById(
@@ -1712,20 +1763,14 @@
       athletes.length;
 
 
-    document.getElementById(
-      "recordCount"
-    ).textContent =
-      attendanceRecords.length;
+    document.getElementById("attendanceRate").textContent = `${attendanceSummary.percentage || 0}%`;
 
 
     const today =
       getToday();
 
 
-    document.getElementById(
-      "presentToday"
-    ).textContent =
-      "-";
+    document.getElementById("presentToday").textContent = attendanceSummary.present_today || 0;
 
   }
 

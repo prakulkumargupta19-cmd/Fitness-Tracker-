@@ -44,7 +44,7 @@
             <div class="status">Pending Admin Approval</div>
         </div>
         <p class="info">An administrator will review your registration details and approve your account. You will be able to access your coach dashboard once your account has been approved.</p>
-        <a href="../mainlading.html" class="btn back-button">Back to Home <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a>
+        <a href="../index.html" class="btn back-button">Back to Home <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a>
     </section>
 </main>
 
@@ -60,7 +60,7 @@
         if (data.success && data.coach_status === "approved") {
             window.location.href = "coach-login.html";
         }
-        if (data.success && data.coach_status === "rejected") {
+        if (data.success && ["rejected", "declined"].includes(data.coach_status)) {
             document.querySelector(".status").textContent = "Application Not Approved";
         }
     }

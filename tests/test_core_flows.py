@@ -13,7 +13,6 @@ class FakeCursor:
         self.one = one
         self.many = many or []
         self.statements = []
-        self.lastrowid = 73
 
     def __enter__(self):
         return self

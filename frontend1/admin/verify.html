@@ -720,28 +720,13 @@
                         data.success
                     ) {
 
-                        /*
-                         * OTP verification successful.
-                         *
-                         * Save everything required by
-                         * the reset-password page.
-                         */
-
-                        sessionStorage.setItem(
-                            "otpVerified",
-                            "true"
-                        );
-
+                        if (data.reset_token) {
+                            sessionStorage.setItem("resetToken", data.reset_token);
+                        }
 
                         sessionStorage.setItem(
                             "resetEmail",
                             email
-                        );
-
-
-                        sessionStorage.setItem(
-                            "resetOtp",
-                            otp
                         );
 
 

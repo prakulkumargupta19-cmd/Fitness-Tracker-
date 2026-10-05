@@ -16,9 +16,7 @@ from dotenv import load_dotenv
 
 # Match the semantics used by backend.app (no import from it).
 TEST_MODE = os.getenv("FITNESS_TEST_MODE", "false").lower() == "true"
-# Enable logging OTP to terminal for easier debugging
-OTP_LOG_TO_TERMINAL = True
-OTP_MINUTES = 10
+OTP_MINUTES = 3
 
 
 def display_role(role):
@@ -64,20 +62,14 @@ def send_email(recipient, subject, body):
         return True
     except (OSError, smtplib.SMTPException, ValueError) as error:
         current_app.logger.error(
-            "Email delivery failed for %s:%s using %s: %s",
-            host,
-            port,
-            security,
-            error,
+            "Email delivery failed (%s)",
+            type(error).__name__,
         )
         return False
 
 
 def send_otp_email(email, name, purpose, otp):
     action = "password reset" if purpose == "password_reset" else "account verification"
-    if OTP_LOG_TO_TERMINAL:
-        print(f"\n[OTP] {email} ({purpose}): {otp}\n", flush=True)
-    print(f"[DEBUG] OTP sent to {email} with TEST_MODE={TEST_MODE}, OTP={otp}")
     if TEST_MODE:
         return True
     return send_email(
@@ -89,7 +81,6 @@ def send_otp_email(email, name, purpose, otp):
 
 def send_account_created_email(email, name, role):
     if TEST_MODE:
-        print(f"[TEST MODE] Account created for {email} as {role}")
         return True
     return send_email(
         email,
@@ -109,14 +100,12 @@ def send_coach_approval_email(email, name, status):
         "Please contact the administrator for more information.\n\nFitness Performance Tracker"
     )
     if TEST_MODE:
-        print(f"[TEST MODE] {subject} email for {email}")
         return True
     return send_email(email, subject, body)
 
 
 def send_password_reset_success_email(email, name):
     if TEST_MODE:
-        print(f"[TEST MODE] Password reset successful for {email}")
         return True
     return send_email(
         email,
@@ -127,7 +116,6 @@ def send_password_reset_success_email(email, name):
 
 def send_signup_confirmation_email(email, name, user_code):
     if TEST_MODE:
-        print(f"[TEST MODE] Signup confirmation sent to {email}")
         return True
     return send_email(
         email,
@@ -138,7 +126,6 @@ def send_signup_confirmation_email(email, name, user_code):
 
 def send_password_reset_confirmation_email(email, name):
     if TEST_MODE:
-        print(f"[TEST MODE] Password reset confirmation sent to {email}")
         return True
     return send_email(
         email,

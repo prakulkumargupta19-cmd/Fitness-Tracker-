@@ -63,7 +63,7 @@
 
         <div id="message" class="message"></div>
 
-        <a href="forgot-password.html" class="change-email">
+        <a href="../shared/forgot-password.html" class="change-email">
             ← Change Email Address
         </a>
 
@@ -230,16 +230,16 @@
                     throw new Error(data.message || "Invalid or expired OTP.");
                 }
 
+                if (data.reset_token) {
+                    sessionStorage.setItem("resetToken", data.reset_token);
+                }
                 sessionStorage.setItem("resetEmail", resetEmail);
-                sessionStorage.setItem("resetOtp", otp);
-                sessionStorage.setItem("otpVerified", "true");
-
                 clearInterval(countdown);
                 showMessage(data.message || "OTP verified successfully.", "success");
                 verifyButton.textContent = "OTP Verified";
 
                 setTimeout(() => {
-                    window.location.replace("reset-password.html");
+                    window.location.replace("../shared/set-password.html");
                 }, 700);
 
             } catch (error) {

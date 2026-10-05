@@ -1,5 +1,5 @@
--- Apply to the configured application database for existing installations.
+-- Safe to run repeatedly against PostgreSQL.
 ALTER TABLE pending_registrations
-    ADD COLUMN otp_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
-    ADD COLUMN otp_sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ADD COLUMN otp_send_count TINYINT UNSIGNED NOT NULL DEFAULT 1;
+    ADD COLUMN IF NOT EXISTS otp_attempts SMALLINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS otp_sent_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS otp_send_count SMALLINT NOT NULL DEFAULT 1;

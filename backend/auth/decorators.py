@@ -65,6 +65,8 @@ def role_required(*roles):
 
             user_role = user["role"]
             session["role"] = user_role
+            if user_role in ("coach", "student") and not user.get("is_active", True):
+                return jsonify(success=False, message="This account is inactive. Contact an administrator."), 403
             if user_role == "coach" and user.get("coach_status") != "approved":
                 return jsonify(
                     success=False,

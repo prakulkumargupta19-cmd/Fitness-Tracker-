@@ -151,6 +151,19 @@
 
                     </div>
 
+                    <div>
+                        <label for="qualification" class="block text-xs font-bold text-slate-800 mb-1">Qualification</label>
+                        <input type="text" id="qualification" required placeholder="Degree or certification" class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand">
+                    </div>
+                    <div>
+                        <label for="specialization" class="block text-xs font-bold text-slate-800 mb-1">Specialization</label>
+                        <input type="text" id="specialization" required placeholder="e.g. Strength and conditioning" class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand">
+                    </div>
+                    <div>
+                        <label for="experienceYears" class="block text-xs font-bold text-slate-800 mb-1">Experience (years)</label>
+                        <input type="number" id="experienceYears" required min="0" max="70" step="1" placeholder="0" class="w-full px-3.5 py-2.5 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand">
+                    </div>
+
                     <!-- CONTACT NUMBER -->
 
                     <div>
@@ -260,7 +273,7 @@
                                 type="password"
                                 id="password"
                                 required
-                                minlength="6"
+                minlength="8"
                                 placeholder="Create a password"
                                 autocomplete="new-password"
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
@@ -314,7 +327,7 @@
                                 type="password"
                                 id="confirmPassword"
                                 required
-                                minlength="6"
+                                minlength="8"
                                 placeholder="Confirm your password"
                                 autocomplete="new-password"
                                 class="w-full px-3.5 py-2.5 pr-10 text-xs text-slate-800 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand placeholder-slate-400 transition-all"
@@ -434,7 +447,7 @@
                     <p>
 
                         <a
-                            href="../mainlading.html"
+                            href="../index.html"
                             class="text-slate-400 hover:text-slate-600 font-medium text-[11px]"
                         >
                             &larr; Back to role selection
@@ -656,7 +669,7 @@
 
             /* VALIDATE PASSWORD */
 
-            if (password.length < 6) {
+            if (password.length < 8) {
 
                 errorMessage.textContent =
                     "Password must contain at least 6 characters.";
@@ -726,7 +739,10 @@
                     contact_number: contactNumber,
                     password: password,
                     confirm_password: confirmPassword,
-                    role: "coach"
+                    role: "coach",
+                    qualification: document.getElementById("qualification").value.trim(),
+                    specialization: document.getElementById("specialization").value.trim(),
+                    experience_years: document.getElementById("experienceYears").value
                 })
 
             })
