@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -17,7 +18,10 @@
     >
 
     <style>
-        /* SPORTS SELECTION */
+
+        /* =========================================================
+           SPORTS SELECTION
+        ========================================================= */
 
         .sports-group {
             margin-bottom: 24px;
@@ -38,613 +42,1133 @@
 
         .sports-options {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .sport-option {
             position: relative;
+            width: 100%;
         }
 
-        .sport-option input {
+        /* Keep actual checkbox functional for existing JS */
+
+        .sport-option input[type="checkbox"] {
             position: absolute;
+            width: 1px;
+            height: 1px;
             opacity: 0;
             pointer-events: none;
         }
 
+        /* =========================================================
+           SPORT CARD
+        ========================================================= */
+
         .sport-option label {
+            width: 100%;
+            min-height: 48px;
+
             display: flex;
             align-items: center;
+            justify-content: space-between;
+
             gap: 12px;
-            padding: 14px 16px;
-            border: 1px solid #e4eaf2;
+
+            padding: 10px 12px 10px 14px;
+
+            border: 1px solid #dce4ef;
             border-radius: 10px;
-            background: #fff;
+
+            background: #ffffff;
+
             cursor: pointer;
+
             font-size: 14px;
             font-weight: 600;
+
             color: #10213f;
-            transition: all 0.2s ease;
+
+            transition:
+                border-color 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.15s ease;
         }
+
+        /* Sport name stays on the left */
+
+        .sport-name {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+
+        /* =========================================================
+           CHECKBOX BOX
+           ALWAYS ON THE RIGHT SIDE
+        ========================================================= */
+
+        .sport-check {
+            width: 21px;
+            height: 21px;
+
+            min-width: 21px;
+            max-width: 21px;
+
+            flex: 0 0 21px;
+
+            margin-left: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 2px solid #cbd5e1;
+
+            border-radius: 6px;
+
+            background: #ffffff;
+
+            flex-shrink: 0;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.15s ease;
+        }
+
+        /* =========================================================
+           CHECK MARK
+        ========================================================= */
+
+        .sport-check::after {
+            content: "✓";
+
+            display: none;
+
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            line-height: 1;
+        }
+
+        /* =========================================================
+           HOVER
+        ========================================================= */
 
         .sport-option label:hover {
             border-color: #087cff;
             background: #f7fbff;
+
+            box-shadow:
+                0 4px 12px rgba(8, 124, 255, 0.08);
+
+            transform: translateY(-1px);
         }
 
-        .sport-check {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #cbd5e1;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-        }
+        /* =========================================================
+           SELECTED SPORT
+        ========================================================= */
 
-        .sport-check::after {
-            content: "✓";
-            color: white;
-            font-size: 13px;
-            font-weight: 800;
-            display: none;
-        }
-
-        .sport-option input:checked + label {
+        .sport-option input[type="checkbox"]:checked + label {
             border-color: #087cff;
+
             background: #eef6ff;
+
             color: #0564d6;
+
+            box-shadow:
+                0 4px 12px rgba(8, 124, 255, 0.10);
         }
 
-        .sport-option input:checked + label .sport-check {
+        /* =========================================================
+           SELECTED CHECKBOX
+        ========================================================= */
+
+        .sport-option
+        input[type="checkbox"]:checked
+        + label
+        .sport-check {
+
             background: #087cff;
+
             border-color: #087cff;
+
+            box-shadow:
+                0 2px 6px rgba(8, 124, 255, 0.22);
+
+            transform: scale(1.03);
         }
 
-        .sport-option input:checked + label .sport-check::after {
+        /* Show check mark */
+
+        .sport-option
+        input[type="checkbox"]:checked
+        + label
+        .sport-check::after {
+
             display: block;
         }
 
+        /* =========================================================
+           CLICK EFFECT
+        ========================================================= */
+
+        .sport-option label:active {
+            transform: scale(0.98);
+        }
+
+        /* =========================================================
+           ACCESSIBILITY
+        ========================================================= */
+
+        .sport-option
+        input[type="checkbox"]:focus-visible
+        + label {
+
+            outline:
+                3px solid rgba(8, 124, 255, 0.20);
+
+            outline-offset: 2px;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
+        .button-container {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            width: 100%;
+
+            gap: 12px;
+
+            margin-top: 8px;
+        }
+
+        /* BACK = LEFT */
+
+        .back-button {
+            height: 48px;
+
+            min-width: 105px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 0 18px;
+
+            border:
+                1px solid #d6e0ef;
+
+            border-radius: 11px;
+
+            background: #ffffff;
+
+            color: #126cf5;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            flex: 0 0 auto;
+
+            transition: 0.2s ease;
+        }
+
+        .back-button:hover {
+            border-color: #126cf5;
+
+            background: #f4f8ff;
+        }
+
+        /* CONTINUE = RIGHT */
+
+        .next-button {
+            height: 48px;
+
+            min-width: 150px;
+
+            padding: 0 22px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #116bf6,
+                    #08a9ef
+                );
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            flex: 0 0 auto;
+
+            box-shadow:
+                0 10px 22px rgba(17, 107, 246, 0.22);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .next-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 13px 28px rgba(17, 107, 246, 0.30);
+        }
+
+        .next-button:active {
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
         @media (max-width: 600px) {
+
             .sports-options {
                 grid-template-columns: 1fr;
             }
+
+            .sport-option label {
+                min-height: 50px;
+            }
+
+            .button-container {
+                flex-direction: row;
+
+                justify-content: space-between;
+
+                align-items: center;
+            }
+
+            .back-button,
+            .next-button {
+                width: auto;
+            }
+
         }
+
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap"
+        rel="stylesheet"
+    >
+
     <script src="../js/config.js"></script>
-    <link rel="stylesheet" href="../css/common/app-theme.css">
-    <link rel="stylesheet" href="../demo/auth.css">
-    <link rel="stylesheet" href="../css/student/student-portal.css?v=8">
+
+    <link
+        rel="stylesheet"
+        href="../css/common/app-theme.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../demo/auth.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/student/student-portal.css?v=8"
+    >
+
 </head>
 
 
 <body data-portal-role="student">
 
+
     <main class="auth">
+
+
+        <!-- =====================================================
+             LEFT SIDE
+        ====================================================== -->
+
         <section class="art">
+
             <div class="copy">
-                <h2>Track.<br>Improve.<br><span class="accent">Perform.</span></h2>
+
+                <h2>
+                    Track.<br>
+                    Improve.<br>
+                    <span class="accent">
+                        Perform.
+                    </span>
+                </h2>
+
                 <div class="bar"></div>
-                <p>Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.</p>
-            </div>
-        </section>
 
-        <section class="panel student-profile-panel">
-    <div class="form-container">
-
-        <!-- HEADER -->
-
-        <div class="form-header">
-
-            <h1>
-                Personal <span>Information</span>
-            </h1>
-
-            <p>
-                Help us understand your fitness profile and goals.
-            </p>
-
-        </div>
-
-
-        <!-- PROGRESS -->
-
-        <div class="progress-container">
-
-            <div class="progress-text">
-
-                <span>
-                    Account
-                </span>
-
-                <span>
-                    Basic Information
-                </span>
-
-                <span class="active">
-                    Personal Information
-                </span>
-
-            </div>
-
-            <div class="progress-bar">
-
-                <div class="progress"></div>
-
-            </div>
-
-        </div>
-
-
-        <!-- FORM -->
-
-        <form id="personalInfoForm">
-
-            <!-- HEIGHT -->
-
-            <div class="form-group">
-
-                <label for="height">
-                    Height <span class="required">*</span>
-                </label>
-
-                <div class="input-with-unit">
-
-                    <input
-                        type="number"
-                        id="height"
-                        name="height"
-                        placeholder="Enter your height"
-                        min="50"
-                        max="250"
-                        step="0.1"
-                        required
-                    >
-
-                    <select
-                        id="height-unit"
-                        name="height_unit"
-                        class="unit-select"
-                        required
-                    >
-
-                        <option value="cm">
-                            cm
-                        </option>
-
-                        <option value="ft">
-                            ft
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            <!-- WEIGHT -->
-
-            <div class="form-group">
-
-                <label for="weight">
-                    Weight <span class="required">*</span>
-                </label>
-
-                <div class="input-with-unit">
-
-                    <input
-                        type="number"
-                        id="weight"
-                        name="weight"
-                        placeholder="Enter your weight"
-                        min="20"
-                        max="300"
-                        step="0.1"
-                        required
-                    >
-
-                    <select
-                        id="weight-unit"
-                        name="weight_unit"
-                        class="unit-select"
-                        required
-                    >
-
-                        <option value="kg">
-                            kg
-                        </option>
-
-                        <option value="lbs">
-                            lbs
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            <!-- SPORTS -->
-
-            <div class="sports-group">
-
-                <label class="sports-label">
-                    Sports <span class="required">*</span>
-                </label>
-
-                <p class="sports-hint">
-                    Select one or more sports you participate in.
+                <p>
+                    Stay connected with your fitness journey,
+                    monitor your goals, understand your improvement
+                    areas, and receive feedback from your coach.
                 </p>
 
-                <div class="sports-options">
+            </div>
 
-                    <!-- CRICKET -->
-
-                    <div class="sport-option">
-
-                        <input
-                            type="checkbox"
-                            id="cricket"
-                            name="sports"
-                            value="Cricket"
-                        >
-
-                        <label for="cricket">
-
-                            <span class="sport-check"></span>
-
-                            Cricket
-
-                        </label>
-
-                    </div>
+        </section>
 
 
-                    <!-- FOOTBALL -->
+        <!-- =====================================================
+             RIGHT SIDE
+        ====================================================== -->
 
-                    <div class="sport-option">
-
-                        <input
-                            type="checkbox"
-                            id="football"
-                            name="sports"
-                            value="Football"
-                        >
-
-                        <label for="football">
-
-                            <span class="sport-check"></span>
-
-                            Football
-
-                        </label>
-
-                    </div>
+        <section class="panel student-profile-panel">
 
 
-                    <!-- BASKETBALL -->
+            <div class="form-container">
 
-                    <div class="sport-option">
 
-                        <input
-                            type="checkbox"
-                            id="basketball"
-                            name="sports"
-                            value="Basketball"
-                        >
+                <!-- =================================================
+                     HEADER
+                ================================================== -->
 
-                        <label for="basketball">
+                <div class="form-header">
 
-                            <span class="sport-check"></span>
+                    <h1>
+                        Personal
+                        <span>
+                            Information
+                        </span>
+                    </h1>
 
-                            Basketball
+                    <p>
+                        Help us understand your fitness profile
+                        and goals.
+                    </p>
 
-                        </label>
+                </div>
+
+
+                <!-- =================================================
+                     PROGRESS
+                ================================================== -->
+
+                <div class="progress-container">
+
+
+                    <div class="progress-text">
+
+                        <span>
+                            Account
+                        </span>
+
+                        <span>
+                            Basic Information
+                        </span>
+
+                        <span class="active">
+                            Personal Information
+                        </span>
 
                     </div>
 
 
-                    <!-- VOLLEYBALL -->
+                    <!-- 3 / 3 = 100% -->
 
-                    <div class="sport-option">
+                    <div
+                        class="progress-bar"
+                        role="progressbar"
+                        aria-label="Profile setup progress"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="100"
+                    >
 
-                        <input
-                            type="checkbox"
-                            id="volleyball"
-                            name="sports"
-                            value="Volleyball"
-                        >
+                        <div
+                            class="progress"
+                            style="width: 100%;"
+                        ></div>
 
-                        <label for="volleyball">
-
-                            <span class="sport-check"></span>
-
-                            Volleyball
-
-                        </label>
-
-                    </div>
-
-
-                    <!-- KICKBOXING -->
-
-                    <div class="sport-option">
-
-                        <input
-                            type="checkbox"
-                            id="kickboxing"
-                            name="sports"
-                            value="Kickboxing"
-                        >
-
-                        <label for="kickboxing">
-
-                            <span class="sport-check"></span>
-
-                            Kickboxing
-
-                        </label>
-
-                    </div>
-
-                    <div class="sport-option">
-                        <input type="checkbox" id="badminton" name="sports" value="Badminton">
-                        <label for="badminton"><span class="sport-check"></span>Badminton</label>
-                    </div>
-
-                    <div class="sport-option">
-                        <input type="checkbox" id="athletics" name="sports" value="Athletics">
-                        <label for="athletics"><span class="sport-check"></span>Athletics</label>
                     </div>
 
                 </div>
 
+
+                <!-- =================================================
+                     FORM
+                ================================================== -->
+
+                <form id="personalInfoForm">
+
+
+                    <!-- =================================================
+                         HEIGHT
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="height">
+
+                            Height
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <div class="input-with-unit">
+
+
+                            <input
+                                type="number"
+                                id="height"
+                                name="height"
+                                placeholder="Enter your height"
+                                min="50"
+                                max="250"
+                                step="0.1"
+                                required
+                            >
+
+
+                            <select
+                                id="height-unit"
+                                name="height_unit"
+                                class="unit-select"
+                                required
+                            >
+
+                                <option value="cm">
+                                    cm
+                                </option>
+
+                                <option value="ft">
+                                    ft
+                                </option>
+
+                            </select>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =================================================
+                         WEIGHT
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="weight">
+
+                            Weight
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <div class="input-with-unit">
+
+
+                            <input
+                                type="number"
+                                id="weight"
+                                name="weight"
+                                placeholder="Enter your weight"
+                                min="20"
+                                max="300"
+                                step="0.1"
+                                required
+                            >
+
+
+                            <select
+                                id="weight-unit"
+                                name="weight_unit"
+                                class="unit-select"
+                                required
+                            >
+
+                                <option value="kg">
+                                    kg
+                                </option>
+
+                                <option value="lbs">
+                                    lbs
+                                </option>
+
+                            </select>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SPORTS
+                    ================================================== -->
+
+                    <div class="sports-group">
+
+
+                        <label class="sports-label">
+
+                            Sports
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <p class="sports-hint">
+                            Select one or more sports you participate in.
+                        </p>
+
+
+                        <div class="sports-options">
+
+
+                            <!-- ================================
+                                 CRICKET
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="cricket"
+                                    name="sports"
+                                    value="Cricket"
+                                >
+
+                                <label for="cricket">
+
+                                    <span class="sport-name">
+                                        Cricket
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 FOOTBALL
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="football"
+                                    name="sports"
+                                    value="Football"
+                                >
+
+                                <label for="football">
+
+                                    <span class="sport-name">
+                                        Football
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 BASKETBALL
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="basketball"
+                                    name="sports"
+                                    value="Basketball"
+                                >
+
+                                <label for="basketball">
+
+                                    <span class="sport-name">
+                                        Basketball
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 VOLLEYBALL
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="volleyball"
+                                    name="sports"
+                                    value="Volleyball"
+                                >
+
+                                <label for="volleyball">
+
+                                    <span class="sport-name">
+                                        Volleyball
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 KICKBOXING
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="kickboxing"
+                                    name="sports"
+                                    value="Kickboxing"
+                                >
+
+                                <label for="kickboxing">
+
+                                    <span class="sport-name">
+                                        Kickboxing
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 BADMINTON
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="badminton"
+                                    name="sports"
+                                    value="Badminton"
+                                >
+
+                                <label for="badminton">
+
+                                    <span class="sport-name">
+                                        Badminton
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                            <!-- ================================
+                                 ATHLETICS
+                            ================================= -->
+
+                            <div class="sport-option">
+
+                                <input
+                                    type="checkbox"
+                                    id="athletics"
+                                    name="sports"
+                                    value="Athletics"
+                                >
+
+                                <label for="athletics">
+
+                                    <span class="sport-name">
+                                        Athletics
+                                    </span>
+
+                                    <span class="sport-check"></span>
+
+                                </label>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =================================================
+                         BUTTONS
+                    ================================================== -->
+
+                    <div class="button-container">
+
+
+                        <!-- LEFT -->
+
+                        <a
+                            href="student-basicinfo.html"
+                            class="back-button"
+                        >
+                            ← Back
+                        </a>
+
+
+                        <!-- RIGHT -->
+
+                        <button
+                            type="submit"
+                            class="next-button"
+                        >
+                            Continue →
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
             </div>
 
 
-            <!-- BUTTONS -->
-
-            <div class="button-container">
-
-                <a
-                    href="student-basicinfo.html"
-                    class="back-button"
-                >
-                    ← Back
-                </a>
-
-                <button
-                    type="submit"
-                    class="next-button"
-                >
-                    Continue →
-                </button>
-
-            </div>
-
-        </form>
-
-
-    </div>
         </section>
+
+
     </main>
 
+
+    <!-- =========================================================
+         EXISTING JAVASCRIPT LOGIC
+         KEPT UNCHANGED
+    ========================================================== -->
 
     <script>
 
         document
             .getElementById("personalInfoForm")
-            .addEventListener("submit", async function (event) {
+            .addEventListener(
+                "submit",
+                async function (event) {
 
-                event.preventDefault();
+                    event.preventDefault();
 
-
-                /* =========================================
-                   BASIC INFORMATION FROM PAGE 2
-                ========================================= */
-
-                const basic =
-                    JSON.parse(
-                        sessionStorage.getItem(
-                            "studentProfileBasic"
-                        ) || "{}"
-                    );
-
-
-                /* =========================================
-                   HEIGHT
-                ========================================= */
-
-                const height =
-                    Number(
-                        document.getElementById("height").value
-                    );
-
-
-                /* =========================================
-                   WEIGHT
-                ========================================= */
-
-                const weight =
-                    Number(
-                        document.getElementById("weight").value
-                    );
-
-
-                /* =========================================
-                   CONVERT HEIGHT TO CM
-                ========================================= */
-
-                const heightCm =
-                    document.getElementById("height-unit").value === "ft"
-                        ? height * 30.48
-                        : height;
-
-
-                /* =========================================
-                   CONVERT WEIGHT TO KG
-                ========================================= */
-
-                const weightKg =
-                    document.getElementById("weight-unit").value === "lbs"
-                        ? weight * 0.453592
-                        : weight;
-
-
-                /* =========================================
-                   GET SELECTED SPORTS
-                ========================================= */
-
-                const selectedSports =
-                    Array.from(
-                        document.querySelectorAll(
-                            'input[name="sports"]:checked'
-                        )
-                    ).map(function (checkbox) {
-                        return checkbox.value;
-                    });
-
-
-                /* =========================================
-                   SPORTS VALIDATION
-                ========================================= */
-
-                if (selectedSports.length === 0) {
-
-                    alert(
-                        "Please select at least one sport."
-                    );
-
-                    return;
-                }
-
-
-                /* =========================================
-                   API BASE URL
-                ========================================= */
-
-                const apiBase = window.FITNESS_API_BASE || "";
-
-
-                try {
 
                     /* =========================================
-                       SAVE COMPLETE PROFILE
+                       BASIC INFORMATION FROM PAGE 2
                     ========================================= */
 
-                    const response =
-                        await fetch(
-                            apiBase + "/api/profile/setup",
-                            {
-                                method: "POST",
+                    const basic =
+                        JSON.parse(
+                            sessionStorage.getItem(
+                                "studentProfileBasic"
+                            ) || "{}"
+                        );
 
-                                headers: {
-                                    "Content-Type":
-                                        "application/json"
-                                },
 
-                                credentials: "include",
+                    /* =========================================
+                       HEIGHT
+                    ========================================= */
 
-                                body: JSON.stringify({
+                    const height =
+                        Number(
+                            document
+                                .getElementById("height")
+                                .value
+                        );
 
-                                    ...basic,
 
-                                    emergency_contact:
-                                        sessionStorage.getItem("signupEmergencyContact") || "",
+                    /* =========================================
+                       WEIGHT
+                    ========================================= */
 
-                                    height_cm:
-                                        heightCm.toFixed(2),
+                    const weight =
+                        Number(
+                            document
+                                .getElementById("weight")
+                                .value
+                        );
 
-                                    weight_kg:
-                                        weightKg.toFixed(2),
-                                    sports: selectedSports,
-                                    sport_activity: selectedSports.join(",")
 
-                                })
+                    /* =========================================
+                       CONVERT HEIGHT TO CM
+                    ========================================= */
+
+                    const heightCm =
+                        document
+                            .getElementById("height-unit")
+                            .value === "ft"
+
+                            ? height * 30.48
+
+                            : height;
+
+
+                    /* =========================================
+                       CONVERT WEIGHT TO KG
+                    ========================================= */
+
+                    const weightKg =
+                        document
+                            .getElementById("weight-unit")
+                            .value === "lbs"
+
+                            ? weight * 0.453592
+
+                            : weight;
+
+
+                    /* =========================================
+                       GET SELECTED SPORTS
+                    ========================================= */
+
+                    const selectedSports =
+                        Array.from(
+                            document.querySelectorAll(
+                                'input[name="sports"]:checked'
+                            )
+                        ).map(
+                            function (checkbox) {
+
+                                return checkbox.value;
+
                             }
                         );
 
 
                     /* =========================================
-                       SERVER RESPONSE
-                    ========================================= */
-
-                    const data =
-                        await response
-                            .json()
-                            .catch(function () {
-                                return {};
-                            });
-
-
-                    /* =========================================
-                       ERROR HANDLING
+                       SPORTS VALIDATION
                     ========================================= */
 
                     if (
-                        !response.ok ||
-                        !data.success
+                        selectedSports.length === 0
                     ) {
 
                         alert(
-                            data.message ||
-                            "Unable to save your profile."
+                            "Please select at least one sport."
                         );
 
                         return;
+
                     }
 
 
                     /* =========================================
-                       PROFILE SAVED SUCCESSFULLY
+                       API BASE URL
                     ========================================= */
 
-                    sessionStorage.removeItem(
-                        "studentProfileBasic"
-                    );
-
-                    sessionStorage.setItem(
-                        "student_login_email",
-                        sessionStorage.getItem("studentEmail") || ""
-                    );
-
-                    sessionStorage.removeItem("signupName");
-                    sessionStorage.removeItem("signupMobileNumber");
-                    sessionStorage.removeItem("signupEmergencyContact");
+                    const apiBase =
+                        window.FITNESS_API_BASE || "";
 
 
-                          /* =========================================
-                              GO TO STUDENT LOGIN
-                          ========================================= */
+                    try {
 
-                    window.location.href =
-                                "student-login.html";
+
+                        /* =========================================
+                           SAVE COMPLETE PROFILE
+                        ========================================= */
+
+                        const response =
+                            await fetch(
+                                apiBase +
+                                "/api/profile/setup",
+                                {
+
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    credentials: "include",
+
+                                    body:
+                                        JSON.stringify({
+
+                                            ...basic,
+
+                                            emergency_contact:
+                                                sessionStorage.getItem(
+                                                    "signupEmergencyContact"
+                                                ) || "",
+
+                                            height_cm:
+                                                heightCm.toFixed(2),
+
+                                            weight_kg:
+                                                weightKg.toFixed(2),
+
+                                            sports:
+                                                selectedSports,
+
+                                            sport_activity:
+                                                selectedSports.join(",")
+
+                                        })
+
+                                }
+                            );
+
+
+                        /* =========================================
+                           SERVER RESPONSE
+                        ========================================= */
+
+                        const data =
+                            await response
+                                .json()
+                                .catch(
+                                    function () {
+
+                                        return {};
+
+                                    }
+                                );
+
+
+                        /* =========================================
+                           ERROR HANDLING
+                        ========================================= */
+
+                        if (
+                            !response.ok ||
+                            !data.success
+                        ) {
+
+                            alert(
+                                data.message ||
+                                "Unable to save your profile."
+                            );
+
+                            return;
+
+                        }
+
+
+                        /* =========================================
+                           PROFILE SAVED SUCCESSFULLY
+                        ========================================= */
+
+                        sessionStorage.removeItem(
+                            "studentProfileBasic"
+                        );
+
+
+                        sessionStorage.setItem(
+                            "student_login_email",
+                            sessionStorage.getItem(
+                                "studentEmail"
+                            ) || ""
+                        );
+
+
+                        sessionStorage.removeItem(
+                            "signupName"
+                        );
+
+
+                        sessionStorage.removeItem(
+                            "signupMobileNumber"
+                        );
+
+
+                        sessionStorage.removeItem(
+                            "signupEmergencyContact"
+                        );
+
+
+                        /* =========================================
+                           GO TO STUDENT LOGIN
+                        ========================================= */
+
+                        window.location.href =
+                            "student-login.html";
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(
+                            "PROFILE SETUP ERROR:",
+                            error
+                        );
+
+                        alert(
+                            "Unable to connect to the server. Please try again."
+                        );
+
+                    }
 
                 }
-
-                catch (error) {
-
-                    console.error(
-                        "PROFILE SETUP ERROR:",
-                        error
-                    );
-
-                    alert(
-                        "Unable to connect to the server. Please try again."
-                    );
-
-                }
-
-            });
+            );
 
     </script>
+
 
 </body>
 
