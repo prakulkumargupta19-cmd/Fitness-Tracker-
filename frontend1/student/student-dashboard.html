@@ -2257,6 +2257,11 @@
 
                     </div>
 
+                    <div class="dashboard-card" style="grid-column:1/-1">
+                        <div class="card-heading"><div><h3>Attendance history</h3><span>Your recorded sessions</span></div></div>
+                        <div id="attendanceHistoryContainer"></div>
+                    </div>
+
 
                     <div class="dashboard-card attendance-status-card">
 
@@ -2311,6 +2316,11 @@
 
                 </div>
 
+
+                <div class="dashboard-card" style="margin-bottom:18px">
+                    <strong>Assigned coach</strong>
+                    <p id="assignedCoachDisplay" style="margin:8px 0 0">No coach assigned yet.</p>
+                </div>
 
                 <div class="feedback-grid">
 
@@ -3558,6 +3568,10 @@ async function fetchDashboardData() {
 
         updateStudentProfile(data);
         updateAttendanceView(data.attendance || {});
+        const assignedCoach = data.assigned_coach;
+        document.getElementById("assignedCoachDisplay").textContent = assignedCoach
+            ? `${assignedCoach.full_name}${assignedCoach.specialization ? ` · ${assignedCoach.specialization}` : ""}${assignedCoach.contact_number ? ` · ${assignedCoach.contact_number}` : ""}`
+            : "No coach assigned yet.";
 
         const [assessments, training, goals, feedback] = await Promise.all([
             fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(response => response.json()),
@@ -3694,6 +3708,14 @@ function updateAttendanceView(attendance) {
         item.append(name, status);
         week.appendChild(item);
     });
+    const history = document.getElementById("attendanceHistoryContainer");
+    history.replaceChildren();
+    (summary.records || []).forEach(record => {
+        const line = document.createElement("p");
+        line.textContent = `${record.session_date} · ${record.sport_name} · ${record.status}`;
+        history.appendChild(line);
+    });
+    if (!history.childElementCount) history.textContent = "No attendance recorded yet.";
 }
 
 function renderFeedbackView(records) {

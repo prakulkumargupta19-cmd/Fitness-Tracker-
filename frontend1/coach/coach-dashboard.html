@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coach Dashboard</title>
 
   <!-- Bootstrap -->
@@ -27,12 +22,11 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-
-  <!-- Coach Dashboard CSS -->
-  <link
-    rel="stylesheet"
-    href="../css/coach-dashboard.css"
-  />
+<link
+        rel="stylesheet"
+        href="../css/coach/coach-dashboard.css"
+    >
+<script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -44,13 +38,11 @@
 <aside class="sidebar" id="sidebar">
 
   <div class="brand">
-
     <div class="brand-icon">
       <i class="bi bi-activity"></i>
     </div>
 
     <div>
-
       <div class="brand-name">
         Fit <span>Track</span>
       </div>
@@ -58,16 +50,12 @@
       <div class="brand-subtitle">
         COACH PORTAL
       </div>
-
     </div>
-
   </div>
-
 
   <div class="menu-title">
     MAIN MENU
   </div>
-
 
   <div class="nav-menu">
 
@@ -79,7 +67,6 @@
       Dashboard
     </button>
 
-
     <button
       class="nav-button"
       onclick="showSection('attendance', this)"
@@ -87,7 +74,6 @@
       <i class="bi bi-calendar-check-fill"></i>
       Attendance
     </button>
-
 
     <button
       class="nav-button"
@@ -99,14 +85,9 @@
 
   </div>
 
-
-  <div
-    class="menu-title"
-    style="margin-top:22px"
-  >
+  <div class="menu-title" style="margin-top:22px">
     ACCOUNT
   </div>
-
 
   <div class="nav-menu">
 
@@ -118,7 +99,6 @@
       My Profile
     </button>
 
-
     <button
       class="nav-button"
       onclick="showSection('settings', this)"
@@ -129,30 +109,22 @@
 
   </div>
 
+  <!-- =========================
+       BOTTOM LEFT COACH BUTTON
+  ========================== -->
 
   <div class="sidebar-bottom">
 
     <button
       class="nav-button"
       onclick="showSectionByName('profile')"
+      style="margin-top:10px;"
     >
+
       <i class="bi bi-person-circle"></i>
 
-      <span>
-        Coach Alex
-      </span>
-
-    </button>
-
-
-    <button
-      class="nav-button logout-sidebar"
-      onclick="logout()"
-    >
-      <i class="bi bi-box-arrow-left"></i>
-
-      <span>
-        Logout
+      <span id="coachDisplayName">
+        Loading…
       </span>
 
     </button>
@@ -168,6 +140,8 @@
 
 <div class="dashboard">
 
+  <!-- TOPBAR -->
+
   <header class="topbar">
 
     <div style="display:flex;align-items:center;">
@@ -179,7 +153,6 @@
         <i class="bi bi-list"></i>
       </button>
 
-
       <div>
 
         <div
@@ -189,7 +162,6 @@
           Coach Dashboard
         </div>
 
-
         <div class="page-subtitle">
           Student Performance & Attendance Portal
         </div>
@@ -197,7 +169,6 @@
       </div>
 
     </div>
-
 
     <div class="topbar-right">
 
@@ -234,18 +205,15 @@
             COACH PERFORMANCE OVERVIEW
           </div>
 
-
           <h1>
-            Welcome back, Coach Alex
+            Welcome back, <span id="coachDisplayName">Coach</span>
           </h1>
-
 
           <p>
             Manage your athletes, record attendance for any
             training date and monitor your team's progress
             from one dashboard.
           </p>
-
 
           <div class="hero-actions">
 
@@ -256,7 +224,6 @@
               Attendance
               <i class="bi bi-arrow-right"></i>
             </button>
-
 
             <button
               class="hero-secondary"
@@ -269,8 +236,13 @@
 
         </div>
 
+
+        
+
       </div>
 
+
+      <!-- TEAM SNAPSHOT -->
 
       <div class="section-header">
 
@@ -297,7 +269,6 @@
             <i class="bi bi-people-fill"></i>
           </div>
 
-
           <div class="stat-info">
 
             <span>
@@ -305,7 +276,7 @@
             </span>
 
             <strong id="totalAthletes">
-              8
+              0
             </strong>
 
           </div>
@@ -319,7 +290,6 @@
             <i class="bi bi-check2-circle"></i>
           </div>
 
-
           <div class="stat-info">
 
             <span>
@@ -327,7 +297,7 @@
             </span>
 
             <strong id="presentToday">
-              7
+              0
             </strong>
 
           </div>
@@ -341,15 +311,14 @@
             <i class="bi bi-clock-history"></i>
           </div>
 
-
           <div class="stat-info">
 
             <span>
-              Attendance Records
+              Attendance Rate
             </span>
 
-            <strong id="recordCount">
-              0
+            <strong id="attendanceRate">
+              0%
             </strong>
 
           </div>
@@ -358,6 +327,8 @@
 
       </div>
 
+
+      <!-- QUICK ACTIONS -->
 
       <div class="section-header">
 
@@ -387,7 +358,6 @@
             <i class="bi bi-calendar2-check-fill"></i>
           </div>
 
-
           <div>
 
             <strong>
@@ -411,7 +381,6 @@
           <div class="quick-icon purple">
             <i class="bi bi-people-fill"></i>
           </div>
-
 
           <div>
 
@@ -441,251 +410,156 @@
       class="section"
     >
 
-      <div class="attendance-page-heading">
+      <div class="page-heading">
 
         <div class="eyebrow">
           TRAINING RECORD
         </div>
 
         <h1>
-          Mark Attendance
+          Attendance
         </h1>
 
         <p>
-          Select sport, date and attendance status for your students.
+          Select any date to create or edit an attendance
+          record — including dates from previous months.
         </p>
 
       </div>
 
 
-      <!-- =================================================
-           ATTENDANCE CONTROL CARD
-      ================================================== -->
+      <div class="card">
 
-      <div class="attendance-control-card">
+        <div class="card-header-custom">
 
-        <div class="attendance-control-grid">
+          <div>
 
+            <h3>
+              Attendance Register
+            </h3>
 
-          <!-- SPORT -->
-
-          <div class="attendance-control-group">
-
-            <label>
-              SPORT
-            </label>
-
-            <div class="attendance-select">
-
-              <i class="bi bi-person-walking"></i>
-
-              <select id="attendanceSport">
-
-                <option>
-                  All Sports
-                </option>
-
-                <option>
-                  Football
-                </option>
-
-                <option>
-                  Athletics
-                </option>
-
-                <option>
-                  Basketball
-                </option>
-
-              </select>
-
-            </div>
+            <span>
+              Choose a date and update the student status.
+            </span>
 
           </div>
-
-
-          <!-- DATE -->
-
-          <div class="attendance-control-group">
-
-            <label>
-              DATE
-            </label>
-
-            <div class="attendance-date-control">
-
-              <input
-                type="date"
-                id="attendanceDate"
-                onchange="loadAttendance()"
-              />
-
-              <span
-                id="formattedAttendanceDate"
-                class="attendance-date-text"
-              >
-                DD/MM/YYYY
-              </span>
-
-              <i class="bi bi-calendar3"></i>
-
-            </div>
-
-          </div>
-
-
-          <!-- ATTENDANCE STATUS -->
-
-          <div class="attendance-control-group">
-
-            <label>
-              ATTENDANCE
-            </label>
-
-            <div class="attendance-select">
-
-              <span
-                class="attendance-status-dot"
-              ></span>
-
-              <select id="session">
-
-                <option>
-                  Present
-                </option>
-
-                <option>
-                  Absent
-                </option>
-
-                <option>
-                  Morning Training
-                </option>
-
-                <option>
-                  Evening Training
-                </option>
-
-                <option>
-                  Match Session
-                </option>
-
-                <option>
-                  Fitness Session
-                </option>
-
-              </select>
-
-            </div>
-
-          </div>
-
-
-          <!-- MARK ATTENDANCE -->
 
           <button
-            class="mark-attendance-button"
-            onclick="saveAttendance()"
+            class="btn btn-secondary"
+            onclick="loadAttendance()"
           >
-
-            <i class="bi bi-check-lg"></i>
-
-            Mark Attendance
-
+            <i class="bi bi-arrow-clockwise"></i>
+            Reload
           </button>
 
         </div>
 
-      </div>
 
+        <!-- ATTENDANCE CONTROLS -->
 
-      <!-- =================================================
-           STUDENTS ATTENDANCE
-      ================================================== -->
+        <div class="attendance-toolbar">
 
-      <div class="students-attendance-card">
+          <div class="form-group">
+            <label for="attendanceSport">Assigned Sport</label>
+            <select id="attendanceSport" onchange="loadAttendance()"></select>
+          </div>
 
-        <div class="attendance-card-header">
+          <div class="form-group">
 
-          <div>
+            <label>
+              Training Date
+            </label>
 
-            <h2>
-              Students Attendance
-            </h2>
-
-            <p>
-              List of your assigned students and their attendance
-              for the selected date and sport.
-            </p>
+            <input
+              type="date"
+              id="attendanceDate"
+              onchange="loadAttendance()"
+            />
 
           </div>
 
 
-          <div class="attendance-header-badges">
+          <div class="form-group">
 
-            <div class="attendance-date-badge">
+            <label>
+              Training Session
+            </label>
 
-              <i class="bi bi-calendar3"></i>
+            <select id="session">
 
-              <span
-                id="attendanceHeaderDate"
-              >
-                DD/MM/YYYY
-              </span>
+              <option>
+                Morning Training
+              </option>
 
-            </div>
+              <option>
+                Evening Training
+              </option>
 
+              <option>
+                Match Session
+              </option>
 
-            <div class="attendance-sport-badge">
+              <option>
+                Fitness Session
+              </option>
 
-              <i class="bi bi-person-walking"></i>
-
-              <span id="attendanceHeaderSport">
-                Sport: All Sports
-              </span>
-
-            </div>
+            </select>
 
           </div>
+
+
+          <button
+            class="btn btn-secondary"
+            onclick="markAll('present')"
+          >
+            Mark All Present
+          </button>
+
+
+          <button
+            class="btn btn-secondary"
+            onclick="markAll('absent')"
+          >
+            Mark All Absent
+          </button>
+
+
+          <button
+            class="btn btn-primary"
+            onclick="saveAttendance()"
+          >
+            <i class="bi bi-save"></i>
+            Save Attendance
+          </button>
 
         </div>
 
 
-        <div class="attendance-table-wrapper">
+        <!-- TABLE -->
 
-          <table class="new-attendance-table">
+        <div style="overflow-x:auto">
+
+          <table class="attendance-table">
 
             <thead>
 
               <tr>
 
-                <th class="checkbox-column">
-                  <input
-                    type="checkbox"
-                    id="selectAllAttendance"
-                    onchange="toggleAllAttendance(this)"
-                  />
-                </th>
-
-                <th class="number-column">
-                  #
+                <th>
+                  Athlete
                 </th>
 
                 <th>
-                  STUDENT NAME
+                  Sport / Position
                 </th>
 
                 <th>
-                  ATTENDANCE
-                </th>
-
-                <th class="edit-column">
+                  Status
                 </th>
 
               </tr>
 
             </thead>
-
 
             <tbody
               id="attendanceBody"
@@ -695,161 +569,40 @@
 
         </div>
 
-      </div>
 
+        <!-- SUMMARY -->
 
-      <!-- =================================================
-           ATTENDANCE SUMMARY
-      ================================================== -->
+        <div class="attendance-summary">
 
-      <div class="attendance-summary-layout">
+          <div class="summary present">
 
+            <span>
+              Present
+            </span>
 
-        <!-- OVERALL -->
-
-        <div class="overall-attendance-card">
-
-          <div>
-
-            <h2 id="overallAttendanceTitle">
-              Overall Attendance
-            </h2>
-
-            <p>
-              Summary of attendance for all your students
-              in this sport.
-            </p>
+            <strong id="presentCount">
+              0
+            </strong>
 
           </div>
 
 
-          <div class="overall-content">
+          <div class="summary absent">
 
+            <span>
+              Absent
+            </span>
 
-            <div
-              class="attendance-circle"
-              id="attendanceCircle"
-            >
-
-              <div class="attendance-circle-inner">
-
-                <strong
-                  id="overallAttendancePercent"
-                >
-                  0%
-                </strong>
-
-                <span>
-                  Overall
-                </span>
-
-                <span>
-                  Attendance
-                </span>
-
-              </div>
-
-            </div>
-
-
-            <div class="overall-stat-list">
-
-
-              <div class="overall-stat present-stat">
-
-                <div class="overall-stat-icon">
-                  <i class="bi bi-check-lg"></i>
-                </div>
-
-                <div>
-
-                  <strong id="overallPresent">
-                    0
-                  </strong>
-
-                  <span>
-                    Present
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div class="overall-stat absent-stat">
-
-                <div class="overall-stat-icon">
-                  <i class="bi bi-x-lg"></i>
-                </div>
-
-                <div>
-
-                  <strong id="overallAbsent">
-                    0
-                  </strong>
-
-                  <span>
-                    Absent
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div class="overall-stat total-stat">
-
-                <div class="overall-stat-icon">
-                  <i class="bi bi-people-fill"></i>
-                </div>
-
-                <div>
-
-                  <strong id="overallTotal">
-                    0
-                  </strong>
-
-                  <span>
-                    Total Students
-                  </span>
-
-                </div>
-
-              </div>
-
-            </div>
+            <strong id="absentCount">
+              0
+            </strong>
 
           </div>
 
-        </div>
-
-
-        <!-- INDIVIDUAL -->
-
-        <div class="individual-attendance-card">
-
-          <div>
-
-            <h2>
-              Individual Student Attendance
-            </h2>
-
-            <p>
-              Attendance percentage based on total sessions.
-            </p>
-
-          </div>
-
-
-          <div
-            class="individual-attendance-list"
-            id="individualAttendanceList"
-          ></div>
 
         </div>
 
       </div>
-
 
     </section>
 
@@ -942,17 +695,15 @@
 
         <div class="profile-header">
 
-          <div class="large-avatar">
-            CA
+          <div class="large-avatar" id="coachProfileAvatar">
+            C
           </div>
-
 
           <div>
 
-            <h2>
-              Coach Alex
+            <h2 id="coachProfileTitle">
+              Loading…
             </h2>
-
 
             <span class="profile-badge">
 
@@ -975,8 +726,8 @@
               Coach Name
             </label>
 
-            <strong>
-              Coach Alex
+            <strong id="coachProfileName">
+              Loading…
             </strong>
 
           </div>
@@ -988,8 +739,8 @@
               Email
             </label>
 
-            <strong>
-              coach@example.com
+            <strong id="coachProfileEmail">
+              —
             </strong>
 
           </div>
@@ -1001,8 +752,8 @@
               Phone Number
             </label>
 
-            <strong>
-              +91 98765 43210
+            <strong id="coachProfilePhone">
+              —
             </strong>
 
           </div>
@@ -1014,8 +765,8 @@
               Coach ID
             </label>
 
-            <strong>
-              COACH-001
+            <strong id="coachProfileId">
+              —
             </strong>
 
           </div>
@@ -1027,8 +778,8 @@
               Assigned Role
             </label>
 
-            <strong>
-              Head Coach
+            <strong id="coachProfileRoles">
+              —
             </strong>
 
           </div>
@@ -1068,7 +819,9 @@
 
       <div class="profile-card">
 
-        <h3 style="font-size:14px;font-weight:800;">
+        <h3
+          style="font-size:14px;font-weight:800;"
+        >
           Account Settings
         </h3>
 
@@ -1080,7 +833,6 @@
             <div class="settings-icon">
               <i class="bi bi-box-arrow-right"></i>
             </div>
-
 
             <div>
 
@@ -1098,7 +850,8 @@
 
 
           <button
-            class="btn btn-secondary logout-button"
+            class="btn btn-secondary"
+            style="color:#dc2626;background:#fee2e2;"
             onclick="logout()"
           >
             Logout
@@ -1115,170 +868,16 @@
 </div>
 
 
-<!-- =====================================================
-     ATHLETE VIEW MODAL
-===================================================== -->
-
-<div
-  class="athlete-modal"
-  id="athleteModal"
->
-
-  <div
-    class="athlete-modal-overlay"
-    onclick="closeAthleteModal()"
-  ></div>
-
-
-  <div class="athlete-modal-card">
-
-    <div class="athlete-modal-header">
-
-      <div>
-
-        <div class="eyebrow">
-          ATHLETE INFORMATION
-        </div>
-
-        <h2>
-          Athlete Details
-        </h2>
-
-      </div>
-
-
-      <button
-        class="modal-close"
-        onclick="closeAthleteModal()"
-      >
-        <i class="bi bi-x-lg"></i>
-      </button>
-
+<dialog id="performanceDialog">
+  <form id="performanceForm">
+    <h2 id="performanceFormTitle"></h2>
+    <div id="performanceFormFields"></div>
+    <div class="dialog-actions">
+      <button type="button" onclick="document.getElementById('performanceDialog').close()">Cancel</button>
+      <button type="submit">Save record</button>
     </div>
-
-
-    <div class="athlete-modal-profile">
-
-      <div
-        class="modal-athlete-avatar"
-        id="modalAthleteAvatar"
-      >
-        AS
-      </div>
-
-
-      <div>
-
-        <h3 id="modalAthleteName">
-          Athlete Name
-        </h3>
-
-        <span id="modalAthleteSport">
-          Football
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <div class="athlete-view-grid">
-
-      <div class="athlete-view-field">
-
-        <label>
-          Name
-        </label>
-
-        <div id="viewName">
-          -
-        </div>
-
-      </div>
-
-
-      <div class="athlete-view-field">
-
-        <label>
-          Sports
-        </label>
-
-        <div id="viewSport">
-          -
-        </div>
-
-      </div>
-
-
-      <div class="athlete-view-field">
-
-        <label>
-          Email
-        </label>
-
-        <div id="viewEmail">
-          -
-        </div>
-
-      </div>
-
-
-      <div class="athlete-view-field">
-
-        <label>
-          Phone Number
-        </label>
-
-        <div id="viewPhone">
-          -
-        </div>
-
-      </div>
-
-
-      <div class="athlete-view-field">
-
-        <label>
-          Emergency Phone Number
-        </label>
-
-        <div id="viewEmergencyPhone">
-          -
-        </div>
-
-      </div>
-
-
-      <div class="athlete-view-field attendance-field">
-
-        <label>
-          Attendance
-        </label>
-
-        <div id="viewAttendance">
-          0%
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="athlete-modal-footer">
-
-      <button
-        class="modal-close-button"
-        onclick="closeAthleteModal()"
-      >
-        Close
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
+  </form>
+</dialog>
 
 <!-- =====================================================
      JAVASCRIPT
@@ -1286,106 +885,168 @@
 
 <script>
 
-  const athletes = [
-
-    {
-      id: 1,
-      name: "Aarav Sharma",
-      sport: "Football",
-      position: "Forward",
-      email: "aarav.sharma@example.com",
-      phone: "+91 98765 10001",
-      emergencyPhone: "+91 98765 20001",
-      performance: 91
-    },
-
-    {
-      id: 2,
-      name: "Riya Sen",
-      sport: "Football",
-      position: "Midfielder",
-      email: "riya.sen@example.com",
-      phone: "+91 98765 10002",
-      emergencyPhone: "+91 98765 20002",
-      performance: 88
-    },
-
-    {
-      id: 3,
-      name: "Arjun Das",
-      sport: "Football",
-      position: "Defender",
-      email: "arjun.das@example.com",
-      phone: "+91 98765 10003",
-      emergencyPhone: "+91 98765 20003",
-      performance: 84
-    },
-
-    {
-      id: 4,
-      name: "Maya Roy",
-      sport: "Athletics",
-      position: "Sprinter",
-      email: "maya.roy@example.com",
-      phone: "+91 98765 10004",
-      emergencyPhone: "+91 98765 20004",
-      performance: 94
-    },
-
-    {
-      id: 5,
-      name: "Kabir Khan",
-      sport: "Football",
-      position: "Goalkeeper",
-      email: "kabir.khan@example.com",
-      phone: "+91 98765 10005",
-      emergencyPhone: "+91 98765 20005",
-      performance: 82
-    },
-
-    {
-      id: 6,
-      name: "Ananya Bose",
-      sport: "Athletics",
-      position: "Long Jump",
-      email: "ananya.bose@example.com",
-      phone: "+91 98765 10006",
-      emergencyPhone: "+91 98765 20006",
-      performance: 89
-    },
-
-    {
-      id: 7,
-      name: "Ishaan Gupta",
-      sport: "Basketball",
-      position: "Guard",
-      email: "ishaan.gupta@example.com",
-      phone: "+91 98765 10007",
-      emergencyPhone: "+91 98765 20007",
-      performance: 86
-    },
-
-    {
-      id: 8,
-      name: "Diya Paul",
-      sport: "Basketball",
-      position: "Forward",
-      email: "diya.paul@example.com",
-      phone: "+91 98765 10008",
-      emergencyPhone: "+91 98765 20008",
-      performance: 90
-    }
-
-  ];
-
-
-  let attendanceRecords =
-    JSON.parse(
-      localStorage.getItem("coachAttendance")
-    ) || {};
-
-
+  const API_BASE = window.FITNESS_API_BASE || "";
+  let athletes = [];
+  let attendanceAthletes = [];
+  let assignedSports = [];
+  let attendanceRecords = [];
+  let attendanceSummary = {};
   let currentAttendance = {};
+  let activeRecordStudentId = null;
+  let activeRecordType = null;
+
+  async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      credentials: "include"
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || "The request could not be completed.");
+    return data;
+  }
+
+  async function getCoachSession() {
+    const sessionData = await apiRequest("/api/session");
+    const currentUser = sessionData.user || {};
+    if (currentUser.role === "coach") return sessionData;
+
+    const roleDashboard = currentUser.role === "admin"
+      ? "../admin/admin-dashboard.html"
+      : currentUser.role === "student"
+        ? "../student/student-dashboard.html"
+        : "coach-login.html";
+    window.location.replace(roleDashboard);
+    return null;
+  }
+
+  window.addEventListener("focus", () => {
+    getCoachSession().catch(() => {});
+  });
+
+  function openRecordForm(studentId, resource) {
+    const athlete = athletes.find(item => item.id === studentId);
+    if (!athlete) return;
+    activeRecordStudentId = studentId;
+    activeRecordType = resource;
+    const fieldContainer = document.getElementById("performanceFormFields");
+    const definitions = {
+      assessments: [
+        ["assessment_date", "Assessment date", "date", true], ["speed", "Speed", "number"],
+        ["strength", "Strength", "number"], ["endurance", "Endurance", "number"],
+        ["agility", "Agility", "number"], ["flexibility", "Flexibility", "number"],
+        ["reaction_time", "Reaction time", "number"], ["overall_score", "Overall score", "number"],
+        ["notes", "Notes", "textarea"]
+      ],
+      "training-sessions": [
+        ["sport_id", "Sport", "sport"], ["session_date", "Session date", "date", true],
+        ["training_type", "Training type", "text", true], ["duration_minutes", "Duration (minutes)", "number", true],
+        ["description", "Description", "textarea"], ["performance_notes", "Performance notes", "textarea"]
+      ],
+      goals: [
+        ["title", "Title", "text", true], ["description", "Description", "textarea"],
+        ["target_value", "Target value", "number"], ["current_value", "Current value", "number"],
+        ["start_date", "Start date", "date"], ["target_date", "Target date", "date"],
+        ["status", "Status", "goal-status"]
+      ],
+      feedback: [["feedback", "Feedback", "textarea", true], ["rating", "Rating (1-5)", "number"]]
+    }[resource];
+    document.getElementById("performanceFormTitle").textContent = `New ${resource.replaceAll("-", " ")} for ${athlete.name}`;
+    fieldContainer.replaceChildren();
+    definitions.forEach(([name, label, type, required]) => {
+      const wrapper = document.createElement("label");
+      wrapper.textContent = label;
+      let control;
+      if (type === "textarea") {
+        control = document.createElement("textarea");
+      } else if (type === "sport" || type === "goal-status") {
+        control = document.createElement("select");
+        const options = type === "sport"
+          ? assignedSports.filter(sport => (athlete.sports || []).includes(sport.name)).map(sport => [sport.id, sport.name])
+          : [["active", "Active"], ["completed", "Completed"], ["cancelled", "Cancelled"]];
+        options.forEach(([value, text]) => control.add(new Option(text, value)));
+        control.required = type === "sport";
+      } else {
+        control = document.createElement("input");
+        control.type = type;
+        if (type === "number") control.step = "any";
+        if (name.endsWith("_date") && name !== "assessment_date" && name !== "session_date") control.value = "";
+        if (name === "assessment_date" || name === "session_date") control.value = getToday();
+        control.required = Boolean(required);
+      }
+      control.name = name;
+      wrapper.appendChild(control);
+      fieldContainer.appendChild(wrapper);
+    });
+    document.getElementById("performanceDialog").showModal();
+  }
+
+  document.getElementById("performanceForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!(await getCoachSession())) return;
+    const payload = Object.fromEntries(new FormData(event.currentTarget));
+    payload.student_id = activeRecordStudentId;
+    if (activeRecordType === "training-sessions") payload.sport_id = Number(payload.sport_id);
+    ["speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "overall_score", "duration_minutes", "target_value", "current_value", "rating"].forEach(key => {
+      if (payload[key] !== undefined && payload[key] !== "") payload[key] = Number(payload[key]);
+    });
+    try {
+      await apiRequest(`/api/${activeRecordType}`, { method: "POST", body: JSON.stringify(payload) });
+      document.getElementById("performanceDialog").close();
+      alert("Record saved.");
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+  async function initializeCoachDashboard() {
+    try {
+      const sessionData = await getCoachSession();
+      if (!sessionData) return;
+      const currentUser = sessionData.user || {};
+
+      const [athleteData, sportData, attendanceSessions, summaryData] = await Promise.all([
+        apiRequest("/api/coach/athletes"),
+        apiRequest("/api/coach/sports"),
+        apiRequest("/api/coach/attendance/sessions"),
+        apiRequest("/api/coach/attendance/summary")
+      ]);
+      athletes = athleteData.athletes.map(athlete => ({
+        ...athlete,
+        name: athlete.name || athlete.full_name,
+        sports: athlete.sports || [],
+        sport: (athlete.sports || []).join(", ")
+      }));
+      assignedSports = sportData.sports;
+      attendanceRecords = attendanceSessions.data || [];
+      attendanceSummary = summaryData.summary || {};
+      const coach = currentUser;
+      const coachName = coach.full_name || "Coach";
+      document.getElementById("coachDisplayName").textContent = coachName;
+      document.getElementById("coachProfileTitle").textContent = coachName;
+      document.getElementById("coachProfileName").textContent = coachName;
+      document.getElementById("coachProfileEmail").textContent = coach.email || "—";
+      document.getElementById("coachProfilePhone").textContent = coach.contact_number || "Not provided";
+      document.getElementById("coachProfileId").textContent = coach.id ? `COACH-${coach.id}` : "—";
+      document.getElementById("coachProfileRoles").textContent = assignedSports.length
+        ? assignedSports.map(sport => sport.name).join(", ")
+        : "No sports assigned";
+      const initials = coachName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
+      document.getElementById("coachProfileAvatar").textContent = initials || "C";
+      const select = document.getElementById("attendanceSport");
+      select.innerHTML = assignedSports.map(sport =>
+        `<option value="${sport.id}">${sport.name}</option>`
+      ).join("");
+      await loadAttendance();
+      renderAthletes();
+      updateDashboardStats();
+    } catch (error) {
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Coach dashboard data could not be loaded.");
+    }
+  }
 
 
   function getToday() {
@@ -1419,13 +1080,16 @@
 
   function formatDate(date) {
 
-    const parts = date.split("-");
-
-    if (parts.length !== 3) {
-      return date;
-    }
-
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return new Date(
+      date + "T00:00:00"
+    ).toLocaleDateString(
+      undefined,
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      }
+    );
 
   }
 
@@ -1436,59 +1100,18 @@
 
   function updateTopDate() {
 
-    const today = getToday();
-
     document.getElementById(
       "topDate"
     ).textContent =
-      formatDate(today);
-
-  }
-
-
-  /* =========================
-     DATE DISPLAY
-  ========================= */
-
-  function updateAttendanceDateDisplay() {
-
-    const dateInput =
-      document.getElementById(
-        "attendanceDate"
+      new Date().toLocaleDateString(
+        undefined,
+        {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        }
       );
-
-
-    const display =
-      document.getElementById(
-        "formattedAttendanceDate"
-      );
-
-
-    if (dateInput.value) {
-
-      display.textContent =
-        formatDate(dateInput.value);
-
-      const headerDate =
-        document.getElementById(
-          "attendanceHeaderDate"
-        );
-
-      if (headerDate) {
-
-        headerDate.textContent =
-          formatDate(dateInput.value);
-
-      }
-
-    }
-
-    else {
-
-      display.textContent =
-        "DD/MM/YYYY";
-
-    }
 
   }
 
@@ -1531,9 +1154,7 @@
 
     if (button) {
 
-      button.classList.add(
-        "active"
-      );
+      button.classList.add("active");
 
     }
 
@@ -1613,7 +1234,17 @@
      ATTENDANCE
   ========================= */
 
-  function loadAttendance() {
+  async function loadAttendance() {
+    try {
+      if (!(await getCoachSession())) return;
+    } catch (error) {
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Could not verify coach access.");
+      return;
+    }
 
     const dateInput =
       document.getElementById(
@@ -1629,52 +1260,31 @@
     }
 
 
-    updateAttendanceDateDisplay();
-
-
-    updateAttendanceSportDisplay();
-
-
-    const selectedDate =
-      dateInput.value;
-
-
-    if (
-      attendanceRecords[
-        selectedDate
-      ]
-    ) {
-
-      currentAttendance = {
-        ...attendanceRecords[
-          selectedDate
-        ]
-      };
-
-    }
-
-    else {
-
-      currentAttendance = {};
-
-      athletes.forEach(
-        athlete => {
-
-          currentAttendance[
-            athlete.id
-          ] = "present";
-
-        }
+    const sportId = document.getElementById("attendanceSport").value;
+    if (!sportId) return;
+    const selectedDate = dateInput.value;
+    try {
+      const query = new URLSearchParams({ sport_id: sportId });
+      const [studentsData, recordsData] = await Promise.all([
+        apiRequest(`/api/coach/attendance/students?${query}`),
+        apiRequest(`/api/coach/attendance/records?${new URLSearchParams({ sport_id: sportId, session_date: selectedDate })}`)
+      ]);
+      attendanceAthletes = studentsData.students.map(student => ({
+        ...student,
+        sport: assignedSports.find(sport => sport.id === Number(sportId))?.name || ""
+      }));
+      currentAttendance = Object.fromEntries(
+        recordsData.records.map(record => [record.student_id, record.status])
       );
-
+    } catch (error) {
+      alert(error.message);
+      return;
     }
 
 
     renderAttendance();
 
     updateAttendanceSummary();
-
-    renderIndividualAttendance();
 
   }
 
@@ -1690,13 +1300,10 @@
     tableBody.innerHTML = "";
 
 
-    athletes.forEach(
-      (athlete, index) => {
+    attendanceAthletes.forEach(
+      athlete => {
 
-        const status =
-          currentAttendance[
-            athlete.id
-          ] || "absent";
+        const status = currentAttendance[athlete.id] || "absent";
 
 
         const row =
@@ -1707,27 +1314,11 @@
 
         row.innerHTML = `
 
-          <td class="checkbox-column">
-
-            <input
-              type="checkbox"
-              class="attendance-checkbox"
-              data-athlete-id="${athlete.id}"
-            />
-
-          </td>
-
-
-          <td class="number-column">
-            ${index + 1}
-          </td>
-
-
           <td>
 
-            <div class="attendance-student">
+            <div class="student">
 
-              <div class="attendance-student-avatar">
+              <div class="student-avatar">
                 ${getInitials(
                   athlete.name
                 )}
@@ -1743,11 +1334,16 @@
 
 
           <td>
+            ${athlete.sport}
+          </td>
 
-            <div class="new-status-buttons">
+
+          <td>
+
+            <div class="status-buttons">
 
               <button
-                class="new-present-button ${
+                class="present ${
                   status === "present"
                     ? "active"
                     : ""
@@ -1759,16 +1355,12 @@
                   )
                 "
               >
-
-                <i class="bi bi-check-circle-fill"></i>
-
                 Present
-
               </button>
 
 
               <button
-                class="new-absent-button ${
+                class="absent ${
                   status === "absent"
                     ? "active"
                     : ""
@@ -1780,35 +1372,14 @@
                   )
                 "
               >
-
-                <i class="bi bi-x-circle-fill"></i>
-
                 Absent
-
               </button>
 
+              <button class="${status === "late" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'late')">Late</button>
+              <button class="${status === "excused" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'excused')">Excused</button>
+
+
             </div>
-
-          </td>
-
-
-          <td class="edit-column">
-
-            <button
-              class="attendance-edit-button"
-              onclick="
-                setAttendance(
-                  ${athlete.id},
-                  '${status}'
-                )
-              "
-            >
-
-              <i class="bi bi-pencil-fill"></i>
-
-              Edit
-
-            </button>
 
           </td>
 
@@ -1821,9 +1392,6 @@
 
       }
     );
-
-
-    updateSelectAllCheckbox();
 
   }
 
@@ -1842,14 +1410,12 @@
 
     updateAttendanceSummary();
 
-    renderIndividualAttendance();
-
   }
 
 
   function markAll(status) {
 
-    athletes.forEach(
+    attendanceAthletes.forEach(
       athlete => {
 
         currentAttendance[
@@ -1863,8 +1429,6 @@
     renderAttendance();
 
     updateAttendanceSummary();
-
-    renderIndividualAttendance();
 
   }
 
@@ -1892,91 +1456,31 @@
 
 
     document.getElementById(
-      "overallPresent"
+      "presentCount"
     ).textContent =
       present;
 
 
     document.getElementById(
-      "overallAbsent"
+      "absentCount"
     ).textContent =
       absent;
 
 
-    document.getElementById(
-      "overallTotal"
-    ).textContent =
-      athletes.length;
-
-
-    const total =
-      present + absent;
-
-
-    const percentage =
-      total
-        ? Math.round(
-            (present / total) * 100
-          )
-        : 0;
-
-
-    document.getElementById(
-      "overallAttendancePercent"
-    ).textContent =
-      `${percentage}%`;
-
-
-    updateAttendanceCircle(
-      percentage
-    );
-
-
-    const oldPresent =
-      document.getElementById(
-        "presentCount"
-      );
-
-    const oldAbsent =
-      document.getElementById(
-        "absentCount"
-      );
-
-
-    if (oldPresent) {
-      oldPresent.textContent = present;
-    }
-
-
-    if (oldAbsent) {
-      oldAbsent.textContent = absent;
-    }
-
   }
 
 
-  function updateAttendanceCircle(
-    percentage
-  ) {
-
-    const circle =
-      document.getElementById(
-        "attendanceCircle"
-      );
-
-
-    if (!circle) return;
-
-
-    circle.style.setProperty(
-      "--attendance-progress",
-      `${percentage * 3.6}deg`
-    );
-
-  }
-
-
-  function saveAttendance() {
+  async function saveAttendance() {
+    try {
+      if (!(await getCoachSession())) return;
+    } catch (error) {
+      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
+        window.location.replace("coach-login.html");
+        return;
+      }
+      alert(error.message || "Could not verify coach access.");
+      return;
+    }
 
     const date =
       document.getElementById(
@@ -1995,194 +1499,24 @@
     }
 
 
-    attendanceRecords[date] = {
-      ...currentAttendance
-    };
-
-
-    localStorage.setItem(
-      "coachAttendance",
-      JSON.stringify(
-        attendanceRecords
-      )
-    );
-
-
-    updateDashboardStats();
-
-    renderIndividualAttendance();
-
-
-    alert(
-      `Attendance saved for ${formatDate(
-        date
-      )}.`
-    );
-
-  }
-
-
-  /* =========================
-     ATTENDANCE SPORT DISPLAY
-  ========================= */
-
-  function updateAttendanceSportDisplay() {
-
-    const sport =
-      document.getElementById(
-        "attendanceSport"
-      );
-
-
-    const header =
-      document.getElementById(
-        "attendanceHeaderSport"
-      );
-
-
-    if (!sport || !header) {
-      return;
+    const sportId = document.getElementById("attendanceSport").value;
+    try {
+      await apiRequest("/api/coach/attendance/records", {
+        method: "POST",
+        body: JSON.stringify({
+          sport_id: Number(sportId),
+          session_date: date,
+          records: attendanceAthletes.map(athlete => ({
+            student_id: athlete.id,
+            status: currentAttendance[athlete.id] || "absent"
+          }))
+        })
+      });
+      await loadAttendance();
+      alert(`Attendance saved for ${formatDate(date)}.`);
+    } catch (error) {
+      alert(error.message);
     }
-
-
-    header.textContent =
-      `Sport: ${sport.value}`;
-
-  }
-
-
-  /* =========================
-     SELECT ALL
-  ========================= */
-
-  function toggleAllAttendance(
-    checkbox
-  ) {
-
-    document
-      .querySelectorAll(
-        ".attendance-checkbox"
-      )
-      .forEach(
-        item => {
-
-          item.checked =
-            checkbox.checked;
-
-        }
-      );
-
-  }
-
-
-  function updateSelectAllCheckbox() {
-
-    const master =
-      document.getElementById(
-        "selectAllAttendance"
-      );
-
-
-    const checkboxes =
-      document.querySelectorAll(
-        ".attendance-checkbox"
-      );
-
-
-    if (!master || !checkboxes.length) {
-      return;
-    }
-
-
-    master.checked =
-      [...checkboxes].every(
-        checkbox =>
-          checkbox.checked
-      );
-
-  }
-
-
-  /* =========================
-     INDIVIDUAL ATTENDANCE
-  ========================= */
-
-  function renderIndividualAttendance() {
-
-    const container =
-      document.getElementById(
-        "individualAttendanceList"
-      );
-
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    athletes.forEach(
-      athlete => {
-
-        const attendance =
-          getAthleteAttendance(
-            athlete.id
-          );
-
-
-        const item =
-          document.createElement(
-            "div"
-          );
-
-
-        item.className =
-          "individual-attendance-item";
-
-
-        const progressClass =
-          attendance < 50
-            ? "low"
-            : "good";
-
-
-        item.innerHTML = `
-
-          <div class="individual-student-name">
-
-            <span>
-              ${athlete.name}
-            </span>
-
-          </div>
-
-
-          <div class="individual-progress">
-
-            <div
-              class="
-                individual-progress-bar
-                ${progressClass}
-              "
-              style="width:${attendance}%"
-            ></div>
-
-          </div>
-
-
-          <strong class="individual-percentage">
-            ${attendance}%
-          </strong>
-
-        `;
-
-
-        container.appendChild(
-          item
-        );
-
-      }
-    );
 
   }
 
@@ -2205,12 +1539,6 @@
     athletes.forEach(
       athlete => {
 
-        const attendance =
-          getAthleteAttendance(
-            athlete.id
-          );
-
-
         const card =
           document.createElement(
             "div"
@@ -2231,7 +1559,6 @@
               )}
             </div>
 
-
             <div>
 
               <strong>
@@ -2240,8 +1567,6 @@
 
               <span>
                 ${athlete.sport}
-                •
-                ${athlete.position}
               </span>
 
             </div>
@@ -2254,30 +1579,24 @@
             <div class="athlete-detail">
 
               <span>
-                Performance
+                Email
               </span>
 
               <strong>
-                ${athlete.performance}/100
-              </strong>
-
-            </div>
-
-
-            <div class="athlete-detail">
-
-              <span>
-                Attendance
-              </span>
-
-              <strong>
-                ${attendance}%
+                ${athlete.email || "Not provided"}
               </strong>
 
             </div>
 
           </div>
 
+
+          <div class="athlete-record-actions">
+            <button type="button" onclick="openRecordForm(${athlete.id}, 'assessments')">Assessment</button>
+            <button type="button" onclick="openRecordForm(${athlete.id}, 'training-sessions')">Training</button>
+            <button type="button" onclick="openRecordForm(${athlete.id}, 'goals')">Goal</button>
+            <button type="button" onclick="openRecordForm(${athlete.id}, 'feedback')">Feedback</button>
+          </div>
 
           <button
             class="view-athlete"
@@ -2287,11 +1606,7 @@
               )
             "
           >
-
-            <i class="bi bi-eye"></i>
-
             View Athlete
-
           </button>
 
         `;
@@ -2333,11 +1648,9 @@
         "list-view"
       );
 
-
       listButton.classList.add(
         "active"
       );
-
 
       boxButton.classList.remove(
         "active"
@@ -2351,11 +1664,9 @@
         "list-view"
       );
 
-
       boxButton.classList.add(
         "active"
       );
-
 
       listButton.classList.remove(
         "active"
@@ -2416,10 +1727,6 @@
   }
 
 
-  /* =========================
-     VIEW ATHLETE
-  ========================= */
-
   function viewAthlete(
     athleteId
   ) {
@@ -2434,93 +1741,11 @@
     if (!athlete) return;
 
 
-    const attendance =
-      getAthleteAttendance(
-        athlete.id
-      );
-
-
-    document.getElementById(
-      "modalAthleteAvatar"
-    ).textContent =
-      getInitials(
-        athlete.name
-      );
-
-
-    document.getElementById(
-      "modalAthleteName"
-    ).textContent =
-      athlete.name;
-
-
-    document.getElementById(
-      "modalAthleteSport"
-    ).textContent =
-      `${athlete.sport} • ${athlete.position}`;
-
-
-    document.getElementById(
-      "viewName"
-    ).textContent =
-      athlete.name;
-
-
-    document.getElementById(
-      "viewSport"
-    ).textContent =
-      athlete.sport;
-
-
-    document.getElementById(
-      "viewEmail"
-    ).textContent =
-      athlete.email;
-
-
-    document.getElementById(
-      "viewPhone"
-    ).textContent =
-      athlete.phone;
-
-
-    document.getElementById(
-      "viewEmergencyPhone"
-    ).textContent =
-      athlete.emergencyPhone;
-
-
-    document.getElementById(
-      "viewAttendance"
-    ).textContent =
-      `${attendance}%`;
-
-
-    document.getElementById(
-      "athleteModal"
-    ).classList.add(
-      "show"
-    );
-
-
-    document.body.classList.add(
-      "modal-open"
-    );
-
-  }
-
-
-  function closeAthleteModal() {
-
-    document.getElementById(
-      "athleteModal"
-    ).classList.remove(
-      "show"
-    );
-
-
-    document.body.classList.remove(
-      "modal-open"
+    alert(
+      `${athlete.name}\n\n` +
+      `Sport: ${athlete.sport}\n` +
+      `Email: ${athlete.email || "Not provided"}\n` +
+      `Sports: ${(athlete.sports || []).join(", ")}`
     );
 
   }
@@ -2538,42 +1763,14 @@
       athletes.length;
 
 
-    document.getElementById(
-      "recordCount"
-    ).textContent =
-      Object.keys(
-        attendanceRecords
-      ).length;
+    document.getElementById("attendanceRate").textContent = `${attendanceSummary.percentage || 0}%`;
 
 
     const today =
       getToday();
 
 
-    const todayRecord =
-      attendanceRecords[today];
-
-
-    let todayPresent = 0;
-
-
-    if (todayRecord) {
-
-      todayPresent =
-        Object.values(
-          todayRecord
-        ).filter(
-          status =>
-            status === "present"
-        ).length;
-
-    }
-
-
-    document.getElementById(
-      "presentToday"
-    ).textContent =
-      todayPresent;
+    document.getElementById("presentToday").textContent = attendanceSummary.present_today || 0;
 
   }
 
@@ -2582,11 +1779,9 @@
      LOGOUT
   ========================= */
 
-  function logout() {
-
-    window.location.href =
-      "coach-login.html";
-
+  async function logout() {
+    await apiRequest("/api/logout", { method: "POST" }).catch(() => {});
+    window.location.href = "coach-login.html";
   }
 
 
@@ -2626,53 +1821,9 @@
     getToday();
 
 
-  document.getElementById(
-    "attendanceDate"
-  ).addEventListener(
-    "change",
-    updateAttendanceDateDisplay
-  );
-
-
-  document.getElementById(
-    "attendanceSport"
-  ).addEventListener(
-    "change",
-    updateAttendanceSportDisplay
-  );
-
-
   updateTopDate();
 
-  updateAttendanceDateDisplay();
-
-  updateAttendanceSportDisplay();
-
-  loadAttendance();
-
-  renderAthletes();
-
-  updateDashboardStats();
-
-
-  /* =========================
-     ESCAPE MODAL
-  ========================= */
-
-  document.addEventListener(
-    "keydown",
-    function(event) {
-
-      if (
-        event.key === "Escape"
-      ) {
-
-        closeAthleteModal();
-
-      }
-
-    }
-  );
+  initializeCoachDashboard();
 
 </script>
 

@@ -1,7 +1,7 @@
 # Fitness Performance Tracker: Codebase Documentation
 
 **Updated:** 2026-10-02  
-**Application type:** Flask REST API, MySQL database, static HTML/CSS/JavaScript frontend
+**Application type:** Flask REST API, Supabase PostgreSQL database, static HTML/CSS/JavaScript frontend, Vercel serverless deployment
 
 This guide describes the current repository structure and behavior. For deployment and setup instructions maintained by the project, also see [README.md](../README.md). Do not put secrets or real OTPs in this document.
 
@@ -19,10 +19,13 @@ The Flask API owns identity, authorization, database operations, OTP validation,
 Browser pages (frontend1/)
         | JSON + session cookie
         v
+Vercel Python function (api/index.py)
+        |
+        v
 Flask API (backend/app.py)
         |                   |
         v                   v
-MySQL (backend/schema.sql)  SMTP (backend/auth/emails.py)
+Supabase PostgreSQL         SMTP (backend/auth/emails.py)
 ```
 
 ## 2. Repository Map
@@ -45,9 +48,9 @@ MySQL (backend/schema.sql)  SMTP (backend/auth/emails.py)
 | Path | Responsibility |
 | --- | --- |
 | [backend/app.py](../backend/app.py) | Flask app configuration, JSON error handling, authentication, account verification, profiles, sports, coach approval, admin endpoints, and route registration. |
-| [backend/db.py](../backend/db.py) | Loads `backend/.env`, defines MySQL connection settings, and returns database connections. |
-| [backend/schema.sql](../backend/schema.sql) | MySQL tables, keys, indexes, sport seed rows, and the `student_details` view. |
-| [backend/setup_and_run.py](../backend/setup_and_run.py) | Non-destructive database initialization/compatibility checks, optional initial admin creation, and local API startup. |
+| [backend/db.py](../backend/db.py) | Loads the optional root `.env`, uses `SUPABASE_DB_URL`, and returns short-lived psycopg connections. |
+| [backend/schema.sql](../backend/schema.sql) | PostgreSQL tables, keys, indexes, reference sport rows, triggers, and the `student_details` view. |
+| [backend/setup_and_run.py](../backend/setup_and_run.py) | Non-destructive PostgreSQL schema initialization, optional initial admin creation, and local API startup. |
 | [backend/attendance.py](../backend/attendance.py) | Attendance APIs and role/sport/student eligibility checks. |
 | [backend/performance.py](../backend/performance.py) | CRUD API registration for assessments, training sessions, goals, and coach feedback. |
 | [backend/auth/helpers.py](../backend/auth/helpers.py) | OTP generation/storage/verification, user lookup, password hashing helpers, and session setup. |
@@ -58,6 +61,17 @@ MySQL (backend/schema.sql)  SMTP (backend/auth/emails.py)
 | [backend/start.ps1](../backend/start.ps1) | PowerShell wrapper for initialization and API startup flags. |
 
 Database migrations are in `backend/migrations/`: `001_performance_records.sql`, `002_admin_otp_verifications.sql`, `003_signup_otp_abuse_controls.sql`, and `004_auth_otp_attempt_limits.sql`.
+
+### Deployment
+
+| Path | Responsibility |
+| --- | --- |
+| [api/index.py](../api/index.py) | Imports and exposes the existing Flask application to Vercel. |
+| [vercel.json](../vercel.json) | Routes API requests to the Python function and static files to `frontend1/`. |
+| [backend/logging_config.py](../backend/logging_config.py) | JSON stdout logging with a constrained set of safe fields. |
+| [scripts/verify_vercel.py](../scripts/verify_vercel.py) | Static deployment/dependency/source checks. |
+| [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) | Release and platform setup checklist. |
+| [VERCEL_COMPATIBILITY_REPORT.md](../VERCEL_COMPATIBILITY_REPORT.md) | Initial compatibility findings before migration changes. |
 
 ### Frontend
 
@@ -94,8 +108,8 @@ Admin signup pages are redirects to the admin login page; public admin registrat
 - HTTP errors under `/api/` are returned as JSON. Unexpected API exceptions are logged server-side and returned as a generic 500 response.
 - `login_required` checks for `session['user_id']`.
 - `role_required(...)` reloads the user from the database, refreshes the role in the session, blocks missing users, and prevents unapproved coaches from accessing coach-only routes.
-- SQL values should be passed through PyMySQL placeholders. Table names in the performance CRUD layer are selected from a fixed internal resource map.
-- In local browser configuration, `config.js` sets the API base to `http://localhost:5000` for `localhost` and `127.0.0.1`; on other hostnames the base is relative (`""`). For a separate frontend/API origin, configure CORS and secure session-cookie settings appropriately.
+- SQL values use psycopg placeholders. Table names in the performance CRUD layer are selected from a fixed internal resource map.
+- `config.js` uses a same-origin API base by default. For a separate frontend/API origin, inject the public API origin before it loads, set the exact `FRONTEND_URL`, and configure secure session-cookie settings appropriately.
 
 ## 4. Authentication and User Flows
 
@@ -190,7 +204,7 @@ Each has `GET` list, `POST` create, `GET /<record_id>`, `PUT /<record_id>`, and 
 
 ## 6. Database Model
 
-The primary schema is MySQL 8.0.16 or newer. Main entities in [backend/schema.sql](../backend/schema.sql):
+The primary schema is Supabase PostgreSQL. Main entities in [backend/schema.sql](../backend/schema.sql):
 
 | Table/view | Purpose |
 | --- | --- |
@@ -215,16 +229,17 @@ Foreign keys use cascading deletes for dependent profile, OTP, sports, and recor
 
 ## 7. Configuration and Secrets
 
-Configuration is loaded from `backend/.env` by the database/setup modules. `.env.example` documents these variable names:
+Configuration is loaded from the environment; local development may use the root `.env`. `.env.example` documents these variable names:
 
 | Group | Variables |
 | --- | --- |
 | Runtime | `APP_ENV`, `SECRET_KEY`, `FLASK_HOST`, `PORT`, `FLASK_DEBUG` |
-| Database | `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` |
-| Browser/session | `CORS_ALLOWED_ORIGINS`, `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_SAMESITE` |
+| Database | `SUPABASE_DB_URL`, `DB_CONNECT_TIMEOUT` |
+| Browser/session | `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`, `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_SAMESITE` |
+| Version | `APP_VERSION` |
 | SMTP | `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` |
 | Initial admin | `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD` |
-| Tests/debug | `FITNESS_TEST_MODE`, `OTP_LOG_TO_TERMINAL` |
+| Tests/debug | `FITNESS_TEST_MODE` |
 
 Use a unique strong `SECRET_KEY` in production. Keep `.env` out of version control and configure secrets through the deployment environment. For public deployments use HTTPS, `SESSION_COOKIE_SECURE=true`, exact CORS origins, and `FLASK_DEBUG=false`.
 
@@ -237,7 +252,7 @@ python -m pip install -r requirements-dev.txt
 python backend/setup_and_run.py --init-only
 ```
 
-The initializer creates missing schema objects non-destructively, applies compatibility changes, seeds the reference sports, and optionally inserts an initial admin. Existing application data should be preserved.
+The initializer applies the idempotent PostgreSQL schema and optionally inserts an initial admin. It does not drop application data. It does not convert or copy records from a previous MySQL database; existing records require a separately validated migration.
 
 ### Run Locally
 
@@ -261,26 +276,25 @@ Open `http://localhost:8080`. Alternatively, `python run_all.py` starts both ser
 python -m pytest -q
 ```
 
-MySQL integration tests are opt-in and create a uniquely named test database:
+PostgreSQL integration tests are opt-in and require a dedicated non-production database URL:
 
 ```powershell
-$env:RUN_MYSQL_TESTS = "true"
+$env:SUPABASE_TEST_DB_URL = "postgresql://..."
+$env:RUN_POSTGRES_TESTS = "true"
 python -m pytest -q
 ```
 
-Test modules cover authentication, admin OTPs, core role/profile flows, attendance, integration behavior, and the MySQL workflow. See `tests/conftest.py` for database fixture behavior. Never point the integration fixture at a production database.
+Test modules cover authentication, admin OTPs, core role/profile flows, attendance, deployment endpoints, and the PostgreSQL workflow. See `tests/conftest.py` for test database protections. Never point the integration fixture at a production database.
 
 ## 9. Security and Current Maintenance Notes
 
 Review these current implementation details before deploying or treating this guide as a claim that every page path is healthy:
 
-1. **OTP logging:** `backend/auth/emails.py` currently sets `OTP_LOG_TO_TERMINAL = True` in code and prints OTP values. The similarly named `.env.example` setting does not currently override that constant. Disable/remove OTP logging before production and never expose captured logs.
-2. **OTP expiry text mismatch:** `backend/auth/helpers.py` uses a three-minute OTP lifetime, while `backend/auth/emails.py` advertises ten minutes. Align these values so email instructions match server validation.
-3. **Repeated schema definitions:** `backend/schema.sql` repeats several `CREATE TABLE` blocks in its legacy section. `setup_and_run.py` rewrites table creation to `CREATE TABLE IF NOT EXISTS` and sport inserts to `INSERT IGNORE`; use the setup script rather than assuming the SQL can be applied directly to an existing database.
-4. **Stale stylesheet references:** Current HTML still refers to paths that do not exist after the CSS files moved into nested folders. The audit found: dashboard links `../css/admin/admin-dashboard.css` and `../css/coach/coach-dashboard.css`; `admin/verify.html` → `../css/admin/verify.css`; demo pages → `../css/app-theme.css`; shared recovery pages → `../css/shared-forgot.css`; `student-basicinfo.html` → `../css/student-basicinfo.css`; `student-personalinfo.html` → `../css/app-theme.css`. Compare these with the actual files under `frontend1/css/` before adjusting styles.
-5. **Stale page navigation:** `admin-login.html` and `coach-login.html` link to missing `../landing-page.html`; some signup/waiting pages link to `../mainlading.html`; role-specific verify pages link to local `forgot-password.html` although the current shared form is `frontend1/shared/forgot-password.html`. The actual landing entry is `frontend1/index.html`.
-6. **Legacy reset module:** Root `reset_db.py` is intentionally disabled. Do not use destructive scripts or manual database drops for routine setup.
-7. **API end-to-end testing:** Unit/mocked tests do not prove SMTP delivery or the full browser-to-MySQL flow. Test these against a dedicated development environment with working SMTP and isolated database credentials.
+1. **SMTP remains environment-dependent:** OTP delivery is synchronous and requires working SMTP configuration. Test delivery in a non-production deployment before relying on signup, login, or reset flows.
+2. **Hosted services require deployment testing:** Unit/mocked tests do not prove Vercel routing, Supabase connectivity, browser cookie behavior, or SMTP delivery. Verify these against a Preview deployment and non-production services.
+3. **Existing data needs a migration plan:** The PostgreSQL schema is idempotent for object creation, not a MySQL data converter. Back up and migrate existing records separately, validating keys and relationships before production cutover.
+4. **Legacy reset module:** Root `reset_db.py` is intentionally disabled. Do not use destructive scripts or manual database drops for routine setup.
+5. **Local launcher only:** `run_all.py` and `dev_server.py` are local development tools; Vercel imports the Flask application through `api/index.py`.
 
 ## 10. Change Workflow
 

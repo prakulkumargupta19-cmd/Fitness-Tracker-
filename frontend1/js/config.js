@@ -5,10 +5,18 @@
 (function () {
     "use strict";
 
-    const isLocal =
+    const isLocalHost =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1";
-    const apiBase = isLocal ? "http://localhost:5000" : "";
+    const localApiBase =
+        isLocalHost
+            ? `${window.location.protocol}//${window.location.hostname}:5000`
+            : "";
+    const configuredApiBase =
+        window.FITNESS_API_BASE ||
+        window.APP_CONFIG?.API_BASE ||
+        localApiBase;
+    const apiBase = configuredApiBase.replace(/\/+$/, "");
 
     window.APP_CONFIG = {
         API_BASE: apiBase,
@@ -32,9 +40,10 @@
             coach: "coach/coach-login.html",
             admin: "admin/admin-login.html"
         },
-        DEBUG: isLocal
+        DEBUG: false
     };
 
-    // Several standalone pages use this override directly.
+    // Local static servers use Flask on port 5000. Deployed pages remain
+    // same-origin unless a public API origin is explicitly injected.
     window.FITNESS_API_BASE = apiBase;
 })();

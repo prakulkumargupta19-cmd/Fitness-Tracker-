@@ -8,8 +8,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../demo/auth.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Inter", "sans-serif"] },
+                    colors: {
+                        brand: {
+                            DEFAULT: "#0a63ff",
+                            hover: "#0754dc",
+                            light: "#eef5ff"
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
     <script src="../js/config.js"></script>
+    <link rel="stylesheet" href="../demo/auth.css">
+    <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="stylesheet" href="../css/coach/coach-portal.css?v=6">
 
     <style>
         .auth {
@@ -27,377 +48,375 @@
             --btn: linear-gradient(90deg, #0a66ff, #0a46d6);
         }
 
-        .panel {
+        /* Keep the coach photo visible in the left hero panel. */
+        .auth > .art {
+            background-image:
+                linear-gradient(rgba(3, 16, 34, .30), rgba(3, 16, 34, .48)),
+                url("../demo/coach.jpg");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        /* Keep the signup form at the top of the scrollable panel. */
+        .panel.coach-signup-panel {
+            align-items: stretch;
             justify-content: flex-start;
-            padding-top: calc(var(--u) * 3.2);
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(10, 99, 255, .38) transparent;
         }
 
-        .panel form {
+        .coach-signup-content {
+            width: calc(var(--u) * 33.3);
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .coach-signup-panel input:not([type="checkbox"]) {
             width: 100%;
+            min-height: 48px;
+            padding: 0 14px;
+            border: 1px solid #dce4f2;
+            border-radius: 9px;
+            background: #f7f9fd;
+            color: #0b1228;
+            font: 400 14px/1.4 "Inter", sans-serif;
         }
 
-        .message:empty {
-            display: none;
+        .coach-signup-panel input:focus {
+            border-color: #8dbcff;
+            outline: 0;
+            background: #eef5ff;
+            box-shadow: 0 0 0 3px rgba(60, 135, 255, .18);
         }
 
-        .message:not(:empty) {
-            width: 100%;
-            margin: 0 0 calc(var(--u) * 1.3);
-            padding: calc(var(--u) * 1.1);
-            border: 1px solid #fecdd3;
-            border-radius: calc(var(--u) * .7);
-            background: #fff1f2;
-            color: #be123c;
-            font-size: calc(var(--u) * 1.05);
+        .coach-signup-panel label {
+            display: block;
+            margin-bottom: 6px;
+            color: #0b1228;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .field.has-eye {
+        .coach-signup-panel .signup-field {
+            margin-bottom: 16px;
+        }
+
+        .coach-signup-panel .password-field {
             position: relative;
         }
 
-        .field.has-eye input {
-            padding-right: 3rem;
+        .coach-signup-panel .password-field input {
+            padding-right: 44px;
         }
 
-        .password-toggle {
+        .coach-signup-panel .password-toggle {
             position: absolute;
             top: 50%;
-            right: .85rem;
-            display: grid;
-            width: 1.5rem;
-            height: 1.5rem;
-            padding: 0;
-            place-items: center;
+            right: 10px;
             transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            padding: 0;
             border: 0;
             background: transparent;
             color: #7b86a3;
             cursor: pointer;
         }
 
-        .password-toggle svg {
-            width: 1.1rem;
-            height: 1.1rem;
+        .coach-signup-panel .password-toggle svg {
+            width: 19px;
+            height: 19px;
         }
 
-        .terms-row {
+        .coach-signup-panel .terms-row {
             display: flex;
             align-items: flex-start;
-            gap: .55rem;
-            margin-top: calc(var(--u) * 1);
-            margin-bottom: calc(var(--u) * 1.2);
+            gap: 8px;
+            margin: 4px 0 16px;
+            color: #53617a;
+            font-size: 13px;
+            line-height: 1.45;
         }
 
-        .terms-row input {
-            margin-top: .15rem;
+        .coach-signup-panel .terms-row input {
+            width: 16px;
+            height: 16px;
+            min-height: 0;
+            flex: 0 0 16px;
+            margin-top: 1px;
             accent-color: #0a63ff;
         }
 
-        .terms-row label {
-            margin: 0;
-        }
-
-        .terms-row a,
-        .panel .alt a {
+        .coach-signup-panel .terms-row a {
             color: #0a63ff;
             font-weight: 700;
         }
 
-        #signupForm .btn {
-            margin-top: calc(var(--u) * .5);
+        .coach-signup-panel .signup-error {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border: 1px solid #fecdd3;
+            border-radius: 8px;
+            background: #fff1f2;
+            color: #be123c;
+            font-size: 13px;
         }
 
-        .panel .or {
-            margin: calc(var(--u) * 1.5) 0;
+        .coach-signup-panel .signup-error[hidden] {
+            display: none;
         }
 
-        .panel .alt {
-            margin-top: calc(var(--u) * 1.5);
+        .coach-signup-panel .signup-submit {
+            width: 100%;
+            min-height: 48px;
+            border: 0;
+            border-radius: 9px;
+            background: linear-gradient(90deg, #0a66ff, #00a6ff);
+            color: #fff;
+            font: 700 14px "Inter", sans-serif;
+            box-shadow: 0 8px 18px rgba(10, 99, 255, .22);
+            cursor: pointer;
         }
 
-        .panel .back {
-            display: block;
-            margin-top: calc(var(--u) * .7);
+        .coach-signup-panel .signup-submit:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        .coach-signup-panel .signup-links {
+            margin-top: 18px;
+            color: #7b86a3;
+            font-size: 13px;
+            line-height: 1.7;
             text-align: center;
         }
 
+        .coach-signup-panel .signup-links a {
+            color: #0a63ff;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .coach-signup-panel .signup-links a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 860px) {
-            .panel {
+            .panel.coach-signup-panel {
                 padding: 28px 20px 30px;
             }
 
-            .panel h1 {
-                font-size: 1.8rem;
+            .coach-signup-content {
+                width: 100%;
             }
         }
     </style>
 </head>
 
-<body>
+<body data-portal-role="coach">
     <main class="auth">
         <section class="art">
             <div class="copy">
-                <h2>
-                    Empower<br>
-                    Athletes.<br>
-                    <span class="accent">Build<br>Better<br>Performance.</span>
-                </h2>
+                <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
                 <div class="bar"></div>
                 <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
             </div>
         </section>
 
-        <section class="panel">
-            <h1><span>Create Account</span></h1>
-            <p class="sub">Set up your coach account to manage athletes, training plans, progress reports, and feedback.</p>
+        <section class="panel coach-signup-panel">
+            <div class="coach-signup-content">
+                <header class="mb-5">
+                    <h1 class="text-3xl font-extrabold text-slate-900">
+                        <span class="text-brand">Coach</span> Create Account
+                    </h1>
+                    <p class="mt-2 text-sm text-slate-500">
+                        Create your coach account to manage athletes, training plans, progress reports, and feedback.
+                    </p>
+                </header>
 
-            <div id="errorMessage" class="message" role="alert" aria-live="polite"></div>
+                <form id="signupForm" novalidate>
+                    <div class="signup-field">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" autocomplete="name" required>
+                    </div>            
 
-            <form id="signupForm">
-                <label class="lbl" for="fullName">Full Name</label>
-                <div class="field">
-                    <input
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        placeholder="Enter your full name"
-                        autocomplete="name"
-                        required
-                    >
-                </div>
+                    <div class="signup-field">
+                        <label for="contactNumber">Contact Number</label>
+                        <input type="tel" id="contactNumber" name="contactNumber" placeholder="Enter your contact number" autocomplete="tel" inputmode="numeric" maxlength="10" required>
+                    </div>
 
-                <label class="lbl" for="contactNumber">Contact Number</label>
-                <div class="field">
-                    <input
-                        type="tel"
-                        id="contactNumber"
-                        name="contactNumber"
-                        placeholder="Enter your contact number"
-                        autocomplete="tel"
-                        required
-                    >
-                </div>
+                    <div class="signup-field">
+                        <label for="coachEmail">Coach Email</label>
+                        <input type="email" id="coachEmail" name="coachEmail" placeholder="Enter your coach email" autocomplete="email" required>
+                    </div>
 
-                <label class="lbl" for="coachEmail">Coach Email</label>
-                <div class="field">
-                    <input
-                        type="email"
-                        id="coachEmail"
-                        name="email"
-                        placeholder="Enter your coach email"
-                        autocomplete="email"
-                        required
-                    >
-                </div>
+                    <div class="signup-field">
+                        <label for="password">Password</label>
+                        <div class="password-field">
+                            <input type="password" id="password" name="password" placeholder="Create a password" autocomplete="new-password" minlength="8" required>
+                            <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password" aria-pressed="false">
+                                <svg id="passwordEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
-                <label class="lbl" for="password">Password</label>
-                <div class="field has-eye">
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Create a password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required
-                    >
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        id="togglePassword"
-                        aria-label="Show password"
-                        aria-pressed="false"
-                    >
-                        <svg
-                            id="passwordEye"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </button>
-                </div>
+                    <div class="signup-field">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-field">
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" autocomplete="new-password" minlength="8" required>
+                            <button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Show confirm password" aria-pressed="false">
+                                <svg id="confirmPasswordEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
-                <label class="lbl" for="confirmPassword">Confirm Password</label>
-                <div class="field has-eye">
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        placeholder="Confirm your password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required
-                    >
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        id="toggleConfirmPassword"
-                        aria-label="Show confirm password"
-                        aria-pressed="false"
-                    >
-                        <svg
-                            id="confirmPasswordEye"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="terms-row">
-                    <input type="checkbox" id="terms" required>
-                    <label for="terms">
-                        I agree to the
-                        <a href="#">Terms &amp; Privacy Policy</a>
+                    <label class="terms-row" for="terms">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <span>I agree to the <a href="#">Terms &amp; Privacy Policy</a>.</span>
                     </label>
+
+                    <div id="errorMessage" class="signup-error" role="alert" aria-live="polite" hidden></div>
+
+                    <button type="submit" id="signupButton" class="signup-submit">
+                        <span id="buttonText">Create Account</span> →
+                    </button>
+                </form>
+
+                <div class="signup-links">
+                    <p>Already have an account? <a href="coach-login.html">Sign In</a></p>
+                    <p><a href="../index.html">← Back to role selection</a></p>
                 </div>
-
-                <button type="submit" class="btn" id="signupButton">
-                    <span id="signupButtonText">Create Account</span>
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.4"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M4 12h16M14 6l6 6-6 6"/>
-                    </svg>
-                </button>
-            </form>
-
-            <div class="or">OR</div>
-
-            <div class="alt">
-                <span>Already have an account? <a href="coach-login.html">Sign In</a></span>
             </div>
-
-            <a class="back" href="../index.html">← Back to role selection</a>
         </section>
     </main>
 
     <script>
-        "use strict";
+        (function () {
+            "use strict";
 
-        const passwordInput = document.getElementById("password");
-        const confirmPasswordInput = document.getElementById("confirmPassword");
-        const errorMessage = document.getElementById("errorMessage");
-        const signupButton = document.getElementById("signupButton");
-        const signupButtonText = document.getElementById("signupButtonText");
+            const signupForm = document.getElementById("signupForm");
+            const signupButton = document.getElementById("signupButton");
+            const buttonText = document.getElementById("buttonText");
+            const errorMessage = document.getElementById("errorMessage");
+            const passwordInput = document.getElementById("password");
+            const confirmPasswordInput = document.getElementById("confirmPassword");
 
-        function bindPasswordToggle(buttonId, input, iconId) {
-            const button = document.getElementById(buttonId);
-            const icon = document.getElementById(iconId);
+            function showPasswordToggle(input, buttonId, iconId, label) {
+                const button = document.getElementById(buttonId);
+                const icon = document.getElementById(iconId);
 
-            button.addEventListener("click", () => {
-                const show = input.type === "password";
-                input.type = show ? "text" : "password";
+                button.addEventListener("click", function () {
+                    const showing = input.type === "password";
+                    input.type = showing ? "text" : "password";
+                    button.setAttribute("aria-label", showing ? "Hide " + label : "Show " + label);
+                    button.setAttribute("aria-pressed", String(showing));
 
-                button.setAttribute(
-                    "aria-label",
-                    show ? "Hide password" : "Show password"
-                );
-                button.setAttribute("aria-pressed", String(show));
+                    icon.innerHTML = showing
+                        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+                        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                });
+            }
 
-                icon.innerHTML = show
-                    ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
-                    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
-            });
-        }
+            showPasswordToggle(passwordInput, "togglePassword", "passwordEye", "password");
+            showPasswordToggle(confirmPasswordInput, "toggleConfirmPassword", "confirmPasswordEye", "confirm password");
 
-        bindPasswordToggle("togglePassword", passwordInput, "passwordEye");
-        bindPasswordToggle(
-            "toggleConfirmPassword",
-            confirmPasswordInput,
-            "confirmPasswordEye"
-        );
+            function showError(text) {
+                errorMessage.textContent = text;
+                errorMessage.hidden = false;
+            }
 
-        document
-            .getElementById("signupForm")
-            .addEventListener("submit", async (event) => {
+            signupForm.addEventListener("submit", async function (event) {
                 event.preventDefault();
-
-                errorMessage.className = "message";
+                errorMessage.hidden = true;
                 errorMessage.textContent = "";
 
                 const fullName = document.getElementById("fullName").value.trim();
+                const qualification = document.getElementById("qualification").value.trim();
+                const specialization = document.getElementById("specialization").value.trim();
+                const experienceYears = document.getElementById("experienceYears").value;
                 const contactNumber = document.getElementById("contactNumber").value.trim();
                 const email = document.getElementById("coachEmail").value.trim().toLowerCase();
                 const password = passwordInput.value;
                 const confirmPassword = confirmPasswordInput.value;
 
-                if (password.length < 6) {
-                    errorMessage.textContent =
-                        "Password must contain at least 6 characters.";
+                if (!fullName) {
+                    showError("Please enter your full name.");
+                    return;
+                }
+
+                if (!contactNumber) {
+                    showError("Please enter your contact number.");
+                    return;
+                }
+
+                if (!email) {
+                    showError("Please enter your email address.");
+                    return;
+                }
+
+                if (password.length < 8) {
+                    showError("Password must contain at least 8 characters.");
                     return;
                 }
 
                 if (password !== confirmPassword) {
-                    errorMessage.textContent = "Passwords do not match.";
-                    confirmPasswordInput.focus();
+                    showError("Passwords do not match.");
+                    return;
+                }
+
+                if (!document.getElementById("terms").checked) {
+                    showError("Please agree to the Terms & Privacy Policy.");
                     return;
                 }
 
                 signupButton.disabled = true;
-                signupButtonText.textContent = "Creating Account...";
+                buttonText.textContent = "Creating Account...";
 
                 try {
-                    const response = await fetch(
-                        `${window.FITNESS_API_BASE || ""}/api/signup`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            credentials: "include",
-                            body: JSON.stringify({
-                                name: fullName,
-                                email: email,
-                                contact_number: contactNumber,
-                                password: password,
-                                confirm_password: confirmPassword,
-                                role: "coach"
-                            })
-                        }
-                    );
+                    const response = await fetch(`${window.FITNESS_API_BASE || ""}/api/signup`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({
+                            name: fullName,
+                            email: email,
+                            contact_number: contactNumber,
+                            password: password,
+                            confirm_password: confirmPassword,
+                            role: "coach",
+                            qualification: qualification,
+                            specialization: specialization,
+                            experience_years: experienceYears
+                        })
+                    });
 
-                    const data = await response
-                        .json()
-                        .catch(() => ({
-                            message: "Unexpected server response."
-                        }));
+                    const data = await response.json().catch(function () {
+                        return { message: "Unexpected server response." };
+                    });
 
                     if (!response.ok || !data.success) {
-                        throw new Error(
-                            data.message || "Unable to create coach account."
-                        );
+                        throw new Error(data.message || "Unable to create coach account.");
                     }
 
                     sessionStorage.setItem("authEmail", email);
                     window.location.href = "coach-signup-verify.html";
                 } catch (error) {
-                    errorMessage.textContent =
-                        error.message || "Unable to create account. Please try again.";
+                    console.error("Coach signup error:", error);
+                    showError(error.message || "Unable to create account. Please try again.");
                     signupButton.disabled = false;
-                    signupButtonText.textContent = "Create Account";
+                    buttonText.textContent = "Create Account";
                 }
             });
+        }());
     </script>
 </body>
 </html>

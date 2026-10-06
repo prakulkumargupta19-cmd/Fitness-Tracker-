@@ -333,7 +333,7 @@
         <div class="timer">OTP expires in: <span id="timer">02:00</span></div>
         <div class="resend">Didn't receive the code? <button type="button" id="resendButton" disabled>Resend OTP</button></div>
         <div id="message" class="message"></div>
-        <a href="forgot-password.html" class="change-email">← Change Email Address</a>
+        <a href="../shared/forgot-password.html" class="change-email">← Change Email Address</a>
         <div class="security-note">Never share your OTP with anyone. Our team will never ask you for your OTP.</div>
     </section>
 </main>
@@ -433,7 +433,7 @@
             verifyButton.textContent = "Verifying...";
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/coach/verify-otp`, {
+                const response = await fetch(`${API_BASE_URL}/api/login/verify-otp`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -443,14 +443,10 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    sessionStorage.setItem("coachOtpVerified", "true");
-                    sessionStorage.setItem("coachResetEmail", email);
-                    sessionStorage.setItem("coachResetOtp", otp);
-
                     showMessage("OTP verified successfully. Redirecting...", "success");
 
                     setTimeout(function() {
-                        window.location.href = "set-password.html";
+                        window.location.replace("coach-dashboard.html");
                     }, 700);
                     return;
                 }
@@ -493,7 +489,7 @@
             resendButton.textContent = "Sending...";
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/coach/resend-otp`, {
+                const response = await fetch(`${API_BASE_URL}/api/login/resend-otp`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
@@ -503,7 +499,6 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    sessionStorage.removeItem("coachResetOtp");
                     otpInputs.forEach(input => input.value = "");
                     otpInputs[0].focus();
                     timeLeft = 120;

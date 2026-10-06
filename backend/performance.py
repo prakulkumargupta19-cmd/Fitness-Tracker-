@@ -35,18 +35,17 @@ RESOURCES = {
 
 
 def _assigned_student(cursor, coach_id, student_id, sport_id=None):
-    query = """SELECT 1 FROM users student
-               JOIN student_sports ss ON ss.student_id = student.id
-               JOIN coach_sports cs ON cs.sport_id = ss.sport_id
-               JOIN users coach ON coach.id = cs.coach_id
-               WHERE student.id = %s AND student.role = 'student'
-                 AND student.is_verified = 1 AND coach.id = %s
-                 AND coach.role = 'coach' AND coach.coach_status = 'approved'"""
+    sport_filter = " AND ss.sport_id=%s" if sport_id is not None else ""
     params = [student_id, coach_id]
     if sport_id is not None:
-        query += " AND ss.sport_id = %s"
         params.append(sport_id)
-    cursor.execute(query, tuple(params))
+    cursor.execute(f"""SELECT 1 FROM student_sports ss
+        JOIN users student ON student.id=ss.student_id
+        JOIN coach_sports cs ON cs.sport_id=ss.sport_id
+        JOIN users coach ON coach.id=cs.coach_id
+        WHERE ss.student_id=%s AND cs.coach_id=%s AND student.role='student'
+          AND student.is_verified=TRUE AND coach.role='coach'
+          AND coach.coach_status='approved' AND coach.is_active=TRUE{sport_filter}""", tuple(params))
     return cursor.fetchone() is not None
 
 
@@ -75,20 +74,19 @@ def register_performance_routes(app):
                     if role == "student":
                         cursor.execute(f"SELECT * FROM {table} WHERE student_id = %s ORDER BY created_at DESC", (user_id,))
                     elif role == "coach":
-                        sport_filter = ""
-                        if resource == "training-sessions":
-                            sport_filter = " AND r.sport_id = ss.sport_id"
+                        sport_filter = " AND ss.sport_id = r.sport_id" if resource == "training-sessions" else ""
                         cursor.execute(
                             f"""SELECT r.* FROM {table} r
                                 WHERE r.coach_id = %s
                                   AND EXISTS (
                                     SELECT 1 FROM student_sports ss
-                                    JOIN coach_sports cs ON cs.sport_id = ss.sport_id
-                                    JOIN users st ON st.id = ss.student_id
-                                    JOIN users ch ON ch.id = cs.coach_id
-                                    WHERE ss.student_id = r.student_id AND cs.coach_id = %s
-                                      AND st.is_verified = 1 AND ch.coach_status = 'approved'
-                                                                            {sport_filter}
+                                    JOIN coach_sports cs ON cs.sport_id=ss.sport_id
+                                    JOIN users st ON st.id=ss.student_id
+                                    JOIN users ch ON ch.id=cs.coach_id
+                                    WHERE ss.student_id=r.student_id AND cs.coach_id=%s
+                                      AND st.is_verified=TRUE AND ch.coach_status='approved'
+                                      AND ch.is_active=TRUE
+                                      {sport_filter}
                                   ) ORDER BY r.created_at DESC""",
                             (user_id, user_id),
                         )
@@ -117,10 +115,10 @@ def register_performance_routes(app):
                     params = [student_id, session.get("user_id"), *values.values()]
                     placeholders = ", ".join(["%s"] * len(columns))
                     cursor.execute(
-                        f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})",
+                        f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders}) RETURNING id",
                         tuple(params),
                     )
-                    record_id = cursor.lastrowid
+                    record_id = cursor.fetchone()["id"]
                 db.commit()
                 return jsonify({"success": True, "id": record_id}), 201
             except Exception:

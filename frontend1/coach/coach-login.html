@@ -466,14 +466,6 @@
 
 
 
-                        console.log(
-                            "COACH LOGIN RESPONSE:",
-                            loginResponse.status,
-                            loginData
-                        );
-
-
-
                         /* =========================================
                            SERVER LOGIN ERROR
                         ========================================== */
@@ -531,14 +523,6 @@
                             sessionData = {};
 
                         }
-
-
-
-                        console.log(
-                            "COACH SESSION RESPONSE:",
-                            sessionResponse.status,
-                            sessionData
-                        );
 
 
 
@@ -701,6 +685,16 @@
 
     </script>
 
+    <script>
+        if (new URLSearchParams(window.location.search).get("reset") === "success") {
+            const message = document.getElementById("message");
+            if (message) {
+                message.textContent = "Password reset successfully. You can now log in.";
+                message.className = "message success";
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
 </body>
 
 </html>

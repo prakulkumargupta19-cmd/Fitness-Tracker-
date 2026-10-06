@@ -1,79 +1,108 @@
 # Fitness Performance Tracker
 
-A Flask API and static HTML/CSS/JavaScript frontend for student registration, coach approval and sport assignment, attendance, and performance records. MySQL is the source of truth.
+Fitness Tracker is a static HTML/CSS/JavaScript frontend backed by a Flask API and PostgreSQL database. The production target is Vercel for the frontend/API and Supabase PostgreSQL for persistent data.
 
 ## Requirements
 
 - Python 3.10 or newer
-- MySQL 8.0.16 or newer
-- SMTP credentials for real signup/login/password-reset OTP delivery
+- A Supabase PostgreSQL project for real database-backed use
+- SMTP credentials to deliver real signup, login, and password-reset OTP messages
 
-## Configure
+## Local setup
 
-1. Copy `.env.example` to `.env`.
-2. Set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` for the MySQL account/database. The account needs access to the configured database and schema DDL privileges during initial setup.
-3. Set a unique `SECRET_KEY`. Production startup exits if it is missing.
-4. Set `MAIL_USERNAME`, `MAIL_PASSWORD`, and, when needed, `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY`, and `MAIL_FROM`. OTP logging should remain disabled in production.
-5. Set `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` once to create the first administrator. The password must be at least 12 characters. These values are used only for an idempotent insert; there is no public admin signup.
+From the repository root, create and activate a virtual environment, install requirements, and copy the environment template:
 
-Do not commit `.env`. `.env.example` contains placeholders only.
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+```
 
-## Database Setup
+Set `SUPABASE_DB_URL` to a PostgreSQL connection string from Supabase and set a unique `SECRET_KEY`. Use the Supabase direct or pooler URI appropriate for your network. Do not commit `.env`.
 
-From the repository root, run the non-destructive schema initializer:
+Apply the PostgreSQL schema and incremental coach workflow migration to the selected Supabase project locally:
 
 ```powershell
 python backend/setup_and_run.py --init-only
 ```
 
-The initializer creates the configured database if absent and applies missing tables using `CREATE TABLE IF NOT EXISTS`; it preserves existing rows and seeds only the reference sport catalog. Existing application tables are not dropped or recreated. The current schema includes `student_sports`, `coach_sports`, performance tables, attendance tables, and `admin_otp_verifications`, which stores admin login and password-reset OTPs separately from user OTPs. OTP sends are limited to five per hour and each code allows five guesses. `backend/migrations/001_performance_records.sql`, `backend/migrations/002_admin_otp_verifications.sql`, `backend/migrations/003_signup_otp_abuse_controls.sql`, and `backend/migrations/004_auth_otp_attempt_limits.sql` are available for existing installations. The normal initializer applies missing tables and OTP control columns non-destructively.
+The initializer applies `backend/schema.sql` and `backend/migrations/005_coach_assignment_attendance_workflow.sql`; it is idempotent and does not delete data. For a fresh project you can also apply both files in that order in the Supabase SQL Editor. To create the initial administrator, temporarily configure `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` in the local environment before running the initializer. This is an explicit one-time action; never add these credentials to frontend configuration or commit them.
 
-`reset_db.py` and the launcher's `--reset` option are intentionally disabled. Do not use a destructive reset for deployment or development data.
-
-## Run Locally
-
-Start Flask from the repository root:
+Start the local Flask API and the static frontend/API proxy in separate terminals:
 
 ```powershell
 python backend/setup_and_run.py
-```
-
-The API listens on `0.0.0.0:5000` by default. Configure `DB_*`, `MAIL_*`, `SECRET_KEY`, `FLASK_HOST`, `PORT`, and `FLASK_DEBUG` through `.env` or process environment variables.
-
-The frontend is plain static HTML; it has no npm build step. In a second terminal, run the local server with its `/api` proxy:
-
-```powershell
 python dev_server.py
 ```
 
-To develop with separate frontend/API origins, set `window.FITNESS_API_BASE` in `frontend1/js/config.js` to the Flask API origin (for local development, `http://localhost:5000`) and set the matching frontend origin in `CORS_ALLOWED_ORIGINS`. The frontend sends session cookies with `credentials: include`.
+Open `http://localhost:8080`. The development server proxies same-origin `/api/` requests to Flask, matching the production same-origin Vercel layout.
 
-## Deployment
+## Environment variables
 
-Prefer serving `frontend1/` and proxying `/api/` to Flask under the same public origin. This keeps the frontend API base relative and avoids cross-site cookie restrictions. For separate hosting, configure `window.FITNESS_API_BASE` to the public API URL before the frontend scripts run, set `CORS_ALLOWED_ORIGINS` to the exact frontend origin(s), and use HTTPS with `SESSION_COOKIE_SECURE=true` and an appropriate `SESSION_COOKIE_SAMESITE` value. Never deploy a `127.0.0.1` API address.
+| Variable | Purpose |
+|---|---|
+| `SUPABASE_DB_URL` | PostgreSQL connection string; server-side only |
+| `DB_CONNECT_TIMEOUT` | Connection timeout in seconds |
+| `SECRET_KEY` | Flask signed-session secret; required in production |
+| `APP_ENV` / `VERCEL_ENV` | Deployment mode |
+| `APP_VERSION` | Public non-secret version shown in diagnostics |
+| `FRONTEND_URL` | Exact production frontend origin allowed for credentialed CORS |
+| `CORS_ALLOWED_ORIGINS` | Optional comma-separated local-development origins |
+| `SESSION_COOKIE_SECURE` | Secure-cookie override; secure is enforced in production |
+| `SESSION_COOKIE_SAMESITE` | Session cookie same-site policy |
+| `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY` | SMTP transport settings |
+| `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` | SMTP credentials and sender |
+| `FLASK_HOST`, `PORT`, `FLASK_DEBUG` | Local Flask launcher settings |
+| `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD` | Optional one-time local initial-admin creation |
+| `FITNESS_TEST_MODE` | Test-only suppression of real email delivery; OTPs are never logged |
 
-Initialize the schema once with `python backend/setup_and_run.py --init-only`, then run the API through the included WSGI server:
+Configure production secrets in Vercel Project Settings → Environment Variables, not in frontend code. Configure the production `FRONTEND_URL` to the exact deployed site origin. Vercel provides `VERCEL_ENV` automatically.
 
-```sh
-gunicorn --chdir backend --bind 0.0.0.0:${PORT:-5000} app:app
-```
+## Database migration notes
 
-Keep `FLASK_DEBUG=false`. Provision MySQL and SMTP credentials through the host's secret/environment manager. Do not expose database credentials, SMTP credentials, `SECRET_KEY`, or OTP values in frontend files or logs.
+`backend/schema.sql` is the PostgreSQL schema for a new Supabase database. The previous MySQL schema and MySQL-specific setup have been replaced, but applying a new PostgreSQL schema does not convert or copy an existing MySQL database. Back up and migrate existing records separately, preserving IDs and foreign-key relationships, before switching the application to that database. Validate the migration against a separate test project first.
 
-## Tests
+`backend/migrations/` contains PostgreSQL-compatible incremental DDL. Applying `backend/schema.sql` followed by migration `005_coach_assignment_attendance_workflow.sql` creates coach approval fields and auditable attendance fields. Admin-assigned coach sports and student-selected sports determine each coach's athlete roster; no individual athlete assignment table is used. The application uses Supabase/PostgreSQL through `SUPABASE_DB_URL`; it does not connect to MySQL. Do not point integration tests or migration experiments at production.
 
-Install test dependencies and run unit/mocked API tests:
+## Tests and compatibility check
+
+Run the database-free test suite:
 
 ```powershell
-python -m pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-MySQL integration tests use a fresh, unique test database and are opt-in:
+The end-to-end PostgreSQL workflow is opt-in and requires a dedicated non-production test database:
 
 ```powershell
-$env:RUN_MYSQL_TESTS = "true"
+$env:SUPABASE_TEST_DB_URL = "postgresql://..."
+$env:RUN_POSTGRES_TESTS = "true"
 python -m pytest -q
 ```
 
-Provide valid test MySQL credentials through `DB_*`. The fixture creates and drops only its newly named test database; it never resets the application database.
+The test fixture refuses to use the same URL for `SUPABASE_TEST_DB_URL` and `SUPABASE_DB_URL`. The database-free suite and static compatibility checks do not require production credentials.
+
+Run the repository deployment audit:
+
+```powershell
+python scripts/verify_vercel.py
+```
+
+## Deploy to Vercel
+
+1. Push the repository to the intended Git provider and import it into Vercel. Keep the repository root as the project root.
+2. Use the `Other` framework preset. `vercel.json` configures the Python API entry point and serves static pages/assets from `frontend1/`; no frontend build command is required.
+3. In Vercel Project Settings → Environment Variables, configure `SUPABASE_DB_URL`, `SECRET_KEY`, SMTP `MAIL_*` values, `FRONTEND_URL`, and optionally `APP_VERSION` for Production and Preview as appropriate. Never configure production credentials in client-side variables.
+4. Apply `backend/schema.sql` to the intended Supabase project before sending traffic. Create the first admin through the one-time setup workflow against the intended database, then remove the `INITIAL_ADMIN_*` values from the environment.
+5. Deploy with the Vercel dashboard or CLI:
+
+   ```sh
+   npm install --global vercel
+   vercel
+   vercel --prod
+   ```
+
+6. Verify `https://<deployment-domain>/api/health`, login/OTP delivery, cookie-backed sessions, and `/api/admin/diagnostics` with an authenticated admin account.
+
+See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for the release checklist. A successful static audit is not a substitute for testing with the actual Supabase, SMTP, and Vercel environments.

@@ -1,5 +1,7 @@
 # Environment variables
 .env
+.env.*
+!.env.example
 backend/.env
 
 # Python
@@ -9,6 +11,8 @@ __pycache__/
 
 # Virtual environment
 .venv/
+node_modules/
+.vercel/
 
 # Windows shortcuts
 *.lnk
@@ -17,6 +21,10 @@ __pycache__/
 backend/*.db
 backend/*.sqlite
 backend/*.sqlite3
+*.db
+*.sqlite
+*.sqlite3
+*.log
 
 # Pytest
 .pytest_cache/

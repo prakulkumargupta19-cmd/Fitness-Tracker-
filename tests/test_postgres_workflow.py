@@ -1,4 +1,4 @@
-"""Real MySQL coverage for the signup, approval, sport, performance, and attendance flow."""
+"""PostgreSQL coverage for signup, approval, sport, performance, and attendance."""
 
 from uuid import uuid4
 
@@ -11,10 +11,10 @@ from backend.db import get_db
 
 
 @pytest.mark.skipif(
-    os.getenv("RUN_MYSQL_TESTS", "false").lower() != "true",
-    reason="Set RUN_MYSQL_TESTS=true to use an isolated disposable MySQL database.",
+    os.getenv("RUN_POSTGRES_TESTS", "false").lower() != "true",
+    reason="Set RUN_POSTGRES_TESTS=true with a dedicated PostgreSQL test database.",
 )
-def test_student_coach_admin_workflow_persists_in_mysql(monkeypatch):
+def test_student_coach_admin_workflow_persists_in_postgres(monkeypatch):
     suffix = uuid4().hex[:12]
     student_email = f"student.{suffix}@inspiria.edu.in"
     coach_email = f"coach.{suffix}@inspiria.edu.in"
@@ -108,10 +108,13 @@ def test_student_coach_admin_workflow_persists_in_mysql(monkeypatch):
     try:
         with db.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO admins (full_name, email, password_hash) VALUES (%s, %s, %s)",
+                """INSERT INTO admins (full_name, email, password_hash)
+                   VALUES (%s, %s, %s) RETURNING id""",
                 ("Integration Admin", admin_email, generate_password_hash(password)),
             )
-            admin_id = cursor.lastrowid
+            admin_id = cursor.fetchone()["id"]
+            cursor.execute("SELECT id FROM sports WHERE name = %s", ("Football",))
+            football_id = cursor.fetchone()["id"]
             cursor.execute(
                 "SELECT id FROM pending_registrations WHERE email = %s", (coach_email,),
             )
@@ -134,7 +137,9 @@ def test_student_coach_admin_workflow_persists_in_mysql(monkeypatch):
         assert response.status_code == 200
         assert any(row["email"] == coach_email for row in response.get_json()["coaches"])
         response = admin.post("/api/admin/coaches/approve", json={
-            "registration_id": registration_id, "sports": ["Football"],
+            "registration_id": registration_id,
+            "email": coach_email,
+            "sports": ["Football"],
         })
         assert response.status_code == 200
         coach_id = response.get_json()["coach_id"]
@@ -152,7 +157,7 @@ def test_student_coach_admin_workflow_persists_in_mysql(monkeypatch):
         })
         assert response.status_code == 201
         response = coach.post("/api/coach/attendance/records", json={
-            "sport_id": 1, "session_date": "2026-09-30",
+            "sport_id": football_id, "session_date": "2026-09-30",
             "records": [{"student_id": student_id, "status": "present"}],
         })
         assert response.status_code == 200
