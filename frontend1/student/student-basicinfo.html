@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../demo/auth.css">
     <link rel="stylesheet" href="../css/student/student-portal.css?v=8">
+<<<<<<< HEAD
 </head>
 
 <body data-portal-role="student">
@@ -61,15 +62,150 @@
                 <span>
                     Personal Information
                 </span>
+=======
 
+    <style>
+        .progress-container .progress-text {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-container .progress-text span:nth-child(2) {
+            text-align: center;
+        }
+
+        .progress-container .progress-text span:last-child {
+            text-align: right;
+        }
+
+        #basicInfoForm .button-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        #basicInfoForm .next-button {
+            margin-left: auto;
+        }
+
+        @media (max-width: 480px) {
+            .progress-container .progress-text {
+                gap: 0.25rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body data-portal-role="student">
+>>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
+
+    <main class="auth">
+        <section class="art">
+            <div class="copy">
+                <h2>Track.<br>Improve.<br><span class="accent">Perform.</span></h2>
+                <div class="bar"></div>
+                <p>Stay connected with your fitness journey, monitor your goals, understand your improvement areas, and receive feedback from your coach.</p>
             </div>
+        </section>
 
+        <section class="panel student-profile-panel">
+            <div class="form-container">
 
-            <div class="progress-bar">
+                <div class="form-header">
+                    <h1>Basic <span>Information</span></h1>
+                    <p>Tell us a little more about yourself to complete your profile.</p>
+                </div>
 
-                <div class="progress"></div>
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Account</span>
+                        <span class="active">Basic Information</span>
+                        <span>Personal Information</span>
+                    </div>
 
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                </div>
+
+                <form id="basicInfoForm" action="student-personalinfo.html" method="get">
+
+                    <div class="form-group">
+                        <label for="gender">
+                            Gender <span class="required">*</span>
+                        </label>
+
+                        <select id="gender" name="gender" required>
+                            <option value="" disabled selected>Select your gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="semester">
+                            Semester <span class="required">*</span>
+                        </label>
+
+                        <select id="semester" name="semester" required>
+                            <option value="" disabled selected>Select your semester</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">
+                            Department <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="department"
+                            name="department"
+                            placeholder="Enter your department"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dob">
+                            Date of Birth <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="date"
+                            id="dob"
+                            name="dob"
+                            required
+                        >
+                    </div>
+
+                    <div class="button-container">
+                        <a href="student-signup.html" class="back-button">
+                            ← Back
+                        </a>
+
+                        <button type="submit" class="next-button">
+                            Continue →
+                        </button>
+                    </div>
+
+                </form>
             </div>
+<<<<<<< HEAD
 
         </div>
 
@@ -230,36 +366,36 @@
         </section>
     </main>
 
+=======
+        </section>
+    </main>
+>>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
 
     <script>
+        const dobInput = document.getElementById("dob");
+        const today = new Date();
 
-    document
-        .getElementById("basicInfoForm")
-        .addEventListener("submit", function () {
+        const localToday =
+            today.getFullYear() + "-" +
+            String(today.getMonth() + 1).padStart(2, "0") + "-" +
+            String(today.getDate()).padStart(2, "0");
 
-            sessionStorage.setItem(
-                "studentProfileBasic",
-                JSON.stringify({
+        dobInput.max = localToday;
 
-                    gender:
-                        document.getElementById("gender").value,
-
-                    semester:
-                        document.getElementById("semester").value,
-
-                    department:
-                        document.getElementById("department").value.trim(),
-
-                    date_of_birth:
-                        document.getElementById("dob").value
-
-                })
-            );
-
-        });
-
+        document
+            .getElementById("basicInfoForm")
+            .addEventListener("submit", function () {
+                sessionStorage.setItem(
+                    "studentProfileBasic",
+                    JSON.stringify({
+                        gender: document.getElementById("gender").value,
+                        semester: document.getElementById("semester").value,
+                        department: document.getElementById("department").value.trim(),
+                        date_of_birth: dobInput.value
+                    })
+                );
+            });
     </script>
-
 
 </body>
 

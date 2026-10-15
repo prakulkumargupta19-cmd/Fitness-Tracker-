@@ -1,122 +1,114 @@
-"""Convenience launcher.
-
-This script starts the two independent services that make up the
-``fitness-tracker`` stack:
-
-1.  The **Flask API** – the existing :py:mod:`backend.setup_and_run` module
-    which runs on :py:data:`localhost:5000`.
-2.  The **static front‑end** – a simple ``http.server`` instance serving the
-    ``frontend1`` directory on :py:data:`localhost:8080`.
-
-Executing ``python run_all.py`` will launch both programs in parallel and
-forward their console output to the terminal.  Pressing **Ctrl‑C** stops both
-processes cleanly.
-
-No changes are made to the project's existing code base – this is a
-stand‑alone wrapper.
-"""
+"""Start the local Flask API and the frontend proxy together."""
 
 from __future__ import annotations
 
 import os
-import signal
+import socket
 import subprocess
 import sys
 import time
 from pathlib import Path
-from threading import Thread
-
-__all__ = ["main"]
 
 
-def _run_process(cmd: list[str], name: str) -> subprocess.Popen:
-    """Start *cmd* as a subprocess.
-
-    The child inherits ``stdout``/``stderr`` so its output appears
-    directly in the same terminal.  The function returns the
-    :class:`subprocess.Popen` instance so callers can later terminate it.
-    """
-    try:
-        proc = subprocess.Popen(cmd, cwd=os.getcwd(), stdout=None, stderr=None)
-        print(f"[*] {name} started (pid={proc.pid})\n")
-        return proc
-    except Exception as exc:  # pragma: no cover – defensive
-        print(f"[!] Failed to start {name}: {exc}")
-        raise
+HOST = "127.0.0.1"
+FRONTEND_PORT = 8080
+BACKEND_PORT = 5000
 
 
-def _stream_output(proc: subprocess.Popen, name: str) -> None:
-    """Continuously read from *proc*'s stdout and echo to the console.
-
-    The function is intended to run in its own thread.
-    """
-    try:
-        for line in iter(proc.stdout.readline if proc.stdout else b"", b""):  # type: ignore[arg-type]
-            if not line:
-                break
-            sys.stdout.buffer.write(f"[{name}] {line.decode()}".encode())
-    finally:
-        proc.stdout.close()  # pragma: no cover – defensive
+def _port_is_available(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            probe.bind((host, port))
+        except OSError:
+            return False
+    return True
 
 
-def main() -> None:
-    # Resolve paths relative to this script's location.
+def _start(command: list[str], cwd: Path, name: str) -> subprocess.Popen:
+    process = subprocess.Popen(
+        command,
+        cwd=str(cwd),
+        env=os.environ.copy(),
+        stdout=None,
+        stderr=None,
+    )
+    print(f"[*] {name} started (pid={process.pid})", flush=True)
+    return process
+
+
+def _stop(processes: list[subprocess.Popen]) -> None:
+    for process in processes:
+        if process.poll() is None:
+            process.terminate()
+    deadline = time.monotonic() + 5
+    for process in processes:
+        if process.poll() is None:
+            try:
+                process.wait(timeout=max(0, deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                process.kill()
+
+
+def main() -> int:
     base_dir = Path(__file__).resolve().parent
-    static_dir = base_dir / "frontend1"
-    backend_script = base_dir / "backend" / "setup_and_run.py"
+    backend_script = base_dir / "backend" / "app.py"
+    frontend_script = base_dir / "dev_server.py"
 
-    if not static_dir.is_dir():  # pragma: no cover – defensive
-        raise FileNotFoundError(f"static directory '{static_dir}' does not exist")
-    if not backend_script.is_file():  # pragma: no cover – defensive
-        raise FileNotFoundError(f"backend script '{backend_script}' not found")
+    if not backend_script.is_file():
+        print(f"[!] Backend file not found: {backend_script}", file=sys.stderr)
+        return 1
+    if not frontend_script.is_file():
+        print(f"[!] Frontend server not found: {frontend_script}", file=sys.stderr)
+        return 1
 
-    # Commands to start the two services.
-    static_cmd = [
-        sys.executable,
-        "-m",
-        "http.server",
-        "8080",
-        "--directory",
-        str(static_dir),
+    unavailable = [
+        f"{HOST}:{port}"
+        for port in (FRONTEND_PORT, BACKEND_PORT)
+        if not _port_is_available(HOST, port)
     ]
-    backend_cmd = [sys.executable, str(backend_script)]
-    # Start them
-    global static_proc, backend_proc  # Needed by _shutdown
-    static_proc = _run_process(static_cmd, "Static HTTP Server")
-    backend_proc = _run_process(backend_cmd, "Flask API")
+    if unavailable:
+        print(
+            "[!] These required ports are already in use: "
+            + ", ".join(unavailable),
+            file=sys.stderr,
+        )
+        print("Close the old server and run this command again.", file=sys.stderr)
+        return 1
 
-    # A friendly message – users normally look for this.
-    print("\n[+] Static front‑end available at http://localhost:8080")
-
-    # Open the URL in the default browser automatically.
-    # (This is optional; if you prefer to keep the terminal clean, comment it out.)
+    processes: list[subprocess.Popen] = []
     try:
-        import webbrowser
-        webbrowser.open("http://localhost:8080")
-    except Exception:  # pragma: no cover – defensive
-        pass
+        processes.append(
+            _start([sys.executable, str(backend_script)], base_dir / "backend", "Flask API")
+        )
+        processes.append(
+            _start([sys.executable, str(frontend_script)], base_dir, "Frontend proxy")
+        )
+        print("[+] Open http://localhost:8080", flush=True)
 
-    # Graceful shutdown helper
-    def _shutdown(_: int | None = None, __: object | None = None) -> None:  # pragma: no cover - signal handler
-        print("\n[!] Shutting down services…")
-        for p in (static_proc, backend_proc):
-            if p.poll() is None:
-                try:
-                    p.terminate()
-                except Exception:  # pragma: no cover
-                    pass
-        sys.exit(0)
+        try:
+            import webbrowser
 
-    signal.signal(signal.SIGINT, _shutdown)
-    signal.signal(signal.SIGTERM, _shutdown)
+            webbrowser.open("http://localhost:8080")
+        except Exception:
+            pass
 
-    # Keep the main thread alive while the workers run.
-    try:
-        while static_proc.poll() is None or backend_proc.poll() is None:
+        while True:
+            for process in processes:
+                exit_code = process.poll()
+                if exit_code is not None:
+                    print(
+                        f"[!] A service stopped with exit code {exit_code}.",
+                        file=sys.stderr,
+                    )
+                    return exit_code or 1
             time.sleep(0.5)
-    except KeyboardInterrupt:  # pragma: no cover – graceful exit
-        _shutdown()
+    except KeyboardInterrupt:
+        print("\n[!] Shutting down services...", flush=True)
+        return 0
+    finally:
+        _stop(processes)
 
 
-if __name__ == "__main__":  # pragma: no cover – command‑line entry point
-    main()
+if __name__ == "__main__":
+    raise SystemExit(main())

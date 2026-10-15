@@ -1982,4 +1982,4 @@ def _set_coach_status(user_id, status):
 register_attendance_routes(app)
 register_performance_routes(app)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
