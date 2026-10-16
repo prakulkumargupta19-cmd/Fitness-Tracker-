@@ -1,5 +1,6 @@
 import pytest
 from backend.app import app
+from werkzeug.security import generate_password_hash
 
 def test_signup_domain_restriction():
     with app.test_client() as client:
@@ -137,3 +138,66 @@ def test_forgot_password_reports_otp_request_limit(monkeypatch):
     assert response.status_code == 429
     assert response.get_json()["success"] is False
     assert "Too many" in response.get_json()["message"]
+
+
+def test_forgot_password_otp_verification_allows_token_reset(monkeypatch):
+    user = {
+        "id": 42,
+        "full_name": "Test User",
+        "email": "test@example.test",
+        "role": "student",
+        "password_hash": generate_password_hash("OldPassword123!"),
+    }
+
+    class Cursor:
+        def __init__(self):
+            self.statements = []
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params=()):
+            self.statements.append((query, params))
+
+    class Connection:
+        def __init__(self):
+            self.cursor_instance = Cursor()
+
+        def cursor(self):
+            return self.cursor_instance
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    connection = Connection()
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: user)
+    monkeypatch.setattr("backend.app.verify_stored_otp", lambda *args: (True, "OTP verified successfully."))
+    monkeypatch.setattr("backend.app.get_db", lambda: connection)
+    monkeypatch.setattr("backend.app.send_password_reset_success_email", lambda *args: True)
+
+    with app.test_client() as client:
+        verified = client.post("/api/forgot-password/verify-otp", json={
+            "email": user["email"],
+            "otp": "123456",
+        })
+        assert verified.status_code == 200
+        reset_token = verified.get_json()["reset_token"]
+
+        reset = client.post("/api/reset-password", json={
+            "email": user["email"],
+            "password": "NewPassword123!",
+            "reset_token": reset_token,
+        })
+
+    assert reset.status_code == 200
+    assert reset.get_json()["success"] is True
+    assert any("UPDATE users SET password_hash" in query for query, _ in connection.cursor_instance.statements)

@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).parent.absolute()
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from db import get_db  # noqa: E402
+from db import DatabaseConnectionError, get_db  # noqa: E402
 from logging_config import configure_logging  # noqa: E402
 from auth.helpers import (  # noqa: E402
     generate_otp,
@@ -46,6 +46,7 @@ from auth.helpers import (  # noqa: E402
     verify_admin_otp,
 )
 from auth.emails import (  # noqa: E402
+    smtp_settings,
     send_otp_email,
     send_account_created_email,
     send_coach_approval_email,
@@ -54,6 +55,7 @@ from auth.emails import (  # noqa: E402
 from auth.decorators import login_required, role_required  # noqa: E402
 from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
 from performance import register_performance_routes  # noqa: E402
+from reference_features import register_reference_feature_routes  # noqa: E402
 
 app = Flask(__name__)
 is_production = os.getenv(
@@ -187,6 +189,31 @@ def api_http_errors(error):
     return error
 
 
+@app.errorhandler(DatabaseConnectionError)
+def api_database_errors(error):
+    """Return an actionable response when PostgreSQL is unavailable."""
+
+    if request.path.startswith("/api/"):
+        _safe_log(
+            logging.ERROR,
+            "Database connection error",
+            request_id=g.get("request_id"),
+            route=request.path,
+            method=request.method,
+        )
+        return jsonify({
+            "success": False,
+            "error": "Database unavailable",
+            "message": (
+                "The database is unavailable. Check SUPABASE_DB_URL "
+                "and try again."
+            ),
+            "request_id": g.get("request_id"),
+        }), 503
+
+    raise error
+
+
 @app.errorhandler(Exception)
 def api_unhandled_errors(error):
     if request.path.startswith("/api/"):
@@ -253,10 +280,14 @@ def health_check():
 def admin_diagnostics():
     database_status, latency_ms = _database_health()
     timestamp = datetime.now(timezone.utc).isoformat()
-    mail_configured = all(
-        os.getenv(name)
-        for name in ("MAIL_USERNAME", "MAIL_PASSWORD")
-    )
+    try:
+        mail = smtp_settings()
+        mail_configured = bool(mail["username"] and mail["password"])
+        mail_security = mail["security"]
+    except ValueError:
+        mail_configured = False
+        mail_security = "invalid"
+    database_backend_name = os.getenv("DATABASE_BACKEND", "sqlite" if not is_production else "postgres")
     return jsonify({
         "success": True,
         "request_id": g.get("request_id"),
@@ -265,12 +296,12 @@ def admin_diagnostics():
             "api": "ok",
             "database": database_status,
             "database_latency_ms": latency_ms,
-            "environment_configuration": (
-                "ok" if os.getenv("SUPABASE_DB_URL") and configured_secret else "warning"
-            ),
+            "environment_configuration": "ok" if configured_secret else "warning",
             "email_service": "configured" if mail_configured else "not_configured",
+            "email_security": mail_security,
             "authentication": "ok" if configured_secret else "warning",
-            "supabase_connectivity": database_status,
+            "database_backend": database_backend_name,
+            "supabase_connectivity": database_status if database_backend_name == "postgres" else "not_used",
         },
         "version": APP_VERSION,
         "deployment_environment": os.getenv(
@@ -716,7 +747,10 @@ def _profile_response(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """SELECT date_of_birth, emergency_contact, height_cm, weight_kg,
-                          goal, sport_activity, department
+                          goal, sport_activity, department, student_number,
+                          semester, bio, blood_group, medical_history, address,
+                          parent_name, parent_phone, parent_address,
+                          passport_id, photo_path
                    FROM student_profiles WHERE user_id = %s""",
                 (user_id,),
             )
@@ -1981,5 +2015,6 @@ def _set_coach_status(user_id, status):
 
 register_attendance_routes(app)
 register_performance_routes(app)
+register_reference_feature_routes(app)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

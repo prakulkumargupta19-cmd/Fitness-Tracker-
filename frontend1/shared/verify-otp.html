@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Verify OTP | Fitness Performance Tracker</title>
-<<<<<<< HEAD
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/student/shared-forgot.css">
-=======
 
     <link rel="stylesheet" href="../css/student/student-signup-verify.css">
     <link rel="stylesheet" href="../css/common/verification-portal.css">
@@ -18,7 +16,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
 
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
     <script src="../js/config.js"></script>
 
     <link rel="stylesheet" href="../css/common/app-theme.css">
@@ -436,15 +433,6 @@
                 const emptyInput = otpInputs.find(function (input) {
                     return !input.value;
                 });
-<<<<<<< HEAD
-                const result = await response.json();
-                if (!response.ok || !result.success) throw new Error(result.message || "Invalid OTP.");
-                if (result.reset_token) sessionStorage.setItem("resetToken", result.reset_token);
-                message.textContent = "OTP verified. Redirecting...";
-                message.className = "message success";
-                setTimeout(() => window.location.href = "set-password.html", 700);
-=======
-
                 if (emptyInput) {
                     emptyInput.focus();
                 }
@@ -489,7 +477,6 @@
                 setTimeout(function () {
                     window.location.href = "set-password.html";
                 }, 700);
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
             } catch (error) {
                 message.textContent = error.message || "Unable to verify OTP.";
                 message.className = "message error";
@@ -503,13 +490,6 @@
             resendButton.textContent = "Sending...";
 
             try {
-<<<<<<< HEAD
-                const response = await fetch(API_URL + "/api/forgot-password/resend-otp", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email })
-=======
                 const response = await fetch(
                     API_URL + "/api/forgot-password/resend-otp",
                     {
@@ -526,7 +506,6 @@
 
                 const result = await response.json().catch(function () {
                     return {};
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
                 });
 
                 if (!response.ok || !result.success) {
@@ -553,9 +532,4 @@
         startResendCooldown();
     </script>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-
-</html>
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994

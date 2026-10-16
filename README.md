@@ -18,9 +18,11 @@ The current codebase is organized around a Python Flask service in `backend/` an
 - `backend/app.py` contains the main Flask app, session handling, route registration, authentication flows, admin logic, and health checks.
 - `backend/attendance.py` manages student and coach attendance APIs and role-based access logic.
 - `backend/performance.py` manages assessments, training sessions, goals, and coach feedback records.
+- `backend/reference_features.py` exposes the Fit-Track reference feature layer without changing root authentication.
 - `backend/auth/` contains OTP generation, email delivery, helpers, and authorization decorators.
-- `backend/db.py` creates the PostgreSQL connection using `SUPABASE_DB_URL`.
+- `backend/db.py` uses a local SQLite database by default and supports PostgreSQL through an explicit production configuration.
 - `backend/schema.sql` defines the production PostgreSQL schema.
+- `backend/migrations/006_fit_track_reference_features.sql` adds the PostgreSQL data model recreated from the separate `Fit-Track/` reference project.
 - `api/index.py` exposes the Flask app to Vercel serverless hosting.
 - `dev_server.py` serves `frontend1/` locally and proxies `/api/` requests to the backend Flask process.
 
@@ -32,6 +34,7 @@ The current codebase is organized around a Python Flask service in `backend/` an
 - Sport selection and assignment tracking
 - Attendance overview with weekly summaries
 - Performance record visibility
+- Fit-Track passports, programmes, schedules, events, live scores, media, announcements, chat, certificates, and reports
 - Session-based authentication with Flask cookies
 
 ### Coach features
@@ -150,10 +153,11 @@ If you do not activate it, use `.venv\Scripts\python.exe` for both commands:
 
 ### 2) Configure environment variables
 
-Copy the required values into `.env` before running the app. At minimum, set:
+Copy `.env.example` to `.env`. Local development uses the SQLite database automatically, so no Supabase account or database URL is required. At minimum, set:
 
 ```env
-SUPABASE_DB_URL=your_postgres_connection_string
+DATABASE_BACKEND=sqlite
+LOCAL_DB_PATH=backend/fitness_tracker.sqlite3
 SECRET_KEY=your-long-random-secret
 APP_ENV=development
 APP_VERSION=1.0.0
@@ -168,17 +172,23 @@ SESSION_COOKIE_SECURE=false
 SESSION_COOKIE_SAMESITE=Lax
 ```
 
-See `.env.example` for the full template and required placeholders.
+For real OTP delivery, fill in the SMTP values. Gmail requires an App Password when two-factor authentication is enabled. Verify the credentials without sending an email with:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\test_smtp.py
+```
+
+Use `DATABASE_BACKEND=postgres` only when you intentionally want to use Supabase/PostgreSQL.
 
 ### 3) Initialize the database
 
-Apply the schema and migration files to your Supabase/PostgreSQL project.
+For local SQLite, initialization is automatic. You can also run the non-destructive initializer explicitly:
 
 ```powershell
 python backend/setup_and_run.py --init-only
 ```
 
-This initializer is designed to be non-destructive and applies the schema plus migration work without deleting current data. For a new database, the canonical starting point is `backend/schema.sql` followed by the appropriate migration files under `backend/migrations/`.
+This initializer is designed to be non-destructive and applies the local schema without deleting current data. For PostgreSQL, it applies `backend/schema.sql` followed by the migrations under `backend/migrations/`.
 
 ### 4) Run the app locally
 
@@ -220,7 +230,7 @@ Then open:
 http://localhost:8080
 ```
 
-The static frontend serves pages from `frontend1/`, while `/api/*` requests are proxied to the Flask backend on port 5000.
+The static frontend serves pages from `frontend1/`, while `/api/*` requests are proxied to the Flask backend on port 5000. The local database is stored in `backend/fitness_tracker.sqlite3` and is ignored by Git.
 
 ## Authentication and session model
 
@@ -247,6 +257,7 @@ The database schema is defined in `backend/schema.sql` and includes tables for:
 - `coach_sports` and `student_sports` — many-to-many role mapping
 - `physical_assessments`, `training_sessions`, `goals`, and `coach_feedback` — performance tracking
 - `attendance_sessions` and `attendance_records` — attendance tracking
+- Fit-Track reference tables — sports facilities, programmes, enrollments, daily assessments, tournaments, registrations, matches, media, achievements, certificates, announcements, messages, and coaching sessions
 
 The schema is PostgreSQL-specific and is not a MySQL migration.
 

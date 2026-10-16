@@ -21,6 +21,7 @@ IGNORED_PARTS = {
     ".pytest_cache",
     ".playwright-mcp",
     "artifacts",
+    "Fit-Track",
 }
 SOURCE_SUFFIXES = {".py", ".js", ".html", ".sql"}
 

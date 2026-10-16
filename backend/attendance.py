@@ -355,7 +355,7 @@ def register_attendance_routes(app):
             student_id = _as_int(record.get("student_id"))
             status = str(record.get("status") or "").strip().lower()
             if student_id is None or status not in ATTENDANCE_STATUSES:
-                return jsonify({"success": False, "message": "Status must be present, absent, late, or excused."}), 400
+                return jsonify({"success": False, "message": "Status must be present or absent; late and excused are also supported."}), 400
             student_ids.append(student_id)
         if len(set(student_ids)) != len(student_ids):
             return jsonify({"success": False, "message": "Duplicate students are not allowed."}), 400
@@ -393,13 +393,22 @@ def register_attendance_routes(app):
                 
                 for record in records:
                     cursor.execute(
-                        """INSERT INTO attendance_records
+                        """WITH attendance_input(session_id, student_id, status) AS (
+                               VALUES (%s, %s, %s)
+                           )
+                           INSERT INTO attendance_records
                                (session_id, student_id, status, session_date,
                                 marked_by_role, marked_by_id,
                                 updated_by_role, updated_by_id, updated_at)
-                           VALUES (%s, %s, %s, %s,
-                                   'coach', %s,
-                                   'coach', %s, CURRENT_TIMESTAMP)
+                           SELECT attendance_input.session_id,
+                                  attendance_input.student_id,
+                                  attendance_input.status,
+                                  attendance_session.session_date,
+                                  'coach', coach_id,
+                                  'coach', coach_id, CURRENT_TIMESTAMP
+                           FROM attendance_input
+                           JOIN attendance_sessions AS attendance_session
+                             ON attendance_session.id = attendance_input.session_id
                            ON CONFLICT (session_id, student_id)
                            DO UPDATE SET
                                status = EXCLUDED.status,
@@ -411,9 +420,6 @@ def register_attendance_routes(app):
                             session_id,
                             int(record["student_id"]),
                             str(record["status"]).strip().lower(),
-                            session_date,
-                            coach_id,
-                            coach_id,
                         ),
                     )
             db.commit()
@@ -484,7 +490,7 @@ def register_attendance_routes(app):
             if status not in ATTENDANCE_STATUSES:
                 return jsonify({
                     "success": False,
-                    "message": "Status must be present, absent, late, or excused.",
+                    "message": "Status must be present or absent; late and excused are also supported.",
                 }), 400
 
             student_ids.append(student_id)
