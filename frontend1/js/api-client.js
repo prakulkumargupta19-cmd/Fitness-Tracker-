@@ -779,15 +779,14 @@
                 role;
 
 
-            const page =
+    const page =
                 cfg.DASHBOARD_PAGES[
                     canonicalRole
                 ] ||
                 cfg.DASHBOARD_PAGES.player;
 
 
-            window.location.href =
-                page;
+            window.location.href = page.startsWith("/") ? page : `/${page}`;
 
         },
 
@@ -799,15 +798,14 @@
                 role;
 
 
-            const page =
+    const page =
                 cfg.LOGIN_PAGES[
                     canonicalRole
                 ] ||
                 cfg.LOGIN_PAGES.player;
 
 
-            window.location.href =
-                page;
+            window.location.href = page.startsWith("/") ? page : `/${page}`;
 
         },
 

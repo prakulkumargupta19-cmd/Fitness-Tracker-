@@ -8,14 +8,21 @@
     const isLocalHost =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1";
+    // When the static frontend is served by dev_server.py on port 8080,
+    // keep API calls same-origin so the local proxy handles them. Directly
+    // calling port 5000 from the browser creates an unnecessary CORS path.
+    const usesLocalApiProxy =
+        isLocalHost && ["8080", "8081"].includes(window.location.port);
     const localApiBase =
-        isLocalHost
+        isLocalHost && !usesLocalApiProxy
             ? `${window.location.protocol}//${window.location.hostname}:5000`
             : "";
     const configuredApiBase =
-        window.FITNESS_API_BASE ||
-        window.APP_CONFIG?.API_BASE ||
-        localApiBase;
+        usesLocalApiProxy
+            ? ""
+            : window.FITNESS_API_BASE ||
+              window.APP_CONFIG?.API_BASE ||
+              localApiBase;
     const apiBase = configuredApiBase.replace(/\/+$/, "");
 
     window.APP_CONFIG = {

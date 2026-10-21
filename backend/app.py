@@ -56,6 +56,7 @@ from auth.decorators import login_required, role_required  # noqa: E402
 from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
 from performance import register_performance_routes  # noqa: E402
 from reference_features import register_reference_feature_routes  # noqa: E402
+from reference_extensions import register_reference_extension_routes  # noqa: E402
 
 app = Flask(__name__)
 is_production = os.getenv(
@@ -74,7 +75,9 @@ app.config["SESSION_COOKIE_SECURE"] = (
     or os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 )
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
-app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = int(
+    os.getenv("FIT_TRACK_MAX_UPLOAD_MB", "16")
+) * 1024 * 1024
 
 VALID_ROLES = ("student", "coach")
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
@@ -151,6 +154,7 @@ def add_cors_headers(response):
             else logging.ERROR if response.status_code >= 500
             else logging.WARNING
         )
+        response_payload = response.get_json(silent=True)
         _safe_log(
             log_level,
             "API request",
@@ -159,6 +163,11 @@ def add_cors_headers(response):
             method=request.method,
             status=response.status_code,
             duration_ms=duration_ms,
+            success=(
+                response_payload.get("success")
+                if isinstance(response_payload, dict)
+                else None
+            ),
             user_id=session.get("user_id"),
         )
     return response
@@ -746,6 +755,13 @@ def _profile_response(user_id):
     try:
         with db.cursor() as cursor:
             cursor.execute(
+                """UPDATE student_profiles
+                   SET passport_id = COALESCE(passport_id, %s)
+                   WHERE user_id = %s""",
+                (f"IKC-SP-{datetime.now().year}-{int(user_id):05d}", user_id),
+            )
+            db.commit()
+            cursor.execute(
                 """SELECT date_of_birth, emergency_contact, height_cm, weight_kg,
                           goal, sport_activity, department, student_number,
                           semester, bio, blood_group, medical_history, address,
@@ -860,6 +876,12 @@ def _save_student_profile(user_id, data):
                     ",".join(selected_sports),
                     data.get("department"),
                 ),
+            )
+            cursor.execute(
+                """UPDATE student_profiles
+                   SET passport_id = COALESCE(passport_id, %s)
+                   WHERE user_id = %s""",
+                (f"IKC-SP-{datetime.now().year}-{int(user_id):05d}", user_id),
             )
             cursor.execute("DELETE FROM student_sports WHERE student_id = %s", (user_id,))
             for sport in sport_ids:
@@ -1350,6 +1372,7 @@ def forgot_password():
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user:
+        app.logger.warning("Password reset requested for an unknown account")
         return (
             jsonify(
                 {
@@ -1366,6 +1389,7 @@ def forgot_password():
     if not send_otp_email(email, user["full_name"], "password_reset", otp):
         app.logger.error("Password reset OTP email could not be sent")
         return jsonify({"success": False, "message": "Unable to send the reset code right now. Please try again later."}), 503
+    app.logger.info("Password reset OTP accepted by the mail server")
     session["reset_email"] = email
     return (
         jsonify({"success": True, "message": "Password reset OTP sent to your email."}),
@@ -2016,5 +2040,11 @@ def _set_coach_status(user_id, status):
 register_attendance_routes(app)
 register_performance_routes(app)
 register_reference_feature_routes(app)
+register_reference_extension_routes(app)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "5000")),
+        debug=False,
+        use_reloader=False,
+    )

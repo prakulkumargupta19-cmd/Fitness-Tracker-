@@ -112,7 +112,10 @@ def database_backend():
         return "postgres"
     if configured in {"sqlite", "local"}:
         return "sqlite"
-    if os.getenv("VERCEL_ENV", "").lower() == "production":
+    # Vercel Preview deployments also need the configured Supabase database.
+    # Without this branch, Preview falls through to the local SQLite default,
+    # which is not persistent and is not the deployed application's database.
+    if os.getenv("VERCEL_ENV", "").lower() in {"preview", "production"} and os.getenv("SUPABASE_DB_URL"):
         return "postgres"
     if os.getenv("APP_ENV", "development").lower() == "production":
         return "postgres"
@@ -138,11 +141,106 @@ def initialize_local_database():
             try:
                 connection.execute("PRAGMA foreign_keys = ON")
                 connection.executescript(LOCAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+                admin_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(admins)").fetchall()
+                }
+                if "is_active" not in admin_columns:
+                    connection.execute(
+                        "ALTER TABLE admins ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
+                    )
+                _migrate_legacy_local_accounts(connection, path)
                 connection.commit()
                 _local_schema_ready.add(key)
             finally:
                 connection.close()
     return path
+
+
+def _migrate_legacy_local_accounts(connection, current_path):
+    """Import accounts from the pre-Supabase local database when present.
+
+    Older checkouts stored administrator accounts in ``users`` in
+    ``backend/data/fitness_tracker.db``.  The current schema separates
+    administrators into ``admins``; without this compatibility step the new
+    database starts empty and password recovery always reports an unknown
+    account after an upgrade.
+
+    The migration is intentionally additive: it only inserts emails that do
+    not already exist in the current database and never removes or updates
+    either database.
+    """
+    legacy_path = PROJECT_ROOT / "backend" / "data" / "fitness_tracker.db"
+    if legacy_path.resolve() == Path(current_path).resolve() or not legacy_path.is_file():
+        return
+
+    legacy = sqlite3.connect(str(legacy_path))
+    legacy.row_factory = sqlite3.Row
+    try:
+        tables = {
+            row[0]
+            for row in legacy.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+        if "users" not in tables:
+            return
+
+        columns = {
+            row[1]
+            for row in legacy.execute("PRAGMA table_info(users)").fetchall()
+        }
+        required = {"id", "role", "full_name", "email", "password_hash", "is_verified"}
+        if not required.issubset(columns):
+            return
+
+        rows = legacy.execute(
+            """
+            SELECT id, role, full_name, email, password_hash, is_verified,
+                   coach_status, qualification, specialization,
+                   experience_years, is_active, last_login_at, created_at
+            FROM users
+            WHERE LOWER(role) IN ('admin', 'student', 'coach')
+            """
+        ).fetchall()
+
+        for row in rows:
+            email = str(row["email"] or "").strip().lower()
+            if not email:
+                continue
+            if row["role"] == "admin":
+                connection.execute(
+                    """
+                    INSERT OR IGNORE INTO admins
+                        (id, full_name, email, password_hash, is_verified,
+                         last_login_at, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (row["id"], row["full_name"], email, row["password_hash"],
+                     row["is_verified"], row["last_login_at"], row["created_at"]),
+                )
+            else:
+                connection.execute(
+                    """
+                    INSERT OR IGNORE INTO users
+                        (id, role, full_name, email, password_hash,
+                         is_verified, coach_status, qualification,
+                         specialization, experience_years, is_active,
+                         last_login_at, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (row["id"], row["role"], row["full_name"], email,
+                     row["password_hash"], row["is_verified"], row["coach_status"],
+                     row["qualification"], row["specialization"],
+                     row["experience_years"], row["is_active"], row["last_login_at"],
+                     row["created_at"]),
+                )
+    except (sqlite3.Error, KeyError):
+        # A legacy database from an unrelated application must not prevent the
+        # current app from starting.
+        return
+    finally:
+        legacy.close()
 
 
 def get_db():

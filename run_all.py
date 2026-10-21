@@ -9,10 +9,14 @@ import sys
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 HOST = "127.0.0.1"
-FRONTEND_PORT = 8080
-BACKEND_PORT = 5000
+FRONTEND_PORT = int(os.getenv("FITNESS_FRONTEND_PORT", "8080"))
+PREFERRED_BACKEND_PORT = int(os.getenv("FITNESS_BACKEND_PORT", os.getenv("PORT", "5000")))
 
 
 def _port_is_available(host: str, port: int) -> bool:
@@ -25,16 +29,23 @@ def _port_is_available(host: str, port: int) -> bool:
     return True
 
 
-def _start(command: list[str], cwd: Path, name: str) -> subprocess.Popen:
+def _start(command: list[str], cwd: Path, name: str, environment: dict[str, str]) -> subprocess.Popen:
     process = subprocess.Popen(
         command,
         cwd=str(cwd),
-        env=os.environ.copy(),
+        env=environment,
         stdout=None,
         stderr=None,
     )
     print(f"[*] {name} started (pid={process.pid})", flush=True)
     return process
+
+
+def _find_available_backend_port(preferred: int) -> int:
+    for candidate in range(preferred, preferred + 20):
+        if _port_is_available(HOST, candidate):
+            return candidate
+    raise RuntimeError("No available local backend port was found.")
 
 
 def _stop(processes: list[subprocess.Popen]) -> None:
@@ -62,27 +73,24 @@ def main() -> int:
         print(f"[!] Frontend server not found: {frontend_script}", file=sys.stderr)
         return 1
 
-    unavailable = [
-        f"{HOST}:{port}"
-        for port in (FRONTEND_PORT, BACKEND_PORT)
-        if not _port_is_available(HOST, port)
-    ]
-    if unavailable:
-        print(
-            "[!] These required ports are already in use: "
-            + ", ".join(unavailable),
-            file=sys.stderr,
-        )
-        print("Close the old server and run this command again.", file=sys.stderr)
+    if not _port_is_available(HOST, FRONTEND_PORT):
+        print(f"[!] Frontend port {FRONTEND_PORT} is already in use.", file=sys.stderr)
         return 1
+    backend_port = _find_available_backend_port(PREFERRED_BACKEND_PORT)
+    if backend_port != PREFERRED_BACKEND_PORT:
+        print(f"[*] Backend port {PREFERRED_BACKEND_PORT} is busy; using {backend_port}.", flush=True)
+
+    environment = os.environ.copy()
+    environment["PORT"] = str(backend_port)
+    environment["FITNESS_API_ORIGIN"] = f"http://{HOST}:{backend_port}"
 
     processes: list[subprocess.Popen] = []
     try:
         processes.append(
-            _start([sys.executable, str(backend_script)], base_dir / "backend", "Flask API")
+            _start([sys.executable, str(backend_script)], base_dir / "backend", "Flask API", environment)
         )
         processes.append(
-            _start([sys.executable, str(frontend_script)], base_dir, "Frontend proxy")
+            _start([sys.executable, str(frontend_script)], base_dir, "Frontend proxy", environment)
         )
         print("[+] Open http://localhost:8080", flush=True)
 

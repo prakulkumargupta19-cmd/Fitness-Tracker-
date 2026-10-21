@@ -1,4 +1,5 @@
 {
+  "buildCommand": "DATABASE_BACKEND=postgres python backend/setup_and_run.py --init-only",
   "builds": [
     {
       "src": "api/index.py",

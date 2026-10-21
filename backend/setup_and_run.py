@@ -37,6 +37,12 @@ REFERENCE_FEATURE_MIGRATION = (
     / "006_fit_track_reference_features.sql"
 )
 
+FIT_TRACK_INTEGRITY_MIGRATION = (
+    BASE_DIR
+    / "migrations"
+    / "007_fit_track_integrity.sql"
+)
+
 
 def init_db():
     """Apply PostgreSQL schema and migrations without deleting existing data."""
@@ -180,6 +186,16 @@ def init_db():
             print("[INFO] Fit-Track reference feature migration 006 applied successfully.")
         else:
             print("[WARNING] Migration 006 file was not found; skipping.")
+
+        if FIT_TRACK_INTEGRITY_MIGRATION.is_file():
+            print("[INFO] Applying Fit-Track integrity migration 007...")
+            integrity_sql = FIT_TRACK_INTEGRITY_MIGRATION.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(integrity_sql)
+            db.commit()
+            print("[INFO] Fit-Track integrity migration 007 applied successfully.")
+        else:
+            print("[WARNING] Migration 007 file was not found; skipping.")
 
         # =========================================================
         # 5. SUCCESS

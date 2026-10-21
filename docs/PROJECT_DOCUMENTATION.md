@@ -53,6 +53,8 @@ Supabase PostgreSQL         SMTP (backend/auth/emails.py)
 | [backend/setup_and_run.py](../backend/setup_and_run.py) | Non-destructive PostgreSQL schema initialization, optional initial admin creation, and local API startup. |
 | [backend/attendance.py](../backend/attendance.py) | Attendance APIs and role/sport/student eligibility checks. |
 | [backend/performance.py](../backend/performance.py) | CRUD API registration for assessments, training sessions, goals, and coach feedback. |
+| [backend/reference_features.py](../backend/reference_features.py) | Core Fit-Track sports, coaching, tournament, chat, announcement, and report APIs. |
+| [backend/reference_extensions.py](../backend/reference_extensions.py) | Bulk assignments, XLS/XLSX participant import, projection exports, media/photos, draw uploads, and certificate generation/download APIs. |
 | [backend/auth/helpers.py](../backend/auth/helpers.py) | OTP generation/storage/verification, user lookup, password hashing helpers, and session setup. |
 | [backend/auth/decorators.py](../backend/auth/decorators.py) | Login and role authorization decorators. |
 | [backend/auth/emails.py](../backend/auth/emails.py) | SMTP transport and account/OTP email helpers. |
@@ -60,7 +62,7 @@ Supabase PostgreSQL         SMTP (backend/auth/emails.py)
 | [backend/seed_data.py](../backend/seed_data.py) | Legacy seed entry point; intentionally disabled. |
 | [backend/start.ps1](../backend/start.ps1) | PowerShell wrapper for initialization and API startup flags. |
 
-Database migrations are in `backend/migrations/`: `001_performance_records.sql`, `002_admin_otp_verifications.sql`, `003_signup_otp_abuse_controls.sql`, and `004_auth_otp_attempt_limits.sql`.
+Database migrations are in `backend/migrations/`: the authentication/performance migrations plus `005_coach_assignment_attendance_workflow.sql`, `006_fit_track_reference_features.sql`, and `007_fit_track_integrity.sql`. Migration 007 is additive and does not modify authentication or OTP tables.
 
 ### Deployment
 

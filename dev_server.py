@@ -1,20 +1,35 @@
 """Serve the static frontend and proxy API requests to the local Flask app."""
 
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import os
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 ROOT = Path(__file__).resolve().parent / "frontend1"
-API_ORIGIN = "http://127.0.0.1:5000"
+API_ORIGIN = os.getenv(
+    "FITNESS_API_ORIGIN",
+    f"http://127.0.0.1:{os.getenv('PORT', '5000')}",
+).rstrip("/")
 PROXY_PATHS = ("/api/", "/session", "/logout")
 
 
 class FrontendHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
+
+    def end_headers(self):
+        # Avoid stale frontend configuration during local development. This
+        # is especially important when API proxy settings change.
+        if urlsplit(self.path).path.endswith(".js"):
+            self.send_header("Cache-Control", "no-store")
+        super().end_headers()
 
     def _is_api_request(self):
         path = urlsplit(self.path).path

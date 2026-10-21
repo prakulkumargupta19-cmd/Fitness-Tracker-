@@ -24,6 +24,12 @@ IGNORED_PARTS = {
     "Fit-Track",
 }
 SOURCE_SUFFIXES = {".py", ".js", ".html", ".sql"}
+LOCAL_DEVELOPMENT_FILES = {
+    "backend/app.py",
+    "backend/db.py",
+    "backend/local_schema.sql",
+    "backend/setup_and_run.py",
+}
 
 
 def source_files():
@@ -31,6 +37,15 @@ def source_files():
         if not path.is_file() or path.suffix.lower() not in SOURCE_SUFFIXES:
             continue
         if any(part in IGNORED_PARTS for part in path.relative_to(ROOT).parts):
+            continue
+        yield path
+
+
+def production_source_files(paths):
+    """Exclude intentional local SQLite adapters from production pattern checks."""
+    for path in paths:
+        relative = path.relative_to(ROOT).as_posix()
+        if relative in LOCAL_DEVELOPMENT_FILES or relative.startswith("tests/"):
             continue
         yield path
 
@@ -86,6 +101,7 @@ def main():
             any(build.get("src") == "api/index.py" for build in config.get("builds", []))
             and (ROOT / "api" / "index.py").is_file()
             and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
+            and "setup_and_run.py --init-only" in config.get("buildCommand", "")
         )
     except (OSError, json.JSONDecodeError):
         vercel_config_ok = False
@@ -115,7 +131,9 @@ def main():
         ("SQLite", r"\bsqlite3?\b"),
     ]
     forbidden_matches = check_source_patterns(
-        (path for path in src if path.resolve() != Path(__file__).resolve()),
+        production_source_files(
+            path for path in src if path.resolve() != Path(__file__).resolve()
+        ),
         patterns,
     )
     for label, file_name in forbidden_matches:

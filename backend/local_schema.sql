@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS admins (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     is_verified BOOLEAN NOT NULL DEFAULT 1,
+    is_active BOOLEAN NOT NULL DEFAULT 1,
     last_login_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -389,3 +390,294 @@ CREATE TABLE IF NOT EXISTS coaching_sessions (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Fit-Track relationship indexes. These are additive and do not touch the
+-- users/admins/OTP tables used by authentication.
+CREATE INDEX IF NOT EXISTS idx_fit_track_enrollments_student
+    ON enrollments(student_id, status, programme_id);
+CREATE INDEX IF NOT EXISTS idx_fit_track_enrollments_programme
+    ON enrollments(programme_id, status, student_id);
+CREATE INDEX IF NOT EXISTS idx_fit_track_attendance_enrollment_date
+    ON attendance(enrollment_id, session_date);
+CREATE INDEX IF NOT EXISTS idx_fit_track_assessments_enrollment_date
+    ON daily_assessments(enrollment_id, session_date);
+CREATE INDEX IF NOT EXISTS idx_fit_track_assessments_coach
+    ON daily_assessments(coach_id, session_date);
+CREATE INDEX IF NOT EXISTS idx_fit_track_registrations_student
+    ON registrations(student_id, tournament_id);
+CREATE INDEX IF NOT EXISTS idx_fit_track_participants_student
+    ON event_participants(student_id, tournament_id);
+CREATE INDEX IF NOT EXISTS idx_fit_track_match_players_match_side
+    ON match_players(match_id, side, student_name);
+CREATE INDEX IF NOT EXISTS idx_fit_track_achievements_student
+    ON achievements(student_id, achievement_year);
+CREATE INDEX IF NOT EXISTS idx_fit_track_certificates_student
+    ON certificates(student_id, issue_date);
+CREATE INDEX IF NOT EXISTS idx_fit_track_generated_certificates_student
+    ON generated_certificates(student_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_fit_track_facility_media_sport
+    ON facility_media(sport_id, created_at);
+
+-- SQLite uses triggers for cross-table integrity rules that PostgreSQL adds
+-- through constraints/functions. New and changed rows are checked without
+-- rebuilding existing tables, preserving local databases and auth records.
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_programmes_coach_role_insert
+BEFORE INSERT ON programmes
+WHEN NEW.coach_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.coach_id), '') <> 'coach'
+BEGIN
+    SELECT RAISE(ABORT, 'programme coach_id must reference a coach');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_programmes_coach_role_update
+BEFORE UPDATE OF coach_id ON programmes
+WHEN NEW.coach_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.coach_id), '') <> 'coach'
+BEGIN
+    SELECT RAISE(ABORT, 'programme coach_id must reference a coach');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_enrollments_student_role_insert
+BEFORE INSERT ON enrollments
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'enrollment student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_enrollments_student_role_update
+BEFORE UPDATE OF student_id ON enrollments
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'enrollment student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_registrations_student_role_insert
+BEFORE INSERT ON registrations
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'registration student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_registrations_student_role_update
+BEFORE UPDATE OF student_id ON registrations
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'registration student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_assessments_coach_role_insert
+BEFORE INSERT ON daily_assessments
+WHEN NEW.coach_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.coach_id), '') <> 'coach'
+BEGIN
+    SELECT RAISE(ABORT, 'assessment coach_id must reference a coach');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_assessments_coach_role_update
+BEFORE UPDATE OF coach_id ON daily_assessments
+WHEN NEW.coach_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.coach_id), '') <> 'coach'
+BEGIN
+    SELECT RAISE(ABORT, 'assessment coach_id must reference a coach');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_participants_student_role_insert
+BEFORE INSERT ON event_participants
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'participant student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_participants_student_role_update
+BEFORE UPDATE OF student_id ON event_participants
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'participant student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_players_student_role_insert
+BEFORE INSERT ON match_players
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'match player student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_players_student_role_update
+BEFORE UPDATE OF student_id ON match_players
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'match player student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_achievements_student_role_insert
+BEFORE INSERT ON achievements
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'achievement student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_achievements_student_role_update
+BEFORE UPDATE OF student_id ON achievements
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'achievement student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_certificates_student_role_insert
+BEFORE INSERT ON certificates
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'certificate student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_certificates_student_role_update
+BEFORE UPDATE OF student_id ON certificates
+WHEN COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'certificate student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_generated_certificates_student_role_insert
+BEFORE INSERT ON generated_certificates
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'generated certificate student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_generated_certificates_student_role_update
+BEFORE UPDATE OF student_id ON generated_certificates
+WHEN NEW.student_id IS NOT NULL AND COALESCE((SELECT role FROM users WHERE id = NEW.student_id), '') <> 'student'
+BEGIN
+    SELECT RAISE(ABORT, 'generated certificate student_id must reference a student');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_category_insert
+BEFORE INSERT ON matches
+WHEN NEW.category NOT IN ('Boys', 'Girls')
+BEGIN
+    SELECT RAISE(ABORT, 'match category must be Boys or Girls');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_category_update
+BEFORE UPDATE OF category ON matches
+WHEN NEW.category NOT IN ('Boys', 'Girls')
+BEGIN
+    SELECT RAISE(ABORT, 'match category must be Boys or Girls');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_participant_category_insert
+BEFORE INSERT ON event_participants
+WHEN NEW.category NOT IN ('Boys', 'Girls')
+BEGIN
+    SELECT RAISE(ABORT, 'participant category must be Boys or Girls');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_participant_category_update
+BEFORE UPDATE OF category ON event_participants
+WHEN NEW.category NOT IN ('Boys', 'Girls')
+BEGIN
+    SELECT RAISE(ABORT, 'participant category must be Boys or Girls');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_tournament_dates_insert
+BEFORE INSERT ON tournaments
+WHEN NEW.end_date IS NOT NULL AND NEW.end_date < NEW.start_date
+BEGIN
+    SELECT RAISE(ABORT, 'tournament end_date cannot be before start_date');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_tournament_dates_update
+BEFORE UPDATE OF start_date, end_date ON tournaments
+WHEN NEW.end_date IS NOT NULL AND NEW.end_date < NEW.start_date
+BEGIN
+    SELECT RAISE(ABORT, 'tournament end_date cannot be before start_date');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_session_status_insert
+BEFORE INSERT ON coaching_sessions
+WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed')
+  OR NEW.end_time <= NEW.start_time
+BEGIN
+    SELECT RAISE(ABORT, 'invalid coaching session status or time range');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_session_status_update
+BEFORE UPDATE OF status, start_time, end_time ON coaching_sessions
+WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed')
+  OR NEW.end_time <= NEW.start_time
+BEGIN
+    SELECT RAISE(ABORT, 'invalid coaching session status or time range');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_players_side_insert
+BEFORE INSERT ON match_players
+WHEN NEW.side NOT IN ('A', 'B')
+BEGIN
+    SELECT RAISE(ABORT, 'match player side must be A or B');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_players_side_update
+BEFORE UPDATE OF side ON match_players
+WHEN NEW.side NOT IN ('A', 'B')
+BEGIN
+    SELECT RAISE(ABORT, 'match player side must be A or B');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_squad_limit_insert
+BEFORE INSERT ON match_players
+WHEN (SELECT COUNT(*) FROM match_players WHERE match_id = NEW.match_id AND side = NEW.side) >= 15
+BEGIN
+    SELECT RAISE(ABORT, 'a fixture side may contain at most 15 players');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_match_squad_limit_update
+BEFORE UPDATE OF match_id, side ON match_players
+WHEN (SELECT COUNT(*) FROM match_players WHERE match_id = NEW.match_id AND side = NEW.side AND id <> OLD.id) >= 15
+BEGIN
+    SELECT RAISE(ABORT, 'a fixture side may contain at most 15 players');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_message_not_self_insert
+BEFORE INSERT ON messages
+WHEN NEW.sender_user_id = NEW.receiver_user_id
+BEGIN
+    SELECT RAISE(ABORT, 'messages cannot be sent to yourself');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_message_not_self_update
+BEFORE UPDATE OF sender_user_id, receiver_user_id ON messages
+WHEN NEW.sender_user_id = NEW.receiver_user_id
+BEGIN
+    SELECT RAISE(ABORT, 'messages cannot be sent to yourself');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_programmes_updated_at
+AFTER UPDATE ON programmes
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE programmes SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_assessments_updated_at
+AFTER UPDATE ON daily_assessments
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE daily_assessments SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_tournaments_updated_at
+AFTER UPDATE ON tournaments
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE tournaments SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_matches_updated_at
+AFTER UPDATE ON matches
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE matches SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_fit_track_coaching_sessions_updated_at
+AFTER UPDATE ON coaching_sessions
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE coaching_sessions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;

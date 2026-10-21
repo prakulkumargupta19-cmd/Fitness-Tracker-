@@ -19,10 +19,12 @@ The current codebase is organized around a Python Flask service in `backend/` an
 - `backend/attendance.py` manages student and coach attendance APIs and role-based access logic.
 - `backend/performance.py` manages assessments, training sessions, goals, and coach feedback records.
 - `backend/reference_features.py` exposes the Fit-Track reference feature layer without changing root authentication.
+- `backend/reference_extensions.py` completes Fit-Track bulk assignment, spreadsheet import, projection export, media, draw, photo, and certificate workflows.
 - `backend/auth/` contains OTP generation, email delivery, helpers, and authorization decorators.
 - `backend/db.py` uses a local SQLite database by default and supports PostgreSQL through an explicit production configuration.
 - `backend/schema.sql` defines the production PostgreSQL schema.
 - `backend/migrations/006_fit_track_reference_features.sql` adds the PostgreSQL data model recreated from the separate `Fit-Track/` reference project.
+- `backend/migrations/007_fit_track_integrity.sql` adds Fit-Track relationship constraints, indexes, squad limits, and timestamp triggers without changing authentication or OTP tables.
 - `api/index.py` exposes the Flask app to Vercel serverless hosting.
 - `dev_server.py` serves `frontend1/` locally and proxies `/api/` requests to the backend Flask process.
 
@@ -188,7 +190,7 @@ For local SQLite, initialization is automatic. You can also run the non-destruct
 python backend/setup_and_run.py --init-only
 ```
 
-This initializer is designed to be non-destructive and applies the local schema without deleting current data. For PostgreSQL, it applies `backend/schema.sql` followed by the migrations under `backend/migrations/`.
+This initializer is designed to be non-destructive and applies the local schema without deleting current data. For PostgreSQL, it applies `backend/schema.sql` followed by the migrations under `backend/migrations/`, including the Fit-Track integrity migration. Vercel runs this initializer during its build through `vercel.json`, so the deployed PostgreSQL database receives the same schema before the API is published. Students are scoped to their own records, coaches to assigned athletes/programmes, and admins to the full dataset by the Fit-Track API authorization layer.
 
 ### 4) Run the app locally
 
