@@ -98,9 +98,9 @@ def main():
     try:
         config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
         api_rewrite = any(
-            route.get("src") == "/api/(.*)"
-            and route.get("dest") == "/api/index.py"
-            for route in config.get("routes", [])
+            route.get("source") == "/api/(.*)"
+            and route.get("destination") == "/api/index.py"
+            for route in config.get("rewrites", [])
         )
         function_config = config.get("functions", {}).get("api/index.py", {})
         vercel_config_ok = (
@@ -111,6 +111,7 @@ def main():
             and api_rewrite
             and function_config.get("maxDuration", 0) >= 10
             and not config.get("builds")
+            and not config.get("routes")
         )
     except (OSError, json.JSONDecodeError):
         vercel_config_ok = False
