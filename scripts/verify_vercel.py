@@ -103,7 +103,7 @@ def main():
             and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
             and any(
                 route.get("src") == "/"
-                and route.get("dest") == "/frontend1/index.html"
+                and route.get("dest") == "/index.html"
                 for route in config.get("routes", [])
             )
             and not config.get("buildCommand")

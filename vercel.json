@@ -17,11 +17,11 @@
     },
     {
       "src": "/",
-      "dest": "/frontend1/index.html"
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend1/$1"
+      "dest": "/$1"
     }
   ]
 }
