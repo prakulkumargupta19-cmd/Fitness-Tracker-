@@ -104,7 +104,8 @@ def main():
         )
         function_config = config.get("functions", {}).get("api/index.py", {})
         vercel_config_ok = (
-            config.get("outputDirectory") == "frontend1"
+            config.get("framework", "not-null") is None
+            and config.get("outputDirectory") == "frontend1"
             and (ROOT / "frontend1" / "index.html").is_file()
             and (ROOT / "api" / "index.py").is_file()
             and api_rewrite
