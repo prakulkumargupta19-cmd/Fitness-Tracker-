@@ -1,5 +1,5 @@
 {
-  "buildCommand": "DATABASE_BACKEND=postgres python backend/setup_and_run.py --init-only",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "builds": [
     {
       "src": "api/index.py",

@@ -13,6 +13,73 @@ def test_signup_domain_restriction():
         assert response.status_code == 400
         assert "Only @inspiria.edu.in emails are allowed." in response.get_json()["message"]
 
+
+@pytest.mark.parametrize("role", ["student", "coach"])
+def test_login_completes_without_otp_for_student_and_coach(monkeypatch, role):
+    user = {
+        "id": 42,
+        "role": role,
+        "full_name": "Test User",
+        "email": "test@example.test",
+        "contact_number": None,
+        "is_verified": True,
+        "is_active": True,
+        "coach_status": "approved" if role == "coach" else None,
+        "password_hash": generate_password_hash("Password123"),
+    }
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params=()):
+            pass
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: user)
+    monkeypatch.setattr("backend.app.get_db", Connection)
+    monkeypatch.setattr(
+        "backend.app.store_otp",
+        lambda *args: pytest.fail("Student and coach logins must not issue OTPs"),
+    )
+    monkeypatch.setattr(
+        "backend.app.store_admin_otp",
+        lambda *args: pytest.fail("Student and coach logins must not issue OTPs"),
+    )
+    monkeypatch.setattr(
+        "backend.app.send_otp_email",
+        lambda *args: pytest.fail("Student and coach logins must not send OTPs"),
+    )
+
+    with app.test_client() as client:
+        response = client.post("/api/login", json={
+            "email": user["email"],
+            "password": "Password123",
+            "role": role,
+        })
+        with client.session_transaction() as state:
+            assert state["user_id"] == user["id"]
+            assert state["role"] == role
+            assert "pending_login_user_id" not in state
+
+    payload = response.get_json()
+    assert response.status_code == 200
+    assert payload["success"] is True
+    assert payload["otp_required"] is False
+    assert payload["user"]["role"] == role
+
+
 def test_signup_creates_user_and_sends_verification(monkeypatch):
     statements = []
 

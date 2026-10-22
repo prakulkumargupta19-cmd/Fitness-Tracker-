@@ -9,8 +9,8 @@ This guide describes the current repository structure and behavior. For deployme
 
 The application supports three roles:
 
-- **Student:** register with an institutional email, verify signup OTP, complete a profile, choose sports, and view attendance and performance information.
-- **Coach:** register and verify an email, wait for administrator approval, receive sport assignments, and manage assigned athletes' attendance and performance records.
+- **Student:** register with an institutional email, verify signup OTP, sign in with email and password, complete a profile, choose sports, and view attendance and performance information.
+- **Coach:** register and verify an email, sign in with email and password after approval, receive sport assignments, and manage assigned athletes' attendance and performance records.
 - **Admin:** sign in with OTP, review coach applications, assign sports, and inspect users, students, attendance, and performance information.
 
 The Flask API owns identity, authorization, database operations, OTP validation, coach approvals, and record scoping. The browser frontend is static and calls the API with JSON requests. Authentication state is held in Flask's signed session cookie; browser requests generally send credentials so the cookie is included.
@@ -53,8 +53,6 @@ Supabase PostgreSQL         SMTP (backend/auth/emails.py)
 | [backend/setup_and_run.py](../backend/setup_and_run.py) | Non-destructive PostgreSQL schema initialization, optional initial admin creation, and local API startup. |
 | [backend/attendance.py](../backend/attendance.py) | Attendance APIs and role/sport/student eligibility checks. |
 | [backend/performance.py](../backend/performance.py) | CRUD API registration for assessments, training sessions, goals, and coach feedback. |
-| [backend/reference_features.py](../backend/reference_features.py) | Core Fit-Track sports, coaching, tournament, chat, announcement, and report APIs. |
-| [backend/reference_extensions.py](../backend/reference_extensions.py) | Bulk assignments, XLS/XLSX participant import, projection exports, media/photos, draw uploads, and certificate generation/download APIs. |
 | [backend/auth/helpers.py](../backend/auth/helpers.py) | OTP generation/storage/verification, user lookup, password hashing helpers, and session setup. |
 | [backend/auth/decorators.py](../backend/auth/decorators.py) | Login and role authorization decorators. |
 | [backend/auth/emails.py](../backend/auth/emails.py) | SMTP transport and account/OTP email helpers. |
@@ -62,7 +60,7 @@ Supabase PostgreSQL         SMTP (backend/auth/emails.py)
 | [backend/seed_data.py](../backend/seed_data.py) | Legacy seed entry point; intentionally disabled. |
 | [backend/start.ps1](../backend/start.ps1) | PowerShell wrapper for initialization and API startup flags. |
 
-Database migrations are in `backend/migrations/`: the authentication/performance migrations plus `005_coach_assignment_attendance_workflow.sql`, `006_fit_track_reference_features.sql`, and `007_fit_track_integrity.sql`. Migration 007 is additive and does not modify authentication or OTP tables.
+Database migrations are in `backend/migrations/`: `001_performance_records.sql`, `002_admin_otp_verifications.sql`, `003_signup_otp_abuse_controls.sql`, and `004_auth_otp_attempt_limits.sql`.
 
 ### Deployment
 
@@ -120,7 +118,7 @@ Admin signup pages are redirects to the admin login page; public admin registrat
 1. `POST /api/signup` stages the registration in `pending_registrations`; student/coach addresses are restricted to `@inspiria.edu.in` and passwords must be at least eight characters.
 2. `POST /api/account-verification/verify` validates the OTP. A student account is then created in `users` and the browser may continue with `POST /api/profile/setup`.
 3. Student profile data and selected sports are written to `student_profiles` and `student_sports`.
-4. Student login uses `/api/login`; successful password validation issues a login OTP. `/api/login/verify-otp` completes the session.
+4. Student and approved coach login use `/api/login`; successful password validation establishes a session immediately. Administrator login requires an OTP through `/api/login/verify-otp`.
 
 ### Coach Registration and Approval
 
@@ -149,9 +147,9 @@ The shared UI pages are `frontend1/shared/forgot-password.html`, `verify-otp.htm
 | Method | Path | Access / purpose |
 | --- | --- | --- |
 | POST | `/api/signup`, `/api/register` | Public; stage a student or coach registration and send signup OTP. |
-| POST | `/api/login`, `/api/auth/login`, `/api/admin-login`, `/api/admin/login` | Public; validate credentials and issue a login OTP. |
+| POST | `/api/login`, `/api/auth/login`, `/api/admin-login`, `/api/admin/login` | Public; validate credentials and establish student/coach sessions or issue an administrator login OTP. |
 | POST | `/api/login/verify-otp`, `/api/admin-login/verify-otp`, `/api/admin/login/verify-otp` | Public endpoint with pending-login session state; verify OTP and complete login. |
-| POST | `/api/login/resend-otp`, `/api/admin-login/resend-otp`, `/api/admin/login/resend-otp` | Pending login; issue another login OTP. |
+| POST | `/api/login/resend-otp`, `/api/admin-login/resend-otp`, `/api/admin/login/resend-otp` | Pending administrator login; issue another login OTP. |
 | GET/POST | `/api/logout`, `/api/auth/logout`, `/api/admin/logout` | Public; clear the current session. |
 | GET | `/session`, `/api/session`, `/api/auth/me` | Authenticated; return session user. |
 | GET | `/api/admin/session` | Admin; return administrator session. |

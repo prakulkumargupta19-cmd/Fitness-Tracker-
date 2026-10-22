@@ -1,28 +1,29 @@
-/* ================================================================
-   ATHLETE TRACKER — API CONFIGURATION
-   ================================================================ */
 
+/* ATHLETE TRACKER — API CONFIGURATION */
 (function () {
     "use strict";
 
     const isLocalHost =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1";
-    // When the static frontend is served by dev_server.py on port 8080,
-    // keep API calls same-origin so the local proxy handles them. Directly
-    // calling port 5000 from the browser creates an unnecessary CORS path.
+
+    // Port 8080 uses the dev server proxy.
+    // Port 8081 uses the Flask backend directly.
     const usesLocalApiProxy =
-        isLocalHost && ["8080", "8081"].includes(window.location.port);
+        isLocalHost && window.location.port === "8080";
+
     const localApiBase =
         isLocalHost && !usesLocalApiProxy
             ? `${window.location.protocol}//${window.location.hostname}:5000`
             : "";
+
     const configuredApiBase =
         usesLocalApiProxy
             ? ""
             : window.FITNESS_API_BASE ||
               window.APP_CONFIG?.API_BASE ||
               localApiBase;
+
     const apiBase = configuredApiBase.replace(/\/+$/, "");
 
     window.APP_CONFIG = {
@@ -50,7 +51,5 @@
         DEBUG: false
     };
 
-    // Local static servers use Flask on port 5000. Deployed pages remain
-    // same-origin unless a public API origin is explicitly injected.
     window.FITNESS_API_BASE = apiBase;
 })();

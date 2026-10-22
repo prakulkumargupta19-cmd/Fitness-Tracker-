@@ -101,7 +101,7 @@ def main():
             any(build.get("src") == "api/index.py" for build in config.get("builds", []))
             and (ROOT / "api" / "index.py").is_file()
             and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
-            and "setup_and_run.py --init-only" in config.get("buildCommand", "")
+            and not config.get("buildCommand")
         )
     except (OSError, json.JSONDecodeError):
         vercel_config_ok = False

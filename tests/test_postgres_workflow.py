@@ -83,10 +83,10 @@ def test_student_coach_admin_workflow_persists_in_postgres(monkeypatch):
             "role": "student", "email": student_email, "password": password,
         })
         assert response.status_code == 200
-        response = student.post("/api/login/verify-otp", json={
-            "email": student_email, "otp": delivered_otps[(student_email, "login")],
-        })
+        assert response.get_json()["otp_required"] is False
+        response = student.get("/api/session")
         assert response.status_code == 200
+        assert response.get_json()["user"]["role"] == "student"
 
     with app.test_client() as coach_signup:
         response = coach_signup.post("/api/signup", json={

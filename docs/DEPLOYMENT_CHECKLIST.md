@@ -3,7 +3,7 @@
 ## Supabase PostgreSQL
 
 - [ ] Supabase project is provisioned in a region close to the Vercel function.
-- [ ] The Vercel build command `DATABASE_BACKEND=postgres python backend/setup_and_run.py --init-only` completes successfully and applies `backend/schema.sql` plus migrations 005–007 to the intended project.
+- [ ] `backend/schema.sql` and migrations 005–007 have been applied once to the intended project before enabling the app.
 - [ ] Existing MySQL records have been backed up and separately migrated/validated, if applicable.
 - [ ] The Vercel-only `SUPABASE_DB_URL` uses a Supabase PostgreSQL connection string and is stored as a secret.
 - [ ] Production records and test records use separate Supabase projects/databases.
@@ -46,7 +46,7 @@
 ## Exact Vercel setup
 
 1. Import this repository with the repository root as the project root.
-2. Select the `Other` preset. No frontend build command or output-directory override is required; `vercel.json` contains the build and routing configuration.
-3. Set `SUPABASE_DB_URL`, `SECRET_KEY`, `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, and `FRONTEND_URL` in Project Settings → Environment Variables. Add `APP_VERSION` if desired.
-4. The Vercel build command applies the PostgreSQL schema and Fit-Track migrations automatically. For a first-time setup or manual recovery, run `DATABASE_BACKEND=postgres python backend/setup_and_run.py --init-only` with the same production database environment variables, then verify `/api/health` before opening traffic.
+2. Select the `Other` preset. Leave the Build Command and Output Directory blank; `vercel.json` contains the build and routing configuration. Database migrations are not run during deployment.
+3. Set `SUPABASE_DB_URL`, `SECRET_KEY`, `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `APP_ENV=production`, `FITNESS_TEST_MODE=false`, and `FRONTEND_URL` to the deployment's exact origin in Project Settings → Environment Variables. Add `APP_VERSION` if desired.
+4. Before opening traffic, apply `backend/schema.sql` and migrations 005–007 once to the intended Supabase project. Verify `/api/health` reports database status `ok`.
 5. Deploy a Preview first, test the complete auth and data flows, then deploy Production.

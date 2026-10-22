@@ -1,331 +1,193 @@
 # Fitness Performance Tracker
 
-A full-stack fitness and sports performance management application built for students, coaches, and administrators. The platform combines a static HTML/CSS/JavaScript frontend with a Flask REST API and a Supabase PostgreSQL database. It is designed for deployment on Vercel while keeping the database and server-side session logic in a secure backend.
+> A full-stack sports performance management platform for college students, coaches, and administrators.
+> **Backend:** Python Flask REST API + PostgreSQL (Supabase) | **Frontend:** Static HTML/CSS/JavaScript | **Deployment:** Vercel
 
-## Overview
+---
 
-The application supports three main users:
+## What This Project Does
 
-- Students: sign up with an institutional email, verify OTP, complete profile data, choose sports, and view attendance/performance records.
-- Coaches: sign up, wait for admin approval, manage assigned athletes, mark attendance, and create training/performance records.
-- Admins: sign in with OTP, review coach applications, assign sports, and monitor student/coach records.
+This platform is built for **Inspiria Knowledge Campus** to manage sports activities across three user roles:
 
-The current codebase is organized around a Python Flask service in `backend/` and a static portal in `frontend1/`.
+| Role | What they do |
+|---|---|
+| **Student** | Sign up with college email and verify via OTP, sign in with email and password, build a sports profile, view attendance and performance, chat with coach, download certificates |
+| **Coach** | Register and verify via OTP, wait for admin approval, sign in with email and password, manage assigned athletes, mark attendance, log performance assessments, give feedback |
+| **Admin** | OTP-secured login, approve/reject coaches, assign sports, manage tournaments, events, certificates, announcements, full data access |
 
-## Current architecture
+The full feature set is derived from the **Fit-Track** reference prototype (`Fit-Track/`) and significantly extended with a production-grade auth system, PostgreSQL database, Vercel deployment, and REST API architecture.
 
-- `frontend1/` hosts the web UI pages and shared frontend assets.
-- `backend/app.py` contains the main Flask app, session handling, route registration, authentication flows, admin logic, and health checks.
-- `backend/attendance.py` manages student and coach attendance APIs and role-based access logic.
-- `backend/performance.py` manages assessments, training sessions, goals, and coach feedback records.
-- `backend/reference_features.py` exposes the Fit-Track reference feature layer without changing root authentication.
-- `backend/reference_extensions.py` completes Fit-Track bulk assignment, spreadsheet import, projection export, media, draw, photo, and certificate workflows.
-- `backend/auth/` contains OTP generation, email delivery, helpers, and authorization decorators.
-- `backend/db.py` uses a local SQLite database by default and supports PostgreSQL through an explicit production configuration.
-- `backend/schema.sql` defines the production PostgreSQL schema.
-- `backend/migrations/006_fit_track_reference_features.sql` adds the PostgreSQL data model recreated from the separate `Fit-Track/` reference project.
-- `backend/migrations/007_fit_track_integrity.sql` adds Fit-Track relationship constraints, indexes, squad limits, and timestamp triggers without changing authentication or OTP tables.
-- `api/index.py` exposes the Flask app to Vercel serverless hosting.
-- `dev_server.py` serves `frontend1/` locally and proxies `/api/` requests to the backend Flask process.
+---
 
-## Key features
-
-### Student features
-- Email-based signup and OTP verification
-- Profile setup and personal information capture
-- Sport selection and assignment tracking
-- Attendance overview with weekly summaries
-- Performance record visibility
-- Fit-Track passports, programmes, schedules, events, live scores, media, announcements, chat, certificates, and reports
-- Session-based authentication with Flask cookies
-
-### Coach features
-- Coach signup and approval workflow
-- Admin-assigned sport permissions
-- Athlete roster based on assigned sports
-- Attendance entries for verified students
-- Training, assessment, and feedback creation/editing
-- Role-aware data restrictions
-
-### Admin features
-- OTP-based admin login
-- Review pending coach applications
-- Approve or reject coach registrations
-- Assign sports to coaches
-- Inspect students and athlete-related records
-- Admin diagnostics endpoint for environment health checks
-
-## Technology stack
-
-- Python 3.10+
-- Flask 3.x
-- PostgreSQL / Supabase
-- psycopg 3
-- HTML, CSS, JavaScript
-- Vercel deployment target
-- SMTP email delivery for OTPs and notifications
-
-## Repository structure
-
-```text
-fitness-tracker/
-├── .env.example                  # Sample environment variables
-├── .gitignore                    # Git ignore rules
-├── README.md                     # Project overview and setup guide
-├── requirements.txt              # Runtime dependencies
-├── requirements-dev.txt          # Dev/test dependencies
-├── pytest.ini                    # Pytest configuration
-├── dev_server.py                 # Local frontend + proxy server
-├── run_all.py                    # Runs backend + frontend together
-├── vercel.json                   # Vercel routing configuration
-├── api/
-│   └── index.py                  # Vercel serverless entry point
-├── backend/
-│   ├── app.py                    # Main Flask app
-│   ├── attendance.py             # Attendance APIs
-│   ├── performance.py            # Performance CRUD APIs
-│   ├── db.py                     # DB connection helper
-│   ├── schema.sql                # PostgreSQL schema
-│   ├── setup_and_run.py          # DB init and app start helper
-│   ├── auth/
-│   │   ├── decorators.py         # Auth decorators
-│   │   ├── emails.py             # Email sending logic
-│   │   ├── helpers.py           # OTP + user/session helper functions
-│   │   └── __init__.py
-│   ├── migrations/
-│   │   └── ...                   # PostgreSQL migration files
-│   ├── logging_config.py        # JSON logging config
-│   ├── seed_data.py             # Legacy seed file
-│   ├── utils.py                 # Shared response helpers
-│   └── start.ps1                # Local PowerShell helper
-├── frontend1/
-│   ├── index.html               # Public landing page
-│   ├── admin/                   # Admin pages
-│   ├── coach/                   # Coach pages
-│   ├── student/                 # Student pages
-│   ├── shared/                  # Shared recovery pages
-│   ├── js/
-│   │   ├── api-client.js        # API wrappers
-│   │   ├── auth-flow.js         # Auth flow logic
-│   │   ├── auth-guard.js        # Protected page checks
-│   │   └── config.js            # API base configuration
-│   └── css/                     # Stylesheets
-├── docs/
-│   ├── DATABASE_REQUIREMENTS.md
-│   ├── DEPLOYMENT_CHECKLIST.md
-│   └── PROJECT_DOCUMENTATION.md
-├── scripts/
-│   └── verify_vercel.py         # Vercel compatibility checks
-├── tests/                       # Automated tests
-├── demo/                        # Demo pages and samples
-├── reference/                    # Reference materials
-└── .env                         # Local environment (not committed)
-```
-
-## Local development setup
-
-### 1) Create environment
-
-On Windows PowerShell:
+## Quick Start (Local Development)
 
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements-dev.txt
-Copy-Item .env.example .env
-```
+# 1. Clone and enter the project
+git clone <repo-url>
+cd fitness-tracker
 
-On Linux/macOS Bash:
+# 2. Create and activate a virtual environment
+python -m venv .venv
+.venv\Scripts\activate
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-dev.txt
-cp .env.example .env
-```
+# 3. Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
-Run the install command and the app with the same Python environment. On Windows,
-after activating `.venv`, use `python` (not an unrelated system interpreter).
-If you do not activate it, use `.venv\Scripts\python.exe` for both commands:
+# 4. Configure environment
+copy .env.example .env
+# Edit .env — set SECRET_KEY and SMTP settings at minimum
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe run_all.py
-```
-
-### 2) Configure environment variables
-
-Copy `.env.example` to `.env`. Local development uses the SQLite database automatically, so no Supabase account or database URL is required. At minimum, set:
-
-```env
-DATABASE_BACKEND=sqlite
-LOCAL_DB_PATH=backend/fitness_tracker.sqlite3
-SECRET_KEY=your-long-random-secret
-APP_ENV=development
-APP_VERSION=1.0.0
-FRONTEND_URL=http://localhost:8080
-MAIL_SERVER=smtp.example.com
-MAIL_PORT=587
-MAIL_SECURITY=starttls
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
-MAIL_FROM=your_sender_email
-SESSION_COOKIE_SECURE=false
-SESSION_COOKIE_SAMESITE=Lax
-```
-
-For real OTP delivery, fill in the SMTP values. Gmail requires an App Password when two-factor authentication is enabled. Verify the credentials without sending an email with:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\test_smtp.py
-```
-
-Use `DATABASE_BACKEND=postgres` only when you intentionally want to use Supabase/PostgreSQL.
-
-### 3) Initialize the database
-
-For local SQLite, initialization is automatic. You can also run the non-destructive initializer explicitly:
-
-```powershell
+# 5. Initialise the database (SQLite locally, no Supabase needed)
 python backend/setup_and_run.py --init-only
-```
 
-This initializer is designed to be non-destructive and applies the local schema without deleting current data. For PostgreSQL, it applies `backend/schema.sql` followed by the migrations under `backend/migrations/`, including the Fit-Track integrity migration. Vercel runs this initializer during its build through `vercel.json`, so the deployed PostgreSQL database receives the same schema before the API is published. Students are scoped to their own records, coaches to assigned athletes/programmes, and admins to the full dataset by the Fit-Track API authorization layer.
-
-### 4) Run the app locally
-
-The easiest option is to start both services together in one terminal. First
-activate the virtual environment and install the dependencies as described
-above. On Windows, use PowerShell:
-
-```powershell
+# 6. Run everything
 python run_all.py
+# Opens http://localhost:8080 automatically
 ```
 
-On Linux/macOS:
+> Full setup instructions with all options: **[docs/SETUP.md](docs/SETUP.md)**
 
-```bash
-python run_all.py
+---
+
+## Architecture
+
+```
+Browser  (frontend1/  static HTML/CSS/JS)
+        |  JSON + session cookie
+        v
+Vercel Python Serverless  (api/index.py)
+        |
+        v
+Flask REST API  (backend/app.py)
+        |                      |
+        v                      v
+Supabase PostgreSQL       SMTP Email Server
+(production)              (OTPs, approvals)
 ```
 
-This launches the Flask API and the static frontend server together on ports 5000 and 8080, and opens the app in the browser.
+- **Local dev:** `dev_server.py` serves `frontend1/` on port `8080` and proxies `/api/*` to Flask on port `5000`
+- **Production:** `vercel.json` routes `/api/*` to `api/index.py` (serverless), everything else to `frontend1/`
 
-If you want to start them manually instead, use two terminals:
+---
 
-Windows PowerShell:
+## Backend Modules
+
+| File | Responsibility |
+|---|---|
+| `backend/app.py` | Flask app, CORS, session, auth routes, admin routes, health check, diagnostics |
+| `backend/attendance.py` | Attendance sessions, records, weekly summary, role-scoped access |
+| `backend/performance.py` | CRUD for assessments, training sessions, goals, coach feedback |
+| `backend/reference_features.py` | Fit-Track feature APIs: sports, coaching, tournaments, chat, announcements, reports |
+| `backend/reference_extensions.py` | Fit-Track extras: bulk assignment, XLSX import, file uploads, certificates, draw PDFs, media |
+| `backend/db.py` | Database connection — SQLite (local) or PostgreSQL via `SUPABASE_DB_URL` |
+| `backend/schema.sql` | PostgreSQL DDL — all tables, indexes, constraints, triggers |
+| `backend/auth/helpers.py` | OTP generation, hashing, verification, session helpers |
+| `backend/auth/emails.py` | SMTP email delivery for OTP and notification flows |
+| `backend/auth/decorators.py` | `@login_required` and `@role_required` decorators |
+| `backend/migrations/` | 7 ordered, idempotent SQL migration files (001-007) |
+| `api/index.py` | Vercel serverless entry point |
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Python 3.10+ |
+| Web framework | Flask 3.x |
+| Database (production) | PostgreSQL via Supabase |
+| Database (local dev) | SQLite |
+| DB driver | psycopg 3 (binary) |
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| UI framework | Bootstrap 5.3 + Bootstrap Icons |
+| Charts | Chart.js |
+| PDF generation | reportlab + pypdf + Pillow |
+| Excel import | openpyxl + xlrd |
+| Email | smtplib (STARTTLS/SSL) |
+| Deployment | Vercel (serverless) |
+| Tests | pytest |
+
+---
+
+## Running Tests
 
 ```powershell
-python backend/setup_and_run.py
-python dev_server.py
-```
-
-Linux/macOS Bash:
-
-```bash
-python backend/setup_and_run.py
-python dev_server.py
-```
-
-Then open:
-
-```text
-http://localhost:8080
-```
-
-The static frontend serves pages from `frontend1/`, while `/api/*` requests are proxied to the Flask backend on port 5000. The local database is stored in `backend/fitness_tracker.sqlite3` and is ignored by Git.
-
-## Authentication and session model
-
-This app uses Flask session cookies for user authentication. Sessions are tied to the authenticated `user_id` and `role`, and protected routes are checked with decorators in `backend/auth/decorators.py`.
-
-OTP-based sign-in is used for:
-- student and coach signup verification
-- login verification
-- password resets
-- admin login and password reset flows
-
-The app uses hashed OTP values stored in the database and rejects expired or overused verification codes.
-
-## Database model
-
-The database schema is defined in `backend/schema.sql` and includes tables for:
-
-- `users` — core user accounts for students and coaches
-- `admins` — administrative users
-- `student_profiles` — student profile details
-- `pending_registrations` — pending coach/student onboarding records
-- `otp_verifications` and `admin_otp_verifications` — one-time code storage
-- `sports` — supported sports catalog
-- `coach_sports` and `student_sports` — many-to-many role mapping
-- `physical_assessments`, `training_sessions`, `goals`, and `coach_feedback` — performance tracking
-- `attendance_sessions` and `attendance_records` — attendance tracking
-- Fit-Track reference tables — sports facilities, programmes, enrollments, daily assessments, tournaments, registrations, matches, media, achievements, certificates, announcements, messages, and coaching sessions
-
-The schema is PostgreSQL-specific and is not a MySQL migration.
-
-## API design
-
-Most API routes are under `/api/` and return JSON payloads with a consistent `success` response shape. Error handling is centralized in `backend/app.py` so invalid requests and unexpected exceptions are logged and returned as JSON responses.
-
-Important route families include:
-
-- Auth: `/api/signup`, `/api/login`, `/api/logout`, `/api/forgot-password`, `/api/reset-password`
-- Admin: `/api/admin/*`
-- Student: `/api/student/*`
-- Coach: `/api/coach/*`
-- Performance: assessments, goals, training, and feedback-related endpoints
-- Attendance: student and coach attendance endpoints and summaries
-
-## Testing
-
-Run the database-free test suite:
-
-```powershell
+# Standard test run (no database needed)
 python -m pytest -q
-```
 
-For database-backed integration tests, use a dedicated non-production database and opt in explicitly:
-
-```powershell
+# With PostgreSQL integration tests (use a dedicated test DB only)
 $env:SUPABASE_TEST_DB_URL = "postgresql://..."
 $env:RUN_POSTGRES_TESTS = "true"
 python -m pytest -q
-```
 
-The deployment verification script can also be run:
-
-```powershell
+# Verify Vercel static compatibility
 python scripts/verify_vercel.py
+
+# Test SMTP email delivery
+python scripts/test_smtp.py
+
+# Test Supabase connection
+python scripts/test_supabase_connection.py
 ```
 
-## Deployment
+---
 
-The application is targeted at Vercel for hosting the static frontend and Python API. `api/index.py` imports the Flask app, and `vercel.json` routes API traffic to the backend and serves the static app from `frontend1/`.
+## API Overview
 
-Production setup should include:
-- `SUPABASE_DB_URL`
-- `SECRET_KEY`
-- SMTP configuration
-- `FRONTEND_URL`
-- `APP_ENV` or `VERCEL_ENV`
-- optionally `APP_VERSION`
+All routes are under `/api/`. Every response is JSON with a `success` field.
 
-Never expose production secrets in frontend JavaScript.
+| Route group | Description |
+|---|---|
+| `POST /api/signup` | Register a student or coach |
+| `POST /api/login` | Initiate login — sends OTP |
+| `POST /api/login/verify` | Complete login with OTP |
+| `POST /api/logout` | End session |
+| `POST /api/forgot-password` | Start password reset |
+| `POST /api/reset-password` | Complete reset with OTP |
+| `GET /api/session` | Check current session and role |
+| `GET /api/health` | Server and database health check |
+| `/api/student/*` | Student profile and sports data |
+| `/api/coach/*` | Coach athlete roster |
+| `/api/admin/*` | Coach approvals, student list, diagnostics |
+| `/api/assessments` | Physical assessment records |
+| `/api/training-sessions` | Training session logs |
+| `/api/goals` | Student goals |
+| `/api/feedback` | Coach feedback for students |
+| `/api/attendance/*` | Attendance sessions and records |
+| `/api/fit-track/*` | Sports, programmes, tournaments, chat, certificates, reports, media |
 
-## Notes and cautions
+---
 
-- Keep `.env` local and do not commit it.
-- Use a dedicated Supabase project or a safe non-production database for testing.
-- Apply schema changes carefully; the app expects PostgreSQL behavior and data types.
-- Admin creation for first-run setup should be done intentionally and removed from environment config afterward.
+## Project Status
 
-## Documentation references
+> **Not yet production ready.** The backend is well-structured and the auth system is solid, but critical items remain open:
+> - Supabase not provisioned; live database schema unverified
+> - File uploads will not persist on Vercel (needs object storage solution)
+> - CSRF protection is not implemented
+> - Most Fit-Track frontend pages are UI shells not yet wired to the API
+> - SMTP not tested in a live deployed environment
 
-Additional project docs are already present in:
+See **[docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md)** for the full checklist.
 
-- `docs/PROJECT_DOCUMENTATION.md`
-- `docs/DATABASE_REQUIREMENTS.md`
-- `docs/DEPLOYMENT_CHECKLIST.md`
-- `VERCEL_COMPATIBILITY_REPORT.md`
+---
 
-These supplements are useful for architecture context, database constraints, and deployment checks.
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [docs/SETUP.md](docs/SETUP.md) | Complete local setup, env config, database init, running, testing, and Vercel deployment |
+| [docs/BACKEND_FEATURE_COMPARISON.md](docs/BACKEND_FEATURE_COMPARISON.md) | Fit-Track vs Fitness Tracker feature comparison — what carried over, what is new, what is missing |
+| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Full checklist of what is done, what is missing, and what must be fixed before go-live |
+| [docs/FRONTEND_DEVELOPER_GUIDE.md](docs/FRONTEND_DEVELOPER_GUIDE.md) | Frontend architecture, which pages work, which are broken, and exactly what changes to make |
+
+---
+
+## Security Notes
+
+- Never commit `.env` — it is in `.gitignore`
+- Never expose `SUPABASE_DB_URL`, `SECRET_KEY`, or SMTP credentials in frontend JavaScript
+- Use a dedicated non-production Supabase project for all integration testing
+- `FLASK_DEBUG` must be `false` in production
+- `SESSION_COOKIE_SECURE` must be `true` in production
+- The initial admin is created via `INITIAL_ADMIN_*` env vars only — clear them after first run

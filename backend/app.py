@@ -338,13 +338,13 @@ def signup():
     contact_number = str(
         data.get("contact_number") or data.get("contact") or ""
     ).strip()
-    qualification = str(data.get("qualification") or "").strip()
-    specialization = str(data.get("specialization") or "").strip()
-    experience_years = data.get("experience_years")
+
     try:
-        experience_years = int(experience_years) if experience_years not in (None, "") else None
+        # These are no longer required, but we keep the try-block for general structure
+        # if we ever needed to validate other numeric fields here.
+        pass
     except (TypeError, ValueError):
-        return jsonify({"success": False, "message": "Experience must be a whole number of years."}), 400
+        return jsonify({"success": False, "message": "Invalid input provided."}), 400
 
     if role not in ("student", "coach"):
         return (
@@ -363,8 +363,8 @@ def signup():
             ),
             400,
         )
-    if role == "coach" and (not contact_number or not qualification or not specialization or experience_years is None or experience_years < 0):
-        return jsonify({"success": False, "message": "Phone, qualification, specialization, and valid experience are required for coach signup."}), 400
+    if role == "coach" and (not contact_number):
+        return jsonify({"success": False, "message": "Phone number is required for coach signup."}), 400
     if not is_valid_domain(email):
         return (
             jsonify(
@@ -574,8 +574,30 @@ def login():
             403,
         )
 
+    if user["role"] in ("student", "coach"):
+        _complete_login(user)
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "otp_required": False,
+                    "message": "Login successful.",
+                    "user": {
+                        "id": user["id"],
+                        "role": user["role"],
+                        "full_name": user["full_name"],
+                        "email": user["email"],
+                        "contact_number": user["contact_number"],
+                        "is_verified": bool(user["is_verified"]),
+                        "coach_status": user["coach_status"],
+                    },
+                }
+            ),
+            200,
+        )
+
     otp = generate_otp()
-    if not (store_admin_otp if user["role"] == "admin" else store_otp)(user["id"], "login", otp):
+    if not store_admin_otp(user["id"], "login", otp):
         return jsonify({"success": False, "message": "Too many login codes were requested. Try again in an hour."}), 429
     session.clear()
     session["pending_login_user_id"] = user["id"]

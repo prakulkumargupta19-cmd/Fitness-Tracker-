@@ -457,34 +457,31 @@ loginForm.addEventListener(
             }
 
 
-            /* =================================================
-               LOGIN SUCCESS
-            ================================================= */
-
-            if (!data.otp_required) {
-                showMessage("The server did not start login verification.");
-                loginButton.disabled = false;
-                loginButton.textContent = "Login as Student →";
-                return;
+            const sessionResponse = await fetch(
+                API_BASE + "/api/session",
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+            const sessionData = await sessionResponse.json().catch(function () {
+                return {};
+            });
+            if (
+                !sessionResponse.ok ||
+                !sessionData.authenticated ||
+                !sessionData.user ||
+                !["student", "player"].includes(
+                    String(sessionData.user.role || "").toLowerCase()
+                )
+            ) {
+                throw new Error(
+                    "Login succeeded, but the student session could not be established."
+                );
             }
 
-            showMessage(
-                "Login successful. Opening OTP verification...",
-                "success"
-            );
-
-
-            loginButton.textContent =
-                "Opening OTP verification...";
-
-
-            /* =================================================
-               GO TO OTP PAGE
-            ================================================= */
-
-            window.location.replace(
-                "../shared/login-otp.html"
-            );
+            showMessage("Login successful. Opening your dashboard...", "success");
+            window.location.replace("student-dashboard.html");
 
 
         } catch (error) {
@@ -495,9 +492,7 @@ loginForm.addEventListener(
             );
 
 
-            showMessage(
-                "Unable to connect to the server. Please check that Flask is running."
-            );
+            showMessage(error.message || "Unable to login. Please try again.");
 
 
             loginButton.disabled = false;
