@@ -101,6 +101,11 @@ def main():
             any(build.get("src") == "api/index.py" for build in config.get("builds", []))
             and (ROOT / "api" / "index.py").is_file()
             and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
+            and any(
+                route.get("src") == "/"
+                and route.get("dest") == "/frontend1/index.html"
+                for route in config.get("routes", [])
+            )
             and not config.get("buildCommand")
         )
     except (OSError, json.JSONDecodeError):
