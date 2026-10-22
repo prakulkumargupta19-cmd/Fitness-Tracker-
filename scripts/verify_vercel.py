@@ -97,16 +97,19 @@ def main():
 
     try:
         config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+        api_rewrite = any(
+            route.get("src") == "/api/(.*)"
+            and route.get("dest") == "/api/index.py"
+            for route in config.get("routes", [])
+        )
+        function_config = config.get("functions", {}).get("api/index.py", {})
         vercel_config_ok = (
-            any(build.get("src") == "api/index.py" for build in config.get("builds", []))
+            config.get("outputDirectory") == "frontend1"
+            and (ROOT / "frontend1" / "index.html").is_file()
             and (ROOT / "api" / "index.py").is_file()
-            and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
-            and any(
-                route.get("src") == "/"
-                and route.get("dest") == "/index.html"
-                for route in config.get("routes", [])
-            )
-            and not config.get("buildCommand")
+            and api_rewrite
+            and function_config.get("maxDuration", 0) >= 10
+            and not config.get("builds")
         )
     except (OSError, json.JSONDecodeError):
         vercel_config_ok = False

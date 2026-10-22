@@ -1,27 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend1/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "outputDirectory": "frontend1",
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{.git/**,.playwright-mcp/**,artifacts/**,docs/**,Fit-Track/**,frontend1/**,tests/**,**/__pycache__/**,**/*.pyc}"
+    }
+  }
 }

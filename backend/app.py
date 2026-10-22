@@ -59,19 +59,22 @@ from reference_features import register_reference_feature_routes  # noqa: E402
 from reference_extensions import register_reference_extension_routes  # noqa: E402
 
 app = Flask(__name__)
-is_production = os.getenv(
-    "VERCEL_ENV",
-    os.getenv("APP_ENV", "development"),
-).lower() == "production"
+vercel_environment = os.getenv("VERCEL_ENV", "").strip().lower()
+is_vercel_deployment = vercel_environment in {"preview", "production"}
+is_production = (
+    vercel_environment == "production"
+    or os.getenv("APP_ENV", "development").strip().lower() == "production"
+)
 configured_secret = os.getenv("SECRET_KEY")
-if is_production and not configured_secret:
-    raise RuntimeError("SECRET_KEY must be configured in production.")
+if (is_production or is_vercel_deployment) and not configured_secret:
+    raise RuntimeError("SECRET_KEY must be configured for Vercel deployments.")
 app.secret_key = configured_secret or secrets.token_hex(32)
 configure_logging(app)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
 app.config["SESSION_COOKIE_SECURE"] = (
     is_production
+    or is_vercel_deployment
     or os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 )
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
