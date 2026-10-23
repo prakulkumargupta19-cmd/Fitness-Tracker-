@@ -1,0 +1,47 @@
+.event-card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.event-card { grid-template-columns:64px minmax(0,1fr); }
+.event-date-badge { width:58px;height:58px;border-radius:16px;display:grid;place-items:center;background:#eaf2ff;color:var(--primary,#2563eb);font-size:1.6rem; }
+.admin-event-create { display:block;margin-bottom:18px; }
+.admin-event-create>summary { width:max-content;margin:0 0 16px;padding:9px 14px;border-radius:9px;background:var(--primary,#2563eb);color:#fff;font-weight:700;cursor:pointer;list-style:none; }
+.admin-event-create>summary::-webkit-details-marker { display:none; }
+.admin-event-create:not([open])>summary { margin-bottom:0; }
+.admin-event-create .announcement-composer-header { margin-bottom:14px; }
+.event-actions { display:flex;flex-wrap:wrap;gap:10px;margin-top:14px; }
+.event-registration-count { margin-top:10px!important; }
+.coach-event-create { margin:14px 0 8px; }
+.coach-event-create summary { width:max-content;padding:9px 14px;border-radius:9px;background:var(--primary,#2563eb);color:#fff;font-weight:700;cursor:pointer;list-style:none; }
+.coach-event-create summary::-webkit-details-marker { display:none; }
+.coach-event-create[open] summary { margin-bottom:14px; }
+.coach-event-create .announcement-form { margin:0;padding:0;border:0; }
+.event-calendar { margin:16px 0 20px;padding:18px;border:1px solid var(--border,#e7ebf2);border-radius:14px;background:var(--card,#fff); }
+.event-calendar-heading { display:grid;grid-template-columns:38px 1fr 38px;align-items:center;gap:8px;margin-bottom:12px; }
+.event-calendar-heading h2 { margin:0;text-align:center;font-size:1.05rem; }
+.event-calendar-heading button { width:36px;height:36px;border:1px solid var(--border,#e7ebf2);border-radius:9px;background:#f8faff;color:var(--text,#172033);font-size:1.35rem;cursor:pointer; }
+.event-calendar-week,.event-calendar-days { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px; }
+.event-calendar-week span { padding:6px 0;text-align:center;color:var(--muted,#718096);font-size:.78rem;font-weight:700; }
+.event-calendar-day { min-height:54px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;border:1px solid transparent;border-radius:9px;background:#f7f9fc;color:var(--text,#172033);font:inherit; }
+button.event-calendar-day { cursor:pointer; }
+.event-calendar-day.has-events { border-color:#cfe0ff;background:#eef4ff;color:#1d4ed8;font-weight:700; }
+.event-calendar-day.selected { outline:2px solid var(--primary,#2563eb);outline-offset:1px; }
+.event-calendar-day i { width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#2563eb;color:#fff;font-size:.62rem;font-style:normal; }
+.event-calendar-day.empty { background:transparent; }
+.event-calendar-footer { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;color:var(--muted,#718096);font-size:.82rem; }
+.event-calendar-actions { display:flex;align-items:center;gap:12px; }
+.event-calendar-footer span { display:inline-flex;align-items:center;gap:6px; }
+.event-calendar-footer span i { width:8px;height:8px;border-radius:50%;background:#2563eb; }
+.event-calendar-footer button { border:0;background:transparent;color:var(--primary,#2563eb);font:inherit;cursor:pointer; }
+.event-calendar-footer button.event-calendar-add { padding:8px 13px;border-radius:8px;background:var(--primary,#2563eb);color:#fff;font-weight:700; }
+.event-calendar-footer button[hidden] { display:none; }
+.event-sport-filter { display:grid;gap:6px;max-width:360px;margin-top:16px;font-weight:600;color:var(--text,#172033); }
+.event-sport-filter select { width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--border,#dbe3ef);border-radius:10px;background:var(--card,#fff);color:inherit;font:inherit; }
+.event-sport-filter select:disabled { opacity:.65;cursor:not-allowed; }
+.event-registrants { margin-top:10px;border:1px solid var(--border,#e7ebf2);border-radius:10px;padding:10px 12px; }
+.event-registrants summary { cursor:pointer;font-weight:700; }
+.event-registrants p { margin:8px 0 0!important;font-size:.9rem; }
+.event-modal[hidden] { display:none; }
+.event-modal { position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.58);display:grid;place-items:center;padding:20px; }
+.event-modal-dialog { position:relative;width:min(600px,100%);max-height:90vh;overflow:auto;background:var(--card,#fff);color:var(--text,#172033);border-radius:18px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.25); }
+.event-modal-close { position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:28px;cursor:pointer;color:inherit; }
+.event-modal-dialog h2 { margin:12px 30px 10px 0; }
+.event-modal-dialog>p { line-height:1.6; }
+@media(max-width:560px) { .event-card { grid-template-columns:1fr; }.event-calendar{padding:12px}.event-calendar-week,.event-calendar-days{gap:3px}.event-calendar-day{min-height:42px;font-size:.85rem} }

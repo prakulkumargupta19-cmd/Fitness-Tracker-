@@ -58,7 +58,7 @@ def role_required(*roles):
             if not user_id:
                 return jsonify(success=False, message="Unauthorized"), 401
 
-            user = get_user_by_id(user_id)
+            user = get_user_by_id(user_id, session.get("role"))
             if not user:
                 session.clear()
                 return jsonify(success=False, message="Unauthorized"), 401

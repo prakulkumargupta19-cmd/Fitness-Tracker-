@@ -514,7 +514,7 @@ def register_reference_extension_routes(app):
             db.close()
 
     @app.route("/api/fit-track/announcements/upload", methods=["POST"])
-    @ADMIN
+    @STAFF
     def fit_track_upload_announcement():
         title = (request.form.get("title") or "").strip()
         message = (request.form.get("message") or "").strip()
@@ -527,10 +527,11 @@ def register_reference_extension_routes(app):
         db = get_db()
         try:
             with db.cursor() as cursor:
+                created_by = None if session.get("role") == "admin" else session.get("user_id")
                 cursor.execute(
                     """INSERT INTO announcements(title,message,image_path,created_by)
                        VALUES(%s,%s,%s,%s) RETURNING *""",
-                    (title, message, image_path, session.get("user_id")),
+                    (title, message, image_path, created_by),
                 )
                 row = _row(cursor.fetchone())
                 _commit(db)

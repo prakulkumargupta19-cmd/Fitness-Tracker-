@@ -40,7 +40,10 @@ class FrontendHandler(SimpleHTTPRequestHandler):
         body = self.rfile.read(length) if length else None
         headers = {
             name: self.headers[name]
-            for name in ("Accept", "Content-Type", "Cookie", "Origin", "X-Requested-With")
+            for name in (
+                "Accept", "Content-Type", "Cookie", "Origin",
+                "X-Requested-With", "X-Portal-Role", "X-CSRFToken",
+            )
             if self.headers.get(name)
         }
         request = Request(

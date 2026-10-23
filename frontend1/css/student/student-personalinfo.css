@@ -590,7 +590,7 @@ body {
 }
 
 .sport-check::after {
-    content: "✓";
+    content: "\2713";
 
     color: white;
 

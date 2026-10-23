@@ -5,7 +5,7 @@ the root project's authenticated ``users`` and session model, while exposing
 the reference project's sports operations as PostgreSQL resources.
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from uuid import uuid4
 
@@ -25,7 +25,7 @@ ALL_USERS = role_required("admin", "coach", "student")
 
 
 def _json_value(value):
-    if isinstance(value, (date, datetime)):
+    if isinstance(value, (date, datetime, time)):
         return value.isoformat()
     if isinstance(value, Decimal):
         return float(value)
@@ -188,6 +188,61 @@ def _department_matches(student_department, team_department):
 
 
 def register_reference_feature_routes(app):
+    @app.route("/api/chat/contacts", methods=["GET"])
+    @ALL_USERS
+    def fit_track_chat_contacts():
+        user_id = session.get("user_id")
+        role = session.get("role")
+        search = f"%{request.args.get('q', '').strip()}%"
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                if role == "student":
+                    cursor.execute(
+                        """SELECT u.id, u.full_name, u.role
+                           FROM users u
+                           WHERE u.role = 'coach' AND u.is_active = TRUE
+                             AND u.coach_status = 'approved'
+                             AND LOWER(u.full_name) LIKE LOWER(%s)
+                             AND EXISTS (
+                               SELECT 1 FROM coach_sports cs
+                               JOIN student_sports ss ON ss.sport_id = cs.sport_id
+                               WHERE cs.coach_id = u.id AND ss.student_id = %s
+                             )
+                           ORDER BY u.full_name""",
+                        (search, user_id),
+                    )
+                elif role == "coach":
+                    cursor.execute(
+                        """SELECT u.id, u.full_name, u.role
+                           FROM users u
+                           WHERE u.role = 'student' AND u.is_active = TRUE
+                             AND LOWER(u.full_name) LIKE LOWER(%s)
+                             AND (
+                               EXISTS (
+                                 SELECT 1 FROM coach_sports cs
+                                 JOIN student_sports ss ON ss.sport_id = cs.sport_id
+                                 WHERE cs.coach_id = %s AND ss.student_id = u.id
+                               ) OR EXISTS (
+                                 SELECT 1 FROM enrollments e
+                                 JOIN programmes p ON p.id = e.programme_id
+                                 WHERE p.coach_id = %s AND e.student_id = u.id
+                               )
+                             )
+                           ORDER BY u.full_name""",
+                        (search, user_id, user_id),
+                    )
+                else:
+                    cursor.execute(
+                        """SELECT id, full_name, role FROM users
+                           WHERE is_active = TRUE AND LOWER(full_name) LIKE LOWER(%s)
+                           ORDER BY full_name""",
+                        (search,),
+                    )
+                return jsonify(success=True, data=_rows(cursor.fetchall()))
+        finally:
+            db.close()
+
     @app.route("/api/fit-track/dashboard", methods=["GET"])
     @ALL_USERS
     def fit_track_dashboard():
@@ -356,6 +411,26 @@ def register_reference_feature_routes(app):
         finally:
             db.close()
 
+    @app.route("/api/fit-track/schedule/programmes", methods=["GET"])
+    @STAFF
+    def fit_track_schedule_programmes():
+        """Return only active programmes the current staff member can schedule."""
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                query = """SELECT p.id, p.name, p.coach_id, s.name AS sport
+                           FROM programmes p JOIN sports s ON s.id = p.sport_id
+                           WHERE p.active = TRUE"""
+                params = []
+                if session.get("role") == "coach":
+                    query += " AND p.coach_id = %s"
+                    params.append(session.get("user_id"))
+                query += " ORDER BY p.name"
+                cursor.execute(query, tuple(params))
+                return jsonify(success=True, data=_rows(cursor.fetchall()))
+        finally:
+            db.close()
+
     @app.route("/api/fit-track/programmes", methods=["POST"])
     @app.route("/api/programmes", methods=["POST"])
     @STAFF
@@ -466,13 +541,49 @@ def register_reference_feature_routes(app):
                     error = _required(data, "programme_id", "session_date", "start_time", "end_time")
                     if error:
                         return error
+                    try:
+                        programme_id = int(data["programme_id"])
+                        session_date = date.fromisoformat(str(data["session_date"]))
+                        start_time = time.fromisoformat(str(data["start_time"]))
+                        end_time = time.fromisoformat(str(data["end_time"]))
+                    except (TypeError, ValueError):
+                        return jsonify(success=False, message="Choose a valid programme, date, and time range."), 400
+                    if start_time >= end_time:
+                        return jsonify(success=False, message="The end time must be later than the start time."), 400
+                    if len(str(data.get("venue") or "")) > 255 or len(str(data.get("notes") or "")) > 1000:
+                        return jsonify(success=False, message="Venue or notes exceed the allowed length."), 400
+                    status = str(data.get("status") or "Scheduled").strip()
+                    if status not in {"Scheduled", "Rescheduled", "Cancelled", "Completed"}:
+                        return jsonify(success=False, message="Choose a valid session status."), 400
+                    cursor.execute("SELECT id, active FROM programmes WHERE id = %s", (programme_id,))
+                    programme = cursor.fetchone()
+                    if not programme or not programme["active"]:
+                        return jsonify(success=False, message="Choose an active programme."), 400
                     if session.get("role") == "coach" and not _coach_can_access_programme(
-                        cursor, session.get("user_id"), data["programme_id"]
+                        cursor, session.get("user_id"), programme_id
                     ):
                         return jsonify(success=False, message="You may only publish sessions for your assigned programmes."), 403
+                    cursor.execute(
+                        """SELECT 1 FROM coaching_sessions
+                           WHERE programme_id = %s AND session_date = %s AND status <> 'Cancelled'
+                             AND start_time < %s AND end_time > %s""",
+                        (programme_id, session_date, end_time, start_time),
+                    )
+                    if cursor.fetchone():
+                        return jsonify(success=False, message="This session overlaps another session for the programme."), 409
                     cursor.execute("""INSERT INTO coaching_sessions
                                        (programme_id, session_date, start_time, end_time, venue, notes, status, created_by, updated_by)
-                                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *""", (data["programme_id"], data["session_date"], data["start_time"], data["end_time"], data.get("venue"), data.get("notes"), data.get("status") or "Scheduled", session.get("user_id"), session.get("user_id")))
+                                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *""", (
+                                           programme_id,
+                                           session_date,
+                                           start_time,
+                                           end_time,
+                                           (data.get("venue") or "").strip() or None,
+                                           (data.get("notes") or "").strip() or None,
+                                           status,
+                                           session.get("user_id") if session.get("role") == "coach" else None,
+                                           session.get("user_id") if session.get("role") == "coach" else None,
+                                       ))
                     row = _row(cursor.fetchone())
                     _commit(db)
                     return jsonify(success=True, data=row), 201
@@ -480,10 +591,25 @@ def register_reference_feature_routes(app):
                 query = """SELECT cs.*, p.name AS programme, s.name AS sport, u.full_name AS coach
                            FROM coaching_sessions cs JOIN programmes p ON p.id=cs.programme_id
                            JOIN sports s ON s.id=p.sport_id LEFT JOIN users u ON u.id=p.coach_id"""
+                conditions = []
                 params = []
-                if month and len(month) == 7:
-                    query += " WHERE TO_CHAR(cs.session_date, 'YYYY-MM') = %s"
-                    params.append(month)
+                role = session.get("role")
+                if role == "coach":
+                    conditions.append("p.coach_id = %s")
+                    params.append(session.get("user_id"))
+                elif role == "student":
+                    conditions.append("EXISTS (SELECT 1 FROM student_sports ss WHERE ss.student_id = %s AND ss.sport_id = p.sport_id)")
+                    params.append(session.get("user_id"))
+                if month:
+                    try:
+                        month_start = date.fromisoformat(f"{month}-01")
+                        next_month = date(month_start.year + (month_start.month == 12), month_start.month % 12 + 1, 1)
+                    except ValueError:
+                        return jsonify(success=False, message="Month must use YYYY-MM format."), 400
+                    conditions.extend(["cs.session_date >= %s", "cs.session_date < %s"])
+                    params.extend([month_start, next_month])
+                if conditions:
+                    query += " WHERE " + " AND ".join(conditions)
                 query += " ORDER BY cs.session_date, cs.start_time"
                 cursor.execute(query, tuple(params))
                 return jsonify(success=True, data=_rows(cursor.fetchall()))
@@ -497,20 +623,19 @@ def register_reference_feature_routes(app):
         db = get_db()
         try:
             with db.cursor() as cursor:
-                if session.get("role") == "coach":
-                    cursor.execute(
-                        "SELECT programme_id FROM coaching_sessions WHERE id = %s",
-                        (session_id,),
-                    )
-                    current_session = cursor.fetchone()
-                    if not current_session or not _coach_can_access_programme(
-                        cursor, session.get("user_id"), current_session["programme_id"]
-                    ):
-                        return jsonify(success=False, message="You may only manage sessions for your assigned programmes."), 403
+                cursor.execute(
+                    "SELECT * FROM coaching_sessions WHERE id = %s",
+                    (session_id,),
+                )
+                current_session = cursor.fetchone()
+                if not current_session:
+                    return jsonify(success=False, message="Session not found."), 404
+                if session.get("role") == "coach" and not _coach_can_access_programme(
+                    cursor, session.get("user_id"), current_session["programme_id"]
+                ):
+                    return jsonify(success=False, message="You may only manage sessions for your assigned programmes."), 403
                 if request.method == "DELETE":
                     cursor.execute("DELETE FROM coaching_sessions WHERE id=%s", (session_id,))
-                    if cursor.rowcount == 0:
-                        return jsonify(success=False, message="Session not found."), 404
                     _commit(db)
                     return jsonify(success=True)
                 data = _body()
@@ -518,12 +643,51 @@ def register_reference_feature_routes(app):
                 updates = [(key, data[key]) for key in allowed if key in data]
                 if not updates:
                     return jsonify(success=False, message="No session fields supplied."), 400
-                if session.get("role") == "coach" and "programme_id" in data and not _coach_can_access_programme(
-                    cursor, session.get("user_id"), data["programme_id"]
+                effective = {key: current_session[key] for key in ("programme_id", "session_date", "start_time", "end_time", "status")}
+                effective.update(dict(updates))
+                try:
+                    effective["programme_id"] = int(effective["programme_id"])
+                    effective["session_date"] = date.fromisoformat(str(effective["session_date"]))
+                    effective["start_time"] = time.fromisoformat(str(effective["start_time"]))
+                    effective["end_time"] = time.fromisoformat(str(effective["end_time"]))
+                except (TypeError, ValueError):
+                    return jsonify(success=False, message="Choose a valid programme, date, and time range."), 400
+                if effective["start_time"] >= effective["end_time"]:
+                    return jsonify(success=False, message="The end time must be later than the start time."), 400
+                if effective["status"] not in {"Scheduled", "Rescheduled", "Cancelled", "Completed"}:
+                    return jsonify(success=False, message="Choose a valid session status."), 400
+                if len(str(data.get("venue", current_session.get("venue") or ""))) > 255 or len(str(data.get("notes", current_session.get("notes") or ""))) > 1000:
+                    return jsonify(success=False, message="Venue or notes exceed the allowed length."), 400
+                cursor.execute("SELECT id, active FROM programmes WHERE id = %s", (effective["programme_id"],))
+                programme = cursor.fetchone()
+                if not programme:
+                    return jsonify(success=False, message="Choose an existing programme."), 400
+                if not programme["active"] and effective["programme_id"] != current_session["programme_id"]:
+                    return jsonify(success=False, message="Choose an active programme."), 400
+                if session.get("role") == "coach" and not _coach_can_access_programme(
+                    cursor, session.get("user_id"), effective["programme_id"]
                 ):
                     return jsonify(success=False, message="You may only assign sessions to your programmes."), 403
+                if effective["status"] != "Cancelled":
+                    cursor.execute(
+                        """SELECT 1 FROM coaching_sessions
+                           WHERE programme_id = %s AND session_date = %s AND id <> %s
+                             AND status <> 'Cancelled' AND start_time < %s AND end_time > %s""",
+                        (effective["programme_id"], effective["session_date"], session_id, effective["end_time"], effective["start_time"]),
+                    )
+                    if cursor.fetchone():
+                        return jsonify(success=False, message="This session overlaps another session for the programme."), 409
+                normalized_updates = []
+                for key, value in updates:
+                    if key in effective:
+                        value = effective[key]
+                    elif key in {"venue", "notes"}:
+                        value = (value or "").strip() or None
+                    normalized_updates.append((key, value))
+                updates = normalized_updates
                 assignments = ", ".join(f"{key}=%s" for key, _ in updates) + ", updated_at=CURRENT_TIMESTAMP, updated_by=%s"
-                values = tuple(value for _, value in updates) + (session.get("user_id"), session_id)
+                actor_user_id = session.get("user_id") if session.get("role") == "coach" else None
+                values = tuple(value for _, value in updates) + (actor_user_id, session_id)
                 cursor.execute(f"UPDATE coaching_sessions SET {assignments} WHERE id=%s RETURNING *", values)
                 row = cursor.fetchone()
                 if not row:
@@ -616,20 +780,34 @@ def register_reference_feature_routes(app):
         try:
             with db.cursor() as cursor:
                 if request.method == "POST":
-                    if session.get("role") != "admin":
+                    role = session.get("role")
+                    if role != "admin":
                         return jsonify(success=False, message="Only admins can create events."), 403
                     data = _body()
                     error = _required(data, "name", "sport_id", "start_date")
                     if error:
                         return error
+                    try:
+                        sport_id = int(data["sport_id"])
+                    except (TypeError, ValueError):
+                        return jsonify(success=False, message="Choose a valid sport."), 400
+                    cursor.execute("SELECT id FROM sports WHERE id = %s", (sport_id,))
+                    if not cursor.fetchone():
+                        return jsonify(success=False, message="Choose a sport from the catalogue."), 400
                     cursor.execute("""INSERT INTO tournaments (name, sport_id, start_date, end_date, venue, status, description, poster_path, registration_open)
-                                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING *""", (data["name"], data["sport_id"], data["start_date"], data.get("end_date"), data.get("venue"), data.get("status") or "Upcoming", data.get("description"), data.get("poster_path"), data.get("registration_open", True)))
+                                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING *""", (data["name"], sport_id, data["start_date"], data.get("end_date"), data.get("venue"), data.get("status") or "Upcoming", data.get("description"), data.get("poster_path"), data.get("registration_open", True)))
                     row = _row(cursor.fetchone())
                     _commit(db)
                     return jsonify(success=True, data=row), 201
-                cursor.execute("""SELECT t.*, s.name AS sport, COUNT(DISTINCT r.id) AS registration_count
-                                 FROM tournaments t JOIN sports s ON s.id=t.sport_id LEFT JOIN registrations r ON r.tournament_id=t.id
-                                 GROUP BY t.id, s.name ORDER BY t.start_date DESC""")
+                cursor.execute("""SELECT t.*, s.name AS sport,
+                                         COUNT(DISTINCT r.id) AS registration_count,
+                                         CASE WHEN COUNT(CASE WHEN r.student_id = %s THEN 1 END) > 0
+                                              THEN TRUE ELSE FALSE END AS registered
+                                  FROM tournaments t
+                                  JOIN sports s ON s.id=t.sport_id
+                                  LEFT JOIN registrations r ON r.tournament_id=t.id
+                                  GROUP BY t.id, s.name ORDER BY t.start_date DESC""",
+                               (session.get("user_id"),))
                 return jsonify(success=True, data=_rows(cursor.fetchall()))
         finally:
             db.close()
@@ -667,6 +845,22 @@ def register_reference_feature_routes(app):
     @app.route("/api/tournaments/<int:tournament_id>/register", methods=["POST"])
     @ALL_USERS
     def fit_track_register_tournament(tournament_id):
+        if session.get("role") != "student":
+            return jsonify(success=False, message="Only students can register for events."), 403
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    "SELECT registration_open FROM tournaments WHERE id=%s",
+                    (tournament_id,),
+                )
+                event = cursor.fetchone()
+                if not event:
+                    return jsonify(success=False, message="Event not found."), 404
+                if not event["registration_open"]:
+                    return jsonify(success=False, message="Registration is closed for this event."), 409
+        finally:
+            db.close()
         data = _body()
         student_id = data.get("student_id") or session.get("user_id")
         if session.get("role") == "student" and student_id != session.get("user_id"):
@@ -772,13 +966,14 @@ def register_reference_feature_routes(app):
         try:
             with db.cursor() as cursor:
                 if request.method == "POST":
-                    if session.get("role") != "admin":
-                        return jsonify(success=False, message="Only admins can publish announcements."), 403
+                    if session.get("role") not in {"admin", "coach"}:
+                        return jsonify(success=False, message="Only admins and coaches can publish announcements."), 403
                     data = _body()
                     error = _required(data, "title", "message")
                     if error:
                         return error
-                    cursor.execute("INSERT INTO announcements (title, message, image_path, created_by) VALUES (%s,%s,%s,%s) RETURNING *", (data["title"], data["message"], data.get("image_path"), session.get("user_id")))
+                    created_by = None if session.get("role") == "admin" else session.get("user_id")
+                    cursor.execute("INSERT INTO announcements (title, message, image_path, created_by) VALUES (%s,%s,%s,%s) RETURNING *", (data["title"], data["message"], data.get("image_path"), created_by))
                     row = _row(cursor.fetchone())
                     _commit(db)
                     return jsonify(success=True, data=row), 201
@@ -789,7 +984,7 @@ def register_reference_feature_routes(app):
 
     @app.route("/api/fit-track/announcements/<int:announcement_id>", methods=["DELETE"])
     @app.route("/api/announcements/<int:announcement_id>", methods=["DELETE"])
-    @ADMIN
+    @STAFF
     def fit_track_delete_announcement(announcement_id):
         db = get_db()
         try:

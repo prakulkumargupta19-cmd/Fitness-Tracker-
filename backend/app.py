@@ -23,6 +23,7 @@ from time import perf_counter
 from uuid import uuid4
 
 from flask import Flask, g, jsonify, request, session
+from flask.sessions import SecureCookieSessionInterface
 from werkzeug.security import check_password_hash, generate_password_hash
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from werkzeug.exceptions import HTTPException
@@ -59,6 +60,26 @@ from reference_features import register_reference_feature_routes  # noqa: E402
 from reference_extensions import register_reference_extension_routes  # noqa: E402
 
 app = Flask(__name__)
+
+
+class PortalSessionInterface(SecureCookieSessionInterface):
+    """Keep simultaneous admin, coach, and student tabs in separate sessions.
+
+    The browser sends the portal role as a cookie selector only. Authorization
+    still comes from the signed session and the database-backed role checks.
+    """
+
+    PORTAL_ROLES = {"admin", "coach", "student"}
+
+    def get_cookie_name(self, app):
+        role = request.headers.get("X-Portal-Role", "").strip().lower()
+        base_name = app.config["SESSION_COOKIE_NAME"]
+        if role in self.PORTAL_ROLES:
+            return f"{base_name}_{role}"
+        return base_name
+
+
+app.session_interface = PortalSessionInterface()
 vercel_environment = os.getenv("VERCEL_ENV", "").strip().lower()
 is_vercel_deployment = vercel_environment in {"preview", "production"}
 is_production = (
@@ -137,7 +158,7 @@ def add_cors_headers(response):
         "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     )
     response.headers["Access-Control-Allow-Headers"] = (
-        "Content-Type, Authorization, X-Requested-With, X-Request-ID"
+        "Content-Type, Authorization, X-Requested-With, X-Request-ID, X-Portal-Role"
     )
     if request.path.startswith("/api/"):
         response.headers["X-Request-ID"] = g.get("request_id", _request_id())
@@ -268,6 +289,16 @@ def _database_health():
     finally:
         if db is not None:
             db.close()
+
+
+@app.route("/api/csrf-token", methods=["GET"])
+def csrf_token():
+    """Provide a session-bound token expected by the frontend request helpers."""
+    token = session.get("csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["csrf_token"] = token
+    return jsonify(success=True, csrf_token=token)
 
 
 @app.route("/api/health", methods=["GET"])
@@ -632,7 +663,7 @@ def login():
 def pending_login_otp():
     user_id = session.get("pending_login_user_id")
     pending_role = session.get("pending_login_role")
-    user = get_user_by_id(user_id) if user_id else None
+    user = get_user_by_id(user_id, pending_role) if user_id else None
     if not user or user.get("role") != pending_role:
         return jsonify({
             "success": False,
@@ -742,7 +773,7 @@ def logout():
 @app.route("/api/auth/me", methods=["GET"])
 @login_required
 def current_session():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user:
         session.clear()
         return jsonify({"success": False, "message": "Session expired."}), 401
@@ -820,7 +851,7 @@ def admin_session():
 @app.route("/api/profile", methods=["GET"])
 @login_required
 def get_profile():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user:
         return jsonify({"success": False, "message": "Session expired."}), 401
     return (
@@ -925,7 +956,7 @@ def _save_student_profile(user_id, data):
 @app.route("/api/profile", methods=["PUT", "PATCH"])
 @login_required
 def update_profile():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user or user["role"] != "student":
         return (
             jsonify(
@@ -993,7 +1024,60 @@ def list_sports():
     db = get_db()
     try:
         with db.cursor() as cursor:
+            # Keep the built-in registration choices available on databases
+            # that were created before the sports catalog was seeded.
+            for name in ("Cricket", "Football", "Basketball", "Volleyball", "Kickboxing", "Badminton", "Athletics"):
+                cursor.execute(
+                    "INSERT INTO sports (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
+                    (name,),
+                )
+            db.commit()
             cursor.execute("SELECT id, name FROM sports ORDER BY name")
+            sports = cursor.fetchall()
+        return jsonify({"success": True, "sports": sports}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/event-sports", methods=["GET"])
+@role_required("admin")
+def list_event_sports():
+    """Sports selected by at least one student during registration."""
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT s.id, s.name, COUNT(DISTINCT u.id) AS student_count
+                   FROM sports s
+                   LEFT JOIN student_sports ss ON ss.sport_id = s.id
+                   LEFT JOIN users u ON u.id = ss.student_id AND u.role = 'student'
+                   GROUP BY s.id, s.name
+                   ORDER BY s.name"""
+            )
+            sports = cursor.fetchall()
+        return jsonify({"success": True, "sports": sports}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/coach/event-sports", methods=["GET"])
+@role_required("coach")
+def list_coach_event_sports():
+    """Sports assigned to this coach, with student counts for event planning."""
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT s.id, s.name, COUNT(DISTINCT u.id) AS student_count
+                   FROM coach_sports cs
+                   JOIN sports s ON s.id = cs.sport_id
+                   LEFT JOIN student_sports ss ON ss.sport_id = s.id
+                   LEFT JOIN users u ON u.id = ss.student_id AND u.role = 'student'
+                   WHERE cs.coach_id = %s
+                   GROUP BY s.id, s.name
+                   ORDER BY s.name""",
+                (session.get("user_id"),),
+            )
             sports = cursor.fetchall()
         return jsonify({"success": True, "sports": sports}), 200
     finally:
@@ -1094,7 +1178,7 @@ def delete_student_sport(sport_id):
 @app.route("/api/profile/setup", methods=["POST"])
 def setup_pending_student_profile():
     user_id = session.get("pending_user_id")
-    user = get_user_by_id(user_id) if user_id else None
+    user = get_user_by_id(user_id, "student") if user_id else None
     if not user or user["role"] != "student":
         return (
             jsonify(
@@ -1117,7 +1201,7 @@ def setup_pending_student_profile():
 @app.route("/api/student/dashboard", methods=["GET"])
 @login_required
 def student_dashboard():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user or user["role"] != "student":
         return jsonify({"success": False, "message": "Student access required."}), 403
     profile = _profile_response(user["id"])
@@ -2035,7 +2119,7 @@ def review_coach_approval(user_id):
 def _set_coach_status(user_id, status):
     if not user_id:
         return jsonify({"success": False, "message": "user_id is required."}), 400
-    user = get_user_by_id(user_id)
+    user = get_user_by_id(user_id, "coach")
     if not user:
         return jsonify({"success": False, "message": "User not found."}), 404
     if user["role"] != "coach":

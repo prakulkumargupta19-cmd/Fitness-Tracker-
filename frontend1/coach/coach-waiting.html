@@ -33,18 +33,6 @@
             text-align: center;
         }
 
-<<<<<<< HEAD
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
-    <script src="../js/config.js"></script>
-    <link rel="stylesheet" href="../css/common/app-theme.css">
-    <link rel="stylesheet" href="../demo/auth.css">
-    <link rel="stylesheet" href="../css/coach/coach-portal.css?v=6">
-</head>
-
-<body data-portal-role="coach">
-=======
         .waiting-content {
             width: min(100%, calc(var(--u) * 36));
             margin: auto 0;
@@ -158,7 +146,6 @@
                 <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
             </div>
         </section>
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
 
         <section class="panel waiting-panel">
             <div class="waiting-content">
@@ -176,56 +163,6 @@
                     </svg>
                 </div>
 
-<<<<<<< HEAD
-<main class="auth">
-    <section class="art">
-        <div class="copy">
-            <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
-            <div class="bar"></div>
-            <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
-        </div>
-    </section>
-
-    <section class="panel waiting-panel">
-        <div class="waiting-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-        </div>
-        <h1>Registration <span>Successful!</span></h1>
-        <p class="sub">Thank you for registering as a coach with the Fitness Performance Tracker. Your registration has been submitted successfully and is currently waiting for admin approval.</p>
-        <div class="status-box">
-            <div class="status-title">Account Status</div>
-            <div class="status">Pending Admin Approval</div>
-        </div>
-        <p class="info">An administrator will review your registration details and approve your account. You will be able to access your coach dashboard once your account has been approved.</p>
-        <a href="../index.html" class="btn back-button">Back to Home <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a>
-    </section>
-</main>
-
-<!-- ADMIN APPROVAL CHECK -->
-<script>
-
-    const coachEmail = sessionStorage.getItem("authEmail");
-
-    async function checkApprovalStatus() {
-        if (!coachEmail) return;
-        const response = await fetch(`${window.FITNESS_API_BASE || ""}/api/coach/status?email=` + encodeURIComponent(coachEmail));
-        const data = await response.json().catch(() => ({}));
-        if (data.success && data.coach_status === "approved") {
-            window.location.href = "coach-login.html";
-        }
-        if (data.success && ["rejected", "declined"].includes(data.coach_status)) {
-            document.querySelector(".status").textContent = "Application Not Approved";
-        }
-    }
-
-    // Check immediately
-    checkApprovalStatus();
-
-    // Check again every 5 seconds
-    setInterval(checkApprovalStatus, 5000);
-
-</script>
-=======
                 <h1>Registration <span>Successful!</span></h1>
 
                 <p class="sub">
@@ -245,7 +182,7 @@
                     has been approved.
                 </p>
 
-                <a href="../mainlading.html" class="btn back-button">
+                <a href="../index.html" class="btn back-button">
                     Back to Home
                     <svg
                         viewBox="0 0 24 24"
@@ -265,7 +202,7 @@
     <script>
         "use strict";
 
-        const coachEmail = sessionStorage.getItem("authEmail");
+        const coachEmail = sessionStorage.getItem("authEmail") || sessionStorage.getItem("coach_email");
         const statusElement = document.getElementById("approvalStatus");
         const infoElement = document.getElementById("approvalInfo");
 
@@ -273,8 +210,9 @@
             if (!coachEmail) return;
 
             try {
+                const apiBase = window.FITNESS_API_BASE || window.APP_CONFIG?.API_BASE || "";
                 const response = await fetch(
-                    `${window.FITNESS_API_BASE || ""}/api/coach/status?email=${encodeURIComponent(coachEmail)}`
+                    `${apiBase}/api/coach/status?email=${encodeURIComponent(coachEmail)}`
                 );
 
                 const data = await response.json().catch(() => ({}));
@@ -295,15 +233,9 @@
                 console.error("Unable to check coach approval status:", error);
             }
         }
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994
 
         checkApprovalStatus();
         setInterval(checkApprovalStatus, 5000);
     </script>
 </body>
-<<<<<<< HEAD
-
 </html>
-=======
-</html>
->>>>>>> c3780dae8f70dfab80cadc982088294b08eeb994

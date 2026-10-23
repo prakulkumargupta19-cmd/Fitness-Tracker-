@@ -29,7 +29,9 @@
    -------
    /api/login
         ↓
-   Direct Flask Session
+   OTP
+        ↓
+   /api/login/verify-otp
         ↓
    Student Dashboard
 
@@ -404,30 +406,16 @@ async function handleLoginForm(form) {
         }
 
 
-        if (returnedRole === "player") {
-            if (pageRole && pageRole !== "student") {
-                throw new Error(
-                    "This account does not belong to this login page."
-                );
-            }
-
-            showAuthMessage(
-                messageElement,
-                "Student login successful. Redirecting...",
-                "success"
-            );
-
-            setTimeout(function () {
-                window.location.href = dashboardForRole("player");
-            }, 300);
-
-            return;
-        }
-
         /*
-         * Administrator sign-in requires an OTP confirmation.
+         * ============================================================
+         * ADMIN / STUDENT OTP FLOW
+         * ============================================================
          */
-        if (returnedRole === "admin") {
+
+        if (
+            returnedRole === "admin" ||
+            returnedRole === "player"
+        ) {
 
             /*
              * Store email temporarily so the OTP page knows
@@ -452,6 +440,12 @@ async function handleLoginForm(form) {
              * that verification is required.
              */
 
+            const otpPage =
+                returnedRole === "admin"
+                    ? "/admin/admin-loginotp.html"
+                    : "/student/student-loginotp.html";
+
+
             showAuthMessage(
                 messageElement,
                 "Verification code sent. Redirecting...",
@@ -463,7 +457,7 @@ async function handleLoginForm(form) {
                 function () {
 
                     window.location.href =
-                        "/admin/admin-loginotp.html";
+                        otpPage;
 
                 },
                 300
@@ -983,6 +977,13 @@ async function setupDashboardProtection() {
 
     const page =
         getPageName();
+
+    if (
+        page === "student-dashboard.html" &&
+        window.APP_CONFIG?.AUTH_BYPASS !== false
+    ) {
+        return;
+    }
 
 
     let requiredRole =

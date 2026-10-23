@@ -128,7 +128,10 @@ def send_email(recipient, subject, body):
 
 
 def send_otp_email(email, name, purpose, otp):
-    action = "password reset" if purpose == "password_reset" else "account verification"
+    action = {
+        "password_reset": "password reset",
+        "login": "login verification",
+    }.get(purpose, "account verification")
     if _test_mode():
         return True
     return send_email(
