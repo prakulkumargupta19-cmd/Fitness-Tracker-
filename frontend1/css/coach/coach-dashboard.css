@@ -148,6 +148,22 @@ textarea:focus-visible {
     background: rgba(255, 255, 255, 0.07);
 }
 
+.sidebar-bottom .sidebar-logout-link {
+    margin-top: 8px;
+    color: #ffd1d1;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+.sidebar-bottom .sidebar-logout-link i {
+    color: #ffb4b4;
+}
+
+.sidebar-bottom .sidebar-logout-link:hover {
+    border-color: rgba(255, 160, 160, 0.28);
+    background: rgba(220, 38, 38, 0.2);
+    color: #fff;
+}
+
 .dashboard {
     min-width: 0;
     min-height: 100vh;
@@ -198,6 +214,20 @@ textarea:focus-visible {
 .date-display {
     display: flex;
     align-items: center;
+}
+
+.topbar-page-title {
+    margin-left: 16px;
+    color: var(--coach-ink);
+    font-size: clamp(16px, 1.4vw, 20px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+.content > .section > .page-heading {
+    display: none;
 }
 
 .date-display {
@@ -982,6 +1012,54 @@ textarea:focus-visible {
     resize: vertical;
 }
 
+#performanceDialog label:has(#feedbackCharacterCount) textarea {
+    min-height: 150px;
+    padding: 12px 13px;
+    line-height: 1.6;
+}
+
+.feedback-character-count {
+    display: block;
+    margin-top: 7px;
+    color: var(--coach-muted);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.performance-form-status {
+    margin: 14px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff5f5;
+    color: #9f2525;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.performance-form-status[hidden] { display: none; }
+.dialog-actions button:disabled { cursor: wait; opacity: .65; }
+
+.feedback-save-toast {
+    position: fixed;
+    z-index: 10000;
+    right: 24px;
+    bottom: 24px;
+    max-width: min(360px, calc(100vw - 32px));
+    padding: 13px 17px;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px;
+    background: #10244f;
+    color: #fff;
+    box-shadow: 0 14px 36px rgba(16,36,79,.25);
+    font-size: 12px;
+    font-weight: 750;
+    animation: feedback-toast-in .2s ease-out;
+}
+
+@keyframes feedback-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
 .dialog-actions {
     display: flex;
     justify-content: flex-end;
@@ -1117,4 +1195,90 @@ textarea:focus-visible {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* Keep the coach portal in the same slate-and-blue visual family as the
+   student and admin dashboards while retaining its existing coach layout. */
+:root {
+    --coach-blue: #2563eb;
+    --coach-blue-deep: #1d4ed8;
+    --coach-ink: #172033;
+    --coach-muted: #718096;
+    --coach-line: #e7ebf2;
+    --coach-canvas: #f5f7fb;
+}
+
+body {
+    background: var(--coach-canvas);
+    color: var(--coach-ink);
+}
+
+.sidebar {
+    background: #111827;
+    box-shadow: 8px 0 28px rgba(15, 23, 42, 0.09);
+}
+
+.brand-icon {
+    border-color: rgba(96, 165, 250, 0.28);
+    background: rgba(37, 99, 235, 0.16);
+    color: #93c5fd;
+}
+
+.brand-name span {
+    color: #60a5fa;
+}
+
+.brand-subtitle,
+.menu-title {
+    color: #9ca3af;
+}
+
+.nav-button {
+    border-radius: 9px;
+    color: #cbd5e1;
+}
+
+.nav-button i {
+    color: #9ca3af;
+}
+
+.nav-button:hover,
+.nav-button.active {
+    border-color: transparent;
+    background: #202b3f;
+    color: #fff;
+}
+
+.nav-button:hover i,
+.nav-button.active i {
+    color: #60a5fa;
+}
+
+.sidebar-bottom {
+    border-top-color: rgba(203, 213, 225, 0.14);
+}
+
+.topbar {
+    min-height: 76px;
+    border-bottom: 1px solid #e7ebf2;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.025);
+}
+
+.hero {
+    border-color: rgba(37, 99, 235, 0.16);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 85% 12%, rgba(96, 165, 250, 0.25), transparent 34%),
+        linear-gradient(115deg, #172554 0%, #1e40af 65%, #2563eb 100%);
+    box-shadow: 0 14px 32px rgba(37, 99, 235, 0.12);
+}
+
+.dashboard-chat-launcher {
+    background: #2563eb;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+
+.dashboard-chat-launcher:hover {
+    background: #1d4ed8;
 }

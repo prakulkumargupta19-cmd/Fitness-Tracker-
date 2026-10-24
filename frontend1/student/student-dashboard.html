@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Performance Dashboard | Fitness Tracker</title>
+    <title>Fit Track | Student Dashboard</title>
 
     <!-- Bootstrap -->
     <link
@@ -26,6 +26,11 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/common/announcements-panel.css">
+    <link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
+    <link rel="stylesheet" href="../css/common/dashboard-schedule.css">
+    <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
+    <link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
 
     <style>
         :root {
@@ -47,6 +52,13 @@
 
           --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
         }
+
+        body { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
+        body * { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
+        body *::-webkit-scrollbar { width: 4px; height: 4px; }
+        body *::-webkit-scrollbar-track { background: transparent; }
+        body *::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 99px; background: rgba(100, 116, 139, .1); background-clip: padding-box; }
+        body.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .12); background-clip: padding-box; }
 
         * {
           box-sizing: border-box;
@@ -71,7 +83,6 @@
 
         button {
           cursor: pointer;
-          border: none;
         }
 
         /* =========================
@@ -390,6 +401,9 @@
         .topbar-page-title {
           font-size: 19px;
           font-weight: 800;
+          line-height: 1.2;
+          color: var(--ink);
+          white-space: nowrap;
         }
 
         .topbar-page-subtitle {
@@ -854,6 +868,7 @@
         .page-heading { margin-bottom: 22px; }
         .page-heading h1 { margin: 0; font-size: 28px; font-weight: 800; }
         .page-heading p { margin-top: 6px; color: var(--muted); font-size: 11px; }
+        .main-content .content-section > .page-heading { display: none; }
 
         .dashboard-card {
           background: white;
@@ -1004,35 +1019,65 @@
         /* =========================
            FEEDBACK SECTION
         ========================= */
-        .feedback-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 18px; }
-        @media (max-width: 991px) { .feedback-grid { grid-template-columns: 1fr; } }
-
-        .feedback-main { display: flex; flex-direction: column; justify-content: space-between; }
-        .feedback-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .feedback-avatar {
-          width: 40px; height: 40px; border-radius: 11px; background: #eaf2ff; color: #2563eb;
-          font-size: 16px; display: flex; align-items: center; justify-content: center;
+        .feedback-view { display: grid; gap: 20px; }
+        .feedback-view .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+        .feedback-hero {
+          position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center;
+          justify-content: space-between; gap: 24px; min-height: 210px; padding: clamp(24px, 4vw, 42px);
+          border-radius: 24px; color: #fff; background: linear-gradient(118deg, #10244f 0%, #174a9c 57%, #3679d7 100%);
+          box-shadow: 0 20px 44px rgba(23, 74, 156, .2);
         }
-        .feedback-header span { font-size: 9px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-        .feedback-header strong { display: block; font-size: 12px; font-weight: 800; }
-        .feedback-text { font-size: 11px; color: #334155; line-height: 1.6; margin-bottom: 18px; }
-
-        .rating-box {
-          background: #f8fafc; border: 1px solid var(--border); border-radius: 11px; padding: 12px 16px;
-          display: flex; align-items: center; gap: 14px;
-        }
-        .rating-box strong { font-size: 24px; font-weight: 800; color: #2563eb; line-height: 1; }
-        .stars { color: #f59e0b; font-size: 11px; letter-spacing: 1px; }
-        .rating-box span { font-size: 9px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-
-        .feedback-list { list-style: none; padding: 0; margin: 0; }
-        .feedback-list li {
-          display: flex; align-items: center; gap: 8px; font-size: 10px; color: #334155;
-          padding: 9px 0; border-bottom: 1px solid var(--border);
-        }
-        .feedback-list li:last-child { border-bottom: none; }
-        .feedback-list li i { color: #16a34a; font-size: 13px; }
-        .improvement-list li i { color: #f59e0b; }
+        .feedback-hero::before,.feedback-hero::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; }
+        .feedback-hero::before { width: 320px; height: 320px; right: 13%; top: -210px; background: rgba(112, 190, 255, .16); }
+        .feedback-hero::after { width: 240px; height: 240px; right: -80px; bottom: -150px; background: rgba(255, 255, 255, .1); }
+        .feedback-hero-copy { max-width: 670px; }
+        .feedback-hero-kicker { display: inline-flex; align-items: center; gap: 8px; color: #b9dcff; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+        .feedback-hero h2 { margin: 14px 0 9px; color: #fff; font-size: clamp(24px, 3vw, 34px); line-height: 1.12; letter-spacing: -.035em; }
+        .feedback-hero-copy > p { max-width: 560px; margin: 0; color: rgba(240, 247, 255, .82); font-size: 13px; line-height: 1.7; }
+        .feedback-coach-chip { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 9px 14px 9px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(255,255,255,.1); }
+        .feedback-coach-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #c3e4ff; color: #163c78; font-size: 13px; font-weight: 900; }
+        .feedback-coach-chip span { display: block; color: #b9dcff; font-size: 8px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .feedback-coach-chip strong { display: block; margin-top: 2px; color: #fff; font-size: 11px; }
+        .feedback-coach-chip small { display: block; margin-top: 2px; color: rgba(240, 247, 255, .76); font-size: 9px; }
+        .feedback-hero-rating { flex: 0 0 160px; display: grid; justify-items: center; gap: 5px; padding: 18px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 18px; background: rgba(6, 24, 61, .2); backdrop-filter: blur(8px); }
+        .feedback-hero-rating > span { color: #d6eaff; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .feedback-hero-rating strong { color: #fff; font-size: 40px; line-height: 1; letter-spacing: -.05em; }
+        .feedback-hero-rating small { color: #ffcf70; font-size: 13px; letter-spacing: 2px; }
+        .feedback-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .feedback-stat { display: flex; align-items: center; gap: 13px; min-width: 0; padding: 17px 18px; border: 1px solid var(--border, #e6ebf3); border-radius: 16px; background: var(--card, #fff); box-shadow: 0 7px 20px rgba(17, 35, 67, .04); }
+        .feedback-stat-icon { display: grid; flex: 0 0 40px; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #edf5ff; color: #2463c5; font-size: 16px; }
+        .feedback-stat span { display: block; color: var(--muted, #718096); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .feedback-stat strong { display: block; overflow: hidden; margin-top: 4px; color: var(--text, #172033); font-size: 17px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+        .feedback-content-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(230px, .8fr); gap: 16px; }
+        .feedback-panel { min-width: 0; padding: 22px; border: 1px solid var(--border, #e6ebf3); border-radius: 18px; background: var(--card, #fff); box-shadow: 0 8px 24px rgba(17, 35, 67, .045); }
+        .feedback-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+        .feedback-panel-heading h3 { margin: 0; color: var(--text, #172033); font-size: 15px; font-weight: 850; }
+        .feedback-date-pill { padding: 6px 9px; border-radius: 999px; background: #eef5ff; color: #2559a8; font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .feedback-latest-copy { margin: 0; color: var(--text, #26344a); font-size: 14px; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .feedback-guidance { background: linear-gradient(145deg, #f4f8ff, #edf5ff); }
+        .feedback-guidance .feedback-panel-heading i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #dceaff; color: #2563c5; }
+        .feedback-guidance p { margin: 0 0 14px; color: #53647d; font-size: 12px; line-height: 1.7; }
+        .feedback-guidance ol { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: feedback-step; }
+        .feedback-guidance li { display: flex; align-items: flex-start; gap: 10px; color: #30435e; font-size: 11px; line-height: 1.55; counter-increment: feedback-step; }
+        .feedback-guidance li::before { content: counter(feedback-step, decimal-leading-zero); flex: 0 0 24px; color: #2d69c4; font-size: 9px; font-weight: 900; }
+        .feedback-history-panel { padding: 22px; border: 1px solid var(--border, #e6ebf3); border-radius: 18px; background: var(--card, #fff); box-shadow: 0 8px 24px rgba(17, 35, 67, .045); }
+        .feedback-history-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 15px; }
+        .feedback-history-head h3 { margin: 0; color: var(--text, #172033); font-size: 16px; font-weight: 850; }
+        .feedback-history-head p { margin: 5px 0 0; color: var(--muted, #718096); font-size: 11px; }
+        .feedback-search { width: min(260px, 100%); min-height: 40px; padding: 0 13px; border: 1px solid var(--border, #dbe3ef); border-radius: 10px; background: var(--card, #fff); color: var(--text, #172033); font: inherit; font-size: 11px; }
+        .feedback-search:focus { outline: 3px solid rgba(37, 99, 235, .14); border-color: #4b83dc; }
+        .feedback-history-list { display: grid; gap: 10px; }
+        .feedback-history-item { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 15px; border: 1px solid var(--border, #e8edf5); border-radius: 13px; background: var(--card, #fff); }
+        .feedback-history-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #edf5ff; color: #2463c5; }
+        .feedback-history-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 12px; margin-bottom: 7px; color: var(--muted, #718096); font-size: 9px; font-weight: 750; }
+        .feedback-history-copy { margin: 0; color: var(--text, #334155); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .feedback-history-rating { color: #a86600; font-size: 10px; font-weight: 850; white-space: nowrap; }
+        .feedback-empty { padding: 26px 18px; border: 1px dashed #cbd7e7; border-radius: 14px; color: var(--muted, #718096); text-align: center; font-size: 12px; line-height: 1.7; }
+        .feedback-load-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px 14px; border: 1px solid #fecaca; border-radius: 11px; background: #fff7f7; color: #9f2525; font-size: 11px; }
+        .feedback-load-error[hidden] { display: none; }
+        .feedback-load-error button { padding: 7px 11px; border: 0; border-radius: 8px; background: #9f2525; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+        @media (max-width: 900px) { .feedback-content-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 650px) { .feedback-hero { align-items: flex-start; flex-direction: column; }.feedback-hero-rating { grid-template-columns: auto auto auto; justify-items: start; align-items: center; width: 100%; padding: 12px 14px; }.feedback-hero-rating strong { font-size: 27px; }.feedback-stats { grid-template-columns: 1fr; }.feedback-history-head { align-items: stretch; flex-direction: column; }.feedback-search { width: 100%; }.feedback-panel,.feedback-history-panel { padding: 17px; } }
 
         /* =========================
            CHATGPT PROFILE CARD (Without Photo Upload)
@@ -1136,12 +1181,12 @@
 
     <div class="sidebar-brand">
         <div class="brand-icon logo-brand-icon">
-            <img src="data:image/png;base64,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" alt="Sports Hub Logo" class="sports-hub-logo">
+            <img src="../logo.png" alt="Fit Track Logo" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain;">
         </div>
 
         <div>
             <div class="brand-title">
-                FITNESS <span>TRACKER</span>
+                Fit <span>Track</span>
             </div>
             <div class="brand-subtitle">
                 STUDENT PORTAL
@@ -1159,7 +1204,7 @@
     </div>
 
     <div class="sidebar-label">
-        MAIN MENU
+        WORKSPACE
     </div>
 
     <nav class="sidebar-nav">
@@ -1210,6 +1255,24 @@
         >
             <i class="bi bi-chat-left-text-fill"></i>
             <span>Coach Feedback</span>
+        </button>
+
+        <button
+            class="sidebar-link"
+            data-section="announcements"
+        >
+            <i class="bi bi-megaphone-fill"></i>
+            <span>Announcements</span>
+        </button>
+
+        <button class="sidebar-link" data-section="events">
+            <i class="bi bi-calendar-event-fill"></i>
+            <span>Events &amp; Calendar</span>
+        </button>
+
+        <button class="sidebar-link" data-section="schedule">
+            <i class="bi bi-calendar3"></i>
+            <span>Schedule</span>
         </button>
 
         <div class="sidebar-label mt-4">
@@ -1287,15 +1350,7 @@
                 <i class="bi bi-list"></i>
             </button>
 
-            <div>
-                <div class="topbar-page-title" id="currentPageTitle">
-                    Dashboard
-                </div>
-
-                <div class="topbar-page-subtitle">
-                    Student Performance Portal
-                </div>
-            </div>
+            <div class="topbar-page-title" id="currentPageTitle">Dashboard</div>
 
         </div>
 
@@ -1677,6 +1732,17 @@
 
                 </div>
 
+            </section>
+
+            <section id="events" class="content-section">
+                <div class="page-heading"><div><div class="eyebrow">EVENTS &amp; CALENDAR</div><h1>Events &amp; Calendar</h1><p>Browse upcoming events, view details and register to participate.</p></div></div>
+                <div id="dashboardEventsPanel" class="announcement-panel"></div>
+            </section>
+
+            <section id="schedule" class="content-section" aria-labelledby="scheduleHeading">
+                <div class="page-heading">
+                    <div><div class="eyebrow">SHARED CALENDAR</div><h1 id="scheduleHeading">Schedule</h1><p>See your upcoming practices, assessments and events.</p></div>
+                </div>
             </section>
 
 
@@ -2294,108 +2360,79 @@
                  FEEDBACK
             ================================================== -->
 
+            <section id="feedback" class="content-section">
+                <div class="feedback-view">
+                    <div class="feedback-hero">
+                        <div class="feedback-hero-copy">
+                            <span class="feedback-hero-kicker"><i class="bi bi-stars"></i> Your coaching journey</span>
+                            <h2>Feedback that moves you forward</h2>
+                            <p>Review your coach’s notes, track ratings over time, and use each observation to focus your next training session.</p>
+                            <div class="feedback-coach-chip">
+                                <div class="feedback-coach-avatar" id="feedbackCoachAvatar">C</div>
+                                <div><span>Your coach</span><strong id="feedbackCoachName">No coach assigned</strong><small id="feedbackCoachMeta"></small></div>
+                            </div>
+                        </div>
+                        <div class="feedback-hero-rating" aria-label="Latest coach rating">
+                            <span>Latest rating</span>
+                            <strong id="coachRatingNumber">—</strong>
+                            <small id="coachRatingStars" aria-label="No rating">☆☆☆☆☆</small>
+                        </div>
+                    </div>
+
+                    <div id="feedbackLoadError" class="feedback-load-error" role="alert" hidden>
+                        <span id="feedbackLoadErrorText">Feedback could not be loaded.</span>
+                        <button type="button" id="feedbackRetryButton">Try again</button>
+                    </div>
+
+                    <div class="feedback-stats" aria-label="Feedback summary">
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-chat-square-text"></i></div><div><span>Coach notes</span><strong id="feedbackCount">0</strong></div></div>
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-calendar-check"></i></div><div><span>Most recent</span><strong id="feedbackLatestDate">—</strong></div></div>
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-graph-up-arrow"></i></div><div><span>Average rating</span><strong id="feedbackAverageRating">—</strong></div></div>
+                    </div>
+
+                    <div class="feedback-content-grid">
+                        <article class="feedback-panel">
+                            <div class="feedback-panel-heading"><h3>Latest feedback</h3><span class="feedback-date-pill" id="feedbackLatestBadge">Waiting for feedback</span></div>
+                            <p class="feedback-latest-copy" id="coachFeedbackText" aria-live="polite">Your coach’s notes will appear here.</p>
+                        </article>
+                        <aside class="feedback-panel feedback-guidance">
+                            <div class="feedback-panel-heading"><h3>Make it actionable</h3><i class="bi bi-lightbulb"></i></div>
+                            <p>Use your coach’s notes as a practical focus for your next session.</p>
+                            <ol><li>Pick one cue from the feedback.</li><li>Apply it during your next workout.</li><li>Ask your coach about anything unclear.</li></ol>
+                        </aside>
+                    </div>
+
+                    <section class="feedback-history-panel" aria-labelledby="feedbackHistoryTitle">
+                        <div class="feedback-history-head"><div><h3 id="feedbackHistoryTitle">Feedback history</h3><p id="feedbackHistoryCount">Your coach’s notes, newest first</p></div><input class="feedback-search" id="feedbackSearch" type="search" placeholder="Search feedback" aria-label="Search feedback"></div>
+                        <div class="feedback-history-list" id="feedbackHistory" aria-live="polite"><div class="feedback-empty">Loading your feedback…</div></div>
+                    </section>
+                    <p id="assignedCoachDisplay" class="sr-only"></p>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 ANNOUNCEMENTS
+            ================================================== -->
+
             <section
-                id="feedback"
+                id="announcements"
                 class="content-section"
             >
 
                 <div class="page-heading">
 
                     <div>
-                        <div class="eyebrow">
-                            COACHING
-                        </div>
-
-                        <h1>Coach Feedback</h1>
-
-                        <p>
-                            Review observations and recommendations
-                            from your coaching team.
-                        </p>
+                        <div class="eyebrow">CAMPUS NOTICEBOARD</div>
+                        <h1>Announcements</h1>
+                        <p>View important updates and notices from coaches and administrators.</p>
                     </div>
 
                 </div>
 
-
-                <div class="dashboard-card" style="margin-bottom:18px">
-                    <strong>Assigned coach</strong>
-                    <p id="assignedCoachDisplay" style="margin:8px 0 0">No coach assigned yet.</p>
-                </div>
-
-                <div class="feedback-grid">
-
-                    <div class="dashboard-card feedback-main">
-
-                        <div class="feedback-header">
-                            <div class="feedback-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-
-                            <div>
-                                <span>Overall Feedback</span>
-                                <strong>Recent Coach Assessment</strong>
-                            </div>
-                        </div>
-
-                        <p
-                            class="feedback-text"
-                            id="coachFeedbackText"
-                        >
-                            No coach feedback yet.
-                        </p>
-
-                        <div class="rating-box">
-
-                            <strong id="coachRatingNumber">
-                                -
-                            </strong>
-
-                            <div>
-                                <div
-                                    class="stars"
-                                    id="coachRatingStars"
-                                >
-                                    No rating
-                                </div>
-
-                                <span>
-                                    Coach rating
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-                            <h3>Your Strengths</h3>
-                        </div>
-
-                        <ul
-                            class="feedback-list"
-                            id="coachStrengthsList"
-                        ></ul>
-
-                    </div>
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-                            <h3>Areas to Improve</h3>
-                        </div>
-
-                        <ul
-                            class="feedback-list improvement-list"
-                            id="coachImprovementsList"
-                        ></ul>
-
-                    </div>
-
-                </div>
+                <div
+                    id="announcementsPanel"
+                    class="announcement-panel"></div>
 
             </section>
 
@@ -2692,11 +2729,11 @@
             <div class="footer-brand">
 
                 <div class="footer-logo logo-brand-icon">
-                    <img src="data:image/png;base64,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" alt="Sports Hub Logo" class="sports-hub-logo footer-sports-logo">
+                    <img src="../logo.png" alt="Fit Track Logo" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain;">
                 </div>
 
                 <div>
-                    <strong>SPORTS HUB</strong>
+                    <strong>Fit Track</strong>
                     <span>
                         SPORTS MANAGEMENT DEPARTMENT
                     </span>
@@ -3170,64 +3207,33 @@ updateProfileHeaderUI();
 ========================================================= */
 
 async function checkStudentSession() {
+    const cfg = window.APP_CONFIG || {};
+    if (cfg.AUTH_BYPASS === true) return true;
 
     try {
-
-        const response =
-            await fetch(
-                `${API_BASE_URL}/session`,
-                {
-                    method: "GET",
-                    credentials: "include"
-                }
-            );
-
-
-        if (!response.ok) {
-            return false;
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            data.authenticated &&
-            data.user &&
-            data.user.role === "student"
-        ) {
-
-            studentName =
-                data.user.name ||
-                studentName;
-
-            studentEmail =
-                data.user.email ||
-                studentEmail;
-
-
-            updateProfileHeaderUI();
-
-            updateStudentProfile(
-                data.user
-            );
-
-            return true;
-        }
-
-
-        return false;
-
-    } catch (error) {
-
-        console.error(
-            "Session check failed:",
-            error
+        const response = await fetch(
+            `${API_BASE_URL}/session`,
+            {
+                method: "GET",
+                credentials: "include"
+            }
         );
 
-        return false;
+        if (response.ok) {
+            const data = await response.json();
+            if (data.authenticated && data.user && data.user.role === "student") {
+                studentName = data.user.name || studentName;
+                studentEmail = data.user.email || studentEmail;
+                updateProfileHeaderUI();
+                updateStudentProfile(data.user);
+                return true;
+            }
+        }
+    } catch (error) {
+        console.warn("Session check offline:", error);
     }
+
+    return false;
 }
 
 
@@ -3544,54 +3550,60 @@ function initCharts() {
 ========================================================= */
 
 async function fetchDashboardData() {
+    let data = null;
+    let assessmentRows = [];
+    let trainingRows = [];
+    let goalRows = [];
+    let feedbackRows = [];
+    let feedbackLoadError = "";
 
     try {
+        const response = await fetch(`${API_BASE_URL}/student/dashboard`, {
+            method: "GET",
+            credentials: "include"
+        });
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/student/dashboard`,
-                {
-                    method: "GET",
-                    credentials: "include"
-                }
-            );
-
-
-        if (!response.ok) {
-            return;
+        if (response.ok) {
+            data = await response.json();
+            const [assessments, training, goals, feedback] = await Promise.all([
+                fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/training-sessions`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/goals`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/feedback`, { credentials: "include" }).then(async response => {
+                    if (!response.ok) {
+                        let message = "Your coach feedback could not be loaded.";
+                        try { message = (await response.json()).message || message; } catch (_) {}
+                        throw new Error(message);
+                    }
+                    return response.json();
+                }).catch(error => ({ __error: error.message || "Your coach feedback could not be loaded. Please try again." }))
+            ]);
+            assessmentRows = assessments.data || [];
+            trainingRows = training.data || [];
+            goalRows = goals.data || [];
+            if (feedback.__error) feedbackLoadError = feedback.__error;
+            else feedbackRows = feedback.data || [];
         }
+    } catch (err) {
+        console.warn("Dashboard data could not be loaded:", err);
+        feedbackLoadError = "We couldn’t connect to your account to load feedback. Check your connection and try again.";
+    }
 
+    if (!data) return;
 
-        const data =
-            await response.json();
-
-
-        updateStudentProfile(data);
-        updateAttendanceView(data.attendance || {});
-        const assignedCoach = data.assigned_coach;
-        document.getElementById("assignedCoachDisplay").textContent = assignedCoach
-            ? `${assignedCoach.full_name}${assignedCoach.specialization ? ` · ${assignedCoach.specialization}` : ""}${assignedCoach.contact_number ? ` · ${assignedCoach.contact_number}` : ""}`
-            : "No coach assigned yet.";
-
-        const [assessments, training, goals, feedback] = await Promise.all([
-            fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(response => response.json()),
-            fetch(`${API_BASE_URL}/training-sessions`, { credentials: "include" }).then(response => response.json()),
-            fetch(`${API_BASE_URL}/goals`, { credentials: "include" }).then(response => response.json()),
-            fetch(`${API_BASE_URL}/feedback`, { credentials: "include" }).then(response => response.json())
-        ]);
-        const assessmentRows = assessments.data || [];
-        const trainingRows = training.data || [];
-        const goalRows = goals.data || [];
-        const feedbackRows = feedback.data || [];
+    updateStudentProfile(data);
+    updateAttendanceView(data.attendance || {});
+    const assignedCoach = data.assigned_coach;
+    document.getElementById("assignedCoachDisplay").textContent = assignedCoach
+        ? `${assignedCoach.full_name}${assignedCoach.specialization ? ` · ${assignedCoach.specialization}` : ""}${assignedCoach.contact_number ? ` · ${assignedCoach.contact_number}` : ""}`
+        : "No coach assigned yet.";
         renderLiveRecords("analytics", "assessmentRecords", "Physical Assessments", assessmentRows,
             ["assessment_date", "overall_score", "speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "notes"]);
         renderLiveRecords("improvement", "trainingRecords", "Training History", trainingRows,
             ["session_date", "training_type", "duration_minutes", "description", "performance_notes"]);
         renderLiveRecords("goals", "goalRecords", "My Goals", goalRows,
             ["title", "description", "target_value", "current_value", "target_date", "status"]);
-        renderLiveRecords("feedback", "feedbackRecords", "Coach Feedback", feedbackRows,
-            ["feedback", "rating", "created_at"]);
-        renderFeedbackView(feedbackRows);
+        renderFeedbackView(feedbackRows, assignedCoach, feedbackLoadError);
         const scores = assessmentRows.map(row => Number(row.overall_score)).filter(Number.isFinite);
         const overallScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "-";
         document.getElementById("overallScore").textContent = overallScore;
@@ -3602,15 +3614,6 @@ async function fetchDashboardData() {
         document.getElementById("dashboardCoachRating").textContent = feedbackRows.find(row => row.rating !== null && row.rating !== undefined)?.rating ?? "-";
         document.getElementById("goalCalendarDays")?.replaceChildren();
         updateAssessmentCharts(assessmentRows);
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard data error:",
-            error
-        );
-
-    }
 }
 
 function updateAssessmentCharts(records) {
@@ -3718,16 +3721,82 @@ function updateAttendanceView(attendance) {
     if (!history.childElementCount) history.textContent = "No attendance recorded yet.";
 }
 
-function renderFeedbackView(records) {
-    const latest = records[0];
-    document.getElementById("coachFeedbackText").textContent = latest?.feedback || "No coach feedback yet.";
-    document.getElementById("coachRatingNumber").textContent = latest?.rating ?? "-";
-    document.getElementById("coachRatingStars").textContent = latest?.rating
-        ? "★".repeat(Math.min(5, Number(latest.rating)))
-        : "No rating";
-    document.getElementById("coachStrengthsList").replaceChildren();
-    document.getElementById("coachImprovementsList").replaceChildren();
+function renderFeedbackView(records, assignedCoach, loadError = "") {
+    const rows = Array.isArray(records) ? records : [];
+    window.studentFeedbackRows = rows;
+    const latest = rows[0];
+    const rated = rows.map(row => Number(row.rating)).filter(rating => Number.isInteger(rating) && rating >= 1 && rating <= 5);
+    const average = rated.length ? (rated.reduce((sum, rating) => sum + rating, 0) / rated.length).toFixed(1) : "—";
+    const coachName = latest?.coach_name || assignedCoach?.full_name || "No coach assigned";
+    const coachSpecialization = latest?.coach_specialization || assignedCoach?.specialization || "";
+    const coachNameNode = document.getElementById("feedbackCoachName");
+    coachNameNode.textContent = coachName;
+    document.getElementById("feedbackCoachAvatar").textContent = coachName !== "No coach assigned" ? coachName.trim().charAt(0).toUpperCase() : "C";
+    document.getElementById("feedbackCoachMeta").textContent = coachSpecialization;
+    document.getElementById("feedbackCount").textContent = String(rows.length);
+    document.getElementById("feedbackLatestDate").textContent = latest ? formatFeedbackDate(latest.created_at) : "—";
+    document.getElementById("feedbackAverageRating").textContent = average === "—" ? "—" : `${average} / 5`;
+    document.getElementById("coachFeedbackText").textContent = latest?.feedback || (loadError ? "Feedback is temporarily unavailable." : "Your coach’s notes will appear here when they leave feedback.");
+    const rating = Number(latest?.rating);
+    document.getElementById("coachRatingNumber").textContent = Number.isInteger(rating) && rating >= 1 && rating <= 5 ? `${rating}/5` : "—";
+    const stars = Number.isInteger(rating) && rating >= 1 && rating <= 5 ? "★".repeat(rating) + "☆".repeat(5 - rating) : "☆☆☆☆☆";
+    document.getElementById("coachRatingStars").textContent = stars;
+    document.getElementById("coachRatingStars").setAttribute("aria-label", Number.isInteger(rating) && rating >= 1 && rating <= 5 ? `${rating} out of 5 stars` : "No rating yet");
+    document.getElementById("feedbackLatestBadge").textContent = latest ? formatFeedbackDate(latest.created_at) : "Waiting for feedback";
+    document.getElementById("feedbackHistoryCount").textContent = `${rows.length} ${rows.length === 1 ? "note" : "notes"} · newest first`;
+    const errorBox = document.getElementById("feedbackLoadError");
+    errorBox.hidden = !loadError;
+    if (loadError) document.getElementById("feedbackLoadErrorText").textContent = loadError;
+    renderFeedbackHistory(rows, document.getElementById("feedbackSearch").value);
 }
+
+function formatFeedbackDate(value) {
+    if (!value) return "Date unavailable";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
+function renderFeedbackHistory(records, query = "") {
+    const list = document.getElementById("feedbackHistory");
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const matches = records.filter(row => !normalizedQuery || `${row.feedback || ""} ${row.coach_name || ""}`.toLocaleLowerCase().includes(normalizedQuery));
+    list.replaceChildren();
+    if (!matches.length) {
+        const empty = document.createElement("div");
+        empty.className = "feedback-empty";
+        empty.textContent = records.length ? "No feedback matches your search." : "There’s no feedback yet. Your coach’s notes will show up here after they’re shared.";
+        list.appendChild(empty);
+        return;
+    }
+    matches.forEach(row => {
+        const article = document.createElement("article");
+        article.className = "feedback-history-item";
+        const icon = document.createElement("div");
+        icon.className = "feedback-history-icon";
+        icon.innerHTML = '<i class="bi bi-chat-left-text"></i>';
+        const content = document.createElement("div");
+        const meta = document.createElement("div");
+        meta.className = "feedback-history-meta";
+        const date = document.createElement("span");
+        date.textContent = formatFeedbackDate(row.created_at);
+        const coach = document.createElement("span");
+        coach.textContent = row.coach_name || "Coach";
+        meta.append(date, coach);
+        const note = document.createElement("p");
+        note.className = "feedback-history-copy";
+        note.textContent = row.feedback || "No written feedback provided.";
+        content.append(meta, note);
+        const rating = document.createElement("span");
+        rating.className = "feedback-history-rating";
+        const score = Number(row.rating);
+        rating.textContent = Number.isInteger(score) && score >= 1 && score <= 5 ? `★ ${score}/5` : "No rating";
+        article.append(icon, content, rating);
+        list.appendChild(article);
+    });
+}
+
+document.getElementById("feedbackSearch")?.addEventListener("input", event => renderFeedbackHistory(window.studentFeedbackRows || [], event.currentTarget.value));
+document.getElementById("feedbackRetryButton")?.addEventListener("click", () => fetchDashboardData());
 
 
 /* =========================================================
@@ -3754,6 +3823,12 @@ const sectionTitles = {
     feedback:
         "Coach Feedback",
 
+    events:
+        "Events & Calendar",
+
+    schedule:
+        "Schedule",
+
     "profile-view":
         "My Profile",
 
@@ -3762,6 +3837,19 @@ const sectionTitles = {
 
 };
 
+
+function mountStudentAnnouncements() {
+    const root = document.querySelector("#announcementsPanel");
+    if (!root) return;
+    if (!window.AnnouncementsPanel) {
+        root.innerHTML = '<div class="announcement-empty error">Announcements could not load. Refresh the page and try again.</div>';
+        return;
+    }
+    window.AnnouncementsPanel.mount({
+        root,
+        canManage: false
+    });
+}
 
 function switchSection(sectionId) {
 
@@ -3842,6 +3930,13 @@ function switchSection(sectionId) {
             100
         );
 
+    }
+
+    if (sectionId === "announcements") {
+        mountStudentAnnouncements();
+    }
+    if (sectionId === "events") {
+        window.DashboardEvents?.mount({ root: "#dashboardEventsPanel", role: "student" });
     }
 
 }
@@ -4022,6 +4117,8 @@ function applyTheme(isDark) {
             ? "dark"
             : "light"
     );
+
+    localStorage.setItem("fit-track-theme", isDark ? "dark" : "light");
 
 
     initCharts();
@@ -4219,7 +4316,9 @@ document.addEventListener(
 
         const authenticated = await checkStudentSession();
         if (!authenticated) {
-            window.location.replace("student-login.html");
+            if (window.APP_CONFIG?.AUTH_BYPASS === false) {
+                window.location.replace("student-login.html");
+            }
             return;
         }
 
@@ -4232,9 +4331,20 @@ document.addEventListener(
     }
 );
 
+document.querySelector('[data-section="schedule"]')?.addEventListener("click", () => {
+    window.DashboardSchedule?.mount({ root: "#schedule", role: "student" });
+});
+
 </script>
 
 <script src="../js/auth-flow.js"></script>
+<script src="../js/api-client.js"></script>
+<script src="../js/announcements-panel.js"></script>
+<script src="../js/dashboard-chrome.js"></script>
+<script src="../js/dashboard-events.js?v=event-calendar-6"></script>
+<script src="../js/dashboard-schedule.js"></script>
+<script src="../js/dashboard-chat.js"></script>
+<script>window.DashboardEvents?.mount({ root: "#dashboardEventsPanel", role: "student" });</script>
 
 </body>
 </html>

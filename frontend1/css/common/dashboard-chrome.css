@@ -1,0 +1,331 @@
+.dashboard-chrome-controls{display:flex;align-items:center;gap:10px;margin-right:14px;position:relative;z-index:30}.chrome-icon-button{position:relative;width:42px;height:42px;border:1px solid #dce5f3;border-radius:13px;background:#fff;color:#31527e;display:grid;place-items:center;font-size:17px;transition:transform .18s ease,background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}.chrome-icon-button:hover{transform:translateY(-1px);background:#eff6ff;border-color:#a9c7ff;color:#155eef;box-shadow:0 7px 18px #2563eb1a}.chrome-icon-button:focus-visible,.notification-view-all:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}.notification-wrap{position:relative}.notification-count{position:absolute;right:-5px;top:-5px;min-width:19px;height:19px;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;line-height:15px;text-align:center}.notification-popover{position:absolute;right:0;top:calc(100% + 13px);width:min(390px,calc(100vw - 28px));overflow:hidden;border:1px solid #e3eaf5;border-radius:18px;background:#fff;color:#172033;box-shadow:0 24px 70px #0f172a30;animation:notification-enter .18s ease-out}.notification-popover[hidden]{display:none}.notification-heading{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 15px;border-bottom:1px solid #edf1f7}.notification-heading>div{display:grid;gap:3px}.notification-heading strong{font-size:15px}.notification-heading span:not(.notification-live){font-size:12px;color:#78869b}.notification-live{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:99px;background:#ecfdf3;color:#15803d;font-size:10px;font-weight:750}.notification-live i{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #22c55e26}.notification-list{max-height:390px;overflow:auto;padding:6px 10px}.notification-item{display:flex;gap:11px;padding:14px 10px;border-bottom:1px solid #f0f3f8}.notification-item:last-child{border-bottom:0}.notification-item-dot{flex:none;width:9px;height:9px;margin-top:5px;border-radius:50%;background:linear-gradient(135deg,#13b8f6,#2563eb);box-shadow:0 0 0 4px #eff6ff}.notification-item-copy{min-width:0;flex:1}.notification-item-copy strong{display:block;overflow:hidden;color:#202b3e;font-size:13px;text-overflow:ellipsis;white-space:nowrap}.notification-item-copy p{display:-webkit-box;overflow:hidden;margin:4px 0;color:#62718a;font-size:12px;line-height:1.5;-webkit-box-orient:vertical;-webkit-line-clamp:3}.notification-item-copy time{color:#92a0b4;font-size:10px}.notification-loading,.notification-error{padding:23px 15px;text-align:center;color:#718096;font-size:12px}.notification-spinner{display:inline-block;width:14px;height:14px;margin-right:7px;border:2px solid #d7e5fa;border-top-color:#2563eb;border-radius:50%;vertical-align:-3px;animation:notification-spin .7s linear infinite}.notification-empty{display:grid;justify-items:center;gap:7px;padding:28px 14px;color:#7c8aa1;text-align:center}.notification-empty i{display:grid;width:42px;height:42px;place-items:center;border-radius:14px;background:#eff6ff;color:#2563eb;font-size:20px}.notification-empty strong{color:#2d3b50;font-size:13px}.notification-empty span{font-size:11px}.notification-error{margin:0;color:#b42318}.notification-retry{display:block;margin:0 auto 12px;padding:6px 12px;border:0;border-radius:9px;background:#eff6ff;color:#155eef;font-size:12px;font-weight:700}.notification-view-all{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;padding:14px;border:0;border-top:1px solid #edf1f7;background:#f8faff;color:#155eef;font-size:12px;font-weight:750}.notification-view-all:hover{background:#eff6ff}
+@keyframes notification-enter{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}@keyframes notification-spin{to{transform:rotate(360deg)}}
+body.dark-mode{background:#0a1020!important;color:#e9effb!important;color-scheme:dark}body.dark-mode .dashboard-wrapper,body.dark-mode .dashboard,body.dark-mode main.content,body.dark-mode .main-content,body.dark-mode .content,body.dark-mode .page-content{background:#0a1020!important;color:#e9effb!important}body.dark-mode .topbar,body.dark-mode .topbar-right,body.dark-mode .dashboard-card,body.dark-mode .stat-card,body.dark-mode .card,body.dark-mode .panel,body.dark-mode .section-card,body.dark-mode .settings-card,body.dark-mode .modal-content,body.dark-mode .table-container,body.dark-mode .attendance-card,body.dark-mode .announcement-panel,body.dark-mode .event-card,body.dark-mode .schedule-card{background-color:#111b2e!important;border-color:#263550!important;color:#e9effb!important}body.dark-mode .topbar{background:rgba(15,24,41,.96)!important;box-shadow:0 8px 28px #0003}body.dark-mode h1,body.dark-mode h2,body.dark-mode h3,body.dark-mode h4,body.dark-mode h5,body.dark-mode strong,body.dark-mode label,body.dark-mode .page-title,body.dark-mode .topbar-page-title{color:#f4f7ff!important}body.dark-mode p,body.dark-mode small,body.dark-mode .text-muted,body.dark-mode .form-text,body.dark-mode .topbar-page-subtitle,body.dark-mode .date-display,body.dark-mode .top-date,body.dark-mode .announcement-card-meta{color:#a6b5cc!important}body.dark-mode input:not([type=checkbox]):not([type=radio]),body.dark-mode select,body.dark-mode textarea,body.dark-mode .form-control,body.dark-mode .form-select{background:#0b1425!important;border-color:#354661!important;color:#edf3ff!important}body.dark-mode input::placeholder,body.dark-mode textarea::placeholder{color:#8292aa!important}body.dark-mode table,body.dark-mode .table{--bs-table-bg:#111b2e;--bs-table-color:#e9effb;--bs-table-border-color:#263550;color:#e9effb!important}body.dark-mode .table thead th,body.dark-mode th{background:#17243a!important;color:#b8c7df!important}body.dark-mode td{border-color:#263550!important}body.dark-mode .btn-light,body.dark-mode .btn-outline-secondary,body.dark-mode .icon-btn{background:#16243a!important;border-color:#354661!important;color:#d8e5f8!important}body.dark-mode .dropdown-menu{background:#111b2e;border-color:#263550}body.dark-mode .dropdown-item{color:#d8e5f8}body.dark-mode .dropdown-item:hover{background:#1c2d49;color:#fff}body.dark-mode hr,body.dark-mode .topbar-divider{border-color:#2c3a52!important;background-color:#2c3a52!important}body.dark-mode .chrome-icon-button{background:#15233a;border-color:#30425f;color:#c6d7f3}body.dark-mode .chrome-icon-button:hover{background:#1a3155;border-color:#4677c9;color:#93c5fd}body.dark-mode .notification-popover{background:#111b2e;border-color:#2a3b56;color:#e9effb;box-shadow:0 24px 70px #0008}body.dark-mode .notification-heading,body.dark-mode .notification-item,body.dark-mode .notification-view-all{border-color:#263550}body.dark-mode .notification-heading span:not(.notification-live),body.dark-mode .notification-item-copy p,body.dark-mode .notification-loading{color:#a6b5cc}body.dark-mode .notification-item-copy strong,body.dark-mode .notification-empty strong{color:#eff5ff}body.dark-mode .notification-item-dot{box-shadow:0 0 0 4px #1a2c49}body.dark-mode .notification-view-all{background:#14223a;color:#8dbbff}body.dark-mode .notification-view-all:hover{background:#1b3152}body.dark-mode .notification-empty i{background:#1a3155;color:#8dbbff}body.dark-mode .notification-count{border-color:#111b2e}
+@media(max-width:700px){.dashboard-chrome-controls{gap:7px;margin-right:8px}.chrome-icon-button{width:38px;height:38px}.notification-popover{position:fixed;top:76px;right:12px}.coach-dashboard .topbar-right{display:flex!important}.coach-dashboard .topbar-right .date-display{display:none}.topbar-right{gap:8px!important}}
+
+/* Keep portal-specific card surfaces readable when the shared dark theme is on. */
+body.dark-mode .stat,
+body.dark-mode .quick-card,
+body.dark-mode .athlete-card,
+body.dark-mode .profile-card,
+body.dark-mode .card-box,
+body.dark-mode .coach-card,
+body.dark-mode .diagnostic-card,
+body.dark-mode .diagnostic-meta-item,
+body.dark-mode .attendance-mark-card,
+body.dark-mode .attendance-overall-card,
+body.dark-mode .attendance-student-card,
+body.dark-mode .attendance-summary-card,
+body.dark-mode .feedback-panel,
+body.dark-mode .feedback-history-panel,
+body.dark-mode .feedback-history-item,
+body.dark-mode .improvement-card,
+body.dark-mode .chatgpt-card {
+  background: linear-gradient(145deg, #142139, #111b2e) !important;
+  border-color: #2b3b57 !important;
+  color: #eaf1fb !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+}
+body.dark-mode .announcement-card,
+body.dark-mode .attendance-day,
+body.dark-mode .attendance-status-cell,
+body.dark-mode .attendance-empty-cell,
+body.dark-mode .week-day {
+  background: linear-gradient(145deg, #142139, #111b2e) !important;
+  border-color: #2b3b57 !important;
+  color: #eaf1fb !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+}
+body.dark-mode .announcement-card h3,
+body.dark-mode .announcement-card p,
+body.dark-mode .attendance-day,
+body.dark-mode .attendance-status-cell { color: #eaf1fb !important; }
+body.dark-mode .stat-info span,
+body.dark-mode .quick-card span,
+body.dark-mode .athlete-header span,
+body.dark-mode .athlete-detail span,
+body.dark-mode .athlete-detail strong,
+body.dark-mode .profile-field label,
+body.dark-mode .profile-field strong,
+body.dark-mode .card-header-custom span {
+  color: #b4c3d9 !important;
+}
+body.dark-mode .stat-info strong,
+body.dark-mode .quick-card strong,
+body.dark-mode .athlete-header strong,
+body.dark-mode .profile-header h2,
+body.dark-mode .card-header-custom h3,
+body.dark-mode .profile-card h3 {
+  color: #f3f7ff !important;
+}
+body.dark-mode .athlete-header,
+body.dark-mode .profile-header,
+body.dark-mode .card-header-custom {
+  border-color: #2a3a54 !important;
+}
+body.dark-mode .athlete-record-actions button,
+body.dark-mode .view-button,
+body.dark-mode .status-buttons button,
+body.dark-mode .content .btn-secondary {
+  background: #192944 !important;
+  border-color: #354967 !important;
+  color: #dbe8fb !important;
+}
+body.dark-mode .view-athlete,
+body.dark-mode .athlete-record-actions button:hover,
+body.dark-mode .view-button.active {
+  background: #1d3760 !important;
+  border-color: #3e6fb6 !important;
+  color: #a9ceff !important;
+}
+body.dark-mode .attendance-table th,
+body.dark-mode .attendance-table td {
+  background: #142139 !important;
+  border-color: #2a3a54 !important;
+  color: #dbe6f5 !important;
+}
+body.dark-mode .attendance-toolbar label {
+  color: #c6d4e8 !important;
+}
+body.dark-mode .summary {
+  background: #192944 !important;
+  color: #c6d4e8 !important;
+}
+body.dark-mode .summary.present { background: #113329 !important; color: #a7f3d0 !important; }
+body.dark-mode .summary.absent { background: #3a1d2b !important; color: #fecdd3 !important; }
+body.dark-mode .summary strong { color: #f3f7ff !important; }
+body.dark-mode .stat-icon,
+body.dark-mode .quick-icon,
+body.dark-mode .athlete-avatar,
+body.dark-mode .student-avatar {
+  background: #1e3760 !important;
+  color: #a8ccff !important;
+}
+body.dark-mode .stat-icon.purple,
+body.dark-mode .quick-icon.purple { background: #302957 !important; color: #c4b5fd !important; }
+body.dark-mode .stat-icon.orange { background: #49321e !important; color: #fdba74 !important; }
+
+/* Shared Fit Track portal navigation: a clear workspace rail in every role. */
+.sidebar {
+  background: linear-gradient(165deg, #101b31 0%, #0e1729 58%, #0b1424 100%) !important;
+  border-right: 1px solid rgba(148, 173, 214, .12) !important;
+  box-shadow: 12px 0 34px rgba(7, 17, 36, .16) !important;
+}
+.menu-title,
+.sidebar-label {
+  margin: 18px 0 8px !important;
+  padding: 0 12px 8px !important;
+  color: #8496b2 !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .14em !important;
+  line-height: 1.2 !important;
+}
+.sidebar .nav-menu,
+.sidebar .sidebar-nav { gap: 6px !important; }
+.sidebar .nav-button,
+.sidebar .sidebar-link {
+  position: relative;
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px !important;
+  overflow: hidden;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #c3cfe1 !important;
+  font-size: 13px;
+  font-weight: 650;
+  text-align: left;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.sidebar .nav-button i,
+.sidebar .sidebar-link i {
+  display: grid;
+  width: 32px !important;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, .08);
+  color: #9aacc5 !important;
+  font-size: 15px !important;
+  transition: background .18s ease, color .18s ease;
+}
+.sidebar .nav-button:hover,
+.sidebar .sidebar-link:hover {
+  transform: translateX(2px);
+  border-color: rgba(130, 170, 238, .14) !important;
+  background: rgba(110, 145, 198, .09) !important;
+  color: #fff !important;
+}
+.sidebar .nav-button.active,
+.sidebar .sidebar-link.active {
+  border-color: rgba(85, 147, 255, .24) !important;
+  background: linear-gradient(100deg, rgba(37, 99, 235, .31), rgba(37, 99, 235, .12)) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 0 #58a0ff, 0 7px 18px rgba(3, 10, 27, .12) !important;
+}
+.sidebar .nav-button:hover i,
+.sidebar .sidebar-link:hover i,
+.sidebar .nav-button.active i,
+.sidebar .sidebar-link.active i {
+  background: rgba(50, 126, 255, .22);
+  color: #83baff !important;
+}
+.sidebar .brand,
+.sidebar .sidebar-brand {
+  margin-bottom: 4px;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid rgba(190, 209, 240, .12);
+}
+.sidebar .sidebar-profile {
+  border-bottom-color: rgba(190, 209, 240, .12) !important;
+}
+.sidebar .sidebar-bottom,
+.sidebar .sidebar-logout {
+  border-top-color: rgba(190, 209, 240, .14) !important;
+}
+.sidebar .sidebar-bottom .nav-button,
+.sidebar .sidebar-logout-button {
+  min-height: 46px;
+  border-color: rgba(190, 209, 240, .09) !important;
+  background: rgba(148, 163, 184, .08) !important;
+}
+.sidebar .sidebar-bottom .sidebar-logout-link,
+.sidebar .sidebar-logout-button {
+  margin-top: 7px;
+  border-color: rgba(248, 113, 113, .16) !important;
+  background: rgba(190, 45, 65, .11) !important;
+  color: #fecaca !important;
+}
+.sidebar .sidebar-bottom .sidebar-logout-link i,
+.sidebar .sidebar-logout-button i { color: #fda4af !important; }
+.sidebar .sidebar-bottom .sidebar-logout-link:hover,
+.sidebar .sidebar-logout-button:hover {
+  border-color: rgba(248, 113, 113, .32) !important;
+  background: rgba(190, 45, 65, .2) !important;
+}
+body.dark-mode .sidebar .sidebar-link.active { background: linear-gradient(100deg, rgba(37, 99, 235, .31), rgba(37, 99, 235, .12)) !important; color: #fff !important; }
+@media (max-width: 700px) {
+  .sidebar .nav-button,
+  .sidebar .sidebar-link { min-height: 44px; }
+  .menu-title,
+  .sidebar-label { margin-top: 14px !important; }
+}
+
+/* A shared, high-contrast calendar surface for event and training calendars. */
+.event-calendar,
+.dashboard-schedule {
+  overflow: hidden;
+  border: 1px solid #dbe5f2 !important;
+  border-radius: 18px !important;
+  background: linear-gradient(155deg, #fff 0%, #f9fbff 100%) !important;
+  color: #17263d !important;
+  box-shadow: 0 14px 34px rgba(21, 48, 88, .08) !important;
+}
+.event-calendar-heading h2,
+.schedule-heading h2,
+.schedule-upcoming h3,
+.schedule-admin h3 { color: #17263d; font-weight: 800; letter-spacing: -.02em; }
+.event-calendar-heading button,
+.schedule-calendar-head button {
+  display: grid;
+  place-items: center;
+  border: 1px solid #dce6f4 !important;
+  border-radius: 11px !important;
+  background: #fff !important;
+  color: #315a96 !important;
+  box-shadow: 0 3px 9px rgba(24, 54, 98, .06);
+  transition: .18s ease;
+}
+.event-calendar-heading button:hover,
+.schedule-calendar-head button:hover { border-color: #8db5f4 !important; background: #edf5ff !important; color: #155eef !important; }
+.event-calendar-week span,
+.schedule-week span { color: #6f809a !important; font-size: .7rem !important; font-weight: 800 !important; letter-spacing: .04em; text-transform: uppercase; }
+.event-calendar-day,
+.schedule-day {
+  border: 1px solid #e5ecf5 !important;
+  border-radius: 11px !important;
+  background: #f5f8fd !important;
+  color: #34445d !important;
+  font-weight: 650;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+button.event-calendar-day:hover,
+.schedule-day:not(.empty):hover { transform: translateY(-1px); border-color: #aac8f6 !important; background: #edf5ff !important; }
+.event-calendar-day.today,
+.schedule-day.today { border-color: #4e8cf2 !important; box-shadow: inset 0 0 0 1px #4e8cf2; color: #155eef !important; font-weight: 850; }
+.event-calendar-day.has-events { border-color: #a9c9fa !important; background: linear-gradient(145deg, #eaf3ff, #f4f8ff) !important; color: #174ea6 !important; }
+.event-calendar-day.selected,
+.schedule-day.selected { outline: 0 !important; border-color: #2563eb !important; background: linear-gradient(145deg, #2563eb, #3786f5) !important; box-shadow: 0 5px 14px rgba(37, 99, 235, .24) !important; color: #fff !important; }
+.event-calendar-day.selected i { background: rgba(255,255,255,.22); color: #fff; }
+.event-calendar-day.empty,
+.schedule-day.empty { border-color: transparent !important; background: transparent !important; box-shadow: none !important; }
+.event-calendar-footer { color: #667891 !important; }
+.event-calendar-footer button:not(.event-calendar-add) { color: #155eef !important; font-weight: 700; }
+.schedule-day i b.practice { background: #12946a; }
+.schedule-day i b.event { background: #d88312; }
+.schedule-day i b.assessment { background: #7654d5; }
+.schedule-legend span { color: #5d6f89; }
+.schedule-legend span.practice { --kind: #12946a; }
+.schedule-legend span.event { --kind: #d88312; }
+.schedule-legend span.assessment { --kind: #7654d5; }
+.schedule-item { background: #fff; box-shadow: 0 3px 10px rgba(21,48,88,.04); }
+.schedule-item strong { color: #1d2d45; }
+.schedule-item small,
+.schedule-muted { color: #63758f !important; }
+body.dark-mode .event-calendar,
+body.dark-mode .dashboard-schedule {
+  border-color: #2b3b57 !important;
+  background: linear-gradient(155deg, #142139, #101a2b) !important;
+  color: #e9effb !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.2) !important;
+}
+body.dark-mode .event-calendar-heading h2,
+body.dark-mode .schedule-heading h2,
+body.dark-mode .schedule-upcoming h3,
+body.dark-mode .schedule-admin h3 { color: #f0f5ff !important; }
+body.dark-mode .event-calendar-heading button,
+body.dark-mode .schedule-calendar-head button {
+  border-color: #354967 !important;
+  background: #1a2a43 !important;
+  color: #c3d8f7 !important;
+  box-shadow: none;
+}
+body.dark-mode .event-calendar-heading button:hover,
+body.dark-mode .schedule-calendar-head button:hover { border-color: #5689d1 !important; background: #20385c !important; color: #fff !important; }
+body.dark-mode .event-calendar-week span,
+body.dark-mode .schedule-week span,
+body.dark-mode .event-calendar-footer,
+body.dark-mode .schedule-legend span { color: #a6b7d0 !important; }
+body.dark-mode .event-calendar-day,
+body.dark-mode .schedule-day {
+  border-color: #2d405d !important;
+  background: #192944 !important;
+  color: #e3ecfa !important;
+}
+body.dark-mode button.event-calendar-day:hover,
+body.dark-mode .schedule-day:not(.empty):hover { border-color: #5588d3 !important; background: #20385c !important; }
+body.dark-mode .event-calendar-day.today,
+body.dark-mode .schedule-day.today { border-color: #63a1ff !important; box-shadow: inset 0 0 0 1px #63a1ff; color: #b9d6ff !important; }
+body.dark-mode .event-calendar-day.has-events { border-color: #3c68a5 !important; background: #1c3457 !important; color: #b9d6ff !important; }
+body.dark-mode .event-calendar-day.selected,
+body.dark-mode .schedule-day.selected { border-color: #6caaff !important; background: linear-gradient(145deg, #2563eb, #3786f5) !important; color: #fff !important; }
+body.dark-mode .event-calendar-day.empty,
+body.dark-mode .schedule-day.empty { border-color: transparent !important; background: transparent !important; }
+body.dark-mode .schedule-item { border-color: #2d405d; background: #192944 !important; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+body.dark-mode .schedule-item strong { color: #f1f6ff !important; }
+body.dark-mode .schedule-item small,
+body.dark-mode .schedule-muted { color: #a6b7d0 !important; }
+body.dark-mode .schedule-form,
+body.dark-mode .schedule-admin { border-top-color: #2b3b57 !important; }
+body.dark-mode .schedule-form label { color: #d5e1f2 !important; }
+body.dark-mode .schedule-session-action,
+body.dark-mode .workload-row strong,
+body.dark-mode .request-row button { border-color: #354967; background: #1a2a43; color: #dbe8fb; }
+body.dark-mode .schedule-day i b.practice { background: #34d399; }
+body.dark-mode .schedule-day i b.event { background: #fbbf24; }
+body.dark-mode .schedule-day i b.assessment { background: #b197fc; }

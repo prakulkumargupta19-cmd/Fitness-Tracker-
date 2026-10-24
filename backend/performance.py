@@ -72,7 +72,18 @@ def register_performance_routes(app):
             try:
                 with db.cursor() as cursor:
                     if role == "student":
-                        cursor.execute(f"SELECT * FROM {table} WHERE student_id = %s ORDER BY created_at DESC", (user_id,))
+                        if resource == "feedback":
+                            cursor.execute(
+                                """SELECT feedback.*, coach.full_name AS coach_name,
+                                          coach.specialization AS coach_specialization
+                                   FROM coach_feedback feedback
+                                   LEFT JOIN users coach ON coach.id = feedback.coach_id
+                                   WHERE feedback.student_id = %s
+                                   ORDER BY feedback.created_at DESC, feedback.id DESC""",
+                                (user_id,),
+                            )
+                        else:
+                            cursor.execute(f"SELECT * FROM {table} WHERE student_id = %s ORDER BY created_at DESC, id DESC", (user_id,))
                     elif role == "coach":
                         sport_filter = " AND ss.sport_id = r.sport_id" if resource == "training-sessions" else ""
                         cursor.execute(
@@ -105,12 +116,32 @@ def register_performance_routes(app):
             sport_id = data.get("sport_id") if resource == "training-sessions" else None
             if not student_id or any(data.get(key) in (None, "") for key in required):
                 return jsonify({"success": False, "message": "Required record fields are missing."}), 400
+            if resource == "feedback":
+                feedback_text = str(data.get("feedback") or "").strip()
+                if not feedback_text:
+                    return jsonify({"success": False, "message": "Write feedback before saving."}), 400
+                if len(feedback_text) > 2000:
+                    return jsonify({"success": False, "message": "Feedback must be 2,000 characters or fewer."}), 400
+                raw_rating = data.get("rating")
+                if raw_rating not in (None, ""):
+                    try:
+                        rating = int(raw_rating)
+                    except (TypeError, ValueError):
+                        return jsonify({"success": False, "message": "Choose a whole-number rating from 1 to 5."}), 400
+                    if rating < 1 or rating > 5:
+                        return jsonify({"success": False, "message": "Choose a rating from 1 to 5."}), 400
+                else:
+                    rating = None
             db = get_db()
             try:
                 with db.cursor() as cursor:
                     if not _assigned_student(cursor, session.get("user_id"), student_id, sport_id):
                         return jsonify({"success": False, "message": "Student is not assigned to this coach and sport."}), 403
-                    values = {key: data[key] for key in fields if key in data}
+                    values = (
+                        {"feedback": feedback_text, "rating": rating}
+                        if resource == "feedback"
+                        else {key: data[key] for key in fields if key in data}
+                    )
                     columns = ["student_id", "coach_id", *values]
                     params = [student_id, session.get("user_id"), *values.values()]
                     placeholders = ", ".join(["%s"] * len(columns))

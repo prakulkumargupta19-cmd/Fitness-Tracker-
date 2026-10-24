@@ -23,6 +23,7 @@ from time import perf_counter
 from uuid import uuid4
 
 from flask import Flask, g, jsonify, request, session
+from flask.sessions import SecureCookieSessionInterface
 from werkzeug.security import check_password_hash, generate_password_hash
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from werkzeug.exceptions import HTTPException
@@ -31,7 +32,7 @@ BASE_DIR = Path(__file__).parent.absolute()
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from db import get_db  # noqa: E402
+from db import DatabaseConnectionError, get_db  # noqa: E402
 from logging_config import configure_logging  # noqa: E402
 from auth.helpers import (  # noqa: E402
     generate_otp,
@@ -46,6 +47,7 @@ from auth.helpers import (  # noqa: E402
     verify_admin_otp,
 )
 from auth.emails import (  # noqa: E402
+    smtp_settings,
     send_otp_email,
     send_account_created_email,
     send_coach_approval_email,
@@ -54,25 +56,52 @@ from auth.emails import (  # noqa: E402
 from auth.decorators import login_required, role_required  # noqa: E402
 from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
 from performance import register_performance_routes  # noqa: E402
+from reference_features import register_reference_feature_routes  # noqa: E402
+from reference_extensions import register_reference_extension_routes  # noqa: E402
 
 app = Flask(__name__)
-is_production = os.getenv(
-    "VERCEL_ENV",
-    os.getenv("APP_ENV", "development"),
-).lower() == "production"
+
+
+class PortalSessionInterface(SecureCookieSessionInterface):
+    """Keep simultaneous admin, coach, and student tabs in separate sessions.
+
+    The browser sends the portal role as a cookie selector only. Authorization
+    still comes from the signed session and the database-backed role checks.
+    """
+
+    PORTAL_ROLES = {"admin", "coach", "student"}
+
+    def get_cookie_name(self, app):
+        role = request.headers.get("X-Portal-Role", "").strip().lower()
+        base_name = app.config["SESSION_COOKIE_NAME"]
+        if role in self.PORTAL_ROLES:
+            return f"{base_name}_{role}"
+        return base_name
+
+
+app.session_interface = PortalSessionInterface()
+vercel_environment = os.getenv("VERCEL_ENV", "").strip().lower()
+is_vercel_deployment = vercel_environment in {"preview", "production"}
+is_production = (
+    vercel_environment == "production"
+    or os.getenv("APP_ENV", "development").strip().lower() == "production"
+)
 configured_secret = os.getenv("SECRET_KEY")
-if is_production and not configured_secret:
-    raise RuntimeError("SECRET_KEY must be configured in production.")
+if (is_production or is_vercel_deployment) and not configured_secret:
+    raise RuntimeError("SECRET_KEY must be configured for Vercel deployments.")
 app.secret_key = configured_secret or secrets.token_hex(32)
 configure_logging(app)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
 app.config["SESSION_COOKIE_SECURE"] = (
     is_production
+    or is_vercel_deployment
     or os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
 )
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
-app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = int(
+    os.getenv("FIT_TRACK_MAX_UPLOAD_MB", "16")
+) * 1024 * 1024
 
 VALID_ROLES = ("student", "coach")
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
@@ -97,6 +126,11 @@ def _request_id():
 def start_request_tracking():
     g.request_id = _request_id()
     g.request_started_at = perf_counter()
+    if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"} and request.path.startswith("/api/"):
+        expected = session.get("csrf_token", "")
+        supplied = request.headers.get("X-CSRFToken", "")
+        if not expected or not supplied or not hmac.compare_digest(expected, supplied):
+            return jsonify(success=False, message="Your session could not be verified. Refresh the page and try again."), 403
 
 
 @app.after_request
@@ -129,7 +163,7 @@ def add_cors_headers(response):
         "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     )
     response.headers["Access-Control-Allow-Headers"] = (
-        "Content-Type, Authorization, X-Requested-With, X-Request-ID"
+        "Content-Type, Authorization, X-Requested-With, X-Request-ID, X-Portal-Role, X-CSRFToken"
     )
     if request.path.startswith("/api/"):
         response.headers["X-Request-ID"] = g.get("request_id", _request_id())
@@ -149,6 +183,7 @@ def add_cors_headers(response):
             else logging.ERROR if response.status_code >= 500
             else logging.WARNING
         )
+        response_payload = response.get_json(silent=True)
         _safe_log(
             log_level,
             "API request",
@@ -157,6 +192,11 @@ def add_cors_headers(response):
             method=request.method,
             status=response.status_code,
             duration_ms=duration_ms,
+            success=(
+                response_payload.get("success")
+                if isinstance(response_payload, dict)
+                else None
+            ),
             user_id=session.get("user_id"),
         )
     return response
@@ -185,6 +225,31 @@ def api_http_errors(error):
             payload["error"] = "Internal server error"
         return jsonify(payload), error.code or 500
     return error
+
+
+@app.errorhandler(DatabaseConnectionError)
+def api_database_errors(error):
+    """Return an actionable response when PostgreSQL is unavailable."""
+
+    if request.path.startswith("/api/"):
+        _safe_log(
+            logging.ERROR,
+            "Database connection error",
+            request_id=g.get("request_id"),
+            route=request.path,
+            method=request.method,
+        )
+        return jsonify({
+            "success": False,
+            "error": "Database unavailable",
+            "message": (
+                "The database is unavailable. Check SUPABASE_DB_URL "
+                "and try again."
+            ),
+            "request_id": g.get("request_id"),
+        }), 503
+
+    raise error
 
 
 @app.errorhandler(Exception)
@@ -231,6 +296,16 @@ def _database_health():
             db.close()
 
 
+@app.route("/api/csrf-token", methods=["GET"])
+def csrf_token():
+    """Provide a session-bound token expected by the frontend request helpers."""
+    token = session.get("csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["csrf_token"] = token
+    return jsonify(success=True, csrf_token=token)
+
+
 @app.route("/api/health", methods=["GET"])
 def health_check():
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -253,10 +328,14 @@ def health_check():
 def admin_diagnostics():
     database_status, latency_ms = _database_health()
     timestamp = datetime.now(timezone.utc).isoformat()
-    mail_configured = all(
-        os.getenv(name)
-        for name in ("MAIL_USERNAME", "MAIL_PASSWORD")
-    )
+    try:
+        mail = smtp_settings()
+        mail_configured = bool(mail["username"] and mail["password"])
+        mail_security = mail["security"]
+    except ValueError:
+        mail_configured = False
+        mail_security = "invalid"
+    database_backend_name = os.getenv("DATABASE_BACKEND", "sqlite" if not is_production else "postgres")
     return jsonify({
         "success": True,
         "request_id": g.get("request_id"),
@@ -265,12 +344,12 @@ def admin_diagnostics():
             "api": "ok",
             "database": database_status,
             "database_latency_ms": latency_ms,
-            "environment_configuration": (
-                "ok" if os.getenv("SUPABASE_DB_URL") and configured_secret else "warning"
-            ),
+            "environment_configuration": "ok" if configured_secret else "warning",
             "email_service": "configured" if mail_configured else "not_configured",
+            "email_security": mail_security,
             "authentication": "ok" if configured_secret else "warning",
-            "supabase_connectivity": database_status,
+            "database_backend": database_backend_name,
+            "supabase_connectivity": database_status if database_backend_name == "postgres" else "not_used",
         },
         "version": APP_VERSION,
         "deployment_environment": os.getenv(
@@ -298,13 +377,13 @@ def signup():
     contact_number = str(
         data.get("contact_number") or data.get("contact") or ""
     ).strip()
-    qualification = str(data.get("qualification") or "").strip()
-    specialization = str(data.get("specialization") or "").strip()
-    experience_years = data.get("experience_years")
+
     try:
-        experience_years = int(experience_years) if experience_years not in (None, "") else None
+        # These are no longer required, but we keep the try-block for general structure
+        # if we ever needed to validate other numeric fields here.
+        pass
     except (TypeError, ValueError):
-        return jsonify({"success": False, "message": "Experience must be a whole number of years."}), 400
+        return jsonify({"success": False, "message": "Invalid input provided."}), 400
 
     if role not in ("student", "coach"):
         return (
@@ -323,8 +402,8 @@ def signup():
             ),
             400,
         )
-    if role == "coach" and (not contact_number or not qualification or not specialization or experience_years is None or experience_years < 0):
-        return jsonify({"success": False, "message": "Phone, qualification, specialization, and valid experience are required for coach signup."}), 400
+    if role == "coach" and (not contact_number):
+        return jsonify({"success": False, "message": "Phone number is required for coach signup."}), 400
     if not is_valid_domain(email):
         return (
             jsonify(
@@ -534,8 +613,28 @@ def login():
             403,
         )
 
+    # Students and coaches sign in with their password only. Keep login OTP
+    # enabled for administrators.
+    if user["role"] in ("student", "coach"):
+        _complete_login(user)
+        return jsonify({
+            "success": True,
+            "otp_required": False,
+            "message": "Login successful.",
+            "user": {
+                "id": user["id"],
+                "role": user["role"],
+                "full_name": user["full_name"],
+                "email": user["email"],
+                "contact_number": user["contact_number"],
+                "is_verified": bool(user["is_verified"]),
+                "coach_status": user["coach_status"],
+            },
+        }), 200
+
     otp = generate_otp()
-    if not (store_admin_otp if user["role"] == "admin" else store_otp)(user["id"], "login", otp):
+    otp_storer = store_admin_otp if user["role"] == "admin" else store_otp
+    if not otp_storer(user["id"], "login", otp):
         return jsonify({"success": False, "message": "Too many login codes were requested. Try again in an hour."}), 429
     session.clear()
     session["pending_login_user_id"] = user["id"]
@@ -567,7 +666,12 @@ def login():
 def pending_login_otp():
     user_id = session.get("pending_login_user_id")
     pending_role = session.get("pending_login_role")
-    user = get_user_by_id(user_id) if user_id else None
+    if pending_role in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
+    user = get_user_by_id(user_id, pending_role) if user_id else None
     if not user or user.get("role") != pending_role:
         return jsonify({
             "success": False,
@@ -607,6 +711,11 @@ def verify_login_otp():
             jsonify({"success": False, "message": "No account found with this email."}),
             404,
         )
+    if user["role"] in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
     if session.get("pending_login_user_id") != user["id"]:
         return (
             jsonify(
@@ -617,6 +726,8 @@ def verify_login_otp():
             ),
             400,
         )
+    if session.get("pending_login_role") != user["role"]:
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
     verifier = verify_admin_otp if user["role"] == "admin" else verify_stored_otp
     valid, message = verifier(user["id"], "login", otp)
     if not valid:
@@ -646,6 +757,11 @@ def resend_login_otp():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
+    if user and user["role"] in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
     if not user or session.get("pending_login_user_id") != (user or {}).get("id"):
         return (
             jsonify(
@@ -677,7 +793,7 @@ def logout():
 @app.route("/api/auth/me", methods=["GET"])
 @login_required
 def current_session():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user:
         session.clear()
         return jsonify({"success": False, "message": "Session expired."}), 401
@@ -715,8 +831,18 @@ def _profile_response(user_id):
     try:
         with db.cursor() as cursor:
             cursor.execute(
+                """UPDATE student_profiles
+                   SET passport_id = COALESCE(passport_id, %s)
+                   WHERE user_id = %s""",
+                (f"IKC-SP-{datetime.now().year}-{int(user_id):05d}", user_id),
+            )
+            db.commit()
+            cursor.execute(
                 """SELECT date_of_birth, emergency_contact, height_cm, weight_kg,
-                          goal, sport_activity, department
+                          goal, sport_activity, department, student_number,
+                          semester, bio, blood_group, medical_history, address,
+                          parent_name, parent_phone, parent_address,
+                          passport_id, photo_path
                    FROM student_profiles WHERE user_id = %s""",
                 (user_id,),
             )
@@ -745,7 +871,7 @@ def admin_session():
 @app.route("/api/profile", methods=["GET"])
 @login_required
 def get_profile():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user:
         return jsonify({"success": False, "message": "Session expired."}), 401
     return (
@@ -827,6 +953,12 @@ def _save_student_profile(user_id, data):
                     data.get("department"),
                 ),
             )
+            cursor.execute(
+                """UPDATE student_profiles
+                   SET passport_id = COALESCE(passport_id, %s)
+                   WHERE user_id = %s""",
+                (f"IKC-SP-{datetime.now().year}-{int(user_id):05d}", user_id),
+            )
             cursor.execute("DELETE FROM student_sports WHERE student_id = %s", (user_id,))
             for sport in sport_ids:
                 cursor.execute(
@@ -844,7 +976,7 @@ def _save_student_profile(user_id, data):
 @app.route("/api/profile", methods=["PUT", "PATCH"])
 @login_required
 def update_profile():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user or user["role"] != "student":
         return (
             jsonify(
@@ -912,7 +1044,60 @@ def list_sports():
     db = get_db()
     try:
         with db.cursor() as cursor:
+            # Keep the built-in registration choices available on databases
+            # that were created before the sports catalog was seeded.
+            for name in ("Cricket", "Football", "Basketball", "Volleyball", "Kickboxing", "Badminton", "Athletics"):
+                cursor.execute(
+                    "INSERT INTO sports (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
+                    (name,),
+                )
+            db.commit()
             cursor.execute("SELECT id, name FROM sports ORDER BY name")
+            sports = cursor.fetchall()
+        return jsonify({"success": True, "sports": sports}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/event-sports", methods=["GET"])
+@role_required("admin")
+def list_event_sports():
+    """Sports selected by at least one student during registration."""
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT s.id, s.name, COUNT(DISTINCT u.id) AS student_count
+                   FROM sports s
+                   LEFT JOIN student_sports ss ON ss.sport_id = s.id
+                   LEFT JOIN users u ON u.id = ss.student_id AND u.role = 'student'
+                   GROUP BY s.id, s.name
+                   ORDER BY s.name"""
+            )
+            sports = cursor.fetchall()
+        return jsonify({"success": True, "sports": sports}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/coach/event-sports", methods=["GET"])
+@role_required("coach")
+def list_coach_event_sports():
+    """Sports assigned to this coach, with student counts for event planning."""
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT s.id, s.name, COUNT(DISTINCT u.id) AS student_count
+                   FROM coach_sports cs
+                   JOIN sports s ON s.id = cs.sport_id
+                   LEFT JOIN student_sports ss ON ss.sport_id = s.id
+                   LEFT JOIN users u ON u.id = ss.student_id AND u.role = 'student'
+                   WHERE cs.coach_id = %s
+                   GROUP BY s.id, s.name
+                   ORDER BY s.name""",
+                (session.get("user_id"),),
+            )
             sports = cursor.fetchall()
         return jsonify({"success": True, "sports": sports}), 200
     finally:
@@ -1013,7 +1198,7 @@ def delete_student_sport(sport_id):
 @app.route("/api/profile/setup", methods=["POST"])
 def setup_pending_student_profile():
     user_id = session.get("pending_user_id")
-    user = get_user_by_id(user_id) if user_id else None
+    user = get_user_by_id(user_id, "student") if user_id else None
     if not user or user["role"] != "student":
         return (
             jsonify(
@@ -1036,7 +1221,7 @@ def setup_pending_student_profile():
 @app.route("/api/student/dashboard", methods=["GET"])
 @login_required
 def student_dashboard():
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id"), session.get("role"))
     if not user or user["role"] != "student":
         return jsonify({"success": False, "message": "Student access required."}), 403
     profile = _profile_response(user["id"])
@@ -1316,6 +1501,7 @@ def forgot_password():
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
     if not user:
+        app.logger.warning("Password reset requested for an unknown account")
         return (
             jsonify(
                 {
@@ -1332,6 +1518,7 @@ def forgot_password():
     if not send_otp_email(email, user["full_name"], "password_reset", otp):
         app.logger.error("Password reset OTP email could not be sent")
         return jsonify({"success": False, "message": "Unable to send the reset code right now. Please try again later."}), 503
+    app.logger.info("Password reset OTP accepted by the mail server")
     session["reset_email"] = email
     return (
         jsonify({"success": True, "message": "Password reset OTP sent to your email."}),
@@ -1952,7 +2139,7 @@ def review_coach_approval(user_id):
 def _set_coach_status(user_id, status):
     if not user_id:
         return jsonify({"success": False, "message": "user_id is required."}), 400
-    user = get_user_by_id(user_id)
+    user = get_user_by_id(user_id, "coach")
     if not user:
         return jsonify({"success": False, "message": "User not found."}), 404
     if user["role"] != "coach":
@@ -1981,5 +2168,12 @@ def _set_coach_status(user_id, status):
 
 register_attendance_routes(app)
 register_performance_routes(app)
+register_reference_feature_routes(app)
+register_reference_extension_routes(app)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "5000")),
+        debug=False,
+        use_reloader=False,
+    )

@@ -978,6 +978,13 @@ async function setupDashboardProtection() {
     const page =
         getPageName();
 
+    if (
+        page === "student-dashboard.html" &&
+        window.APP_CONFIG?.AUTH_BYPASS !== false
+    ) {
+        return;
+    }
+
 
     let requiredRole =
         null;

@@ -16,7 +16,11 @@ if str(BASE_DIR) not in sys.path:
 
 load_dotenv(PROJECT_ROOT / ".env")
 
-from db import get_db  # noqa: E402
+from db import (  # noqa: E402
+    database_backend,
+    get_db,
+    initialize_local_database,
+)
 
 
 SCHEMA_PATH = BASE_DIR / "schema.sql"
@@ -27,9 +31,31 @@ COACH_WORKFLOW_MIGRATION = (
     / "005_coach_assignment_attendance_workflow.sql"
 )
 
+REFERENCE_FEATURE_MIGRATION = (
+    BASE_DIR
+    / "migrations"
+    / "006_fit_track_reference_features.sql"
+)
+
+FIT_TRACK_INTEGRITY_MIGRATION = (
+    BASE_DIR
+    / "migrations"
+    / "007_fit_track_integrity.sql"
+)
+
 
 def init_db():
     """Apply PostgreSQL schema and migrations without deleting existing data."""
+
+    if database_backend() == "sqlite":
+        try:
+            path = initialize_local_database()
+            print(f"[INFO] Local SQLite database ready: {path}")
+            return True
+        except Exception as error:
+            print(f"[ERROR] Local SQLite initialization failed: {error}")
+            traceback.print_exc()
+            return False
 
     if not SCHEMA_PATH.is_file():
         print("[ERROR] backend/schema.sql is missing.")
@@ -151,6 +177,26 @@ def init_db():
                 "skipping."
             )
 
+        if REFERENCE_FEATURE_MIGRATION.is_file():
+            print("[INFO] Applying Fit-Track reference feature migration 006...")
+            feature_sql = REFERENCE_FEATURE_MIGRATION.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(feature_sql)
+            db.commit()
+            print("[INFO] Fit-Track reference feature migration 006 applied successfully.")
+        else:
+            print("[WARNING] Migration 006 file was not found; skipping.")
+
+        if FIT_TRACK_INTEGRITY_MIGRATION.is_file():
+            print("[INFO] Applying Fit-Track integrity migration 007...")
+            integrity_sql = FIT_TRACK_INTEGRITY_MIGRATION.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(integrity_sql)
+            db.commit()
+            print("[INFO] Fit-Track integrity migration 007 applied successfully.")
+        else:
+            print("[WARNING] Migration 007 file was not found; skipping.")
+
         # =========================================================
         # 5. SUCCESS
         # =========================================================
@@ -204,8 +250,8 @@ def init_db():
 def ensure_builtin_admin():
     """Ensure the configured built-in admin account exists."""
 
-    admin_email = os.getenv("ADMIN_EMAIL")
-    admin_password = os.getenv("ADMIN_PASSWORD")
+    admin_email = os.getenv("ADMIN_EMAIL") or os.getenv("INITIAL_ADMIN_EMAIL")
+    admin_password = os.getenv("ADMIN_PASSWORD") or os.getenv("INITIAL_ADMIN_PASSWORD")
 
     if not admin_email or not admin_password:
 
@@ -244,10 +290,7 @@ def ensure_builtin_admin():
                     is_active = TRUE
                 """,
                 (
-                    os.getenv(
-                        "ADMIN_NAME",
-                        "Administrator"
-                    ),
+                    os.getenv("ADMIN_NAME") or os.getenv("INITIAL_ADMIN_NAME", "Administrator"),
                     admin_email.strip().lower(),
                     password_hash,
                 ),

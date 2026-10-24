@@ -544,7 +544,7 @@ body {
 
 .remember input:checked::after {
 
-    content: "✓";
+    content: "\2713";
 
     position: absolute;
 

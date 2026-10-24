@@ -261,6 +261,38 @@
     <link rel="stylesheet" href="../css/common/app-theme.css">
     <link rel="stylesheet" href="../demo/auth.css">
     <link rel="stylesheet" href="../css/student/student-portal.css?v=8">
+    <style>
+        body[data-portal-role="student"] .student-otp-panel > * {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+        body[data-portal-role="student"] .student-otp-panel .email-display {
+            overflow-wrap: anywhere;
+        }
+        body[data-portal-role="student"] .student-otp-panel .otp-container {
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            justify-content: center;
+            gap: clamp(4px, 1.2cqw, 10px);
+        }
+        body[data-portal-role="student"] .student-otp-panel .otp-input {
+            flex: 1 1 0;
+            width: auto;
+            max-width: 48px;
+            min-width: 0;
+        }
+        body[data-portal-role="student"] .student-otp-panel .verify-button,
+        body[data-portal-role="student"] .student-otp-panel .message,
+        body[data-portal-role="student"] .student-otp-panel .security-note {
+            box-sizing: border-box;
+        }
+        @media (max-width: 500px) {
+            body[data-portal-role="student"] .student-otp-panel .otp-container { gap: 5px; }
+            body[data-portal-role="student"] .student-otp-panel .otp-input { flex-basis: 0; width: auto; max-width: 42px; }
+        }
+    </style>
 </head>
 
 <body data-portal-role="student">

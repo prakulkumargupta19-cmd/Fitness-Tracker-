@@ -21,17 +21,48 @@ body[data-portal-role="student"] .auth {
     --student-field: #f7f9fd;
 }
 
+body[data-portal-role="student"] {
+    scrollbar-color: rgba(10, 99, 255, .12) transparent;
+    scrollbar-width: thin;
+}
+
+body[data-portal-role="student"] * {
+    scrollbar-color: rgba(10, 99, 255, .12) transparent;
+    scrollbar-width: thin;
+}
+
+body[data-portal-role="student"] *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+body[data-portal-role="student"] *::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body[data-portal-role="student"] *::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+    border-radius: 99px;
+    background: rgba(10, 99, 255, .1);
+    background-clip: padding-box;
+}
+
+body[data-portal-role="student"] *::-webkit-scrollbar-thumb:hover {
+    background: rgba(10, 99, 255, .18);
+    background-clip: padding-box;
+}
+
 body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-panel, .student-otp-panel) {
     align-items: stretch;
     justify-content: flex-start;
     overflow-y: auto;
-    scrollbar-color: rgba(10, 99, 255, .38) transparent;
+    scrollbar-color: rgba(10, 99, 255, .1) transparent;
     scrollbar-width: thin;
     padding: calc(var(--u) * 3.2) calc(var(--u) * 3);
 }
 
 body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-panel, .student-otp-panel)::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
 }
 
 body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-panel, .student-otp-panel)::-webkit-scrollbar-track {
@@ -40,7 +71,7 @@ body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-pan
 
 body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-panel, .student-otp-panel)::-webkit-scrollbar-thumb {
     border-radius: 99px;
-    background: rgba(10, 99, 255, .38);
+    background: rgba(10, 99, 255, .1);
 }
 
 body[data-portal-role="student"] :is(.student-signup-panel, .student-profile-panel) > .signup-card,

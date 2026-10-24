@@ -74,7 +74,7 @@ def find_user_by_email(email):
         db.close()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id, role=None):
     """Retrieve a student, coach, or admin by ID."""
     if not user_id:
         return None
@@ -83,6 +83,16 @@ def get_user_by_id(user_id):
 
     try:
         with db.cursor() as cursor:
+
+            if role == "admin":
+                cursor.execute(
+                    """SELECT id, full_name, email, password_hash, NULL AS contact_number,
+                              is_verified, NULL AS last_login_at, created_at,
+                              'admin' AS role, NULL AS coach_status
+                       FROM admins WHERE id = %s LIMIT 1""",
+                    (user_id,),
+                )
+                return cursor.fetchone()
 
             # Student / Coach
             cursor.execute(

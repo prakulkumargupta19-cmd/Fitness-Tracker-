@@ -53,7 +53,14 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     weight_kg DECIMAL(5,2),
     goal VARCHAR(255),
     sport_activity VARCHAR(255),
-    department VARCHAR(100)
+    department VARCHAR(100),
+    student_id VARCHAR(50),
+    blood_group VARCHAR(10),
+    medical_history TEXT,
+    address TEXT,
+    parent_name VARCHAR(100),
+    parent_phone VARCHAR(30),
+    parent_address TEXT
 );
 
 

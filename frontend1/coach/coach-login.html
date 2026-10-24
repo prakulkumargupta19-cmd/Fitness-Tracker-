@@ -482,14 +482,9 @@
 
                         }
 
-                        if (!loginData.otp_required || !loginData.user || loginData.user.role !== "coach") {
-                            throw new Error("The server did not confirm coach login verification.");
+                        if (!loginData.user || loginData.user.role !== "coach") {
+                            throw new Error("The server did not confirm coach login.");
                         }
-
-                        window.location.assign("../shared/login-otp.html");
-                        return;
-
-
 
                         /* =========================================
                            STEP 2

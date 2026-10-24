@@ -66,7 +66,7 @@ label.lbl{display:block;font-weight:700;font-size:calc(var(--u)*1.14);margin-bot
 .row input[type=checkbox]{appearance:none;-webkit-appearance:none;width:calc(var(--u)*1.55);height:calc(var(--u)*1.55);
   border:2px solid var(--blue);border-radius:calc(var(--u)*.35);display:grid;place-items:center;cursor:pointer;background:#fff}
 .row input[type=checkbox]:checked{background:var(--blue)}
-.row input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:calc(var(--u)*1)}
+.row input[type=checkbox]:checked::after{content:"\2713";color:#fff;font-size:calc(var(--u)*1)}
 a{color:var(--blue);font-weight:700;text-decoration:none}
 a:hover{text-decoration:underline}
 .row a{font-size:calc(var(--u)*1.1)}
