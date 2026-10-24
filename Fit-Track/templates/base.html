@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0230C8">
+<title>{% block title %}Fittrack{% endblock %} · Inspiria</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% if current_user %}
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeNav()"></div>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <img class="brand-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Fittrack logo">
+    <div><strong>Fit Track</strong><span>Inspiria Knowledge Campus</span></div>
+    <button class="nav-close" type="button" onclick="closeNav()">×</button>
+  </div>
+  <nav>
+    <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint=='dashboard' %}active{% endif %}"><span>⌂</span> Dashboard</a>
+    <a href="{{ url_for('sports') }}" class="{% if request.endpoint in ['sports','sport_detail'] %}active{% endif %}"><span>◆</span> Sports & Facilities</a>
+    {% if current_user.role in ['admin','coach'] %}
+      <a href="{{ url_for('students') }}" class="{% if request.endpoint in ['students','student_profile'] %}active{% endif %}"><span>◉</span> {% if current_user.role=='coach' %}My Coachees{% else %}Students{% endif %}</a>
+      <a href="{{ url_for('coaching') }}" class="{% if request.endpoint in ['coaching','coaching_athlete','save_assessment','programme_attendance'] %}active{% endif %}"><span>▣</span> Coaching Tracker</a>
+    {% else %}
+      <a href="{{ url_for('student_profile',student_id=current_user.student_id) }}" class="{% if request.endpoint=='student_profile' %}active{% endif %}"><span>◉</span> My Fittrack</a>
+    {% endif %}
+    <a href="{{ url_for('coaching_schedule') }}" class="{% if request.endpoint in ['coaching_schedule','add_coaching_session','edit_coaching_session','delete_coaching_session'] %}active{% endif %}"><span>◷</span> Coaching Schedule</a>
+    <a href="{{ url_for('reports') }}" class="{% if request.endpoint in ['reports','export_reports','export_projection'] %}active{% endif %}"><span>▥</span> Reports & Analytics</a>
+    <a href="{{ url_for('tournaments') }}" class="{% if request.endpoint in ['tournaments','tournament_detail'] %}active{% endif %}"><span>◇</span> Events & Calendar</a>
+    <a href="{{ url_for('matches') }}" class="{% if request.endpoint in ['matches','update_score'] %}active{% endif %}"><span>●</span> Live Scores</a>
+    <a href="{{ url_for('gallery') }}" class="{% if request.endpoint in ['gallery','download_media'] %}active{% endif %}"><span>▧</span> Event Gallery</a>
+    <a href="{{ url_for('announcements') }}" class="{% if request.endpoint=='announcements' %}active{% endif %}"><span>✧</span> Announcements</a>
+    <a href="{{ url_for('chat') }}" class="{% if request.endpoint=='chat' %}active{% endif %}"><span>✦</span> Chat {% if unread_messages %}<b class="nav-badge">{{unread_messages}}</b>{% endif %}</a>
+    {% if current_user.role=='admin' %}<a href="{{ url_for('admin') }}" class="{% if request.endpoint and request.endpoint.startswith('admin') %}active{% endif %}"><span>⚙</span> Admin Control</a>{% endif %}
+  </nav>
+  <div class="sidebar-bottom"><div class="mini-card"><span class="live-dot"></span><div><b>{{current_user.role|title}} access</b><small>{% if current_user.role=='admin' %}Master system access{% elif current_user.role=='coach' %}Attendance · development · reports{% else %}Personal Fittrack access{% endif %}</small></div></div></div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <button class="nav-toggle" type="button" aria-label="Open navigation" onclick="openNav()">☰</button>
+  <div class="mobile-brand">FITTRACK</div>
+  <div class="top-actions"><span class="date">{{ now }}</span><div class="user-meta"><b>{{current_user.display_name}}</b><small>{{current_user.designation}}</small></div><div class="avatar">{{current_user.display_name.replace('Mr. ','')[:2]|upper}}</div><a class="logout" href="{{url_for('logout')}}">Logout</a></div>
+</header>
+{% if global_announcements %}
+<a class="announcement-ticker" href="{{url_for('announcements')}}"><b>ANNOUNCEMENT</b><span>{{global_announcements[0].title}} — {{global_announcements[0].message}}</span><strong>View all →</strong></a>
+{% endif %}
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,msg in messages %}<div class="flash {{category}}">{{msg}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+<section class="page">{% block content %}{% endblock %}</section>
+</main></div>
+<script>
+function openNav(){document.getElementById('sidebar')?.classList.add('open');document.getElementById('mobileOverlay')?.classList.add('show');document.body.classList.add('nav-open')}
+function closeNav(){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('mobileOverlay')?.classList.remove('show');document.body.classList.remove('nav-open')}
+window.addEventListener('resize',()=>{if(window.innerWidth>980)closeNav()});
+</script>
+{% else %}
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,msg in messages %}<div class="flash {{category}}">{{msg}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+{% block public_content %}{% endblock %}
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,161 @@
+/* =========================================================
+   COACH SIGNUP PAGE
+========================================================= */
+
+
+/* =========================================================
+   PAGE BACKGROUND
+========================================================= */
+
+body {
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+body > div.relative {
+    min-height: 620px;
+}
+
+
+/* =========================================================
+   LEFT COLUMN
+========================================================= */
+
+body > div.relative > div:first-child {
+    position: relative;
+}
+
+
+/* =========================================================
+   FORM INPUTS
+========================================================= */
+
+#signupForm input[type="text"],
+#signupForm input[type="email"],
+#signupForm input[type="password"] {
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+#signupForm input[type="text"]:focus,
+#signupForm input[type="email"]:focus,
+#signupForm input[type="password"]:focus {
+    outline: none;
+}
+
+
+/* =========================================================
+   PASSWORD TOGGLE BUTTONS
+========================================================= */
+
+#togglePassword,
+#toggleConfirmPassword {
+    transition: color 0.2s ease;
+}
+
+#togglePassword:hover,
+#toggleConfirmPassword:hover {
+    color: #62bbe8;
+}
+
+
+/* =========================================================
+   TERMS CHECKBOX
+========================================================= */
+
+#terms {
+    accent-color: #62bbe8;
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+#errorMessage {
+    line-height: 1.5;
+}
+
+#errorMessage:not(.hidden) {
+    display: block;
+}
+
+
+/* =========================================================
+   SIGNUP BUTTON
+========================================================= */
+
+#signupButton {
+    transition:
+        background-color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+#signupButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+#signupButton:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+#signupButton:disabled {
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
+
+a {
+    transition:
+        color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 1023px) {
+
+    body > div.relative {
+        min-height: auto;
+    }
+
+}
+
+
+@media (max-width: 640px) {
+
+    body {
+        padding: 12px;
+    }
+
+    body > div.relative {
+        border-radius: 1.5rem;
+    }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid #62bbe8;
+    outline-offset: 2px;
+}

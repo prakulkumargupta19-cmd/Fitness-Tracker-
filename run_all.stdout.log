@@ -1,0 +1,7 @@
+[*] Flask API started (pid=5816)
+[*] Frontend proxy started (pid=16496)
+[+] Open http://localhost:8080
+Frontend with API proxy: http://localhost:8080
+Flask API target: http://127.0.0.1:5000
+ * Serving Flask app 'app'
+ * Debug mode: off

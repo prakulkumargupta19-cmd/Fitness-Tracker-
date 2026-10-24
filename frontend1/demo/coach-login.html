@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coach Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<style>.auth{--img:url("coach.jpg");--hx:6.2cqw;--hy:11.8cqw;--hs:4.05;--hl:1.03;--bw:4.7;--bt:2.6cqw;--pt:1.7cqw;--pw:23.5;--ps:1.25;--pl:1.55;--btn:linear-gradient(90deg,#0a66ff,#0a46d6);}</style>
+</head>
+<body>
+<main class="auth">
+  <section class="art">
+    <div class="copy">
+      <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
+      <div class="bar"></div>
+      <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h1><span>Coach</span> Login</h1>
+    <p class="sub">Sign in to manage your athletes, training plans, progress reports, and feedback.</p>
+
+    <form id="loginForm">
+      <label class="lbl" for="email">Coach Email</label>
+      <div class="field"><input id="email" type="email" placeholder="Enter your coach email" required autofocus></div>
+
+      <label class="lbl" for="password">Password</label>
+      <div class="field"><input id="password" type="password" placeholder="Enter your password" required></div>
+
+      <div class="row">
+        <label><input type="checkbox"> Remember Me</label>
+        <a href="../shared/forgot-password.html">Forgot Password?</a>
+      </div>
+
+      <button class="btn" type="submit">Login as Coach <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+    </form>
+
+    <div class="or">OR</div>
+    <div class="alt"><span>Don't have an account? <a href="../coach/coach-signup.html">Sign Up</a></span></div>
+    <a class="back" href="../index.html">← Back to role selection</a>
+  </section>
+</main>
+<script>
+  const t = document.getElementById("toggle");
+  if (t) t.onclick = () => {
+    const p = document.getElementById("password");
+    p.type = p.type === "password" ? "text" : "password";
+  };
+  document.getElementById("loginForm").onsubmit = e => {
+    e.preventDefault();
+    // TODO: call your coach login API here
+  };
+</script>
+</body>
+</html>

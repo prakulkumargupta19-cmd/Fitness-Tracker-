@@ -655,6 +655,11 @@
                         window.location.assign("coach-loginotp.html");
                         return;
 
+                        if (loginData.otp_required) {
+                            window.location.assign("../shared/login-otp.html");
+                            return;
+                        }
+
 
 
                         /* =========================================

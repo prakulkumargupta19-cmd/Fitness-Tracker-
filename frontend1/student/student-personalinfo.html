@@ -17,101 +17,29 @@
     >
 
     <style>
-        /* SPORTS SELECTION */
-
-        .sports-group {
-            margin-bottom: 24px;
-        }
-
-        .sports-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #10213f;
-        }
-
-        .sports-hint {
-            font-size: 13px;
-            color: #6b7a90;
-            margin: -4px 0 14px;
-        }
-
-        .sports-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .sport-option {
-            position: relative;
-        }
-
-        .sport-option input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .sport-option label {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            border: 1px solid #e4eaf2;
-            border-radius: 10px;
-            background: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #10213f;
-            transition: all 0.2s ease;
-        }
-
-        .sport-option label:hover {
-            border-color: #087cff;
-            background: #f7fbff;
-        }
-
-        .sport-check {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #cbd5e1;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-        }
-
-        .sport-check::after {
-            content: "✓";
-            color: white;
-            font-size: 13px;
-            font-weight: 800;
-            display: none;
-        }
-
-        .sport-option input:checked + label {
-            border-color: #087cff;
-            background: #eef6ff;
-            color: #0564d6;
-        }
-
-        .sport-option input:checked + label .sport-check {
-            background: #087cff;
-            border-color: #087cff;
-        }
-
-        .sport-option input:checked + label .sport-check::after {
-            display: block;
-        }
-
-        @media (max-width: 600px) {
-            .sports-options {
-                grid-template-columns: 1fr;
-            }
-        }
+        .profile-form { width: min(33.3cqw, 100%); }
+        .progress-text { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .progress-text span:nth-child(2) { text-align: center; }
+        .progress-text span:last-child { text-align: right; }
+        .input-with-unit { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
+        .unit-select { min-height: 48px; }
+        .profile-form textarea { resize: none; }
+        .sports-group { margin-bottom: 24px; }
+        .sports-label { display: block; margin-bottom: 8px; font-weight: 700; }
+        .sports-hint { margin: 0 0 12px; color: var(--muted); font-size: .85rem; }
+        .sports-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .sport-option { position: relative; }
+        .sport-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+        .sport-option label { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); cursor: pointer; font-size: .9rem; font-weight: 600; }
+        .sport-check { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 5px; }
+        .sport-option input:checked + label { border-color: #087cff; background: #eef6ff; color: #0564d6; }
+        .sport-option input:checked + label .sport-check { border-color: #087cff; background: #087cff; box-shadow: inset 0 0 0 4px #eef6ff; }
+        .button-container { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-top: 10px; }
+        .next-button { margin-left: auto; }
+        .profile-message { margin: 0 0 12px; color: #be123c; font-size: .9rem; }
+        @media (max-width: 860px) { .profile-form { width: 100%; } }
+        @media (max-width: 600px) { .sports-options { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .progress-text { gap: .25rem; font-size: .75rem; } }
     </style>
 <script src="../js/config.js"></script>
 </head>
@@ -311,9 +239,6 @@
                         </label>
 
                     </div>
-
-
-                    <!-- BASKETBALL -->
 
                     <div class="sport-option">
 

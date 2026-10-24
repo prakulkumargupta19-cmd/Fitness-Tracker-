@@ -1,0 +1,18 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { min-height: 100vh; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(rgba(12, 25, 42, 0.88), rgba(12, 25, 42, 0.94)), url("https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=2000&q=80") center/cover no-repeat; }
+.card { width: 100%; max-width: 450px; background: white; padding: 45px; border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,.45); }
+h1 { text-align: center; font-size: 29px; color: #0f172a; margin-bottom: 10px; }
+h1 span { color: #62bbe8; }
+.subtitle { text-align: center; color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 30px; }
+label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+.group { margin-bottom: 20px; }
+input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 9px; outline: none; }
+input:focus { border-color: #62bbe8; box-shadow: 0 0 0 3px rgba(98, 187, 232, 0.18); }
+button { width: 100%; padding: 14px; border: none; border-radius: 9px; background: #62bbe8; color: white; font-weight: 700; cursor: pointer; transition: 0.25s; box-shadow: 0 4px 14px rgba(98, 187, 232, 0.35); }
+button:hover { background: #50a8d4; }
+.message { text-align: center; margin-top: 15px; font-size: 14px; }
+.message.error { color: #e11d48; }
+.message.success { color: #16a34a; }
+.resend-button { margin-top: 10px; background: #94a3b8; }
+.resend-button:disabled { background: #cbd5e1; cursor: not-allowed; }
+.timer-text { text-align: center; color: #64748b; font-size: 13px; margin-top: 15px; }

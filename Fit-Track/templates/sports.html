@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sports Activities{% endblock %}
+{% block content %}
+<div class="page-title"><div><span class="eyebrow">INSPIRIA SPORTS ECOSYSTEM</span><h1>Active Sports & Facilities</h1><p>Open any sport or facility to view its venue, coach and facility photo gallery.</p></div><span class="count-chip">{{sports|length}} ACTIVE</span></div>
+<div class="sport-catalog">
+{% for s in sports %}
+<a class="sport-card sport-card-link" href="{{url_for('sport_detail',sport_id=s.id)}}">
+  <div class="facility-cover">{% if s.cover_path %}<img src="{{url_for('static',filename=s.cover_path)}}" alt="{{s.venue}}">{% else %}<div class="facility-cover-placeholder"><span>{{s.name[:2]|upper}}</span></div>{% endif %}</div>
+  <div class="sport-card-body"><div class="sport-card-top"><div class="sport-monogram">{{s.name[:2]|upper}}</div><span class="pill {% if s.activity_type=='Coached' %}brand{% endif %}">{{s.activity_type}}</span></div><h2>{{s.name}}</h2><p>{{s.venue or 'Facility name not added'}}</p>{% if s.coach %}<div class="coach-line"><span>Coach</span><b>{{s.coach}}</b></div>{% else %}<div class="coach-line muted"><span>Gallery</span><b>{{s.photo_count}} facility photos</b></div>{% endif %}<div class="open-facility">View facility →</div></div>
+</a>
+{% endfor %}
+</div>
+{% endblock %}
