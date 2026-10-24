@@ -64,7 +64,7 @@
         : ["admin", "coach", "student"].includes((requestedPortalRole || "").toLowerCase())
             ? requestedPortalRole.toLowerCase()
             : "";
-    if (portalRole && typeof window.fetch === "function") {
+    if (typeof window.fetch === "function") {
         const nativeFetch = window.fetch.bind(window);
         window.fetch = function (input, init) {
             let requestUrl;
@@ -81,7 +81,23 @@
             }
             const headers = new Headers(input instanceof Request ? input.headers : undefined);
             new Headers(init && init.headers).forEach((value, name) => headers.set(name, value));
-            headers.set("X-Portal-Role", portalRole);
+            if (portalRole) headers.set("X-Portal-Role", portalRole);
+            const method = String((init && init.method) || (input instanceof Request && input.method) || "GET").toUpperCase();
+            const isWrite = !["GET", "HEAD", "OPTIONS"].includes(method);
+            if (isWrite && requestUrl.pathname !== "/api/csrf-token" && !headers.has("X-CSRFToken")) {
+                const tokenUrl = new URL("/api/csrf-token", apiBase || window.location.origin);
+                return nativeFetch(tokenUrl.toString(), {
+                    method: "GET", credentials: "include",
+                    headers: portalRole ? { "X-Portal-Role": portalRole } : {}, cache: "no-store"
+                }).then((tokenResponse) => {
+                    if (!tokenResponse.ok) throw new Error("Could not verify this session. Refresh and try again.");
+                    return tokenResponse.json();
+                }).then((tokenData) => {
+                    if (!tokenData.csrf_token) throw new Error("Could not verify this session. Refresh and try again.");
+                    headers.set("X-CSRFToken", tokenData.csrf_token);
+                    return nativeFetch(input, { ...(init || {}), headers });
+                });
+            }
             return nativeFetch(input, { ...(init || {}), headers });
         };
     }

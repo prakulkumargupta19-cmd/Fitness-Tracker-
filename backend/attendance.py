@@ -17,9 +17,9 @@ from datetime import date, datetime, timedelta
 from flask import jsonify, request, session
 
 try:
-    from backend.db import get_db
+    from backend.db import database_backend, get_db
 except ModuleNotFoundError:
-    from db import get_db
+    from db import database_backend, get_db
 
 try:
     from backend.auth.decorators import login_required, role_required
@@ -159,7 +159,8 @@ def _coach_owns_sport(cursor, coach_id, sport_id):
                 """SELECT 1 FROM coach_sports cs
                      JOIN users c ON c.id = cs.coach_id
                      WHERE cs.coach_id = %s AND cs.sport_id = %s
-                         AND c.role = 'coach' AND c.coach_status = 'approved'""",
+                         AND c.role = 'coach' AND c.coach_status = 'approved'
+                         AND c.is_active = TRUE""",
         (coach_id, sport_id),
     )
     return cursor.fetchone() is not None
@@ -390,11 +391,30 @@ def register_attendance_routes(app):
                     (coach_id, sport_id, session_date),
                 )
                 session_id = cursor.fetchone()["id"]
+
+                # Older Supabase databases use the attendance_status_type enum,
+                # while fresh installs use TEXT with a CHECK constraint. A CTE
+                # VALUES parameter is typed as TEXT, so cast it explicitly only
+                # when the deployed column is the legacy enum.
+                status_cast = ""
+                if database_backend() == "postgres":
+                    cursor.execute(
+                        """SELECT udt_name FROM information_schema.columns
+                           WHERE table_schema = current_schema()
+                             AND table_name = 'attendance_records'
+                             AND column_name = 'status'"""
+                    )
+                    status_column = cursor.fetchone()
+                    status_cast = (
+                        "::attendance_status_type"
+                        if status_column and status_column["udt_name"] == "attendance_status_type"
+                        else "::text"
+                    )
                 
                 for record in records:
                     cursor.execute(
-                        """WITH attendance_input(session_id, student_id, status) AS (
-                               VALUES (%s, %s, %s)
+                        f"""WITH attendance_input(session_id, student_id, status) AS (
+                               VALUES (%s, %s, %s{status_cast})
                            )
                            INSERT INTO attendance_records
                                (session_id, student_id, status, session_date,
@@ -574,7 +594,8 @@ def register_attendance_routes(app):
                            WHERE cs.coach_id = %s
                              AND cs.sport_id = %s
                              AND c.role = 'coach'
-                             AND c.coach_status = 'approved'""",
+                             AND c.coach_status = 'approved'
+                             AND c.is_active = TRUE""",
                         (coach_id, sport_id),
                     )
 

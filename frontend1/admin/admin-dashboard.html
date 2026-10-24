@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Admin Dashboard | Fitness Tracker</title>
+  <title>Fit Track | Admin Dashboard</title>
 
   <!-- Bootstrap -->
   <link
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
   <link rel="stylesheet" href="../css/common/dashboard-schedule.css">
   <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
+  <link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
 
 <style id="admin-dashboard-attendance-combined-css">
 /* =====================================================
@@ -4226,6 +4227,25 @@ button {
   border: 1px solid #ffd4d4;
 }
 
+.attendance-late-pill,
+.attendance-excused-pill,
+.attendance-unmarked-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 54px;
+  justify-content: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.attendance-late-pill { color: #a45b00; background: #fff6df; border: 1px solid #f5dfa6; }
+.attendance-excused-pill { color: #3152a0; background: #edf3ff; border: 1px solid #d4e1ff; }
+.attendance-unmarked-pill { color: #667085; background: #f2f4f7; border: 1px solid #e4e7ec; }
+
 .attendance-present-pill i,
 .attendance-absent-pill i {
   font-size: 8px;
@@ -4590,7 +4610,7 @@ button {
 
 
     <div class="menu-title">
-      MAIN MENU
+      WORKSPACE
     </div>
 
 
@@ -5402,7 +5422,7 @@ button {
           <div class="attendance-card-heading">
             <div>
               <h3>Mark Attendance</h3>
-              <span>Select sport, date and attendance status for your students.</span>
+              <span>Choose a sport and date, select students, then apply their attendance status.</span>
             </div>
           </div>
 
@@ -5457,7 +5477,7 @@ button {
           <div class="attendance-student-card-heading">
             <div>
               <h3>Students Attendance</h3>
-              <span>List of your students and their attendance for the selected date and sport.</span>
+              <span>Select a sport to view its enrolled students, including students not yet marked for this date.</span>
             </div>
 
             <div class="attendance-heading-pills">
@@ -6164,6 +6184,7 @@ button {
   <script src="../js/config.js"></script>
   <script src="../js/api-client.js"></script>
   <script src="../js/announcements-panel.js"></script>
+  <script src="../js/dashboard-chrome.js"></script>
   <script src="../js/dashboard-events.js?v=event-calendar-8"></script>
   <script>
     // Mount the calendar before the dashboard's larger inline script runs, so
@@ -6293,6 +6314,10 @@ button {
         phone: student.contact_number || "",
         emergency: "",
         email: student.email || "",
+        sports: Array.isArray(student.sports)
+          ? student.sports
+          : String(student.sports || "").split(", ").filter(Boolean),
+        isVerified: student.is_verified !== false,
         sport: Array.isArray(student.sports) && student.sports.length ? student.sports[0] : "",
         position: "",
         performance: 0
@@ -6371,23 +6396,6 @@ button {
       coachSelect.innerHTML = approvedCoaches.filter(item => item.coachStatus === "approved").map(item => `<option value="${item.id}">${item.name}</option>`).join("");
       sportSelect.innerHTML = sportOptions.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
     }
-
-    async function saveAdminAttendance() {
-      const athleteId = Number(document.getElementById("markAthlete").value);
-      const coachId = Number(document.getElementById("markCoach").value);
-      const sportId = Number(document.getElementById("markSport").value);
-      const date = document.getElementById("adminAttendanceDate").value || getToday();
-      const status = document.getElementById("markStatus").value;
-      if (!athleteId || !coachId || !sportId) { alert("Select an athlete, coach, and sport."); return; }
-      try {
-        await requestJson("/api/admin/attendance", { method: "POST", body: JSON.stringify({
-          coach_id: coachId, sport_id: sportId, session_date: date,
-          records: [{ student_id: athleteId, status }]
-        }) });
-        await loadAdminData();
-      } catch (error) { alert(error.message || "Attendance could not be saved."); }
-    }
-
 
     async function loadAdminData() {
 
@@ -8264,10 +8272,30 @@ button {
 
         });
 
-      // The Attendance selector is the status to apply when
-      // "Mark Attendance" is pressed. The student table continues
-      // to show both Present and Absent records.
-      const records = allSelectedDateRecords;
+      // For a specific sport, include every verified student enrolled in
+      // that sport, even when nobody has been marked for this date yet.
+      let records = allSelectedDateRecords;
+      if (sportFilter !== "all") {
+        const rosterSport = selectedSport?.name;
+        const existingByStudent = new Map(
+          allSelectedDateRecords.map(record => [Number(record.athleteId), record])
+        );
+        records = athletes
+          .filter(student => student.isVerified && (student.sports || []).includes(rosterSport))
+          .map(student => {
+            const existing = existingByStudent.get(Number(student.id));
+            return {
+              athleteId: Number(student.id),
+              studentName: student.name,
+              studentEmail: student.email,
+              coachId: existing?.coachId || null,
+              sportId: Number(sportFilter),
+              sportName: rosterSport,
+              date: selectedDate,
+              status: existing?.status || "unmarked"
+            };
+          });
+      }
 
       updateAttendanceSummary(allSelectedDateRecords);
       renderAttendanceProgress(allSelectedDateRecords);
@@ -8285,8 +8313,8 @@ button {
           <tr>
             <td colspan="6" class="attendance-empty-cell">
               <i class="bi bi-calendar-x"></i>
-              <strong>No attendance records found</strong>
-              <span>Choose another date or sport, or ask the assigned coach to mark attendance.</span>
+              <strong>${sportFilter === "all" ? "Choose a sport to mark attendance" : "No students are enrolled in this sport"}</strong>
+              <span>${sportFilter === "all" ? "Select a specific sport above to load its student roster." : "Only verified students enrolled in the selected sport are listed."}</span>
             </td>
           </tr>
         `;
@@ -8305,15 +8333,14 @@ button {
           const studentName = getStudentNameForAttendance(record);
           const studentEmail = getStudentEmailForAttendance(record);
 
-          const statusClass =
-            record.status === "present"
-              ? "attendance-present-pill"
-              : "attendance-absent-pill";
-
-          const statusIcon =
-            record.status === "present"
-              ? "bi-check-circle-fill"
-              : "bi-x-circle-fill";
+          const statusStyles = {
+            present: ["attendance-present-pill", "bi-check-circle-fill", "Present"],
+            absent: ["attendance-absent-pill", "bi-x-circle-fill", "Absent"],
+            late: ["attendance-late-pill", "bi-clock-fill", "Late"],
+            excused: ["attendance-excused-pill", "bi-info-circle-fill", "Excused"],
+            unmarked: ["attendance-unmarked-pill", "bi-dash-circle", "Not marked"]
+          };
+          const [statusClass, statusIcon, statusLabel] = statusStyles[record.status] || statusStyles.unmarked;
 
           const overall =
             getStudentOverallAttendance(
@@ -8353,7 +8380,7 @@ button {
             <td class="attendance-status-cell">
               <span class="${statusClass}">
                 <i class="bi ${statusIcon}"></i>
-                ${capitalize(record.status)}
+                ${statusLabel}
               </span>
             </td>
 
@@ -8370,7 +8397,7 @@ button {
               <button
                 type="button"
                 class="attendance-edit-button"
-                onclick="editAttendance(${record.athleteId}, '${record.date}', this)">
+                ${record.status !== "unmarked" ? `onclick="editAttendance(${record.athleteId}, '${record.date}', ${record.sportId || 0}, this)"` : "disabled"}>
                 <i class="bi bi-pencil"></i>
                 Edit
               </button>
@@ -8406,37 +8433,27 @@ button {
       const status =
         document.getElementById("attendanceStatusFilter")?.value || "present";
 
-      const allMatchingRecords =
-        attendanceRecords.filter(record => {
-
-          if (record.date !== selectedDate) return false;
-
-          if (
-            sportFilter !== "all" &&
-            String(record.sportId) !== String(sportFilter)
-          ) {
-            return false;
-          }
-
-          return record.status === "present" || record.status === "absent";
-
-        });
+      if (sportFilter === "all") {
+        alert("Choose a specific sport before marking attendance.");
+        return;
+      }
 
       const selectedIds = [
         ...document.querySelectorAll(".attendance-row-check:checked")
       ].map(input => Number(input.dataset.studentId));
 
-      const recordsToSave =
-        selectedIds.length
-          ? allMatchingRecords.filter(record =>
-              selectedIds.includes(Number(record.athleteId))
-            )
-          : allMatchingRecords;
+      const selectedSet = new Set(selectedIds);
+      const rosterRows = [
+        ...document.querySelectorAll("#attendanceBody tr[data-student-id]")
+      ];
+      const recordsToSave = rosterRows
+        .filter(row => !selectedSet.size || selectedSet.has(Number(row.dataset.studentId)))
+        .map(row => ({ student_id: Number(row.dataset.studentId), status }));
 
       if (!recordsToSave.length) {
 
         alert(
-          "There are no attendance records to update for the selected date and sport."
+          "There are no enrolled students to mark for the selected sport."
         );
 
         return;
@@ -8445,55 +8462,24 @@ button {
 
       if (
         !confirm(
-          `Mark ${recordsToSave.length} student${recordsToSave.length === 1 ? "" : "s"} as ${capitalize(status)}?`
+          `Mark ${recordsToSave.length} student${recordsToSave.length === 1 ? "" : "s"} as ${capitalize(status)} for ${formatDateDisplay(selectedDate)}?`
         )
       ) {
         return;
       }
 
-      const grouped = new Map();
-
-      recordsToSave.forEach(record => {
-
-        const key = `${record.coachId || "none"}:${record.sportId}`;
-
-        if (!grouped.has(key)) {
-          grouped.set(key, {
-            coach_id: record.coachId,
-            sport_id: record.sportId,
-            session_date: record.date,
-            records: []
-          });
-        }
-
-        grouped.get(key).records.push({
-          student_id: record.athleteId,
-          status
+      try {
+        await requestJson("/api/admin/attendance", {
+          method: "POST",
+          body: JSON.stringify({
+            sport_id: Number(sportFilter),
+            session_date: selectedDate,
+            records: recordsToSave
+          })
         });
 
-      });
-
-      try {
-
-        for (const payload of grouped.values()) {
-
-          if (!payload.coach_id || !payload.sport_id) {
-            throw new Error(
-              "The attendance record is missing its assigned coach or sport. Refresh the page and try again."
-            );
-          }
-
-          await requestJson(
-            "/api/admin/attendance",
-            {
-              method: "POST",
-              body: JSON.stringify(payload)
-            }
-          );
-
-        }
-
         await loadAdminData();
+        alert(`Attendance saved for ${recordsToSave.length} student${recordsToSave.length === 1 ? "" : "s"}.`);
 
       } catch (error) {
 
@@ -8507,12 +8493,13 @@ button {
     }
 
 
-    async function editAttendance(athleteId, date, button) {
+    async function editAttendance(athleteId, date, sportId, button) {
 
       const record =
         attendanceRecords.find(item =>
           Number(item.athleteId) === Number(athleteId) &&
-          item.date === date
+          item.date === date &&
+          Number(item.sportId) === Number(sportId)
         );
 
       if (!record || !button) return;
@@ -8706,10 +8693,12 @@ button {
     ===================================================== */
 
     function logout() {
-
-      window.location.href =
-        "admin-login.html";
-
+      fetch(`${window.FITNESS_API_BASE || ""}/api/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+      }).catch(error => console.warn("Admin sign-out request failed:", error))
+        .finally(() => window.location.replace("admin-login.html"));
     }
 
 

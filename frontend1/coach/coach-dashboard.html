@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coach Dashboard</title>
+  <title>Fit Track | Coach Dashboard</title>
 
   <!-- Bootstrap -->
   <link
@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
 <link rel="stylesheet" href="../css/common/dashboard-schedule.css">
 <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
+<link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
 <script src="../js/config.js"></script>
 </head>
 
@@ -58,7 +59,7 @@
   </div>
 
   <div class="menu-title">
-    MAIN MENU
+    WORKSPACE
   </div>
 
   <div class="nav-menu">
@@ -149,6 +150,11 @@
         Loading…
       </span>
 
+    </button>
+
+    <button class="nav-button sidebar-logout-link" type="button" onclick="logout()">
+      <i class="bi bi-box-arrow-left"></i>
+      <span>Log Out</span>
     </button>
 
   </div>
@@ -970,9 +976,10 @@
   <form id="performanceForm">
     <h2 id="performanceFormTitle"></h2>
     <div id="performanceFormFields"></div>
+    <p id="performanceFormStatus" class="performance-form-status" role="status" aria-live="polite" hidden></p>
     <div class="dialog-actions">
       <button type="button" onclick="document.getElementById('performanceDialog').close()">Cancel</button>
-      <button type="submit">Save record</button>
+      <button type="submit" id="performanceSubmitButton">Save record</button>
     </div>
   </form>
 </dialog>
@@ -983,6 +990,7 @@
 
 <script src="../js/api-client.js"></script>
 <script src="../js/announcements-panel.js"></script>
+<script src="../js/dashboard-chrome.js"></script>
 <script src="../js/dashboard-chat.js"></script>
 <script>
 
@@ -1065,7 +1073,7 @@
         ["start_date", "Start date", "date"], ["target_date", "Target date", "date"],
         ["status", "Status", "goal-status"]
       ],
-      feedback: [["feedback", "Feedback", "textarea", true], ["rating", "Rating (1-5)", "number"]]
+      feedback: [["feedback", "Feedback for the athlete", "textarea", true], ["rating", "Rating", "rating"]]
     }[resource];
     document.getElementById("performanceFormTitle").textContent = `New ${resource.replaceAll("-", " ")} for ${athlete.name}`;
     fieldContainer.replaceChildren();
@@ -1075,6 +1083,16 @@
       let control;
       if (type === "textarea") {
         control = document.createElement("textarea");
+        if (resource === "feedback") {
+          control.maxLength = 2000;
+          control.rows = 6;
+          control.placeholder = "Share a specific observation and one useful next step…";
+          control.setAttribute("aria-describedby", "feedbackCharacterCount");
+        }
+      } else if (type === "rating") {
+        control = document.createElement("select");
+        control.add(new Option("No rating", ""));
+        for (let score = 5; score >= 1; score--) control.add(new Option(`${score} / 5${score === 5 ? " · Excellent" : score === 1 ? " · Needs focus" : ""}`, String(score)));
       } else if (type === "sport" || type === "goal-status") {
         control = document.createElement("select");
         const options = type === "sport"
@@ -1091,27 +1109,56 @@
         control.required = Boolean(required);
       }
       control.name = name;
+      control.required = Boolean(required);
       wrapper.appendChild(control);
+      if (resource === "feedback" && name === "feedback") {
+        const helper = document.createElement("small");
+        helper.id = "feedbackCharacterCount";
+        helper.className = "feedback-character-count";
+        helper.textContent = "0 / 2,000 characters · Keep feedback specific, constructive, and actionable.";
+        control.addEventListener("input", () => { helper.textContent = `${control.value.length.toLocaleString()} / 2,000 characters · Keep feedback specific, constructive, and actionable.`; });
+        wrapper.appendChild(helper);
+      }
       fieldContainer.appendChild(wrapper);
     });
+    const status = document.getElementById("performanceFormStatus");
+    status.hidden = true;
+    status.textContent = "";
+    document.getElementById("performanceSubmitButton").disabled = false;
     document.getElementById("performanceDialog").showModal();
   }
 
   document.getElementById("performanceForm").addEventListener("submit", async event => {
     event.preventDefault();
+    const form = event.currentTarget;
     if (!(await getCoachSession())) return;
-    const payload = Object.fromEntries(new FormData(event.currentTarget));
+    const payload = Object.fromEntries(new FormData(form));
     payload.student_id = activeRecordStudentId;
     if (activeRecordType === "training-sessions") payload.sport_id = Number(payload.sport_id);
     ["speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "overall_score", "duration_minutes", "target_value", "current_value", "rating"].forEach(key => {
       if (payload[key] !== undefined && payload[key] !== "") payload[key] = Number(payload[key]);
     });
+    const submitButton = document.getElementById("performanceSubmitButton");
+    const status = document.getElementById("performanceFormStatus");
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving…";
+    status.hidden = true;
     try {
       await apiRequest(`/api/${activeRecordType}`, { method: "POST", body: JSON.stringify(payload) });
       document.getElementById("performanceDialog").close();
-      alert("Record saved.");
+      form.reset();
+      const toast = document.createElement("div");
+      toast.className = "feedback-save-toast";
+      toast.textContent = activeRecordType === "feedback" ? "Feedback shared with the athlete." : "Record saved.";
+      document.body.appendChild(toast);
+      window.setTimeout(() => toast.remove(), 3200);
     } catch (error) {
-      alert(error.message);
+      status.textContent = error.message || "This record could not be saved. Please try again.";
+      status.dataset.state = "error";
+      status.hidden = false;
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Save record";
     }
   });
   async function initializeCoachDashboard() {

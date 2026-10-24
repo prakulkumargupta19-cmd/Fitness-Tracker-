@@ -92,12 +92,12 @@ def main() -> int:
         processes.append(
             _start([sys.executable, str(frontend_script)], base_dir, "Frontend proxy", environment)
         )
-        print("[+] Open http://localhost:8080", flush=True)
+        print(f"[+] Open http://localhost:{FRONTEND_PORT}", flush=True)
 
         try:
             import webbrowser
 
-            webbrowser.open("http://localhost:8080")
+            webbrowser.open(f"http://localhost:{FRONTEND_PORT}")
         except Exception:
             pass
 

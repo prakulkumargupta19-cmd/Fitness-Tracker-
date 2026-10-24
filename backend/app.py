@@ -126,6 +126,11 @@ def _request_id():
 def start_request_tracking():
     g.request_id = _request_id()
     g.request_started_at = perf_counter()
+    if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"} and request.path.startswith("/api/"):
+        expected = session.get("csrf_token", "")
+        supplied = request.headers.get("X-CSRFToken", "")
+        if not expected or not supplied or not hmac.compare_digest(expected, supplied):
+            return jsonify(success=False, message="Your session could not be verified. Refresh the page and try again."), 403
 
 
 @app.after_request
@@ -158,7 +163,7 @@ def add_cors_headers(response):
         "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     )
     response.headers["Access-Control-Allow-Headers"] = (
-        "Content-Type, Authorization, X-Requested-With, X-Request-ID, X-Portal-Role"
+        "Content-Type, Authorization, X-Requested-With, X-Request-ID, X-Portal-Role, X-CSRFToken"
     )
     if request.path.startswith("/api/"):
         response.headers["X-Request-ID"] = g.get("request_id", _request_id())
@@ -608,30 +613,28 @@ def login():
             403,
         )
 
+    # Students and coaches sign in with their password only. Keep login OTP
+    # enabled for administrators.
     if user["role"] in ("student", "coach"):
         _complete_login(user)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "otp_required": False,
-                    "message": "Login successful.",
-                    "user": {
-                        "id": user["id"],
-                        "role": user["role"],
-                        "full_name": user["full_name"],
-                        "email": user["email"],
-                        "contact_number": user["contact_number"],
-                        "is_verified": bool(user["is_verified"]),
-                        "coach_status": user["coach_status"],
-                    },
-                }
-            ),
-            200,
-        )
+        return jsonify({
+            "success": True,
+            "otp_required": False,
+            "message": "Login successful.",
+            "user": {
+                "id": user["id"],
+                "role": user["role"],
+                "full_name": user["full_name"],
+                "email": user["email"],
+                "contact_number": user["contact_number"],
+                "is_verified": bool(user["is_verified"]),
+                "coach_status": user["coach_status"],
+            },
+        }), 200
 
     otp = generate_otp()
-    if not store_admin_otp(user["id"], "login", otp):
+    otp_storer = store_admin_otp if user["role"] == "admin" else store_otp
+    if not otp_storer(user["id"], "login", otp):
         return jsonify({"success": False, "message": "Too many login codes were requested. Try again in an hour."}), 429
     session.clear()
     session["pending_login_user_id"] = user["id"]
@@ -663,6 +666,11 @@ def login():
 def pending_login_otp():
     user_id = session.get("pending_login_user_id")
     pending_role = session.get("pending_login_role")
+    if pending_role in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
     user = get_user_by_id(user_id, pending_role) if user_id else None
     if not user or user.get("role") != pending_role:
         return jsonify({
@@ -703,6 +711,11 @@ def verify_login_otp():
             jsonify({"success": False, "message": "No account found with this email."}),
             404,
         )
+    if user["role"] in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
     if session.get("pending_login_user_id") != user["id"]:
         return (
             jsonify(
@@ -713,6 +726,8 @@ def verify_login_otp():
             ),
             400,
         )
+    if session.get("pending_login_role") != user["role"]:
+        return jsonify({"success": False, "message": "Login attempt expired. Please log in again."}), 400
     verifier = verify_admin_otp if user["role"] == "admin" else verify_stored_otp
     valid, message = verifier(user["id"], "login", otp)
     if not valid:
@@ -742,6 +757,11 @@ def resend_login_otp():
     data = request.get_json(silent=True) or {}
     email = str(data.get("email") or "").strip().lower()
     user = find_user_by_email(email)
+    if user and user["role"] in ("student", "coach"):
+        return jsonify({
+            "success": False,
+            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
+        }), 403
     if not user or session.get("pending_login_user_id") != (user or {}).get("id"):
         return (
             jsonify(

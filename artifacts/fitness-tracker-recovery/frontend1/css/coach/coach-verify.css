@@ -1,0 +1,540 @@
+/* =========================================================
+   COACH OTP VERIFICATION PAGE
+   Clean centered design
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+
+body {
+    font-family: "Inter", sans-serif;
+    background: #f4f8fc;
+    color: #111827;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px 20px;
+}
+
+
+/* =========================================================
+   PAGE WRAPPER
+========================================================= */
+
+.verification-page {
+    width: 100%;
+
+    min-height: calc(100vh - 60px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   OTP CARD
+========================================================= */
+
+.otp-card {
+    width: 100%;
+    max-width: 380px;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 26px 34px 28px;
+
+    text-align: center;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.08),
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+    border: 1px solid #edf1f6;
+}
+
+
+/* =========================================================
+   EMAIL ICON
+========================================================= */
+
+.otp-icon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 14px;
+
+    border-radius: 50%;
+
+    background: #eaf2ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.otp-icon .material-symbols-outlined {
+    font-size: 28px;
+
+    color: #1268e8;
+
+    font-variation-settings:
+        "FILL" 1,
+        "wght" 500,
+        "GRAD" 0,
+        "opsz" 28;
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.otp-card h1 {
+    font-size: 27px;
+
+    line-height: 1.2;
+
+    font-weight: 800;
+
+    color: #111827;
+
+    margin-bottom: 8px;
+}
+
+
+.otp-card h1 span {
+    color: #1468e8;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.description {
+    max-width: 300px;
+
+    margin: 0 auto;
+
+    color: #71809a;
+
+    font-size: 12.5px;
+
+    line-height: 1.55;
+
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   OTP CONTAINER
+========================================================= */
+
+.otp-container {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   OTP INPUT
+========================================================= */
+
+.otp-input {
+    width: 43px;
+    height: 45px;
+
+    border: 1px solid #d8dee8;
+
+    border-radius: 6px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 20px;
+
+    font-weight: 600;
+
+    color: #111827;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.otp-input:hover {
+    border-color: #b9c6d8;
+}
+
+
+.otp-input:focus {
+    border-color: #1268e8;
+
+    box-shadow:
+        0 0 0 2px rgba(18, 104, 232, 0.12);
+
+    background: #fbfdff;
+}
+
+
+/* =========================================================
+   RESEND SECTION
+========================================================= */
+
+.resend {
+    margin-top: 17px;
+
+    font-size: 11px;
+
+    color: #6f7d92;
+
+    line-height: 1.5;
+}
+
+
+.resend button {
+    border: none;
+
+    background: transparent;
+
+    padding: 0;
+
+    margin-left: 3px;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #1268e8;
+
+    cursor: pointer;
+}
+
+
+.resend button:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+
+.resend button:disabled {
+    color: #a7b0bf;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+.timer {
+    margin-top: 5px;
+
+    font-size: 10px;
+
+    color: #98a3b4;
+
+    line-height: 1.4;
+}
+
+
+.timer strong {
+    color: #1268e8;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   VERIFY BUTTON
+========================================================= */
+
+.verify-button {
+    width: 100%;
+
+    height: 40px;
+
+    margin-top: 16px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #1268e8;
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 12px rgba(18, 104, 232, 0.20);
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.verify-button:hover:not(:disabled) {
+    background: #0d5ed8;
+
+    box-shadow:
+        0 7px 16px rgba(18, 104, 232, 0.25);
+
+    transform: translateY(-1px);
+}
+
+
+.verify-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+.verify-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+.verify-button .material-symbols-outlined {
+    font-size: 17px;
+
+    font-variation-settings:
+        "FILL" 0,
+        "wght" 500,
+        "GRAD" 0,
+        "opsz" 20;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.message {
+    min-height: 0;
+
+    margin-top: 8px;
+
+    font-size: 10.5px;
+
+    line-height: 1.4;
+
+    font-weight: 500;
+}
+
+
+.message:empty {
+    display: none;
+}
+
+
+.message.error {
+    color: #dc3545;
+}
+
+
+.message.success {
+    color: #198754;
+}
+
+
+/* =========================================================
+   OR DIVIDER
+========================================================= */
+
+.or-divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 16px;
+
+    width: 100%;
+}
+
+
+.or-divider span {
+    height: 1px;
+
+    background: #dfe4eb;
+
+    flex: 1;
+}
+
+
+.or-divider strong {
+    color: #98a2b1;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   BACK TO LOGIN
+========================================================= */
+
+.change-email {
+    margin-top: 14px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 3px;
+
+    text-decoration: none;
+
+    color: #1268e8;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+
+.change-email:hover {
+    color: #0b55c4;
+
+    text-decoration: none;
+}
+
+
+.change-email .material-symbols-outlined {
+    font-size: 15px;
+
+    font-variation-settings:
+        "FILL" 0,
+        "wght" 600,
+        "GRAD" 0,
+        "opsz" 20;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    body {
+        padding: 20px 15px;
+    }
+
+
+    .verification-page {
+        min-height: calc(100vh - 40px);
+    }
+
+
+    .otp-card {
+        max-width: 360px;
+
+        padding: 24px 22px 25px;
+    }
+
+
+    .otp-card h1 {
+        font-size: 25px;
+    }
+
+
+    .description {
+        font-size: 12px;
+    }
+
+
+    .otp-container {
+        gap: 6px;
+    }
+
+
+    .otp-input {
+        width: 41px;
+        height: 44px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 350px) {
+
+    .otp-card {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+
+    .otp-container {
+        gap: 4px;
+    }
+
+
+    .otp-input {
+        width: 39px;
+        height: 42px;
+    }
+
+}

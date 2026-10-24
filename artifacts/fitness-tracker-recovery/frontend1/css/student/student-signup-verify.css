@@ -1,0 +1,545 @@
+/* =========================================================
+   STUDENT SIGNUP OTP VERIFICATION
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: "Inter", Arial, Helvetica, sans-serif;
+
+    min-height: 100vh;
+
+    background: #f4f7fb;
+
+    color: #111827;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.verify-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px 20px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.verify-card {
+    width: 100%;
+    max-width: 390px;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 30px 34px 27px;
+
+    text-align: center;
+
+    box-shadow:
+        0 8px 30px rgba(15, 23, 42, 0.10);
+
+    border: 1px solid #eef2f7;
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.verify-icon {
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    background: #e8f0ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.verify-icon span {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background: #1769e0;
+
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 19px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   HEADING
+   ========================================================= */
+
+.verify-card h1 {
+    margin: 0 0 8px;
+
+    font-size: 26px;
+
+    line-height: 1.25;
+
+    font-weight: 800;
+
+    color: #111827;
+}
+
+
+.verify-card h1 span {
+    color: #0969df;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.description {
+    max-width: 285px;
+
+    margin: 0 auto 19px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   EMAIL
+   ========================================================= */
+
+.email-display {
+    margin-bottom: 18px;
+
+    padding: 9px 12px;
+
+    background: #f7f9fc;
+
+    border-radius: 7px;
+
+    color: #7a8494;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+
+.email-display strong {
+    margin-left: 4px;
+
+    color: #263244;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   OTP
+   ========================================================= */
+
+.otp-container {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    margin-bottom: 13px;
+}
+
+
+.otp-input {
+    width: 45px;
+    height: 47px;
+
+    padding: 0;
+
+    border: 1px solid #d9dee7;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    text-align: center;
+
+    font-family: inherit;
+
+    font-size: 19px;
+
+    font-weight: 600;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.otp-input:focus {
+    border-color: #1769e0;
+
+    background: #fbfdff;
+
+    box-shadow:
+        0 0 0 2px rgba(23, 105, 224, 0.12);
+}
+
+
+/* =========================================================
+   RESEND
+   ========================================================= */
+
+.resend-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: #6b7280;
+}
+
+
+.resend-row button {
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #1268d9;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.resend-row button:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+
+.resend-row button:disabled {
+    color: #aab2be;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+
+.timer {
+    margin-top: 7px;
+
+    color: #9aa3af;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+.timer strong {
+    color: #1769e0;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   VERIFY BUTTON
+   ========================================================= */
+
+.verify-button {
+    width: 100%;
+
+    height: 41px;
+
+    margin-top: 17px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: linear-gradient(
+        90deg,
+        #1168df,
+        #087cf2
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 13px rgba(17, 104, 223, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.verify-button span {
+    margin-left: 4px;
+
+    font-size: 14px;
+}
+
+
+.verify-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px rgba(17, 104, 223, 0.25);
+}
+
+
+.verify-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+.verify-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.message {
+    display: none;
+
+    margin-top: 12px;
+
+    padding: 9px 10px;
+
+    border-radius: 6px;
+
+    font-size: 10px;
+
+    line-height: 1.45;
+
+    text-align: left;
+}
+
+
+.message.success {
+    display: block;
+
+    background: #ecfdf3;
+
+    color: #16803c;
+
+    border: 1px solid #b9ebcb;
+}
+
+
+.message.error {
+    display: block;
+
+    background: #fff1f2;
+
+    color: #be123c;
+
+    border: 1px solid #fecdd3;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 19px 0 16px;
+}
+
+
+.divider span {
+    flex: 1;
+
+    height: 1px;
+
+    background: #e5e7eb;
+}
+
+
+.divider strong {
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   BACK TO LOGIN
+   ========================================================= */
+
+.back-login {
+    display: inline-block;
+
+    color: #1769e0;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+
+.back-login:hover {
+    color: #0754bd;
+
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+    .verify-page {
+        padding: 20px 15px;
+    }
+
+
+    .verify-card {
+        max-width: 360px;
+
+        padding: 27px 22px 24px;
+
+        border-radius: 13px;
+    }
+
+
+    .verify-icon {
+        width: 54px;
+        height: 54px;
+
+        margin-bottom: 16px;
+    }
+
+
+    .verify-card h1 {
+        font-size: 24px;
+    }
+
+
+    .description {
+        font-size: 11px;
+
+        max-width: 270px;
+    }
+
+
+    .otp-container {
+        gap: 5px;
+    }
+
+
+    .otp-input {
+        width: 42px;
+        height: 45px;
+
+        font-size: 18px;
+    }
+
+}
+
+
+@media (max-width: 350px) {
+
+    .verify-card {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+
+    .otp-container {
+        gap: 4px;
+    }
+
+
+    .otp-input {
+        width: 39px;
+        height: 43px;
+    }
+
+}

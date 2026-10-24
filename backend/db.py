@@ -12,6 +12,10 @@ import threading
 from pathlib import Path
 
 import psycopg
+try:
+    from psycopg_pool import ConnectionPool
+except ImportError:  # Local installs can continue using the direct connection.
+    ConnectionPool = None
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
@@ -23,6 +27,25 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 LOCAL_SCHEMA_PATH = Path(__file__).resolve().parent / "local_schema.sql"
 _local_schema_lock = threading.Lock()
 _local_schema_ready: set[str] = set()
+_postgres_pool = None
+_postgres_pool_lock = threading.Lock()
+
+
+class PooledConnection:
+    """Return a serverless request's connection to the warm process pool."""
+
+    def __init__(self, pool, connection):
+        self._pool = pool
+        self._connection = connection
+        self._returned = False
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
+
+    def close(self):
+        if not self._returned:
+            self._returned = True
+            self._pool.putconn(self._connection)
 
 
 class DatabaseConnectionError(RuntimeError):
@@ -262,13 +285,28 @@ def get_db():
             "SUPABASE_DB_URL environment variable is not configured."
         )
 
+    global _postgres_pool
     try:
-        return psycopg.connect(
-            database_url,
-            row_factory=dict_row,
-            connect_timeout=int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
-        )
-    except psycopg.Error as error:
+        if ConnectionPool is None:
+            return psycopg.connect(
+                database_url,
+                row_factory=dict_row,
+                connect_timeout=int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+            )
+        if _postgres_pool is None:
+            with _postgres_pool_lock:
+                if _postgres_pool is None:
+                    _postgres_pool = ConnectionPool(
+                        conninfo=database_url,
+                        min_size=0,
+                        max_size=max(1, min(3, int(os.getenv("DB_POOL_MAX", "2")))),
+                        timeout=float(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+                        kwargs={"row_factory": dict_row, "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
+                        open=False,
+                    )
+                    _postgres_pool.open(wait=False)
+        return PooledConnection(_postgres_pool, _postgres_pool.getconn())
+    except Exception as error:
         raise DatabaseConnectionError(
             "Could not connect to the configured PostgreSQL database."
         ) from error

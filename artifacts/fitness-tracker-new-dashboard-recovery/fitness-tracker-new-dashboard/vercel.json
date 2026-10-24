@@ -1,0 +1,23 @@
+{
+  "buildCommand": "DATABASE_BACKEND=postgres python backend/setup_and_run.py --init-only",
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend1/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend1/$1"
+    }
+  ]
+}

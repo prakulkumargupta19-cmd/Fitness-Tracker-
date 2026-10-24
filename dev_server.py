@@ -17,6 +17,7 @@ API_ORIGIN = os.getenv(
     "FITNESS_API_ORIGIN",
     f"http://127.0.0.1:{os.getenv('PORT', '5000')}",
 ).rstrip("/")
+FRONTEND_PORT = int(os.getenv("FITNESS_FRONTEND_PORT", "8080"))
 PROXY_PATHS = ("/api/", "/session", "/logout")
 
 
@@ -105,7 +106,7 @@ class FrontendHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("127.0.0.1", 8080), FrontendHandler)
-    print("Frontend with API proxy: http://localhost:8080", flush=True)
+    server = ThreadingHTTPServer(("127.0.0.1", FRONTEND_PORT), FrontendHandler)
+    print(f"Frontend with API proxy: http://localhost:{FRONTEND_PORT}", flush=True)
     print("Flask API target: http://127.0.0.1:5000", flush=True)
     server.serve_forever()

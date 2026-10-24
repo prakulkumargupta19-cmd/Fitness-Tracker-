@@ -486,13 +486,6 @@
                             throw new Error("The server did not confirm coach login.");
                         }
 
-                        if (loginData.otp_required) {
-                            window.location.assign("../shared/login-otp.html");
-                            return;
-                        }
-
-
-
                         /* =========================================
                            STEP 2
 

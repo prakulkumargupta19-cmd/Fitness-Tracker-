@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Create Account | Fitness Performance Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <script src="../js/config.js"></script>
+    <link rel="stylesheet" href="../css/common/app-theme.css">
+    <link rel="stylesheet" href="../demo/auth.css">
+    <link rel="stylesheet" href="../css/coach/coach-signup.css">
+    <link rel="stylesheet" href="../css/coach/coach-portal.css?v=6">
+    <style>
+        .auth { --img: url("../demo/coach.jpg"); --btn: linear-gradient(90deg, #0a66ff, #0a46d6); }
+        .auth > .art { background-image: linear-gradient(rgba(3,16,34,.30), rgba(3,16,34,.48)), url("../demo/coach.jpg"); background-position: center; background-size: cover; }
+        .coach-signup-panel { align-items: stretch; justify-content: flex-start; overflow-y: auto; }
+        .coach-signup-content { width: min(33.3cqw, 100%); margin: 0 auto; }
+        .coach-signup-content h1 { margin: 0; }
+        .coach-signup-content header { margin-bottom: 22px; }
+        .signup-field { margin-bottom: 15px; }
+        .signup-field label { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
+        .signup-field input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--field); color: var(--ink); font: 400 14px/1.4 Inter, sans-serif; }
+        .signup-field input:focus { border-color: #8dbcff; outline: 0; background: #eef5ff; box-shadow: 0 0 0 3px rgba(60,135,255,.18); }
+        .password-field { position: relative; }
+        .password-field input { padding-right: 46px; }
+        .password-toggle { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #7b86a3; cursor: pointer; }
+        .password-toggle svg { width: 19px; height: 19px; }
+        .terms-row { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0 16px; color: #53617a; font-size: 13px; line-height: 1.45; }
+        .terms-row input { width: 16px; height: 16px; margin-top: 1px; accent-color: #0a63ff; }
+        .terms-row a, .signup-links a { color: #0a63ff; font-weight: 700; }
+        .signup-error { margin-bottom: 12px; padding: 10px 12px; border: 1px solid #fecdd3; border-radius: 8px; background: #fff1f2; color: #be123c; font-size: 13px; line-height: 1.5; }
+        .signup-error[hidden] { display: none; }
+        .signup-submit { width: 100%; min-height: 48px; border: 0; border-radius: 9px; background: linear-gradient(90deg, #0a66ff, #00a6ff); color: #fff; font: 700 14px Inter, sans-serif; box-shadow: 0 8px 18px rgba(10,99,255,.22); cursor: pointer; }
+        .signup-submit:disabled { opacity: .65; cursor: not-allowed; }
+        .signup-links { margin-top: 18px; color: #7b86a3; font-size: 13px; line-height: 1.7; text-align: center; }
+        .signup-links p { margin: 0; }
+        @media (max-width: 860px) { .coach-signup-panel { padding: 28px 20px 30px; } .coach-signup-content { width: 100%; } }
+    </style>
+</head>
+<body data-portal-role="coach">
+    <main class="auth">
+        <section class="art">
+            <div class="copy">
+                <h2>Empower<br>Athletes.<br><span class="accent">Build<br>Better<br>Performance.</span></h2>
+                <div class="bar"></div>
+                <p>Manage training plans, monitor progress, provide feedback, and help athletes achieve their goals.</p>
+            </div>
+        </section>
+
+        <section class="panel coach-signup-panel">
+            <div class="coach-signup-content">
+                <header>
+                    <h1><span class="text-brand">Coach</span> Create Account</h1>
+                    <p class="text-muted">Create your coach account to manage athletes, training plans, progress reports, and feedback.</p>
+                </header>
+
+                <form id="signupForm" novalidate>
+                    <div class="signup-field"><label for="fullName">Full Name</label><input type="text" id="fullName" autocomplete="name" required></div>
+                    <div class="signup-field"><label for="contactNumber">Contact Number</label><input type="tel" id="contactNumber" inputmode="numeric" maxlength="10" autocomplete="tel" required></div>
+                    <div class="signup-field"><label for="coachEmail">Coach Email</label><input type="email" id="coachEmail" autocomplete="email" required></div>
+
+                    <div class="signup-field">
+                        <label for="password">Password</label>
+                        <div class="password-field"><input type="password" id="password" autocomplete="new-password" minlength="8" required><button type="button" class="password-toggle" id="togglePassword" aria-label="Show password" aria-pressed="false"><svg id="passwordEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div>
+                    </div>
+
+                    <div class="signup-field">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-field"><input type="password" id="confirmPassword" autocomplete="new-password" minlength="8" required><button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Show confirm password" aria-pressed="false"><svg id="confirmPasswordEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div>
+                    </div>
+
+                    <label class="terms-row" for="terms"><input type="checkbox" id="terms" required><span>I agree to the <a href="#">Terms &amp; Privacy Policy</a>.</span></label>
+                    <div id="errorMessage" class="signup-error" role="alert" aria-live="polite" hidden></div>
+                    <button type="submit" id="signupButton" class="signup-submit"><span id="buttonText">Create Account</span> →</button>
+                </form>
+
+                <div class="signup-links">
+                    <p>Already have an account? <a href="coach-login.html">Sign In</a></p>
+                    <p><a href="../index.html">← Back to role selection</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const form = document.getElementById("signupForm");
+            const button = document.getElementById("signupButton");
+            const buttonText = document.getElementById("buttonText");
+            const error = document.getElementById("errorMessage");
+
+            function showError(text) { error.textContent = text; error.hidden = false; }
+            function setupToggle(inputId, buttonId, iconId, label) {
+                const input = document.getElementById(inputId);
+                const toggle = document.getElementById(buttonId);
+                const icon = document.getElementById(iconId);
+                toggle.addEventListener("click", function () {
+                    const visible = input.type === "password";
+                    input.type = visible ? "text" : "password";
+                    toggle.setAttribute("aria-label", (visible ? "Hide " : "Show ") + label);
+                    toggle.setAttribute("aria-pressed", String(visible));
+                    icon.innerHTML = visible ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>' : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                });
+            }
+            setupToggle("password", "togglePassword", "passwordEye", "password");
+            setupToggle("confirmPassword", "toggleConfirmPassword", "confirmPasswordEye", "confirm password");
+
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                error.hidden = true;
+                if (!form.reportValidity()) return;
+
+                const contactNumber = document.getElementById("contactNumber").value.trim();
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                if (!/^\d{10}$/.test(contactNumber)) { showError("Please enter a valid 10-digit contact number."); return; }
+                if (password.length < 8) { showError("Password must contain at least 8 characters."); return; }
+                if (password !== confirmPassword) { showError("Passwords do not match."); return; }
+
+                button.disabled = true;
+                buttonText.textContent = "Creating Account...";
+                try {
+                    const response = await fetch((window.FITNESS_API_BASE || "") + "/api/signup", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({
+                            name: document.getElementById("fullName").value.trim(),
+                            email: document.getElementById("coachEmail").value.trim().toLowerCase(),
+                            contact_number: contactNumber,
+                            password: password,
+                            confirm_password: confirmPassword,
+                            role: "coach",
+                        })
+                    });
+                    const data = await response.json().catch(function () { return {}; });
+                    if (!response.ok || !data.success) throw new Error(data.message || "Unable to create coach account.");
+                    sessionStorage.setItem("authEmail", document.getElementById("coachEmail").value.trim().toLowerCase());
+                    window.location.href = "coach-signup-verify.html";
+                } catch (requestError) {
+                    console.error("Coach signup error:", requestError);
+                    showError(requestError.message || "Unable to create account. Please try again.");
+                    button.disabled = false;
+                    buttonText.textContent = "Create Account";
+                }
+            });
+        }());
+    </script>
+</body>
+</html>

@@ -474,13 +474,6 @@ loginForm.addEventListener(
                LOGIN SUCCESS
             ================================================= */
 
-            if (data.otp_required) {
-                showMessage("Login successful. Opening OTP verification...", "success");
-                loginButton.textContent = "Opening OTP verification...";
-                window.location.replace("../shared/login-otp.html");
-                return;
-            }
-
             const sessionResponse = await fetch(API_BASE + "/api/session", {
                 credentials: "include"
             });

@@ -1,40 +1,36 @@
-# Deploy the Fitness Tracker on Vercel
+# Fit Track: Vercel deployment
 
-The upload archive is `artifacts/fitness-tracker-vercel.zip`. Create it from the project root with:
+The app is configured as a Vercel static frontend plus a Python Flask function, using Supabase PostgreSQL for persistent application data and a private Supabase Storage bucket for uploads and generated certificates.
 
-```powershell
-python scripts/package_vercel.py
-```
+## Deploy
 
-Then open [Vercel Drop](https://vercel.com/drop), upload that ZIP, choose your team, and deploy. The ZIP contains the static frontend, Flask API, Python dependencies, and Vercel routing configuration. It deliberately excludes `.env`, local database files, caches, tests, and the prototype project.
+Connect the Git repository to Vercel and set the project root to this repository. Vercel reads `vercel.json`, installs `requirements.txt`, serves `frontend1`, and routes `/api/*` to `api/index.py`. Alternatively, build the source archive with `python scripts/package_vercel.py` and upload the generated `artifacts/fitness-tracker-vercel.zip` to [Vercel Drop](https://vercel.com/drop).
 
-## Configure the live services
+## Required Vercel environment variables
 
-The project needs a hosted PostgreSQL database. Vercel's temporary function filesystem and the local SQLite file are not persistent production databases.
+Set these for Production and Preview environments. Keep secrets server-side; never put the service role key or database URI in frontend configuration.
 
-1. Create a Supabase project and copy its PostgreSQL connection URI.
-2. In the Vercel project's **Settings → Environment Variables**, add these values for **Production** (and Preview too if you will test Preview deployments):
+| Variable | Value |
+| --- | --- |
+| `APP_ENV` | `production` |
+| `DATABASE_BACKEND` | `postgres` |
+| `SUPABASE_DB_URL` | Supabase PostgreSQL connection string with SSL. For serverless use the Supabase pooler connection string. |
+| `DB_POOL_MAX` | `2` |
+| `SECRET_KEY` | Unique random value with at least 32 random bytes |
+| `SUPABASE_URL` | Project URL, e.g. `https://<project-ref>.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only service role key; never expose it in the browser |
+| `FIT_TRACK_STORAGE_BUCKET` | `fit-track-uploads` |
+| `FRONTEND_URL` | Exact deployed origin, e.g. `https://your-project.vercel.app` |
+| `FITNESS_TEST_MODE` | `false` |
+| `MAIL_SERVER`, `MAIL_PORT`, `MAIL_SECURITY` | SMTP host, port, and `starttls` (if email OTPs are used) |
+| `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` | SMTP credentials and verified sender (if email OTPs are used) |
 
-   | Name | Value |
-   | --- | --- |
-   | `DATABASE_BACKEND` | `postgres` |
-   | `SUPABASE_DB_URL` | Supabase PostgreSQL connection URI, including SSL mode |
-   | `SECRET_KEY` | A unique random secret, at least 32 random bytes |
-   | `APP_ENV` | `production` |
-   | `FITNESS_TEST_MODE` | `false` |
-   | `FRONTEND_URL` | The exact deployed origin, such as `https://your-project.vercel.app` |
-   | `MAIL_SERVER` | Your SMTP server hostname |
-   | `MAIL_PORT` | Your SMTP port, usually `587` |
-   | `MAIL_SECURITY` | `starttls` |
-   | `MAIL_USERNAME` | Your SMTP username |
-   | `MAIL_PASSWORD` | Your SMTP password or provider app password |
-   | `MAIL_FROM` | Verified sender address |
+Create the `fit-track-uploads` bucket in Supabase Storage before deploying. Keep it **private**; the API streams files through authenticated routes. Do not create public policies for the service role key. Upload files are limited by `FIT_TRACK_MAX_UPLOAD_MB` (default 16 MB). Set Vercel's database URL to Supabase's pooler URI, preferably in transaction mode, to avoid using a new direct database connection for every serverless instance. Keep the Vercel function and Supabase database in nearby regions when the project settings allow it.
 
-   Keep secrets in Vercel settings; do not add them to this ZIP or to frontend files. `SESSION_COOKIE_SECURE` is enabled automatically on Vercel.
+## Database and first administrator
 
-3. Apply the database schema and migrations once to the Supabase database using `backend/setup_and_run.py --init-only` from a trusted local checkout with the production database URL configured. To create the first admin at the same time, also set `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` in that local process environment. Do not run this against a database containing unrelated data. Clear the initial admin password from the environment after setup.
-4. Redeploy after adding environment variables, then check `https://your-project.vercel.app/api/health`.
+This project’s current Supabase schema is already initialized. If deploying to a different or empty Supabase project, apply the repository schema and migrations once from a trusted local environment. Only create an initial admin if the target database has none; configure `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` only in that trusted setup process, then remove them.
 
-## Before inviting real users
+## Go-live checks
 
-File uploads currently use local disk storage, which Vercel does not preserve. Uploads and generated certificates therefore need an object-storage integration (such as Supabase Storage) before those features can be relied on. The project also still needs CSRF protection and a live SMTP/database deployment check. The ZIP makes the project deployable; it does not provision these external services or make those application gaps disappear.
+After setting variables and redeploying, open `/api/health` and confirm the JSON reports `status: ok` and `database: ok`. Then verify sign-in/OTP email, an upload, and a file download in the deployed app. Vercel project variables, the Storage bucket, SMTP delivery, and the actual hosted deployment must be checked in the user's Vercel/Supabase accounts; they cannot be provisioned by this source archive alone.

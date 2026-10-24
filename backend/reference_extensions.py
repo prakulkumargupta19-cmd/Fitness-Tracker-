@@ -7,8 +7,10 @@ file endpoints without replacing the existing login or OTP implementation.
 
 from datetime import date, datetime, timedelta
 import io
+import mimetypes
 import os
 from pathlib import Path
+import tempfile
 from uuid import uuid4
 
 from flask import Response, jsonify, request, send_file, session
@@ -16,6 +18,7 @@ from werkzeug.utils import secure_filename
 
 try:
     from backend.db import get_db
+    from backend.object_storage import StorageConfigurationError, download as storage_download, upload as storage_upload
     from backend.auth.decorators import role_required
     from backend.reference_features import (
         _coach_can_access_enrollment,
@@ -27,6 +30,7 @@ try:
     )
 except ModuleNotFoundError:
     from db import get_db
+    from object_storage import StorageConfigurationError, download as storage_download, upload as storage_upload
     from auth.decorators import role_required
     from reference_features import (
         _coach_can_access_enrollment,
@@ -77,8 +81,10 @@ def _upload(file_storage, folder, allowed_extensions):
     target_dir = UPLOAD_ROOT / folder
     target_dir.mkdir(parents=True, exist_ok=True)
     target = target_dir / f"{uuid4().hex}.{extension}"
-    file_storage.save(target)
-    return str(Path("uploads") / folder / target.name).replace("\\", "/")
+    relative = str(Path("uploads") / folder / target.name).replace("\\", "/")
+    data = file_storage.read()
+    storage_upload(relative, data, file_storage.mimetype, target)
+    return relative
 
 
 def _uploaded_path(relative_path):
@@ -89,6 +95,19 @@ def _uploaded_path(relative_path):
     if root not in path.parents and path != root:
         return None
     return path
+
+
+def _file_response(relative_path, as_attachment=False, download_name=None):
+    """Serve a private stored object through the authenticated Flask route."""
+    stored = storage_download(relative_path)
+    if stored is not None:
+        content, content_type = stored
+        return send_file(io.BytesIO(content), mimetype=content_type,
+                         as_attachment=as_attachment, download_name=download_name)
+    path = _uploaded_path(relative_path)
+    if not path or not path.is_file():
+        return None
+    return send_file(path, as_attachment=as_attachment, download_name=download_name)
 
 
 def _passport_id(student_id):
@@ -630,10 +649,10 @@ def register_reference_extension_routes(app):
                 return jsonify(success=False, message="Media not found."), 404
         finally:
             db.close()
-        path = _uploaded_path(row["file_path"])
-        if not path or not path.is_file():
+        response = _file_response(row["file_path"], as_attachment=True)
+        if response is None:
             return jsonify(success=False, message="Media file is unavailable."), 404
-        return send_file(path, as_attachment=True)
+        return response
 
     @app.route("/api/fit-track/facility-media/<int:media_id>/download", methods=["GET"])
     @ALL_USERS
@@ -647,10 +666,10 @@ def register_reference_extension_routes(app):
                 return jsonify(success=False, message="Facility media not found."), 404
         finally:
             db.close()
-        path = _uploaded_path(row["file_path"])
-        if not path or not path.is_file():
+        response = _file_response(row["file_path"], as_attachment=True)
+        if response is None:
             return jsonify(success=False, message="Facility file is unavailable."), 404
-        return send_file(path, as_attachment=True)
+        return response
 
     @app.route("/api/fit-track/announcements/<int:announcement_id>/image", methods=["GET"])
     @ALL_USERS
@@ -664,10 +683,10 @@ def register_reference_extension_routes(app):
                 return jsonify(success=False, message="Announcement image not found."), 404
         finally:
             db.close()
-        path = _uploaded_path(row["image_path"])
-        if not path or not path.is_file():
+        response = _file_response(row["image_path"])
+        if response is None:
             return jsonify(success=False, message="Announcement image is unavailable."), 404
-        return send_file(path)
+        return response
 
     @app.route("/api/fit-track/draws/<int:draw_id>/download", methods=["GET"])
     @ALL_USERS
@@ -681,10 +700,10 @@ def register_reference_extension_routes(app):
                 return jsonify(success=False, message="Draw document not found."), 404
         finally:
             db.close()
-        path = _uploaded_path(row["file_path"])
-        if not path or not path.is_file():
+        response = _file_response(row["file_path"], as_attachment=True)
+        if response is None:
             return jsonify(success=False, message="Draw document is unavailable."), 404
-        return send_file(path, as_attachment=True)
+        return response
 
     @app.route("/api/fit-track/facilities/<int:sport_id>/cover", methods=["POST", "DELETE"])
     @ADMIN
@@ -776,9 +795,15 @@ def register_reference_extension_routes(app):
                 template = cursor.fetchone()
                 if not event or not template:
                     return jsonify(success=False, message="Tournament or certificate template not found."), 404
+                template_content = storage_download(template["file_path"])
                 template_path = _uploaded_path(template["file_path"])
-                if not template_path or not template_path.is_file():
+                if template_content is None and (not template_path or not template_path.is_file()):
                     return jsonify(success=False, message="Certificate template file is unavailable."), 404
+                if template_content is not None:
+                    temp_template = tempfile.NamedTemporaryFile(delete=False, suffix=Path(template["file_path"]).suffix)
+                    temp_template.write(template_content[0])
+                    temp_template.close()
+                    template_path = Path(temp_template.name)
                 cursor.execute("SELECT * FROM event_participants WHERE tournament_id=%s ORDER BY id", (tournament_id,))
                 participants = cursor.fetchall()
                 selected = [(participant, None) for participant in participants]
@@ -845,10 +870,10 @@ def register_reference_extension_routes(app):
                 return jsonify(success=False, message="Only the linked student or an admin may download this certificate."), 403
         finally:
             db.close()
-        path = _uploaded_path(certificate["file_path"])
-        if not path or not path.is_file():
+        response = _file_response(certificate["file_path"], as_attachment=True, download_name=f"{certificate['certificate_no']}.pdf")
+        if response is None:
             return jsonify(success=False, message="Certificate file is unavailable."), 404
-        return send_file(path, as_attachment=True, download_name=f"{certificate['certificate_no']}.pdf")
+        return response
 
 
 def _upload_generated_certificate(template_path, participant, event, certificate_type, certificate_no, achievement):
@@ -861,7 +886,7 @@ def _upload_generated_certificate(template_path, participant, event, certificate
     except ImportError as exc:
         raise ValueError("Certificate generation dependencies are not installed.") from exc
     relative = Path("uploads") / "certificates" / "generated" / f"{uuid4().hex}.pdf"
-    output_path = UPLOAD_ROOT.parent / relative
+    output_path = Path(tempfile.gettempdir()) / f"fit-track-{uuid4().hex}.pdf"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     extension = template_path.suffix.lower()
     if extension == ".pdf":
@@ -912,4 +937,6 @@ def _upload_generated_certificate(template_path, participant, event, certificate
         painter.setFont("Helvetica", 8)
         painter.drawCentredString(width / 2, height * 0.09, f"Certificate No: {certificate_no}")
         painter.save()
+    storage_upload(str(relative).replace("\\", "/"), output_path.read_bytes(), "application/pdf", UPLOAD_ROOT.parent / relative)
+    output_path.unlink(missing_ok=True)
     return str(relative).replace("\\", "/")
