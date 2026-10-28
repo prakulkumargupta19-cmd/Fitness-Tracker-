@@ -298,9 +298,15 @@ def get_db():
                 if _postgres_pool is None:
                     _postgres_pool = ConnectionPool(
                         conninfo=database_url,
-                        min_size=0,
-                        max_size=max(1, min(3, int(os.getenv("DB_POOL_MAX", "2")))),
+                        # Keep a connection ready on warm serverless instances so
+                        # requests don't pay PostgreSQL connection setup latency.
+                        # Supabase may close idle sessions; validate a pooled
+                        # connection before reuse so a warm Vercel instance does
+                        # not hand a stale connection to the next request.
+                        min_size=max(0, min(2, int(os.getenv("DB_POOL_MIN", "1")))),
+                        max_size=max(1, int(os.getenv("DB_POOL_MAX", "5"))),
                         timeout=float(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+                        check=ConnectionPool.check_connection,
                         kwargs={"row_factory": dict_row, "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
                         open=False,
                     )
