@@ -47,10 +47,12 @@ class ReadableFormatter(logging.Formatter):
             route = event_data.get("route", "-")
             method = event_data.get("method", "-")
             status = event_data.get("status", "-")
+            duration = event_data.get("duration_ms")
             timestamp = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S")
+            duration_text = f" | {duration} ms" if duration is not None else ""
             return (
                 f"{timestamp} | {record.levelname} | {record.name} | "
-                f"{route} | {method} | {status}"
+                f"{route} | {method} | {status}{duration_text}"
             )
 
         details = []

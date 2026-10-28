@@ -53,12 +53,12 @@
           --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
         }
 
-        body { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
-        body * { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
-        body *::-webkit-scrollbar { width: 4px; height: 4px; }
+        body { scrollbar-color: rgba(100, 116, 139, .32) transparent; scrollbar-width: thin; }
+        body * { scrollbar-color: rgba(100, 116, 139, .32) transparent; scrollbar-width: thin; }
+        body *::-webkit-scrollbar { width: 6px; height: 6px; }
         body *::-webkit-scrollbar-track { background: transparent; }
-        body *::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 99px; background: rgba(100, 116, 139, .1); background-clip: padding-box; }
-        body.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .12); background-clip: padding-box; }
+        body *::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 99px; background: rgba(100, 116, 139, .32); background-clip: padding-box; }
+        body.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .32); background-clip: padding-box; }
 
         * {
           box-sizing: border-box;
@@ -2504,6 +2504,10 @@
                                     <span class="chatgpt-card-label">Email Address</span>
                                     <span class="chatgpt-card-value" id="profileEmail">—</span>
                                 </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Student Number</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileStudentNumberDisplay">—</span>
+                                </div>
                             </div>
                         </div>
 
@@ -2527,19 +2531,20 @@
                             <div class="chatgpt-group-title">Academic Information</div>
                             <div class="chatgpt-card-group">
                                 <div class="chatgpt-card-row">
-                                    <span class="chatgpt-card-label">Year</span>
-                                    <span class="chatgpt-card-value view-mode" id="profileYearDisplay">—</span>
-                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileYearInput">
-                                </div>
-                                <div class="chatgpt-card-row">
                                     <span class="chatgpt-card-label">Semester</span>
                                     <span class="chatgpt-card-value view-mode" id="profileSemesterDisplay">—</span>
                                     <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileSemesterInput">
                                 </div>
                                 <div class="chatgpt-card-row">
                                     <span class="chatgpt-card-label">Department</span>
-                                    <span class="chatgpt-card-value view-mode" id="profileDepartmentDisplay">Sports Management</span>
-                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileDepartmentInput" value="Sports Management">
+                                    <span class="chatgpt-card-value view-mode" id="profileDepartmentDisplay">—</span>
+                                    <select class="form-select form-select-sm edit-mode d-none w-50" id="profileDepartmentInput">
+                                        <option value="">Select programme</option>
+                                        <option>BCA</option><option>BBA</option><option>BMS</option><option>HHA</option>
+                                        <option>BBA-HM</option><option>BMAGD</option><option>BBA-SM</option><option>BBA-GB</option>
+                                        <option>BBA-E</option><option>BID</option><option>BFDM</option><option>BBA-ATA</option>
+                                        <option>BSC-DA</option><option>BBA-DM</option><option>BITAI</option><option>BAHSM</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -2567,6 +2572,18 @@
                                     <span class="chatgpt-card-value view-mode" id="profileGoalDisplay">—</span>
                                     <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileGoalInput">
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="chatgpt-group-title">Health & Emergency Contact</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Blood Group</span><span class="chatgpt-card-value view-mode" id="profileBloodGroupDisplay">—</span><input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileBloodGroupInput" maxlength="10"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Medical History</span><span class="chatgpt-card-value view-mode" id="profileMedicalHistoryDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileMedicalHistoryInput" rows="2"></textarea></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Home Address</span><span class="chatgpt-card-value view-mode" id="profileAddressDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileAddressInput" rows="2"></textarea></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent / Guardian</span><span class="chatgpt-card-value view-mode" id="profileParentNameDisplay">—</span><input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileParentNameInput"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent Phone</span><span class="chatgpt-card-value view-mode" id="profileParentPhoneDisplay">—</span><input type="tel" class="form-control form-control-sm edit-mode d-none w-50" id="profileParentPhoneInput"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent Address</span><span class="chatgpt-card-value view-mode" id="profileParentAddressDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileParentAddressInput" rows="2"></textarea></div>
                             </div>
                         </div>
 
@@ -3102,6 +3119,19 @@ function updateStudentProfile(data = {}) {
         "profileGoalDisplay",
         profile.goal
     );
+
+    const sports = Array.isArray(profile.sports)
+        ? profile.sports.map((sport) => typeof sport === "string" ? sport : sport.name).filter(Boolean).join(", ")
+        : profile.sport_activity || profile.sport || profile.activity;
+    setValue("profileSport", sports);
+    setValue("profileSportDisplay", sports);
+    setValue("profileStudentNumberDisplay", profile.student_number || profile.student_id);
+    setValue("profileBloodGroupDisplay", profile.blood_group);
+    setValue("profileMedicalHistoryDisplay", profile.medical_history);
+    setValue("profileAddressDisplay", profile.address);
+    setValue("profileParentNameDisplay", profile.parent_name);
+    setValue("profileParentPhoneDisplay", profile.parent_phone);
+    setValue("profileParentAddressDisplay", profile.parent_address);
 
 
     const initials =
@@ -4242,18 +4272,24 @@ function toggleEditProfile() {
     const editBtn = document.getElementById("editProfileBtn");
 
     if (isEditingProfile) {
-        document.getElementById("profileNameInput").value = document.getElementById("profileNameDisplay").textContent.trim();
+        document.getElementById("profileNameInput").value = document.getElementById("profileNameDisplay")?.textContent.trim() || studentName || "";
         document.getElementById("profileGenderInput").value = document.getElementById("profileGenderDisplay").textContent.trim();
         document.getElementById("profileDobInput").value = document.getElementById("profileDobDisplay").textContent.trim();
-        document.getElementById("profilePhoneInput").value = document.getElementById("profilePhoneDisplay").textContent.trim();
+        document.getElementById("profilePhoneInput").value = document.getElementById("profilePhoneDisplay")?.textContent.trim() || studentProfileData.contact_number || "";
         document.getElementById("profileEmergencyInput").value = document.getElementById("profileEmergencyDisplay").textContent.trim();
-        document.getElementById("profileYearInput").value = document.getElementById("profileYearDisplay").textContent.replace("Year ", "").trim();
+        document.getElementById("profileYearInput").value = "";
         document.getElementById("profileSemesterInput").value = document.getElementById("profileSemesterDisplay").textContent.replace("Semester ", "").trim();
         document.getElementById("profileDepartmentInput").value = document.getElementById("profileDepartmentDisplay").textContent.trim();
         document.getElementById("profileHeightInput").value = document.getElementById("profileHeightDisplay").textContent.replace(" cm", "").trim();
         document.getElementById("profileWeightInput").value = document.getElementById("profileWeightDisplay").textContent.replace(" kg", "").trim();
         document.getElementById("profileSportInput").value = document.getElementById("profileSportDisplay").textContent.trim();
         document.getElementById("profileGoalInput").value = document.getElementById("profileGoalDisplay").textContent.trim();
+        document.getElementById("profileBloodGroupInput").value = profileValue("profileBloodGroupDisplay");
+        document.getElementById("profileMedicalHistoryInput").value = profileValue("profileMedicalHistoryDisplay");
+        document.getElementById("profileAddressInput").value = profileValue("profileAddressDisplay");
+        document.getElementById("profileParentNameInput").value = profileValue("profileParentNameDisplay");
+        document.getElementById("profileParentPhoneInput").value = profileValue("profileParentPhoneDisplay");
+        document.getElementById("profileParentAddressInput").value = profileValue("profileParentAddressDisplay");
     }
 
     document.querySelectorAll(".view-mode").forEach(el => el.classList.toggle("d-none", isEditingProfile));
@@ -4264,22 +4300,32 @@ function toggleEditProfile() {
     }
 }
 
+function profileValue(id) {
+    const value = document.getElementById(id)?.textContent.trim();
+    return value === "—" || value === "Not provided" ? "" : value;
+}
+
 async function saveStudentProfile(event) {
     event.preventDefault();
 
     const updatedData = {
-        name: document.getElementById("profileNameInput").value,
+        full_name: document.getElementById("profileNameInput").value.trim(),
         gender: document.getElementById("profileGenderInput").value,
-        dob: document.getElementById("profileDobInput").value,
-        phone: document.getElementById("profilePhoneInput").value,
+        date_of_birth: document.getElementById("profileDobInput").value,
+        contact_number: document.getElementById("profilePhoneInput").value,
         emergency_contact: document.getElementById("profileEmergencyInput").value,
-        year: document.getElementById("profileYearInput").value,
         semester: document.getElementById("profileSemesterInput").value,
         department: document.getElementById("profileDepartmentInput").value,
-        height: document.getElementById("profileHeightInput").value,
-        weight: document.getElementById("profileWeightInput").value,
-        sport: document.getElementById("profileSportInput").value,
-        goal: document.getElementById("profileGoalInput").value
+        height_cm: document.getElementById("profileHeightInput").value,
+        weight_kg: document.getElementById("profileWeightInput").value,
+        sport_activity: document.getElementById("profileSportInput").value,
+        goal: document.getElementById("profileGoalInput").value,
+        blood_group: document.getElementById("profileBloodGroupInput").value,
+        medical_history: document.getElementById("profileMedicalHistoryInput").value,
+        address: document.getElementById("profileAddressInput").value,
+        parent_name: document.getElementById("profileParentNameInput").value,
+        parent_phone: document.getElementById("profileParentPhoneInput").value,
+        parent_address: document.getElementById("profileParentAddressInput").value
     };
 
     try {
@@ -4293,15 +4339,27 @@ async function saveStudentProfile(event) {
         const result = await response.json();
         if (response.ok) {
             showToast("Profile updated successfully");
-            updateStudentProfile(updatedData);
+            studentName = updatedData.full_name;
+            updateProfileHeaderUI();
+            updateStudentProfile({ ...(result.profile || {}), ...updatedData });
             toggleEditProfile();
         } else {
             showToast(result.message || "Failed to update profile");
         }
     } catch (err) {
-        showToast("Profile saved locally");
-        updateStudentProfile(updatedData);
-        toggleEditProfile();
+        showToast("Could not save profile. Please try again.");
+    }
+}
+
+async function loadStudentProfile() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, { credentials: "include" });
+        if (!response.ok) throw new Error("Unable to load your saved profile.");
+        const result = await response.json();
+        if (result.success) updateStudentProfile({ ...(result.user || {}), ...(result.profile || {}) });
+    } catch (error) {
+        console.error("STUDENT PROFILE LOAD ERROR:", error);
+        showToast("Unable to load saved profile details");
     }
 }
 
@@ -4323,6 +4381,8 @@ document.addEventListener(
         }
 
         updateProfileHeaderUI();
+
+        await loadStudentProfile();
 
         initCharts();
 

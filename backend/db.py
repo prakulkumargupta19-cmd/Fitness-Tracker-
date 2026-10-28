@@ -9,7 +9,9 @@ import os
 import re
 import sqlite3
 import threading
+import weakref
 from pathlib import Path
+from time import monotonic
 
 import psycopg
 try:
@@ -29,6 +31,31 @@ _local_schema_lock = threading.Lock()
 _local_schema_ready: set[str] = set()
 _postgres_pool = None
 _postgres_pool_lock = threading.Lock()
+_postgres_check_times = weakref.WeakKeyDictionary()
+_postgres_check_lock = threading.Lock()
+
+
+def _check_postgres_connection(connection):
+    """Check pooled connections periodically instead of adding a DB roundtrip to every request."""
+    now = monotonic()
+    interval = max(1.0, float(os.getenv("DB_CONNECTION_CHECK_INTERVAL", "30")))
+    with _postgres_check_lock:
+        checked_at = _postgres_check_times.get(connection)
+        if checked_at is None:
+            # A newly created pool connection is already known to be live.
+            _postgres_check_times[connection] = now
+            return
+        if now - checked_at < interval:
+            return
+
+    try:
+        ConnectionPool.check_connection(connection)
+    except Exception:
+        with _postgres_check_lock:
+            _postgres_check_times.pop(connection, None)
+        raise
+    with _postgres_check_lock:
+        _postgres_check_times[connection] = now
 
 
 class PooledConnection:
@@ -306,7 +333,7 @@ def get_db():
                         min_size=max(0, min(2, int(os.getenv("DB_POOL_MIN", "1")))),
                         max_size=max(1, int(os.getenv("DB_POOL_MAX", "5"))),
                         timeout=float(os.getenv("DB_CONNECT_TIMEOUT", "5")),
-                        check=ConnectionPool.check_connection,
+                        check=_check_postgres_connection,
                         kwargs={"row_factory": dict_row, "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
                         open=False,
                     )
@@ -316,3 +343,12 @@ def get_db():
         raise DatabaseConnectionError(
             "Could not connect to the configured PostgreSQL database."
         ) from error
+
+
+def warm_database_pool():
+    """Establish the local app's first pooled connection before serving requests."""
+    if database_backend() != "postgres" or ConnectionPool is None:
+        return False
+    connection = get_db()
+    connection.close()
+    return True

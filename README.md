@@ -11,8 +11,8 @@ This platform is built for **Inspiria Knowledge Campus** to manage sports activi
 
 | Role | What they do |
 |---|---|
-| **Student** | Sign up with college email and verify via OTP, sign in with email and password, build a sports profile, view attendance and performance, chat with coach, download certificates |
-| **Coach** | Register and verify via OTP, wait for admin approval, sign in with email and password, manage assigned athletes, mark attendance, log performance assessments, give feedback |
+| **Student** | Sign up with college email, verify via OTP, build a sports profile, view attendance and performance, chat with coach, download certificates |
+| **Coach** | Register and wait for admin approval, manage assigned athletes, mark attendance, log performance assessments, give feedback |
 | **Admin** | OTP-secured login, approve/reject coaches, assign sports, manage tournaments, events, certificates, announcements, full data access |
 
 The full feature set is derived from the **Fit-Track** reference prototype (`Fit-Track/`) and significantly extended with a production-grade auth system, PostgreSQL database, Vercel deployment, and REST API architecture.
@@ -34,19 +34,22 @@ python -m venv .venv
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 
-# 4. Configure environment
+# 4. Install Playwright Browsers (for E2E tests)
+playwright install chromium
+
+# 5. Configure environment
 copy .env.example .env
 # Edit .env — set SECRET_KEY and SMTP settings at minimum
 
-# 5. Initialise the database (SQLite locally, no Supabase needed)
+# 6. Initialise the database (SQLite locally, no Supabase needed)
 python backend/setup_and_run.py --init-only
 
-# 6. Run everything
+# 7. Run everything
 python run_all.py
 # Opens http://localhost:8080 automatically
 ```
 
-> Full setup instructions with all options: **[docs/SETUP.md](docs/SETUP.md)**
+> Full setup instructions with all options: **[SETUP.md](SETUP.md)**
 
 ---
 
@@ -75,7 +78,7 @@ Supabase PostgreSQL       SMTP Email Server
 
 | File | Responsibility |
 |---|---|
-| `backend/app.py` | Flask app, CORS, session, auth routes, admin routes, health check, diagnostics |
+| `backend/app.py` | Flask app, CORS, session, auth routes, admin routes, health check, rate limiting, CSRF protection |
 | `backend/attendance.py` | Attendance sessions, records, weekly summary, role-scoped access |
 | `backend/performance.py` | CRUD for assessments, training sessions, goals, coach feedback |
 | `backend/reference_features.py` | Fit-Track feature APIs: sports, coaching, tournaments, chat, announcements, reports |
@@ -84,6 +87,8 @@ Supabase PostgreSQL       SMTP Email Server
 | `backend/schema.sql` | PostgreSQL DDL — all tables, indexes, constraints, triggers |
 | `backend/auth/helpers.py` | OTP generation, hashing, verification, session helpers |
 | `backend/auth/emails.py` | SMTP email delivery for OTP and notification flows |
+| `backend/auth/decorators.py` | `@login_required` and `@role_required` decorators |
+n flows |
 | `backend/auth/decorators.py` | `@login_required` and `@role_required` decorators |
 | `backend/migrations/` | 7 ordered, idempotent SQL migration files (001-007) |
 | `api/index.py` | Vercel serverless entry point |
@@ -106,7 +111,7 @@ Supabase PostgreSQL       SMTP Email Server
 | Excel import | openpyxl + xlrd |
 | Email | smtplib (STARTTLS/SSL) |
 | Deployment | Vercel (serverless) |
-| Tests | pytest |
+| Testing | pytest + pytest-playwright (E2E) |
 
 ---
 
@@ -168,7 +173,7 @@ All routes are under `/api/`. Every response is JSON with a `success` field.
 > - Most Fit-Track frontend pages are UI shells not yet wired to the API
 > - SMTP not tested in a live deployed environment
 
-See **[docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md)** for the full checklist.
+See **[PRODUCTION_READY.md](PRODUCTION_READY.md)** for the full checklist.
 
 ---
 
@@ -176,10 +181,10 @@ See **[docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md)** for the ful
 
 | Document | What it covers |
 |---|---|
-| [docs/SETUP.md](docs/SETUP.md) | Complete local setup, env config, database init, running, testing, and Vercel deployment |
-| [docs/BACKEND_FEATURE_COMPARISON.md](docs/BACKEND_FEATURE_COMPARISON.md) | Fit-Track vs Fitness Tracker feature comparison — what carried over, what is new, what is missing |
-| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Full checklist of what is done, what is missing, and what must be fixed before go-live |
-| [docs/FRONTEND_DEVELOPER_GUIDE.md](docs/FRONTEND_DEVELOPER_GUIDE.md) | Frontend architecture, which pages work, which are broken, and exactly what changes to make |
+| [SETUP.md](SETUP.md) | Complete local setup, env config, database init, running, testing, and Vercel deployment |
+| [BACKEND_FEATURES.md](BACKEND_FEATURES.md) | Fit-Track vs Fitness Tracker feature comparison — what carried over, what is new, what is missing |
+| [PRODUCTION_READY.md](PRODUCTION_READY.md) | Full checklist of what is done, what is missing, and what must be fixed before go-live |
+| [FRONTEND_GUIDE.md](FRONTEND_GUIDE.md) | Frontend architecture, which pages work, which are broken, and exactly what changes to make |
 
 ---
 

@@ -79,26 +79,6 @@ The view `student_details`, trigger function `set_updated_at()`, and four
 `updated_at` triggers are schema-owned objects as well; their live state is
 also **UNKNOWN**.
 
-## Fit-Track reference feature layer
-
-The reference application in `Fit-Track/` is treated as a separate legacy
-project. Its feature set has been recreated for the root application as
-PostgreSQL migration `backend/migrations/006_fit_track_reference_features.sql`.
-The migration is additive and is applied automatically by
-`backend/setup_and_run.py` after migration 005; it does not replace the root
-users, OTP, session, or login tables.
-
-The feature layer adds the reference data contract for sports/facilities,
-programmes, enrollments, programme attendance, daily assessments, tournaments,
-registrations, matches/live stats, achievements, certificates, messages, event
-media, participants, match players, results, draw documents, announcements,
-certificate templates, generated certificates, facility media, and coaching
-sessions. Every feature record is keyed to the root authenticated users or
-root sports catalog.
-
-Live Supabase verification for these new tables is also **UNKNOWN** until
-`SUPABASE_DB_URL` is configured and the safe connection check is rerun.
-
 ### Live schema properties not verified
 
 Because `information_schema` was not accessible, the following cannot be

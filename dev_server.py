@@ -2,6 +2,7 @@
 
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import os
+import socket
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -17,8 +18,9 @@ API_ORIGIN = os.getenv(
     "FITNESS_API_ORIGIN",
     f"http://127.0.0.1:{os.getenv('PORT', '5000')}",
 ).rstrip("/")
-FRONTEND_PORT = int(os.getenv("FITNESS_FRONTEND_PORT", "8080"))
 PROXY_PATHS = ("/api/", "/session", "/logout")
+FRONTEND_HOST = os.getenv("FITNESS_FRONTEND_HOST", "127.0.0.1")
+FRONTEND_PORT = int(os.getenv("FITNESS_FRONTEND_PORT", "8080"))
 
 
 class FrontendHandler(SimpleHTTPRequestHandler):
@@ -106,7 +108,16 @@ class FrontendHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("127.0.0.1", FRONTEND_PORT), FrontendHandler)
-    print(f"Frontend with API proxy: http://localhost:{FRONTEND_PORT}", flush=True)
-    print("Flask API target: http://127.0.0.1:5000", flush=True)
+    server = ThreadingHTTPServer((FRONTEND_HOST, FRONTEND_PORT), FrontendHandler)
+    print(
+        f"Frontend with API proxy: http://localhost:{FRONTEND_PORT}",
+        flush=True,
+    )
+    if FRONTEND_HOST in {"0.0.0.0", ""}:
+        try:
+            lan_host = socket.gethostbyname(socket.gethostname())
+            print(f"LAN frontend: http://{lan_host}:{FRONTEND_PORT}", flush=True)
+        except OSError:
+            pass
+    print(f"Flask API target: {API_ORIGIN}", flush=True)
     server.serve_forever()

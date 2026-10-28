@@ -83,6 +83,32 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Keep scrollbar tracks invisible and scrollbar thumbs subtly translucent. */
+* {
+    scrollbar-color: rgba(100, 116, 139, 0.32) transparent;
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    background-color: rgba(100, 116, 139, 0.32);
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.5);
+}
+
 button,
 input,
 select,
@@ -150,8 +176,10 @@ main {
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
+    background: rgba(100, 116, 139, 0.32);
+    background-clip: padding-box;
+    border: 1px solid transparent;
+    border-radius: 9999px;
 }
 
 /* Common Utility Classes */

@@ -32,7 +32,10 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     weight_kg REAL,
     goal TEXT,
     sport_activity TEXT,
-    department TEXT,
+    department TEXT CHECK (department IS NULL OR department IN (
+        'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
+        'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
+    )),
     student_number TEXT,
     semester TEXT,
     bio TEXT,
@@ -44,6 +47,20 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     parent_address TEXT,
     passport_id TEXT,
     photo_path TEXT
+);
+
+-- Backfill legacy profiles whose department is missing or no longer allowed.
+UPDATE student_profiles
+SET department = CASE (ABS(user_id) % 16)
+    WHEN 0 THEN 'BCA' WHEN 1 THEN 'BBA' WHEN 2 THEN 'BMS' WHEN 3 THEN 'HHA'
+    WHEN 4 THEN 'BBA-HM' WHEN 5 THEN 'BMAGD' WHEN 6 THEN 'BBA-SM'
+    WHEN 7 THEN 'BBA-GB' WHEN 8 THEN 'BBA-E' WHEN 9 THEN 'BID'
+    WHEN 10 THEN 'BFDM' WHEN 11 THEN 'BBA-ATA' WHEN 12 THEN 'BSC-DA'
+    WHEN 13 THEN 'BBA-DM' WHEN 14 THEN 'BITAI' ELSE 'BAHSM'
+END
+WHERE department IS NULL OR department NOT IN (
+    'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
+    'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_student_profiles_student_number

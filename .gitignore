@@ -1,7 +1,7 @@
 # Environment variables
 .env
 .env.*
-!.env.example
+.env.example
 backend/.env
 
 # Python
@@ -32,3 +32,7 @@ backend/*.sqlite3
 
 # Pytest
 .pytest_cache/
+
+# account info
+accounts.txt
+fitness-tracker-local-fast.zip

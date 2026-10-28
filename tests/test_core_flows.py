@@ -119,6 +119,16 @@ def test_profile_setup_synchronizes_normalized_sports(monkeypatch):
         response = client.post("/api/profile/setup", json={
             "date_of_birth": "2005-03-12",
             "emergency_contact": "9876543210",
+            "gender": "female",
+            "semester": "4",
+            "department": "Computer Science",
+            "student_id": "STU-31",
+            "blood_group": "O+",
+            "medical_history": "Asthma",
+            "address": "1 Test Road",
+            "parent_name": "Parent Test",
+            "parent_phone": "9876543211",
+            "parent_address": "2 Test Road",
             "sports": ["Football", "Basketball", "Football"],
         })
 
@@ -127,6 +137,20 @@ def test_profile_setup_synchronizes_normalized_sports(monkeypatch):
     inserts = [query for query, _ in cursor.statements if "INSERT INTO student_sports" in query]
     assert len(inserts) == 2
     assert any("sport_activity" in query for query, _ in cursor.statements)
+    profile_insert = next(
+        (query, params) for query, params in cursor.statements
+        if "INSERT INTO student_profiles" in query
+    )
+    assert all(
+        column in profile_insert[0]
+        for column in (
+            "gender", "semester", "department", "student_number", "blood_group",
+            "medical_history", "address", "parent_name", "parent_phone", "parent_address",
+        )
+    )
+    assert "female" in profile_insert[1]
+    assert "STU-31" in profile_insert[1]
+    assert "Asthma" in profile_insert[1]
 
 
 def test_profile_setup_rejects_unknown_sport_without_commit(monkeypatch):

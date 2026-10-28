@@ -53,7 +53,10 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     weight_kg DECIMAL(5,2),
     goal VARCHAR(255),
     sport_activity VARCHAR(255),
-    department VARCHAR(100),
+    department VARCHAR(100) CHECK (department IS NULL OR department IN (
+        'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
+        'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
+    )),
     student_id VARCHAR(50),
     blood_group VARCHAR(10),
     medical_history TEXT,
@@ -61,6 +64,17 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     parent_name VARCHAR(100),
     parent_phone VARCHAR(30),
     parent_address TEXT
+);
+
+-- Backfill legacy profiles whose department is missing or no longer allowed.
+UPDATE student_profiles
+SET department = (ARRAY[
+    'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
+    'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
+])[1 + (MOD(ABS(HASHTEXT(user_id::TEXT)::BIGINT), 16))::INTEGER]
+WHERE department IS NULL OR department NOT IN (
+    'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
+    'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
 );
 
 

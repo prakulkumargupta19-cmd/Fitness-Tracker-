@@ -103,46 +103,6 @@
                         <input type="text" id="goal" name="goal" placeholder="e.g. Weight loss, muscle gain, endurance">
                     </div>
 
-                    <div class="form-group">
-                        <label for="blood_group">Blood Group</label>
-                        <select id="blood_group" name="blood_group">
-                            <option value="" disabled selected>Select</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="medical_history">Medical History / Important Information</label>
-                        <textarea id="medical_history" name="medical_history" placeholder="Write None if there is nothing to declare"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="address">Current Address</label>
-                        <textarea id="address" name="address" placeholder="Your current residential address"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parent_name">Parent / Guardian Name</label>
-                        <input type="text" id="parent_name" name="parent_name" placeholder="Enter parent/guardian name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parent_phone">Parent / Guardian Phone</label>
-                        <input type="text" id="parent_phone" name="parent_phone" placeholder="Enter parent/guardian phone">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parent_address">Parent / Guardian Address</label>
-                        <textarea id="parent_address" name="parent_address" placeholder="Parent/Guardian's residential address"></textarea>
-                    </div>
-
                     <div class="button-container">
                         <a href="student-basicinfo.html" class="back-button">← Back</a>
                         <button type="submit" class="next-button">Complete Profile →</button>
@@ -196,12 +156,6 @@
                             sports: selectedSports,
                             sport_activity: selectedSports.join(", "),
                             student_id: document.getElementById("student_id")?.value || "",
-                            blood_group: document.getElementById("blood_group")?.value || "",
-                            medical_history: document.getElementById("medical_history")?.value || "",
-                            address: document.getElementById("address")?.value || "",
-                            parent_name: document.getElementById("parent_name")?.value || "",
-                            parent_phone: document.getElementById("parent_phone")?.value || "",
-                            parent_address: document.getElementById("parent_address")?.value || ""
                         })
                     });
                     const data = await response.json().catch(function () { return {}; });

@@ -19,6 +19,32 @@
     box-sizing: border-box;
 }
 
+/* Transparent scrollbar tracks with subtly translucent thumbs. */
+* {
+    scrollbar-color: rgba(100, 116, 139, 0.32) transparent;
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    background-color: rgba(100, 116, 139, 0.32);
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.5);
+}
+
 html {
     min-height: 100%;
     scroll-behavior: smooth;

@@ -31,6 +31,22 @@
 <link rel="stylesheet" href="../css/common/dashboard-schedule.css">
 <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
 <link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
+<style>
+  .athlete-detail-modal[hidden] { display: none; }
+  .athlete-detail-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .58); }
+  .athlete-detail-dialog { position: relative; display: flex; flex-direction: column; width: min(650px, 100%); max-height: calc(100vh - 40px); padding: 22px; border-radius: 20px; background: #fff; box-shadow: 0 24px 70px rgba(15, 23, 42, .28); }
+  #athleteDetailContent { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
+  .athlete-detail-close { position: absolute; top: 10px; right: 12px; z-index: 1; border: 0; background: #fff; color: #64748b; font-size: 25px; line-height: 1; }
+  .athlete-detail-eyebrow { color: #2563eb; font-size: .75rem; font-weight: 800; letter-spacing: .1em; }
+  .athlete-detail-dialog h2 { margin: 6px 36px 14px 0; color: #172033; font-size: 1.25rem; }
+  .athlete-detail-fields { display: grid; gap: 8px; }
+  .athlete-detail-fields > div { display: grid; gap: 5px; padding: 9px 11px; border-radius: 10px; background: #f8fafc; overflow-wrap: anywhere; }
+  .athlete-detail-fields span { color: #718096; font-size: .72rem; font-weight: 600; }
+  .athlete-detail-fields strong { display: grid; gap: 3px; color: #172033; font-size: .82rem; font-weight: 500; line-height: 1.45; }
+  .athlete-detail-fields strong > span { color: #172033; font-size: inherit; font-weight: 500; }
+  .athlete-detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .athlete-detail-actions button { border: 0; border-radius: 10px; padding: 10px 14px; background: #2563eb; color: #fff; font: inherit; font-weight: 700; }
+</style>
 <script src="../js/config.js"></script>
 </head>
 
@@ -655,6 +671,13 @@
       class="section"
     >
 
+      <div id="athleteDetailModal" class="athlete-detail-modal" hidden>
+        <div class="athlete-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="athleteDetailName">
+          <button type="button" class="athlete-detail-close" aria-label="Close athlete details" onclick="closeAthleteDetails()">&times;</button>
+          <div id="athleteDetailContent"></div>
+        </div>
+      </div>
+
       <div class="page-heading">
 
         <div class="eyebrow">
@@ -1191,40 +1214,19 @@
       console.warn("Coach dashboard online fetch error:", err);
     }
 
-    if ((!athletes || athletes.length === 0) && (window.APP_CONFIG?.AUTH_BYPASS !== false)) {
-      assignedSports = [
-        { id: 1, name: "Athletics" },
-        { id: 2, name: "Football" },
-        { id: 3, name: "Badminton" },
-        { id: 4, name: "Basketball" }
-      ];
-      athletes = [
-        { id: 1, name: "Alex Morgan", email: "alex.morgan@fittrack.com", department: "Sports Science", semester: "4", sports: ["Athletics"], status: "Active", attendance_rate: 92, performance_score: 88 },
-        { id: 2, name: "Jordan Lee", email: "jordan.lee@fittrack.com", department: "Physical Ed", semester: "6", sports: ["Football"], status: "Active", attendance_rate: 85, performance_score: 84 },
-        { id: 3, name: "Sam Rivera", email: "sam.rivera@fittrack.com", department: "Kinesiology", semester: "2", sports: ["Badminton"], status: "Active", attendance_rate: 95, performance_score: 91 },
-        { id: 4, name: "Taylor Swift", email: "taylor.s@fittrack.com", department: "Athletic Training", semester: "4", sports: ["Athletics", "Football"], status: "Active", attendance_rate: 78, performance_score: 79 },
-        { id: 5, name: "Marcus Cole", email: "marcus.c@fittrack.com", department: "Sports Science", semester: "6", sports: ["Basketball"], status: "Active", attendance_rate: 89, performance_score: 86 }
-      ];
-      attendanceRecords = [
-        { id: 101, session_date: "2026-10-21", sport_name: "Athletics", present_count: 5, absent_count: 1, total_athletes: 6 },
-        { id: 102, session_date: "2026-10-19", sport_name: "Athletics", present_count: 6, absent_count: 0, total_athletes: 6 }
-      ];
-      attendanceSummary = { total_sessions: 24, overall_attendance: 89, active_athletes: 5 };
-    }
-
-    const coach = currentUser.full_name ? currentUser : { full_name: "Coach Sarah Jenkins", email: "coach@fittrack.com", specialization: "Athletics & Track", contact_number: "+1 555-0192" };
-    const coachName = coach.full_name || "Coach Sarah Jenkins";
+    const coach = currentUser;
+    const coachName = coach.full_name || coach.name || "Coach";
     document.getElementById("coachDisplayName").textContent = coachName;
     document.getElementById("coachProfileTitle").textContent = coachName;
     document.getElementById("coachProfileName").textContent = coachName;
-    document.getElementById("coachProfileEmail").textContent = coach.email || "coach@fittrack.com";
-    document.getElementById("coachProfilePhone").textContent = coach.contact_number || "+1 555-0192";
-    document.getElementById("coachProfileId").textContent = coach.id ? `COACH-${coach.id}` : "COACH-2";
+    document.getElementById("coachProfileEmail").textContent = coach.email || "—";
+    document.getElementById("coachProfilePhone").textContent = coach.contact_number || "—";
+    document.getElementById("coachProfileId").textContent = coach.id ? `COACH-${coach.id}` : "—";
     document.getElementById("coachProfileRoles").textContent = assignedSports.length
       ? assignedSports.map(sport => sport.name).join(", ")
-      : "Athletics, Football";
+      : "—";
     const initials = coachName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
-    document.getElementById("coachProfileAvatar").textContent = initials || "SJ";
+    document.getElementById("coachProfileAvatar").textContent = initials || "C";
     const select = document.getElementById("attendanceSport");
     if (select) {
       select.innerHTML = assignedSports.map(sport =>
@@ -1960,27 +1962,43 @@
   }
 
 
-  function viewAthlete(
-    athleteId
-  ) {
+  async function viewAthlete(athleteId) {
+    const modal = document.getElementById("athleteDetailModal");
+    const content = document.getElementById("athleteDetailContent");
+    if (!modal || !content) return;
+    modal.hidden = false;
+    content.textContent = "Loading athlete profile…";
+    try {
+      const response = await apiRequest(`/api/coach/athletes/${encodeURIComponent(athleteId)}`);
+      const athlete = response.athlete;
+      if (!athlete) throw new Error("Athlete profile was not returned.");
+      const escapeHtml = value => String(value ?? "—").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[character]));
+      const sports = Array.isArray(athlete.sports) ? athlete.sports.map(escapeHtml).join(", ") : "—";
+      content.innerHTML = `
+        <div class="athlete-detail-eyebrow">ATHLETE PROFILE</div>
+        <h2 id="athleteDetailName">${escapeHtml(athlete.name)}</h2>
+        <div class="athlete-detail-fields">
+          <div><span>Personal Information</span><strong><span>Gender: ${escapeHtml(athlete.gender)}</span><span>Date of Birth: ${escapeHtml(athlete.date_of_birth)}</span><span>Student Number: ${escapeHtml(athlete.student_number)}</span></strong></div>
+          <div><span>Contact Information</span><strong><span>Email: ${escapeHtml(athlete.email)}</span><span>Phone: ${escapeHtml(athlete.contact_number)}</span><span>Emergency Number: ${escapeHtml(athlete.emergency_contact)}</span></strong></div>
+          <div><span>Education</span><strong><span>Department: ${escapeHtml(athlete.department)}</span><span>Semester: ${escapeHtml(athlete.semester)}</span></strong></div>
+          <div><span>Sports & Fitness</span><strong><span>Sports: ${sports || "—"}</span><span>Height: ${escapeHtml(athlete.height_cm)} cm</span><span>Weight: ${escapeHtml(athlete.weight_kg)} kg</span><span>Fitness Goal: ${escapeHtml(athlete.goal)}</span></strong></div>
+          <div><span>Bio</span><strong>${escapeHtml(athlete.bio)}</strong></div>
+        </div>
+        <div class="athlete-detail-actions">
+          <button type="button" onclick="closeAthleteDetails(); openRecordForm(${Number(athlete.id)}, 'assessments')">View assessment</button>
+          <button type="button" onclick="closeAthleteDetails(); openRecordForm(${Number(athlete.id)}, 'feedback')">Add feedback</button>
+        </div>`;
+      modal.querySelector(".athlete-detail-close")?.focus();
+    } catch (error) {
+      content.textContent = error.message || "Unable to load this athlete's profile.";
+    }
+  }
 
-    const athlete =
-      athletes.find(
-        athlete =>
-          athlete.id === athleteId
-      );
-
-
-    if (!athlete) return;
-
-
-    alert(
-      `${athlete.name}\n\n` +
-      `Sport: ${athlete.sport}\n` +
-      `Email: ${athlete.email || "Not provided"}\n` +
-      `Sports: ${(athlete.sports || []).join(", ")}`
-    );
-
+  function closeAthleteDetails() {
+    const modal = document.getElementById("athleteDetailModal");
+    if (modal) modal.hidden = true;
   }
 
 

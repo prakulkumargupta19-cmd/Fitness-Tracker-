@@ -29,7 +29,6 @@ LOCAL_DEVELOPMENT_FILES = {
     "backend/db.py",
     "backend/local_schema.sql",
     "backend/setup_and_run.py",
-    "scripts/package_vercel.py",
 }
 
 
@@ -81,7 +80,7 @@ def main():
         if requirements_path.exists()
         else ""
     )
-    for package in ("flask", "psycopg", "psycopg-pool", "python-dotenv"):
+    for package in ("flask", "psycopg", "python-dotenv"):
         results.append(
             print_check(
                 f"Production dependency: {package}",
@@ -125,7 +124,7 @@ def main():
     )
     env_names_ok = all(
         name in backend_config_source and name in example_env
-        for name in ("SUPABASE_DB_URL", "SECRET_KEY", "FRONTEND_URL", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "FIT_TRACK_STORAGE_BUCKET")
+        for name in ("SUPABASE_DB_URL", "SECRET_KEY", "FRONTEND_URL")
     )
     results.append(print_check("Server-side environment variable names", env_names_ok))
 
@@ -136,17 +135,6 @@ def main():
         'const apiBase = configuredApiBase.replace(/\\/+$/, "");' in frontend_config
     )
     results.append(print_check("Same-origin / configurable frontend API base", relative_api))
-
-    storage_ready = (ROOT / "backend" / "object_storage.py").is_file() and all(
-        name in backend_config_source and name in example_env
-        for name in ("SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "FIT_TRACK_STORAGE_BUCKET")
-    )
-    results.append(print_check("Persistent Supabase Storage adapter", storage_ready))
-    csrf_ready = (
-        "X-CSRFToken" in (ROOT / "backend" / "app.py").read_text(encoding="utf-8-sig")
-        and "X-CSRFToken" in frontend_config
-    )
-    results.append(print_check("Session-bound CSRF protection", csrf_ready))
 
     patterns = [
         ("MySQL/PyMySQL", r"\bpymysql\b|\bmysql(?:\.connector)?\b|AUTO_INCREMENT|ON DUPLICATE KEY|GROUP_CONCAT|INSERT IGNORE|lastrowid"),

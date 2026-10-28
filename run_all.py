@@ -1,4 +1,20 @@
-"""Start the local Flask API and the frontend proxy together."""
+"""Convenience launcher.
+
+This script starts the two independent services that make up the
+``fitness-tracker`` stack:
+
+1.  The **Flask API** – the existing :py:mod:`backend.setup_and_run` module
+    which runs on :py:data:`localhost:5000`.
+2.  The **static front‑end** – ``dev_server.py`` serving the ``frontend1``
+    directory on :py:data:`localhost:8080` and proxying API requests to Flask.
+
+Executing ``python run_all.py`` will launch both programs in parallel and
+forward their console output to the terminal.  Pressing **Ctrl‑C** stops both
+processes cleanly.
+
+The proxy keeps frontend API requests on the same origin, including session
+cookies and CSRF requests.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +23,7 @@ import socket
 import subprocess
 import sys
 import time
+import webbrowser
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -65,42 +82,34 @@ def main() -> int:
     base_dir = Path(__file__).resolve().parent
     backend_script = base_dir / "backend" / "app.py"
     frontend_script = base_dir / "dev_server.py"
+    frontend_dir = base_dir / "frontend1"
 
-    if not backend_script.is_file():
-        print(f"[!] Backend file not found: {backend_script}", file=sys.stderr)
-        return 1
-    if not frontend_script.is_file():
-        print(f"[!] Frontend server not found: {frontend_script}", file=sys.stderr)
-        return 1
+    if not frontend_dir.is_dir():  # pragma: no cover – defensive
+        raise FileNotFoundError(f"static directory '{frontend_dir}' does not exist")
+    if not backend_script.is_file():  # pragma: no cover – defensive
+        raise FileNotFoundError(f"backend script '{backend_script}' not found")
+    if not frontend_script.is_file():  # pragma: no cover – defensive
+        raise FileNotFoundError(f"static server '{frontend_script}' not found")
 
-    if not _port_is_available(HOST, FRONTEND_PORT):
-        print(f"[!] Frontend port {FRONTEND_PORT} is already in use.", file=sys.stderr)
-        return 1
     backend_port = _find_available_backend_port(PREFERRED_BACKEND_PORT)
-    if backend_port != PREFERRED_BACKEND_PORT:
-        print(f"[*] Backend port {PREFERRED_BACKEND_PORT} is busy; using {backend_port}.", flush=True)
-
     environment = os.environ.copy()
     environment["PORT"] = str(backend_port)
-    environment["FITNESS_API_ORIGIN"] = f"http://{HOST}:{backend_port}"
-
     processes: list[subprocess.Popen] = []
     try:
-        processes.append(
-            _start([sys.executable, str(backend_script)], base_dir / "backend", "Flask API", environment)
+        backend_process = _start(
+            [sys.executable, str(backend_script)], base_dir, "Flask API", environment
         )
-        processes.append(
-            _start([sys.executable, str(frontend_script)], base_dir, "Frontend proxy", environment)
+        processes.append(backend_process)
+        frontend_process = _start(
+            [sys.executable, str(frontend_script)], base_dir, "Frontend API proxy", environment
         )
-        print(f"[+] Open http://localhost:{FRONTEND_PORT}", flush=True)
-
-        try:
-            import webbrowser
-
-            webbrowser.open(f"http://localhost:{FRONTEND_PORT}")
-        except Exception:
-            pass
-
+        processes.append(frontend_process)
+        print(
+            f"\n[+] Front-end available at http://localhost:{FRONTEND_PORT}"
+            f" (API proxy -> http://{HOST}:{backend_port})",
+            flush=True,
+        )
+        webbrowser.open(f"http://localhost:{FRONTEND_PORT}")
         while True:
             for process in processes:
                 exit_code = process.poll()
@@ -114,6 +123,9 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\n[!] Shutting down services...", flush=True)
         return 0
+    except Exception:
+        _stop(processes)
+        raise
     finally:
         _stop(processes)
 

@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).parent.absolute()
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from db import DatabaseConnectionError, get_db  # noqa: E402
+from db import DatabaseConnectionError, get_db, warm_database_pool  # noqa: E402
 from logging_config import configure_logging  # noqa: E402
 from auth.helpers import (  # noqa: E402
     generate_otp,
@@ -280,7 +280,7 @@ def _database_health():
         with db.cursor() as cursor:
             cursor.execute("SELECT 1 AS healthy")
             cursor.fetchone()
-        return "ok", round((perf_counter() - started_at) * 1000, 2)
+        result = ("ok", round((perf_counter() - started_at) * 1000, 2))
     except Exception as error:
         _safe_log(
             logging.WARNING,
@@ -290,10 +290,11 @@ def _database_health():
             method=request.method,
             error_type=type(error).__name__,
         )
-        return "error", None
+        result = ("error", None)
     finally:
         if db is not None:
             db.close()
+    return result
 
 
 @app.route("/api/csrf-token", methods=["GET"])
@@ -377,6 +378,14 @@ def signup():
     contact_number = str(
         data.get("contact_number") or data.get("contact") or ""
     ).strip()
+    # These fields apply only to coach registration; student signup does not
+    # collect or require coach qualification details.
+    if role == "coach":
+        qualification = str(data.get("qualification") or "").strip() or None
+        specialization = str(data.get("specialization") or "").strip() or None
+        experience_years = data.get("experience_years") or None
+    else:
+        qualification = specialization = experience_years = None
 
     try:
         # These are no longer required, but we keep the try-block for general structure
@@ -839,7 +848,7 @@ def _profile_response(user_id):
             db.commit()
             cursor.execute(
                 """SELECT date_of_birth, emergency_contact, height_cm, weight_kg,
-                          goal, sport_activity, department, student_number,
+                          goal, sport_activity, department, gender, student_number,
                           semester, bio, blood_group, medical_history, address,
                           parent_name, parent_phone, parent_address,
                           passport_id, photo_path
@@ -932,8 +941,11 @@ def _save_student_profile(user_id, data):
             cursor.execute(
                 """INSERT INTO student_profiles
                        (user_id, date_of_birth, emergency_contact, height_cm,
-                        weight_kg, goal, sport_activity, department)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        weight_kg, goal, sport_activity, department, gender,
+                        semester, student_number, blood_group, medical_history,
+                        address, parent_name, parent_phone, parent_address)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                           %s, %s, %s, %s, %s)
                    ON CONFLICT (user_id) DO UPDATE SET
                        date_of_birth = EXCLUDED.date_of_birth,
                        emergency_contact = EXCLUDED.emergency_contact,
@@ -941,16 +953,34 @@ def _save_student_profile(user_id, data):
                        weight_kg = EXCLUDED.weight_kg,
                        goal = EXCLUDED.goal,
                        sport_activity = EXCLUDED.sport_activity,
-                       department = EXCLUDED.department""",
+                       department = EXCLUDED.department,
+                       gender = EXCLUDED.gender,
+                       semester = EXCLUDED.semester,
+                       student_number = EXCLUDED.student_number,
+                       blood_group = EXCLUDED.blood_group,
+                       medical_history = EXCLUDED.medical_history,
+                       address = EXCLUDED.address,
+                       parent_name = EXCLUDED.parent_name,
+                       parent_phone = EXCLUDED.parent_phone,
+                       parent_address = EXCLUDED.parent_address""",
                 (
                     user_id,
                     date_of_birth,
                     emergency_contact,
                     data.get("height_cm"),
                     data.get("weight_kg"),
-                    data.get("goal"),
+                    data.get("goal") or None,
                     ",".join(selected_sports),
-                    data.get("department"),
+                    data.get("department") or None,
+                    data.get("gender") or None,
+                    data.get("semester") or None,
+                    data.get("student_id") or data.get("student_number") or None,
+                    data.get("blood_group") or None,
+                    data.get("medical_history") or None,
+                    data.get("address") or None,
+                    data.get("parent_name") or None,
+                    data.get("parent_phone") or None,
+                    data.get("parent_address") or None,
                 ),
             )
             cursor.execute(
@@ -1024,6 +1054,21 @@ def update_profile():
             jsonify({"success": True, "message": "Password updated successfully."}),
             200,
         )
+    if "full_name" in data or "contact_number" in data:
+        full_name = str(data.get("full_name", user.get("full_name") or "")).strip()
+        contact_number = str(data.get("contact_number", user.get("contact_number") or "")).strip()
+        if not full_name:
+            return jsonify({"success": False, "message": "Full name is required."}), 400
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE users SET full_name = %s, contact_number = %s WHERE id = %s",
+                    (full_name, contact_number or None, user["id"]),
+                )
+            db.commit()
+        finally:
+            db.close()
     error = _save_student_profile(user["id"], data)
     if error:
         return jsonify({"success": False, "message": error}), 400
@@ -1740,23 +1785,18 @@ def admin_list_students():
         with db.cursor() as cursor:
             cursor.execute(
                 """SELECT u.id, u.full_name, u.email, u.contact_number,
-                          u.is_verified, u.created_at AS registration_date,
-                          sp.date_of_birth, sp.department, sp.height_cm, sp.weight_kg,
+                          u.is_verified,
                           STRING_AGG(DISTINCT s.name, ', ' ORDER BY s.name) AS sports
                    FROM users u
-                   LEFT JOIN student_profiles sp ON sp.user_id = u.id
                    LEFT JOIN student_sports ss ON ss.student_id = u.id
                    LEFT JOIN sports s ON s.id = ss.sport_id
                    WHERE u.role = 'student'
-                   GROUP BY u.id, sp.user_id
+                   GROUP BY u.id
                    ORDER BY u.created_at DESC"""
             )
             students = cursor.fetchall()
         for student in students:
             student["is_verified"] = bool(student["is_verified"])
-            for key in ("registration_date", "date_of_birth"):
-                if student.get(key) is not None:
-                    student[key] = str(student[key])
             student["sports"] = student["sports"].split(", ") if student["sports"] else []
         return jsonify({"success": True, "students": students}), 200
     finally:
@@ -1851,6 +1891,8 @@ def coach_list_athletes():
         with db.cursor() as cursor:
             cursor.execute("""SELECT u.id, u.full_name, u.email, u.contact_number,
                           sp.date_of_birth, sp.height_cm, sp.weight_kg, sp.goal,
+                          sp.department, sp.semester, sp.student_number,
+                          sp.sport_activity, sp.bio, sp.emergency_contact,
                           STRING_AGG(DISTINCT assigned_sport.name, ', ' ORDER BY assigned_sport.name) AS sports
                    FROM coach_sports cs
                    JOIN users coach ON coach.id=cs.coach_id AND coach.role='coach'
@@ -1860,7 +1902,10 @@ def coach_list_athletes():
                    LEFT JOIN student_profiles sp ON sp.user_id=u.id
                    JOIN sports assigned_sport ON assigned_sport.id=ss.sport_id
                    WHERE cs.coach_id=%s
-                   GROUP BY u.id, sp.user_id
+                   GROUP BY u.id, sp.user_id, sp.date_of_birth, sp.height_cm,
+                            sp.weight_kg, sp.goal, sp.department, sp.semester,
+                            sp.student_number, sp.sport_activity,
+                            sp.bio, sp.emergency_contact
                    ORDER BY u.full_name ASC""", (coach_id,))
             athletes = cursor.fetchall()
         for athlete in athletes:
@@ -1869,6 +1914,44 @@ def coach_list_athletes():
             athlete["sport"] = ", ".join(athlete["sports"])
             athlete["position"] = ""
         return jsonify({"success": True, "athletes": athletes}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/coach/athletes/<int:student_id>", methods=["GET"])
+@role_required("coach")
+def coach_get_athlete(student_id):
+    coach_id = session.get("user_id")
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute("""SELECT u.id, u.full_name, u.email, u.contact_number,
+                          sp.date_of_birth, sp.height_cm, sp.weight_kg, sp.goal,
+                          sp.department, sp.semester, sp.student_number,
+                          sp.sport_activity, sp.bio, sp.emergency_contact
+                   FROM coach_sports cs
+                   JOIN users coach ON coach.id=cs.coach_id AND coach.role='coach'
+                        AND coach.coach_status='approved' AND coach.is_active=TRUE
+                   JOIN student_sports ss ON ss.sport_id=cs.sport_id
+                   JOIN users u ON u.id=ss.student_id AND u.role='student' AND u.is_verified=TRUE
+                   LEFT JOIN student_profiles sp ON sp.user_id=u.id
+                   WHERE cs.coach_id=%s AND u.id=%s
+                   GROUP BY u.id, sp.user_id, sp.date_of_birth, sp.height_cm,
+                            sp.weight_kg, sp.goal, sp.department, sp.semester,
+                             sp.student_number, sp.sport_activity,
+                            sp.bio, sp.emergency_contact""", (coach_id, student_id))
+            athlete = cursor.fetchone()
+            if not athlete:
+                return jsonify({"success": False, "message": "Athlete not found or not assigned to you."}), 404
+            cursor.execute("""SELECT DISTINCT s.name FROM coach_sports cs
+                       JOIN student_sports ss ON ss.sport_id=cs.sport_id
+                       JOIN sports s ON s.id=ss.sport_id
+                       WHERE cs.coach_id=%s AND ss.student_id=%s ORDER BY s.name""",
+                           (coach_id, student_id))
+            athlete["sports"] = [row["name"] for row in cursor.fetchall()]
+        athlete["name"] = athlete.pop("full_name")
+        athlete["sport"] = ", ".join(athlete["sports"])
+        return jsonify({"success": True, "athlete": athlete}), 200
     finally:
         db.close()
 
@@ -2171,6 +2254,11 @@ register_performance_routes(app)
 register_reference_feature_routes(app)
 register_reference_extension_routes(app)
 if __name__ == "__main__":
+    try:
+        if warm_database_pool():
+            app.logger.info("PostgreSQL connection pool is ready.")
+    except DatabaseConnectionError:
+        app.logger.warning("PostgreSQL pool warm-up failed; the first request will retry.")
     app.run(
         host="0.0.0.0",
         port=int(os.getenv("PORT", "5000")),

@@ -6401,9 +6401,20 @@ button {
 
       try {
 
+        const studentsPromise = requestJson("/api/admin/students")
+          .then(response => {
+            athletes = (response.students || []).map(normalizeStudent);
+            renderAthletes();
+            return response;
+          })
+          .catch(error => {
+            console.warn("Admin athlete data load failed:", error);
+            return { students: [] };
+          });
+
         const [studentsResponse, pendingResponse, coachesResponse, attendanceResponse, statsResponse, sportsResponse] =
           await Promise.all([
-            requestJson("/api/admin/students").catch(() => ({ students: [] })),
+            studentsPromise,
             requestJson("/api/admin/coaches/pending").catch(() => ({ coaches: [] })),
             requestJson("/api/admin/coaches").catch(() => ({ coaches: [] })),
             requestJson("/api/admin/attendance").catch(() => ({ records: [] })),
