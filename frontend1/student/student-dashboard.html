@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Performance Dashboard | Fitness Tracker</title>
+    <title>Fit Track | Student Dashboard</title>
 
     <!-- Bootstrap -->
     <link
@@ -28,8 +28,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/common/announcements-panel.css">
     <link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
-    <link rel="stylesheet" href="../css/common/dashboard-schedule.css">
+    <link rel="stylesheet" href="../css/common/dashboard-schedule.css?v=schedule-api-times-2">
     <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
+    <link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
 
     <style>
         :root {
@@ -52,12 +53,12 @@
           --shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
         }
 
-        body { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
-        body * { scrollbar-color: rgba(100, 116, 139, .12) transparent; scrollbar-width: thin; }
-        body *::-webkit-scrollbar { width: 4px; height: 4px; }
+        body { scrollbar-color: rgba(100, 116, 139, .32) transparent; scrollbar-width: thin; }
+        body * { scrollbar-color: rgba(100, 116, 139, .32) transparent; scrollbar-width: thin; }
+        body *::-webkit-scrollbar { width: 6px; height: 6px; }
         body *::-webkit-scrollbar-track { background: transparent; }
-        body *::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 99px; background: rgba(100, 116, 139, .1); background-clip: padding-box; }
-        body.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .12); background-clip: padding-box; }
+        body *::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 99px; background: rgba(100, 116, 139, .32); background-clip: padding-box; }
+        body.dark-mode *::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .32); background-clip: padding-box; }
 
         * {
           box-sizing: border-box;
@@ -994,7 +995,7 @@
         .attendance-progress { height: 8px; background: #e2e8f0; border-radius: 20px; overflow: hidden; margin-bottom: 18px; }
         .attendance-progress-fill { height: 100%; background: #2563eb; border-radius: 20px; }
 
-        .attendance-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+        .attendance-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; text-align: center; }
         .attendance-stats > div { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
         .attendance-stats strong { display: block; font-size: 16px; font-weight: 800; }
         .attendance-stats span { font-size: 8px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
@@ -1004,7 +1005,19 @@
         .attendance-day span { font-size: 8px; font-weight: 800; color: var(--muted); display: block; text-transform: uppercase; }
         .attendance-day strong { font-size: 12px; margin-top: 3px; display: block; }
         .attendance-day strong.present { color: #16a34a; }
+        .attendance-day strong.late { color: #b45309; }
         .attendance-day strong.absent { color: #dc2626; }
+        .attendance-day strong.excused { color: #2563eb; }
+        .attendance-day strong.mixed { color: #7c3aed; }
+        .attendance-day strong.none { color: var(--muted); }
+        @media (max-width: 480px) { .attendance-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .attendance-history-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; padding: 12px 0; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; }
+        .attendance-history-item:last-child { border-bottom: 0; }
+        .attendance-history-status { flex: 0 0 auto; padding: 5px 9px; border-radius: 999px; font-size: 11px; text-transform: capitalize; }
+        .attendance-history-status.status-present { background: #e8f8ef; color: #138a4b; }
+        .attendance-history-status.status-late { background: #fff6df; color: #a45b00; }
+        .attendance-history-status.status-absent { background: #fff0f0; color: #dc2626; }
+        .attendance-history-status.status-excused { background: #edf3ff; color: #3152a0; }
 
         .attendance-status-card { margin-top: 18px; grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; }
         .status-icon {
@@ -1018,35 +1031,65 @@
         /* =========================
            FEEDBACK SECTION
         ========================= */
-        .feedback-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 18px; }
-        @media (max-width: 991px) { .feedback-grid { grid-template-columns: 1fr; } }
-
-        .feedback-main { display: flex; flex-direction: column; justify-content: space-between; }
-        .feedback-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .feedback-avatar {
-          width: 40px; height: 40px; border-radius: 11px; background: #eaf2ff; color: #2563eb;
-          font-size: 16px; display: flex; align-items: center; justify-content: center;
+        .feedback-view { display: grid; gap: 20px; }
+        .feedback-view .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+        .feedback-hero {
+          position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center;
+          justify-content: space-between; gap: 24px; min-height: 210px; padding: clamp(24px, 4vw, 42px);
+          border-radius: 24px; color: #fff; background: linear-gradient(118deg, #10244f 0%, #174a9c 57%, #3679d7 100%);
+          box-shadow: 0 20px 44px rgba(23, 74, 156, .2);
         }
-        .feedback-header span { font-size: 9px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-        .feedback-header strong { display: block; font-size: 12px; font-weight: 800; }
-        .feedback-text { font-size: 11px; color: #334155; line-height: 1.6; margin-bottom: 18px; }
-
-        .rating-box {
-          background: #f8fafc; border: 1px solid var(--border); border-radius: 11px; padding: 12px 16px;
-          display: flex; align-items: center; gap: 14px;
-        }
-        .rating-box strong { font-size: 24px; font-weight: 800; color: #2563eb; line-height: 1; }
-        .stars { color: #f59e0b; font-size: 11px; letter-spacing: 1px; }
-        .rating-box span { font-size: 9px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-
-        .feedback-list { list-style: none; padding: 0; margin: 0; }
-        .feedback-list li {
-          display: flex; align-items: center; gap: 8px; font-size: 10px; color: #334155;
-          padding: 9px 0; border-bottom: 1px solid var(--border);
-        }
-        .feedback-list li:last-child { border-bottom: none; }
-        .feedback-list li i { color: #16a34a; font-size: 13px; }
-        .improvement-list li i { color: #f59e0b; }
+        .feedback-hero::before,.feedback-hero::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; }
+        .feedback-hero::before { width: 320px; height: 320px; right: 13%; top: -210px; background: rgba(112, 190, 255, .16); }
+        .feedback-hero::after { width: 240px; height: 240px; right: -80px; bottom: -150px; background: rgba(255, 255, 255, .1); }
+        .feedback-hero-copy { max-width: 670px; }
+        .feedback-hero-kicker { display: inline-flex; align-items: center; gap: 8px; color: #b9dcff; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+        .feedback-hero h2 { margin: 14px 0 9px; color: #fff; font-size: clamp(24px, 3vw, 34px); line-height: 1.12; letter-spacing: -.035em; }
+        .feedback-hero-copy > p { max-width: 560px; margin: 0; color: rgba(240, 247, 255, .82); font-size: 13px; line-height: 1.7; }
+        .feedback-coach-chip { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 9px 14px 9px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(255,255,255,.1); }
+        .feedback-coach-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #c3e4ff; color: #163c78; font-size: 13px; font-weight: 900; }
+        .feedback-coach-chip span { display: block; color: #b9dcff; font-size: 8px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .feedback-coach-chip strong { display: block; margin-top: 2px; color: #fff; font-size: 11px; }
+        .feedback-coach-chip small { display: block; margin-top: 2px; color: rgba(240, 247, 255, .76); font-size: 9px; }
+        .feedback-hero-rating { flex: 0 0 160px; display: grid; justify-items: center; gap: 5px; padding: 18px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 18px; background: rgba(6, 24, 61, .2); backdrop-filter: blur(8px); }
+        .feedback-hero-rating > span { color: #d6eaff; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .feedback-hero-rating strong { color: #fff; font-size: 40px; line-height: 1; letter-spacing: -.05em; }
+        .feedback-hero-rating small { color: #ffcf70; font-size: 13px; letter-spacing: 2px; }
+        .feedback-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .feedback-stat { display: flex; align-items: center; gap: 13px; min-width: 0; padding: 17px 18px; border: 1px solid var(--border, #e6ebf3); border-radius: 16px; background: var(--card, #fff); box-shadow: 0 7px 20px rgba(17, 35, 67, .04); }
+        .feedback-stat-icon { display: grid; flex: 0 0 40px; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #edf5ff; color: #2463c5; font-size: 16px; }
+        .feedback-stat span { display: block; color: var(--muted, #718096); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .feedback-stat strong { display: block; overflow: hidden; margin-top: 4px; color: var(--text, #172033); font-size: 17px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+        .feedback-content-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(230px, .8fr); gap: 16px; }
+        .feedback-panel { min-width: 0; padding: 22px; border: 1px solid var(--border, #e6ebf3); border-radius: 18px; background: var(--card, #fff); box-shadow: 0 8px 24px rgba(17, 35, 67, .045); }
+        .feedback-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+        .feedback-panel-heading h3 { margin: 0; color: var(--text, #172033); font-size: 15px; font-weight: 850; }
+        .feedback-date-pill { padding: 6px 9px; border-radius: 999px; background: #eef5ff; color: #2559a8; font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .feedback-latest-copy { margin: 0; color: var(--text, #26344a); font-size: 14px; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .feedback-guidance { background: linear-gradient(145deg, #f4f8ff, #edf5ff); }
+        .feedback-guidance .feedback-panel-heading i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #dceaff; color: #2563c5; }
+        .feedback-guidance p { margin: 0 0 14px; color: #53647d; font-size: 12px; line-height: 1.7; }
+        .feedback-guidance ol { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: feedback-step; }
+        .feedback-guidance li { display: flex; align-items: flex-start; gap: 10px; color: #30435e; font-size: 11px; line-height: 1.55; counter-increment: feedback-step; }
+        .feedback-guidance li::before { content: counter(feedback-step, decimal-leading-zero); flex: 0 0 24px; color: #2d69c4; font-size: 9px; font-weight: 900; }
+        .feedback-history-panel { padding: 22px; border: 1px solid var(--border, #e6ebf3); border-radius: 18px; background: var(--card, #fff); box-shadow: 0 8px 24px rgba(17, 35, 67, .045); }
+        .feedback-history-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 15px; }
+        .feedback-history-head h3 { margin: 0; color: var(--text, #172033); font-size: 16px; font-weight: 850; }
+        .feedback-history-head p { margin: 5px 0 0; color: var(--muted, #718096); font-size: 11px; }
+        .feedback-search { width: min(260px, 100%); min-height: 40px; padding: 0 13px; border: 1px solid var(--border, #dbe3ef); border-radius: 10px; background: var(--card, #fff); color: var(--text, #172033); font: inherit; font-size: 11px; }
+        .feedback-search:focus { outline: 3px solid rgba(37, 99, 235, .14); border-color: #4b83dc; }
+        .feedback-history-list { display: grid; gap: 10px; }
+        .feedback-history-item { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 15px; border: 1px solid var(--border, #e8edf5); border-radius: 13px; background: var(--card, #fff); }
+        .feedback-history-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #edf5ff; color: #2463c5; }
+        .feedback-history-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 12px; margin-bottom: 7px; color: var(--muted, #718096); font-size: 9px; font-weight: 750; }
+        .feedback-history-copy { margin: 0; color: var(--text, #334155); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .feedback-history-rating { color: #a86600; font-size: 10px; font-weight: 850; white-space: nowrap; }
+        .feedback-empty { padding: 26px 18px; border: 1px dashed #cbd7e7; border-radius: 14px; color: var(--muted, #718096); text-align: center; font-size: 12px; line-height: 1.7; }
+        .feedback-load-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px 14px; border: 1px solid #fecaca; border-radius: 11px; background: #fff7f7; color: #9f2525; font-size: 11px; }
+        .feedback-load-error[hidden] { display: none; }
+        .feedback-load-error button { padding: 7px 11px; border: 0; border-radius: 8px; background: #9f2525; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+        @media (max-width: 900px) { .feedback-content-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 650px) { .feedback-hero { align-items: flex-start; flex-direction: column; }.feedback-hero-rating { grid-template-columns: auto auto auto; justify-items: start; align-items: center; width: 100%; padding: 12px 14px; }.feedback-hero-rating strong { font-size: 27px; }.feedback-stats { grid-template-columns: 1fr; }.feedback-history-head { align-items: stretch; flex-direction: column; }.feedback-search { width: 100%; }.feedback-panel,.feedback-history-panel { padding: 17px; } }
 
         /* =========================
            CHATGPT PROFILE CARD (Without Photo Upload)
@@ -1137,6 +1180,7 @@
             .footer-bottom { flex-direction: column; gap: 6px; text-align: center; }
         }
     </style>
+    <link rel="stylesheet" href="../css/student/student-dashboard.css">
 <script src="../js/config.js"></script>
 </head>
 
@@ -1163,17 +1207,8 @@
         </div>
     </div>
 
-    <div class="sidebar-profile">
-        <div class="sidebar-avatar" id="sidebarAvatar">S</div>
-
-        <div class="sidebar-profile-info">
-            <strong id="sidebarStudentName">Student</strong>
-            <span>Student Athlete</span>
-        </div>
-    </div>
-
     <div class="sidebar-label">
-        MAIN MENU
+        WORKSPACE
     </div>
 
     <nav class="sidebar-nav">
@@ -1561,6 +1596,34 @@
 
                         <div class="stat-trend">
                             Active
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon orange">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Late</span>
+                            <strong id="dashboardAttendanceLate">0</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon blue">
+                            <i class="bi bi-calendar2-check-fill"></i>
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Excused</span>
+                            <strong id="dashboardAttendanceExcused">0</strong>
                         </div>
 
                     </div>
@@ -2263,6 +2326,16 @@
                             </div>
 
                             <div>
+                                <strong id="attendanceLate" class="text-warning">0</strong>
+                                <span>Late</span>
+                            </div>
+
+                            <div>
+                                <strong id="attendanceExcused" class="text-primary">0</strong>
+                                <span>Excused</span>
+                            </div>
+
+                            <div>
                                 <strong id="attendanceTotal">
                                     0
                                 </strong>
@@ -2292,6 +2365,11 @@
 
                     </div>
 
+                    <div class="dashboard-card" style="grid-column:1/-1">
+                        <div class="card-heading"><div><h3>Attendance history</h3><span>Your recorded sessions</span></div></div>
+                        <div id="attendanceHistoryContainer"></div>
+                    </div>
+
 
                     <div class="dashboard-card attendance-status-card">
 
@@ -2299,17 +2377,19 @@
                             <i class="bi bi-check-lg"></i>
                         </div>
 
-                        <span class="card-label">
-                            Attendance Status
-                        </span>
+                        <div>
+                            <span class="card-label">
+                                Attendance Status
+                            </span>
 
-                        <strong id="attendanceStatusText">
-                            Not started
-                        </strong>
+                            <strong id="attendanceStatusText">
+                                Not started
+                            </strong>
 
-                        <p id="attendanceStatusDesc">
-                            Attendance will appear here after a coach records a session.
-                        </p>
+                            <p id="attendanceStatusDesc">
+                                Attendance will appear here after a coach records a session.
+                            </p>
+                        </div>
 
                     </div>
 
@@ -2322,106 +2402,54 @@
                  FEEDBACK
             ================================================== -->
 
-            <section
-                id="feedback"
-                class="content-section"
-            >
-
-                <div class="page-heading">
-
-                    <div>
-                        <div class="eyebrow">
-                            COACHING
+            <section id="feedback" class="content-section">
+                <div class="feedback-view">
+                    <div class="feedback-hero">
+                        <div class="feedback-hero-copy">
+                            <span class="feedback-hero-kicker"><i class="bi bi-stars"></i> Your coaching journey</span>
+                            <h2>Feedback that moves you forward</h2>
+                            <p>Review your coach’s notes, track ratings over time, and use each observation to focus your next training session.</p>
+                            <div class="feedback-coach-chip">
+                                <div class="feedback-coach-avatar" id="feedbackCoachAvatar">C</div>
+                                <div><span>Your coach</span><strong id="feedbackCoachName">No coach assigned</strong><small id="feedbackCoachMeta"></small></div>
+                            </div>
                         </div>
-
-                        <h1>Coach Feedback</h1>
-
-                        <p>
-                            Review observations and recommendations
-                            from your coaching team.
-                        </p>
+                        <div class="feedback-hero-rating" aria-label="Latest coach rating">
+                            <span>Latest rating</span>
+                            <strong id="coachRatingNumber">—</strong>
+                            <small id="coachRatingStars" aria-label="No rating">☆☆☆☆☆</small>
+                        </div>
                     </div>
 
+                    <div id="feedbackLoadError" class="feedback-load-error" role="alert" hidden>
+                        <span id="feedbackLoadErrorText">Feedback could not be loaded.</span>
+                        <button type="button" id="feedbackRetryButton">Try again</button>
+                    </div>
+
+                    <div class="feedback-stats" aria-label="Feedback summary">
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-chat-square-text"></i></div><div><span>Coach notes</span><strong id="feedbackCount">0</strong></div></div>
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-calendar-check"></i></div><div><span>Most recent</span><strong id="feedbackLatestDate">—</strong></div></div>
+                        <div class="feedback-stat"><div class="feedback-stat-icon"><i class="bi bi-graph-up-arrow"></i></div><div><span>Average rating</span><strong id="feedbackAverageRating">—</strong></div></div>
+                    </div>
+
+                    <div class="feedback-content-grid">
+                        <article class="feedback-panel">
+                            <div class="feedback-panel-heading"><h3>Latest feedback</h3><span class="feedback-date-pill" id="feedbackLatestBadge">Waiting for feedback</span></div>
+                            <p class="feedback-latest-copy" id="coachFeedbackText" aria-live="polite">Your coach’s notes will appear here.</p>
+                        </article>
+                        <aside class="feedback-panel feedback-guidance">
+                            <div class="feedback-panel-heading"><h3>Make it actionable</h3><i class="bi bi-lightbulb"></i></div>
+                            <p>Use your coach’s notes as a practical focus for your next session.</p>
+                            <ol><li>Pick one cue from the feedback.</li><li>Apply it during your next workout.</li><li>Ask your coach about anything unclear.</li></ol>
+                        </aside>
+                    </div>
+
+                    <section class="feedback-history-panel" aria-labelledby="feedbackHistoryTitle">
+                        <div class="feedback-history-head"><div><h3 id="feedbackHistoryTitle">Feedback history</h3><p id="feedbackHistoryCount">Your coach’s notes, newest first</p></div><input class="feedback-search" id="feedbackSearch" type="search" placeholder="Search feedback" aria-label="Search feedback"></div>
+                        <div class="feedback-history-list" id="feedbackHistory" aria-live="polite"><div class="feedback-empty">Loading your feedback…</div></div>
+                    </section>
+                    <p id="assignedCoachDisplay" class="sr-only"></p>
                 </div>
-
-
-                <div class="feedback-grid">
-
-                    <div class="dashboard-card feedback-main">
-
-                        <div class="feedback-header">
-                            <div class="feedback-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-
-                            <div>
-                                <span>Overall Feedback</span>
-                                <strong>Recent Coach Assessment</strong>
-                            </div>
-                        </div>
-
-                        <p
-                            class="feedback-text"
-                            id="coachFeedbackText"
-                        >
-                            No coach feedback yet.
-                        </p>
-
-                        <div class="rating-box">
-
-                            <strong id="coachRatingNumber">
-                                -
-                            </strong>
-
-                            <div>
-                                <div
-                                    class="stars"
-                                    id="coachRatingStars"
-                                >
-                                    No rating
-                                </div>
-
-                                <span>
-                                    Coach rating
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-                            <h3>Your Strengths</h3>
-                        </div>
-
-                        <ul
-                            class="feedback-list"
-                            id="coachStrengthsList"
-                        >
-                        </ul>
-
-                    </div>
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-                            <h3>Areas to Improve</h3>
-                        </div>
-
-                        <ul
-                            class="feedback-list improvement-list"
-                            id="coachImprovementsList"
-                        >
-                        </ul>
-
-                    </div>
-
-                </div>
-
             </section>
 
 
@@ -2470,171 +2498,142 @@
                         <h1>My Profile</h1>
 
                         <p>
-                            Your personal, academic and physical
-                            information.
+                            Your personal, academic and physical information.
                         </p>
                     </div>
 
                 </div>
 
-
-                <div class="profile-container">
-
-                    <div class="profile-header">
-
-                        <div
-                            class="profile-avatar-lg"
-                            id="profileTabAvatar"
-                        >
-                            S
+                <div class="chatgpt-profile-container">
+                    <div class="chatgpt-user-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="chatgpt-big-avatar" id="profileTabAvatar">S</div>
+                            <div>
+                                <h4 class="fw-bold mb-1" id="profileTabName">Student Athlete</h4>
+                                <span class="text-muted small">Student Athlete Account</span>
+                            </div>
                         </div>
-
-                        <div>
-
-                            <h2 id="profileTabName">
-                                Student Athlete
-                            </h2>
-
-                            <span class="profile-badge">
-                                <i class="bi bi-patch-check-fill"></i>
-                                Student / Athlete Account
-                            </span>
-
-                        </div>
-
+                        <button class="btn btn-outline-primary btn-sm fw-bold px-3 rounded-pill" id="editProfileBtn" onclick="toggleEditProfile()">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                        </button>
                     </div>
 
-
-                    <!-- Personal -->
-
-                    <div class="profile-block">
-
-                        <div class="profile-block-title">
-                            <i class="bi bi-person-fill"></i>
-                            Personal Information
+                    <form id="studentProfileForm" onsubmit="saveStudentProfile(event)">
+                        <div class="mb-4">
+                            <div class="chatgpt-group-title">Personal Information</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Full Name</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileNameDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileNameInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Gender</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileGenderDisplay">—</span>
+                                    <select class="form-select form-select-sm edit-mode d-none w-50" id="profileGenderInput">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Date of Birth</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileDobDisplay">—</span>
+                                    <input type="date" class="form-control form-control-sm edit-mode d-none w-50" id="profileDobInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Email Address</span>
+                                    <span class="chatgpt-card-value" id="profileEmail">—</span>
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Student Number</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileStudentNumberDisplay">—</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="profile-grid">
-
-                            <div class="profile-field">
-                                <label>Full Name</label>
-                                <strong id="profileName">—</strong>
+                        <div class="mb-4">
+                            <div class="chatgpt-group-title">Contact Information</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Phone Number</span>
+                                    <span class="chatgpt-card-value view-mode" id="profilePhoneDisplay">—</span>
+                                    <input type="tel" class="form-control form-control-sm edit-mode d-none w-50" id="profilePhoneInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Emergency Number</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileEmergencyDisplay">—</span>
+                                    <input type="tel" class="form-control form-control-sm edit-mode d-none w-50" id="profileEmergencyInput">
+                                </div>
                             </div>
-
-                            <div class="profile-field">
-                                <label>Gender</label>
-                                <strong id="profileGender">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Date of Birth</label>
-                                <strong id="profileDob">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Email Address</label>
-                                <strong id="profileEmail">—</strong>
-                            </div>
-
                         </div>
 
-                    </div>
-
-
-                    <!-- Contact -->
-
-                    <div class="profile-block">
-
-                        <div class="profile-block-title">
-                            <i class="bi bi-telephone-fill"></i>
-                            Contact Information
+                        <div class="mb-4">
+                            <div class="chatgpt-group-title">Academic Information</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Semester</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileSemesterDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileSemesterInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Department</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileDepartmentDisplay">—</span>
+                                    <select class="form-select form-select-sm edit-mode d-none w-50" id="profileDepartmentInput">
+                                        <option value="">Select programme</option>
+                                        <option>BCA</option><option>BBA</option><option>BMS</option><option>HHA</option>
+                                        <option>BBA-HM</option><option>BMAGD</option><option>BBA-SM</option><option>BBA-GB</option>
+                                        <option>BBA-E</option><option>BID</option><option>BFDM</option><option>BBA-ATA</option>
+                                        <option>BSC-DA</option><option>BBA-DM</option><option>BITAI</option><option>BAHSM</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="profile-grid">
-
-                            <div class="profile-field">
-                                <label>Phone Number</label>
-                                <strong id="profilePhone">—</strong>
+                        <div class="mb-3">
+                            <div class="chatgpt-group-title">Physical & Sports Information</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Height</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileHeightDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileHeightInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Weight</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileWeightDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileWeightInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Sport / Activity</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileSportDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileSportInput">
+                                </div>
+                                <div class="chatgpt-card-row">
+                                    <span class="chatgpt-card-label">Fitness Goal</span>
+                                    <span class="chatgpt-card-value view-mode" id="profileGoalDisplay">—</span>
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileGoalInput">
+                                </div>
                             </div>
-
-                            <div class="profile-field">
-                                <label>Emergency Number</label>
-                                <strong id="profileEmergency">—</strong>
-                            </div>
-
                         </div>
 
-                    </div>
-
-
-                    <!-- Academic -->
-
-                    <div class="profile-block">
-
-                        <div class="profile-block-title">
-                            <i class="bi bi-mortarboard-fill"></i>
-                            Academic Information
+                        <div class="mb-3">
+                            <div class="chatgpt-group-title">Health & Emergency Contact</div>
+                            <div class="chatgpt-card-group">
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Blood Group</span><span class="chatgpt-card-value view-mode" id="profileBloodGroupDisplay">—</span><input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileBloodGroupInput" maxlength="10"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Medical History</span><span class="chatgpt-card-value view-mode" id="profileMedicalHistoryDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileMedicalHistoryInput" rows="2"></textarea></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Home Address</span><span class="chatgpt-card-value view-mode" id="profileAddressDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileAddressInput" rows="2"></textarea></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent / Guardian</span><span class="chatgpt-card-value view-mode" id="profileParentNameDisplay">—</span><input type="text" class="form-control form-control-sm edit-mode d-none w-50" id="profileParentNameInput"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent Phone</span><span class="chatgpt-card-value view-mode" id="profileParentPhoneDisplay">—</span><input type="tel" class="form-control form-control-sm edit-mode d-none w-50" id="profileParentPhoneInput"></div>
+                                <div class="chatgpt-card-row"><span class="chatgpt-card-label">Parent Address</span><span class="chatgpt-card-value view-mode" id="profileParentAddressDisplay">—</span><textarea class="form-control form-control-sm edit-mode d-none w-50" id="profileParentAddressInput" rows="2"></textarea></div>
+                            </div>
                         </div>
 
-                        <div class="profile-grid">
-
-                            <div class="profile-field">
-                                <label>Year</label>
-                                <strong id="profileYear">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Semester</label>
-                                <strong id="profileSemester">—</strong>
-                            </div>
-
-                            <div class="profile-field wide">
-                                <label>Department</label>
-                                <strong id="profileDepartment">
-                                    Sports Management
-                                </strong>
-                            </div>
-
+                        <div class="text-end edit-mode d-none" id="profileFormActions">
+                            <button type="button" class="btn btn-light btn-sm fw-bold me-2" onclick="toggleEditProfile()">Cancel</button>
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold px-4">Save Changes</button>
                         </div>
-
-                    </div>
-
-
-                    <!-- Physical -->
-
-                    <div class="profile-block">
-
-                        <div class="profile-block-title">
-                            <i class="bi bi-activity"></i>
-                            Physical & Sports Information
-                        </div>
-
-                        <div class="profile-grid">
-
-                            <div class="profile-field">
-                                <label>Height</label>
-                                <strong id="profileHeight">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Weight</label>
-                                <strong id="profileWeight">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Sport / Activity</label>
-                                <strong id="profileSport">—</strong>
-                            </div>
-
-                            <div class="profile-field">
-                                <label>Fitness Goal</label>
-                                <strong id="profileGoal">—</strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                    </form>
                 </div>
 
             </section>
@@ -2780,7 +2779,7 @@
 
     <!-- =====================================================
          FOOTER
-    ====================================================== -->
+    ===================================================== -->
 
     <footer class="dashboard-footer">
 
@@ -2789,11 +2788,11 @@
             <div class="footer-brand">
 
                 <div class="footer-logo logo-brand-icon">
-                    <img src="data:image/png;base64,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" alt="Sports Hub Logo" class="sports-hub-logo">
+                    <img src="../logo.png" alt="Fit Track Logo" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain;">
                 </div>
 
                 <div>
-                    <strong>SPORTS HUB</strong>
+                    <strong>Fit Track</strong>
                     <span>
                         SPORTS MANAGEMENT DEPARTMENT
                     </span>
@@ -3015,6 +3014,12 @@ function updateStudentProfile(data = {}) {
         profile.full_name ||
         studentName
     );
+    setValue(
+        "profileNameDisplay",
+        profile.name ||
+        profile.full_name ||
+        studentName
+    );
 
     setValue(
         "profileEmail",
@@ -3026,9 +3031,18 @@ function updateStudentProfile(data = {}) {
         "profileGender",
         profile.gender
     );
+    setValue(
+        "profileGenderDisplay",
+        profile.gender
+    );
 
     setValue(
         "profileDob",
+        profile.date_of_birth ||
+        profile.dob
+    );
+    setValue(
+        "profileDobDisplay",
         profile.date_of_birth ||
         profile.dob
     );
@@ -3039,15 +3053,32 @@ function updateStudentProfile(data = {}) {
         profile.phone ||
         profile.phone_number
     );
+    setValue(
+        "profilePhoneDisplay",
+        profile.contact_number ||
+        profile.phone ||
+        profile.phone_number
+    );
 
     setValue(
         "profileEmergency",
         profile.emergency_contact ||
         profile.emergency_number
     );
+    setValue(
+        "profileEmergencyDisplay",
+        profile.emergency_contact ||
+        profile.emergency_number
+    );
 
     setValue(
         "profileYear",
+        profile.year
+            ? `Year ${profile.year}`
+            : null
+    );
+    setValue(
+        "profileYearDisplay",
         profile.year
             ? `Year ${profile.year}`
             : null
@@ -3059,14 +3090,32 @@ function updateStudentProfile(data = {}) {
             ? `Semester ${profile.semester}`
             : null
     );
+    setValue(
+        "profileSemesterDisplay",
+        profile.semester
+            ? `Semester ${profile.semester}`
+            : null
+    );
 
     setValue(
         "profileDepartment",
         profile.department
     );
+    setValue(
+        "profileDepartmentDisplay",
+        profile.department
+    );
 
     setValue(
         "profileHeight",
+        profile.height
+            ? `${profile.height} cm`
+            : profile.height_cm
+                ? `${profile.height_cm} cm`
+                : null
+    );
+    setValue(
+        "profileHeightDisplay",
         profile.height
             ? `${profile.height} cm`
             : profile.height_cm
@@ -3082,9 +3131,23 @@ function updateStudentProfile(data = {}) {
                 ? `${profile.weight_kg} kg`
                 : null
     );
+    setValue(
+        "profileWeightDisplay",
+        profile.weight
+            ? `${profile.weight} kg`
+            : profile.weight_kg
+                ? `${profile.weight_kg} kg`
+                : null
+    );
 
     setValue(
         "profileSport",
+        profile.sport ||
+        profile.activity ||
+        profile.sport_activity
+    );
+    setValue(
+        "profileSportDisplay",
         profile.sport ||
         profile.activity ||
         profile.sport_activity
@@ -3094,6 +3157,23 @@ function updateStudentProfile(data = {}) {
         "profileGoal",
         profile.goal
     );
+    setValue(
+        "profileGoalDisplay",
+        profile.goal
+    );
+
+    const sports = Array.isArray(profile.sports)
+        ? profile.sports.map((sport) => typeof sport === "string" ? sport : sport.name).filter(Boolean).join(", ")
+        : profile.sport_activity || profile.sport || profile.activity;
+    setValue("profileSport", sports);
+    setValue("profileSportDisplay", sports);
+    setValue("profileStudentNumberDisplay", profile.student_number || profile.student_id);
+    setValue("profileBloodGroupDisplay", profile.blood_group);
+    setValue("profileMedicalHistoryDisplay", profile.medical_history);
+    setValue("profileAddressDisplay", profile.address);
+    setValue("profileParentNameDisplay", profile.parent_name);
+    setValue("profileParentPhoneDisplay", profile.parent_phone);
+    setValue("profileParentAddressDisplay", profile.parent_address);
 
 
     const initials =
@@ -3200,26 +3280,7 @@ updateProfileHeaderUI();
 
 async function checkStudentSession() {
     const cfg = window.APP_CONFIG || {};
-    if (cfg.AUTH_BYPASS !== false) {
-        studentName = "Alex Morgan";
-        studentEmail = "alex.morgan@fittrack.com";
-        updateProfileHeaderUI();
-        updateStudentProfile({
-            id: 1,
-            name: studentName,
-            full_name: studentName,
-            email: studentEmail,
-            role: "student",
-            gender: "Female",
-            sport: "Track & Field / Football",
-            department: "Sports Science",
-            semester: "4",
-            height: "172",
-            weight: "63",
-            fitness_goal: "Sub-11s 100m Sprint & Aerobic Capacity"
-        });
-        return true;
-    }
+    if (cfg.AUTH_BYPASS === true) return true;
 
     try {
         const response = await fetch(
@@ -3242,27 +3303,6 @@ async function checkStudentSession() {
         }
     } catch (error) {
         console.warn("Session check offline:", error);
-    }
-
-    if (cfg.AUTH_BYPASS !== false) {
-        studentName = "Alex Morgan";
-        studentEmail = "alex.morgan@fittrack.com";
-        updateProfileHeaderUI();
-        updateStudentProfile({
-            id: 1,
-            name: "Alex Morgan",
-            full_name: "Alex Morgan",
-            email: "alex.morgan@fittrack.com",
-            role: "student",
-            gender: "Female",
-            sport: "Track & Field / Football",
-            department: "Sports Science",
-            semester: "4",
-            height: "172",
-            weight: "63",
-            fitness_goal: "Sub-11s 100m Sprint & Aerobic Capacity"
-        });
-        return true;
     }
 
     return false;
@@ -3587,6 +3627,7 @@ async function fetchDashboardData() {
     let trainingRows = [];
     let goalRows = [];
     let feedbackRows = [];
+    let feedbackLoadError = "";
 
     try {
         const response = await fetch(`${API_BASE_URL}/student/dashboard`, {
@@ -3597,52 +3638,27 @@ async function fetchDashboardData() {
         if (response.ok) {
             data = await response.json();
             const [assessments, training, goals, feedback] = await Promise.all([
-                fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(r => r.json()).catch(() => ({})),
-                fetch(`${API_BASE_URL}/training-sessions`, { credentials: "include" }).then(r => r.json()).catch(() => ({})),
-                fetch(`${API_BASE_URL}/goals`, { credentials: "include" }).then(r => r.json()).catch(() => ({})),
-                fetch(`${API_BASE_URL}/feedback`, { credentials: "include" }).then(r => r.json()).catch(() => ({}))
+                fetch(`${API_BASE_URL}/assessments`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/training-sessions`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/goals`, { credentials: "include" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                fetch(`${API_BASE_URL}/feedback`, { credentials: "include" }).then(async response => {
+                    if (!response.ok) {
+                        let message = "Your coach feedback could not be loaded.";
+                        try { message = (await response.json()).message || message; } catch (_) {}
+                        throw new Error(message);
+                    }
+                    return response.json();
+                }).catch(error => ({ __error: error.message || "Your coach feedback could not be loaded. Please try again." }))
             ]);
             assessmentRows = assessments.data || [];
             trainingRows = training.data || [];
             goalRows = goals.data || [];
-            feedbackRows = feedback.data || [];
+            if (feedback.__error) feedbackLoadError = feedback.__error;
+            else feedbackRows = feedback.data || [];
         }
     } catch (err) {
-        console.warn("Backend offline, using preview dashboard data:", err);
-    }
-
-    if (window.APP_CONFIG?.AUTH_BYPASS !== false) {
-        data = {
-            name: "Alex Morgan",
-            email: "alex.morgan@fittrack.com",
-            attendance: {
-                attendance_percentage: 88,
-                present_days: 14,
-                absent_days: 2,
-                total_classes: 16
-            },
-            assigned_coach: {
-                full_name: "Coach Sarah Jenkins",
-                specialization: "Athletics & Track",
-                contact_number: "+1 555-0192"
-            }
-        };
-        assessmentRows = [
-            { assessment_date: "2026-10-18", overall_score: 88, speed: 88, strength: 82, endurance: 92, agility: 86, flexibility: 80, reaction_time: 89, notes: "Excellent sprint acceleration and pacing." },
-            { assessment_date: "2026-10-04", overall_score: 83, speed: 82, strength: 79, endurance: 87, agility: 83, flexibility: 78, reaction_time: 84, notes: "Consistent progress throughout high intensity drills." }
-        ];
-        trainingRows = [
-            { session_date: "2026-10-21", training_type: "Sprint Intervals", duration_minutes: 60, description: "10x 100m sprint sets with 90s active recovery", performance_notes: "Strong finish, consistent pacing" },
-            { session_date: "2026-10-19", training_type: "Core & Plyometrics", duration_minutes: 45, description: "Box jumps and isometric core holds", performance_notes: "Explosive power and balance" }
-        ];
-        goalRows = [
-            { title: "Sub-11s 100m Sprint", description: "Target sprint time for state trials", target_value: 11, current_value: 11.4, target_date: "2026-12-15", status: "in-progress" },
-            { title: "Aerobic VO2 Max 55+", description: "Bleep test level 13+", target_value: 55, current_value: 53, target_date: "2026-11-30", status: "in-progress" },
-            { title: "10k Pre-season Run", description: "Complete under 44 minutes", target_value: 44, current_value: 43.5, target_date: "2026-10-10", status: "completed" }
-        ];
-        feedbackRows = [
-            { feedback: "Alex demonstrates outstanding dedication and form in acceleration drills. On track for state championships.", rating: 5, created_at: "2026-10-20" }
-        ];
+        console.warn("Dashboard data could not be loaded:", err);
+        feedbackLoadError = "We couldn’t connect to your account to load feedback. Check your connection and try again.";
     }
 
     if (!data) return;
@@ -3659,9 +3675,7 @@ async function fetchDashboardData() {
             ["session_date", "training_type", "duration_minutes", "description", "performance_notes"]);
         renderLiveRecords("goals", "goalRecords", "My Goals", goalRows,
             ["title", "description", "target_value", "current_value", "target_date", "status"]);
-        renderLiveRecords("feedback", "feedbackRecords", "Coach Feedback", feedbackRows,
-            ["feedback", "rating", "created_at"]);
-        renderFeedbackView(feedbackRows);
+        renderFeedbackView(feedbackRows, assignedCoach, feedbackLoadError);
         const scores = assessmentRows.map(row => Number(row.overall_score)).filter(Number.isFinite);
         const overallScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "-";
         document.getElementById("overallScore").textContent = overallScore;
@@ -3749,9 +3763,13 @@ function updateAttendanceView(attendance) {
     const percentage = Number(summary.percentage || 0);
     document.getElementById("attendancePercentage").textContent = `${percentage}%`;
     document.getElementById("dashboardAttendance").textContent = summary.total ? `${percentage}%` : "-";
+    document.getElementById("dashboardAttendanceLate").textContent = summary.late || 0;
+    document.getElementById("dashboardAttendanceExcused").textContent = summary.excused || 0;
     document.getElementById("attendanceProgressFill").style.width = `${percentage}%`;
     document.getElementById("attendancePresent").textContent = summary.present || 0;
     document.getElementById("attendanceAbsent").textContent = summary.absent || 0;
+    document.getElementById("attendanceLate").textContent = summary.late || 0;
+    document.getElementById("attendanceExcused").textContent = summary.excused || 0;
     document.getElementById("attendanceTotal").textContent = summary.total || 0;
     document.getElementById("attendanceLabel").textContent = summary.label || "No sessions yet";
     document.getElementById("attendanceStatusText").textContent = summary.statusText || "Not started";
@@ -3764,23 +3782,114 @@ function updateAttendanceView(attendance) {
         const name = document.createElement("span");
         name.textContent = day.day;
         const status = document.createElement("strong");
-        status.className = day.present ? "present" : "absent";
-        status.textContent = day.present ? "Present" : "Absent";
+        const statusLabels = {
+            present: "Present",
+            late: "Late",
+            absent: "Absent",
+            excused: "Excused",
+            mixed: "Mixed",
+            none: "—"
+        };
+        const dayStatus = day.status || (day.present ? "present" : "absent");
+        status.className = dayStatus;
+        status.textContent = statusLabels[dayStatus] || "—";
+        if (day.statuses?.length) item.title = day.statuses.map(value => statusLabels[value] || value).join(", ");
         item.append(name, status);
         week.appendChild(item);
     });
+    const history = document.getElementById("attendanceHistoryContainer");
+    history.replaceChildren();
+    (summary.records || []).forEach(record => {
+        const line = document.createElement("p");
+        line.className = "attendance-history-item";
+        const details = document.createElement("span");
+        details.textContent = `${record.session_date} · ${record.sport_name || "Training"}`;
+        const status = document.createElement("strong");
+        const statusLabels = { present: "Present", absent: "Absent", late: "Late", excused: "Excused" };
+        status.className = `attendance-history-status status-${record.status}`;
+        status.textContent = statusLabels[record.status] || "Recorded";
+        line.append(details, status);
+        history.appendChild(line);
+    });
+    if (!history.childElementCount) history.textContent = "No attendance recorded yet.";
 }
 
-function renderFeedbackView(records) {
-    const latest = records[0];
-    document.getElementById("coachFeedbackText").textContent = latest?.feedback || "No coach feedback yet.";
-    document.getElementById("coachRatingNumber").textContent = latest?.rating ?? "-";
-    document.getElementById("coachRatingStars").textContent = latest?.rating
-        ? `${latest.rating} / 5 Rating`
-        : "No rating";
-    document.getElementById("coachStrengthsList").replaceChildren();
-    document.getElementById("coachImprovementsList").replaceChildren();
+function renderFeedbackView(records, assignedCoach, loadError = "") {
+    const rows = Array.isArray(records) ? records : [];
+    window.studentFeedbackRows = rows;
+    const latest = rows[0];
+    const rated = rows.map(row => Number(row.rating)).filter(rating => Number.isInteger(rating) && rating >= 1 && rating <= 5);
+    const average = rated.length ? (rated.reduce((sum, rating) => sum + rating, 0) / rated.length).toFixed(1) : "—";
+    const coachName = latest?.coach_name || assignedCoach?.full_name || "No coach assigned";
+    const coachSpecialization = latest?.coach_specialization || assignedCoach?.specialization || "";
+    const coachNameNode = document.getElementById("feedbackCoachName");
+    coachNameNode.textContent = coachName;
+    document.getElementById("feedbackCoachAvatar").textContent = coachName !== "No coach assigned" ? coachName.trim().charAt(0).toUpperCase() : "C";
+    document.getElementById("feedbackCoachMeta").textContent = coachSpecialization;
+    document.getElementById("feedbackCount").textContent = String(rows.length);
+    document.getElementById("feedbackLatestDate").textContent = latest ? formatFeedbackDate(latest.created_at) : "—";
+    document.getElementById("feedbackAverageRating").textContent = average === "—" ? "—" : `${average} / 5`;
+    document.getElementById("coachFeedbackText").textContent = latest?.feedback || (loadError ? "Feedback is temporarily unavailable." : "Your coach’s notes will appear here when they leave feedback.");
+    const rating = Number(latest?.rating);
+    document.getElementById("coachRatingNumber").textContent = Number.isInteger(rating) && rating >= 1 && rating <= 5 ? `${rating}/5` : "—";
+    const stars = Number.isInteger(rating) && rating >= 1 && rating <= 5 ? "★".repeat(rating) + "☆".repeat(5 - rating) : "☆☆☆☆☆";
+    document.getElementById("coachRatingStars").textContent = stars;
+    document.getElementById("coachRatingStars").setAttribute("aria-label", Number.isInteger(rating) && rating >= 1 && rating <= 5 ? `${rating} out of 5 stars` : "No rating yet");
+    document.getElementById("feedbackLatestBadge").textContent = latest ? formatFeedbackDate(latest.created_at) : "Waiting for feedback";
+    document.getElementById("feedbackHistoryCount").textContent = `${rows.length} ${rows.length === 1 ? "note" : "notes"} · newest first`;
+    const errorBox = document.getElementById("feedbackLoadError");
+    errorBox.hidden = !loadError;
+    if (loadError) document.getElementById("feedbackLoadErrorText").textContent = loadError;
+    renderFeedbackHistory(rows, document.getElementById("feedbackSearch").value);
 }
+
+function formatFeedbackDate(value) {
+    if (!value) return "Date unavailable";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
+function renderFeedbackHistory(records, query = "") {
+    const list = document.getElementById("feedbackHistory");
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const matches = records.filter(row => !normalizedQuery || `${row.feedback || ""} ${row.coach_name || ""}`.toLocaleLowerCase().includes(normalizedQuery));
+    list.replaceChildren();
+    if (!matches.length) {
+        const empty = document.createElement("div");
+        empty.className = "feedback-empty";
+        empty.textContent = records.length ? "No feedback matches your search." : "There’s no feedback yet. Your coach’s notes will show up here after they’re shared.";
+        list.appendChild(empty);
+        return;
+    }
+    matches.forEach(row => {
+        const article = document.createElement("article");
+        article.className = "feedback-history-item";
+        const icon = document.createElement("div");
+        icon.className = "feedback-history-icon";
+        icon.innerHTML = '<i class="bi bi-chat-left-text"></i>';
+        const content = document.createElement("div");
+        const meta = document.createElement("div");
+        meta.className = "feedback-history-meta";
+        const date = document.createElement("span");
+        date.textContent = formatFeedbackDate(row.created_at);
+        const coach = document.createElement("span");
+        coach.textContent = row.coach_name || "Coach";
+        meta.append(date, coach);
+        const note = document.createElement("p");
+        note.className = "feedback-history-copy";
+        note.textContent = row.feedback || "No written feedback provided.";
+        content.append(meta, note);
+        const rating = document.createElement("span");
+        rating.className = "feedback-history-rating";
+        const score = Number(row.rating);
+        rating.textContent = Number.isInteger(score) && score >= 1 && score <= 5 ? `★ ${score}/5` : "No rating";
+        article.append(icon, content, rating);
+        list.appendChild(article);
+    });
+}
+
+document.getElementById("feedbackSearch")?.addEventListener("input", event => renderFeedbackHistory(window.studentFeedbackRows || [], event.currentTarget.value));
+document.getElementById("feedbackRetryButton")?.addEventListener("click", () => fetchDashboardData());
 
 
 /* =========================================================
@@ -4102,6 +4211,8 @@ function applyTheme(isDark) {
             : "light"
     );
 
+    localStorage.setItem("fit-track-theme", isDark ? "dark" : "light");
+
 
     initCharts();
 
@@ -4214,6 +4325,109 @@ document
 
 
 /* =========================================================
+   EDIT PROFILE LOGIC (Without Photo Upload)
+========================================================= */
+
+let isEditingProfile = false;
+
+function toggleEditProfile() {
+    isEditingProfile = !isEditingProfile;
+    const editBtn = document.getElementById("editProfileBtn");
+
+    if (isEditingProfile) {
+        document.getElementById("profileNameInput").value = document.getElementById("profileNameDisplay")?.textContent.trim() || studentName || "";
+        document.getElementById("profileGenderInput").value = document.getElementById("profileGenderDisplay").textContent.trim();
+        document.getElementById("profileDobInput").value = document.getElementById("profileDobDisplay").textContent.trim();
+        document.getElementById("profilePhoneInput").value = document.getElementById("profilePhoneDisplay")?.textContent.trim() || studentProfileData.contact_number || "";
+        document.getElementById("profileEmergencyInput").value = document.getElementById("profileEmergencyDisplay").textContent.trim();
+        document.getElementById("profileYearInput").value = "";
+        document.getElementById("profileSemesterInput").value = document.getElementById("profileSemesterDisplay").textContent.replace("Semester ", "").trim();
+        document.getElementById("profileDepartmentInput").value = document.getElementById("profileDepartmentDisplay").textContent.trim();
+        document.getElementById("profileHeightInput").value = document.getElementById("profileHeightDisplay").textContent.replace(" cm", "").trim();
+        document.getElementById("profileWeightInput").value = document.getElementById("profileWeightDisplay").textContent.replace(" kg", "").trim();
+        document.getElementById("profileSportInput").value = document.getElementById("profileSportDisplay").textContent.trim();
+        document.getElementById("profileGoalInput").value = document.getElementById("profileGoalDisplay").textContent.trim();
+        document.getElementById("profileBloodGroupInput").value = profileValue("profileBloodGroupDisplay");
+        document.getElementById("profileMedicalHistoryInput").value = profileValue("profileMedicalHistoryDisplay");
+        document.getElementById("profileAddressInput").value = profileValue("profileAddressDisplay");
+        document.getElementById("profileParentNameInput").value = profileValue("profileParentNameDisplay");
+        document.getElementById("profileParentPhoneInput").value = profileValue("profileParentPhoneDisplay");
+        document.getElementById("profileParentAddressInput").value = profileValue("profileParentAddressDisplay");
+    }
+
+    document.querySelectorAll(".view-mode").forEach(el => el.classList.toggle("d-none", isEditingProfile));
+    document.querySelectorAll(".edit-mode").forEach(el => el.classList.toggle("d-none", !isEditingProfile));
+
+    if (editBtn) {
+        editBtn.innerHTML = isEditingProfile ? '<i class="bi bi-x-lg me-1"></i> Cancel' : '<i class="bi bi-pencil-square me-1"></i> Edit Profile';
+    }
+}
+
+function profileValue(id) {
+    const value = document.getElementById(id)?.textContent.trim();
+    return value === "—" || value === "Not provided" ? "" : value;
+}
+
+async function saveStudentProfile(event) {
+    event.preventDefault();
+
+    const updatedData = {
+        full_name: document.getElementById("profileNameInput").value.trim(),
+        gender: document.getElementById("profileGenderInput").value,
+        date_of_birth: document.getElementById("profileDobInput").value,
+        contact_number: document.getElementById("profilePhoneInput").value,
+        emergency_contact: document.getElementById("profileEmergencyInput").value,
+        semester: document.getElementById("profileSemesterInput").value,
+        department: document.getElementById("profileDepartmentInput").value,
+        height_cm: document.getElementById("profileHeightInput").value,
+        weight_kg: document.getElementById("profileWeightInput").value,
+        sport_activity: document.getElementById("profileSportInput").value,
+        goal: document.getElementById("profileGoalInput").value,
+        blood_group: document.getElementById("profileBloodGroupInput").value,
+        medical_history: document.getElementById("profileMedicalHistoryInput").value,
+        address: document.getElementById("profileAddressInput").value,
+        parent_name: document.getElementById("profileParentNameInput").value,
+        parent_phone: document.getElementById("profileParentPhoneInput").value,
+        parent_address: document.getElementById("profileParentAddressInput").value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(updatedData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            showToast("Profile updated successfully");
+            studentName = updatedData.full_name;
+            updateProfileHeaderUI();
+            updateStudentProfile({ ...(result.profile || {}), ...updatedData });
+            toggleEditProfile();
+        } else {
+            showToast(result.message || "Failed to update profile");
+        }
+    } catch (err) {
+        showToast("Could not save profile. Please try again.");
+    }
+}
+
+async function loadStudentProfile() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, { credentials: "include" });
+        if (!response.ok) throw new Error("Unable to load your saved profile.");
+        const result = await response.json();
+        if (result.success) updateStudentProfile({ ...(result.user || {}), ...(result.profile || {}) });
+    } catch (error) {
+        console.error("STUDENT PROFILE LOAD ERROR:", error);
+        showToast("Unable to load saved profile details");
+    }
+}
+
+
+/* =========================================================
    INITIALIZATION
 ========================================================= */
 
@@ -4231,6 +4445,8 @@ document.addEventListener(
 
         updateProfileHeaderUI();
 
+        await loadStudentProfile();
+
         initCharts();
 
         await fetchDashboardData();
@@ -4247,8 +4463,10 @@ document.querySelector('[data-section="schedule"]')?.addEventListener("click", (
 <script src="../js/auth-flow.js"></script>
 <script src="../js/api-client.js"></script>
 <script src="../js/announcements-panel.js"></script>
+<script src="../js/dashboard-chrome.js"></script>
 <script src="../js/dashboard-events.js?v=event-calendar-6"></script>
 <script src="../js/dashboard-schedule.js"></script>
+<script>window.DashboardSchedule?.mount({ root: "#schedule", role: "student" });</script>
 <script src="../js/dashboard-chat.js"></script>
 <script>window.DashboardEvents?.mount({ root: "#dashboardEventsPanel", role: "student" });</script>
 

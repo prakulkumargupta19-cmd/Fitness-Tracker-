@@ -96,7 +96,7 @@ def test_unknown_and_wrong_method_api_routes_return_json():
 
 
 def set_authenticated_user(monkeypatch, user_id, role):
-    user_lookup = lambda requested_id: {
+    user_lookup = lambda requested_id, _role=None: {
         "id": requested_id,
         "role": role,
         "coach_status": "approved" if role == "coach" else None,
@@ -123,7 +123,7 @@ def test_profile_setup_synchronizes_normalized_sports(monkeypatch):
             "sports": ["Football", "Basketball", "Football"],
         })
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.get_json()
     assert connection.committed
     inserts = [query for query, _ in cursor.statements if "INSERT INTO student_sports" in query]
     assert len(inserts) == 2
@@ -193,7 +193,7 @@ def test_coach_athlete_query_uses_session_and_sport_relationship(monkeypatch):
 
 
 def test_rejected_coach_session_cannot_access_coach_api(monkeypatch):
-    rejected = lambda requested_id: {
+    rejected = lambda requested_id, _role=None: {
         "id": requested_id, "role": "coach", "coach_status": "rejected",
     }
     monkeypatch.setattr(auth_decorators, "get_user_by_id", rejected)
@@ -221,11 +221,12 @@ def test_attendance_rejects_non_binary_status_before_database(monkeypatch):
         with client.session_transaction() as state:
             state["user_id"] = 73
             state["role"] = "coach"
+            state["csrf_token"] = "test-csrf-token"
         response = client.post("/api/coach/attendance/records", json={
             "sport_id": 4,
             "session_date": "2026-09-30",
             "records": [{"student_id": 19, "status": "tardy"}],
-        })
+        }, headers={"X-CSRFToken": "test-csrf-token"})
 
     assert response.status_code == 400
     assert "present or absent" in response.get_json()["message"]
@@ -300,10 +301,10 @@ def test_admin_can_assign_sports_to_approved_coach(monkeypatch):
     assert connection.committed
 
 
-def test_coach_can_save_present_and_absent_for_assigned_students(monkeypatch):
+def test_coach_can_save_all_attendance_statuses_for_assigned_students(monkeypatch):
     cursor = FakeCursor(
         one={"id": 55},
-        many=[{"id": 19}, {"id": 20}],
+        many=[{"id": 19}, {"id": 20}, {"id": 21}, {"id": 22}],
     )
     connection = FakeConnection(cursor)
     monkeypatch.setattr(attendance_module, "get_db", lambda: connection)
@@ -313,18 +314,23 @@ def test_coach_can_save_present_and_absent_for_assigned_students(monkeypatch):
         with client.session_transaction() as state:
             state["user_id"] = 73
             state["role"] = "coach"
+            state["csrf_token"] = "test-csrf-token"
         response = client.post("/api/coach/attendance/records", json={
             "sport_id": 4,
             "session_date": "2026-09-30",
             "records": [
                 {"student_id": 19, "status": "present"},
                 {"student_id": 20, "status": "absent"},
+                {"student_id": 21, "status": "late"},
+                {"student_id": 22, "status": "excused"},
             ],
-        })
+        }, headers={"X-CSRFToken": "test-csrf-token"})
 
     attendance_inserts = [item for item in cursor.statements if "INSERT INTO attendance_records" in item[0]]
     assert response.status_code == 200
-    assert len(attendance_inserts) == 2
+    assert len(attendance_inserts) == 4
     assert attendance_inserts[0][1] == (55, 19, "present")
     assert attendance_inserts[1][1] == (55, 20, "absent")
+    assert attendance_inserts[2][1] == (55, 21, "late")
+    assert attendance_inserts[3][1] == (55, 22, "excused")
     assert connection.committed

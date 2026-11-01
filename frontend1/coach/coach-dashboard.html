@@ -1,68 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+  #profile > .profile-card,
+  #settings > .profile-card {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100vh - 160px);
+  }
+</style>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coach Dashboard</title>
+  <title>Fit Track | Coach Dashboard</title>
 
-  <!-- Bootstrap -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
-
-  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     rel="stylesheet"
   />
-
-  <!-- Inter Font -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-<link
-        rel="stylesheet"
-        href="../css/coach-dashboard.css"
-    >
-<link rel="stylesheet" href="../css/common/announcements-panel.css">
-<link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
-<link rel="stylesheet" href="../css/common/dashboard-schedule.css">
-<link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
-<script src="../js/config.js"></script>
+
+  <link rel="stylesheet" href="../css/coach/coach-dashboard.css?v=attendance-status-colors-5" />
+  <link rel="stylesheet" href="../css/common/announcements-panel.css" />
+  <link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5" />
+  <link rel="stylesheet" href="../css/common/dashboard-schedule.css" />
+  <link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2" />
+  <link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=coach-status-colors-5" />
+
+  <style>
+    .athlete-detail-modal[hidden] {
+      display: none;
+    }
+
+    .athlete-detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, .58);
+    }
+
+    .athlete-detail-dialog {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: min(650px, 100%);
+      max-height: calc(100vh - 40px);
+      padding: 22px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+    }
+
+    #athleteDetailContent {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 6px;
+    }
+
+    .athlete-detail-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      z-index: 1;
+      border: 0;
+      background: #fff;
+      color: #64748b;
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .athlete-detail-eyebrow {
+      color: #2563eb;
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+
+    .athlete-detail-dialog h2 {
+      margin: 6px 36px 14px 0;
+      color: #172033;
+      font-size: 1.25rem;
+    }
+
+    .athlete-detail-fields {
+      display: grid;
+      gap: 8px;
+    }
+
+    .athlete-detail-fields > div {
+      display: grid;
+      gap: 5px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: #f8fafc;
+      overflow-wrap: anywhere;
+    }
+
+    .athlete-detail-fields span {
+      color: #718096;
+      font-size: .72rem;
+      font-weight: 600;
+    }
+
+    .athlete-detail-fields strong {
+      display: grid;
+      gap: 3px;
+      color: #172033;
+      font-size: .82rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .athlete-detail-fields strong > span {
+      color: #172033;
+      font-size: inherit;
+      font-weight: 500;
+    }
+
+    .athlete-detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .athlete-detail-actions button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #2563eb;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    /* Expanded athlete profile: responsive, scrollable, page-like modal. */
+    .athlete-detail-dialog {
+      width: min(1080px, calc(100vw - 40px));
+      max-height: min(92vh, 1000px);
+      padding: clamp(20px, 3vw, 34px);
+      overflow-y: auto;
+    }
+
+    .athlete-detail-eyebrow { margin-bottom: 6px; }
+    .athlete-detail-dialog h2 { margin-bottom: 20px; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .athlete-profile-overview {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+      padding: 17px;
+      border: 1px solid #e5edf8;
+      border-radius: 14px;
+      background: linear-gradient(120deg, #f8fbff, #eef5ff);
+    }
+    .athlete-profile-avatar {
+      display: grid;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(140deg, #0a66ff, #19b3ff);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .athlete-profile-overview strong,
+    .athlete-profile-overview span { display: block; }
+    .athlete-profile-overview strong { color: #172033; font-size: 15px; }
+    .athlete-profile-overview span { margin-top: 4px; color: #718096; font-size: 12px; }
+    .athlete-detail-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .athlete-detail-fields > .athlete-detail-section { min-height: 100%; padding: 16px; }
+    .athlete-detail-section > span:first-child {
+      color: #2563eb;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .athlete-detail-section strong { margin-top: 8px; }
+    .athlete-progress-panel { grid-column: 1 / -1; }
+    .athlete-progress-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 16px;
+    }
+    .athlete-progress-stat {
+      padding: 12px;
+      border-radius: 10px;
+      background: #eef5ff;
+    }
+    .athlete-progress-stat span,
+    .athlete-progress-stat strong { display: block; }
+    .athlete-progress-stat span { color: #718096; font-size: 10px; }
+    .athlete-progress-stat strong { margin-top: 4px; color: #172033; font-size: 18px; }
+    .athlete-progress-list { display: grid; gap: 10px; }
+    .athlete-progress-item {
+      display: grid;
+      grid-template-columns: minmax(110px, .7fr) minmax(160px, 1.5fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border: 1px solid #edf1f7;
+      border-radius: 10px;
+    }
+    .athlete-progress-item > div:first-child strong,
+    .athlete-progress-item > div:first-child span { display: block; }
+    .athlete-progress-item > div:first-child strong { color: #172033; font-size: 12px; }
+    .athlete-progress-item > div:first-child span { margin-top: 3px; color: #718096; font-size: 10px; }
+    .athlete-progress-track { height: 8px; overflow: hidden; border-radius: 99px; background: #e8eef8; }
+    .athlete-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0a66ff, #19b3ff); }
+    .athlete-progress-score { color: #1d4ed8; font-size: 13px; font-weight: 800; white-space: nowrap; }
+    .athlete-profile-records { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+    .athlete-profile-record { padding: 13px; border: 1px solid #edf1f7; border-radius: 10px; }
+    .athlete-profile-record strong,
+    .athlete-profile-record span,
+    .athlete-profile-record p { display: block; margin: 0; }
+    .athlete-profile-record strong { color: #172033; font-size: 12px; }
+    .athlete-profile-record span { margin-top: 4px; color: #718096; font-size: 10px; }
+    .athlete-profile-record p { margin-top: 7px; color: #42516d; font-size: 11px; line-height: 1.5; }
+    .athlete-detail-empty { padding: 14px; border-radius: 10px; background: #f8fafc; color: #718096; font-size: 12px; }
+    @media (max-width: 640px) {
+      .athlete-detail-modal { padding: 10px; }
+      .athlete-detail-dialog { width: 100%; max-height: 94vh; padding: 18px; }
+      .athlete-detail-fields,
+      .athlete-profile-records,
+      .athlete-progress-summary { grid-template-columns: 1fr; }
+      .athlete-progress-item { grid-template-columns: 1fr auto; }
+      .athlete-progress-item .athlete-progress-track { grid-column: 1 / -1; grid-row: 2; }
+    }
+  </style>
+
+  <script src="../js/config.js"></script>
+
+  <style>
+    .athlete-filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+      align-items: end;
+      gap: 12px;
+      margin: 0 0 18px;
+      padding: 16px;
+      border: 1px solid #e3eaf4;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(20, 46, 92, .04);
+    }
+
+    .athlete-filter-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      color: #53617c;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .athlete-filter-field select {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 34px 8px 11px;
+      border: 1px solid #dce4f2;
+      border-radius: 9px;
+      background: #f8faff;
+      color: #172033;
+      font-size: 12px;
+    }
+
+    .athlete-filter-reset {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid #dce4f2;
+      border-radius: 9px;
+      background: #fff;
+      color: #42516d;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .athlete-filter-reset:hover {
+      border-color: #b8d2ff;
+      background: #f4f8ff;
+      color: #1d4ed8;
+    }
+
+    @media (max-width: 850px) {
+      .athlete-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .athlete-filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+      </style>
+<style id="coach-darkmode-inline-fix">
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer {
+    background: #111b2e !important;
+    border-color: #263550 !important;
+    color: #e9effb !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header h2,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header h2,
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-form label,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .event-sport-filter {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header p,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header p {
+    color: #a6b5cc !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-empty,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-empty {
+    background: #17243a !important;
+    border-color: #354661 !important;
+    color: #b8c7df !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row {
+    background: #17243a !important;
+    border-color: #354661 !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row strong {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row span {
+    color: #a6b5cc !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row .btn {
+    background: #4a1f2a !important;
+    border-color: #71313d !important;
+    color: #fecdd3 !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row .btn:hover {
+    background: #642633 !important;
+  }
+
+  /* My Athletes filters and cards */
+  body.dark-mode.coach-dashboard #athletes .athlete-filters {
+    background: #111b2e !important;
+    border-color: #263550 !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-heading {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-field {
+    color: #b8c7df !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-field select {
+    background: #0b1425 !important;
+    border-color: #354661 !important;
+    color: #edf3ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-reset,
+  body.dark-mode.coach-dashboard #athletes .view-button,
+  body.dark-mode.coach-dashboard #athletes .athlete-record-actions button {
+    background: #192944 !important;
+    border-color: #354967 !important;
+    color: #dbe8fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-reset:hover,
+  body.dark-mode.coach-dashboard #athletes .view-button.active,
+  body.dark-mode.coach-dashboard #athletes .athlete-record-actions button:hover {
+    background: #1d3760 !important;
+    border-color: #3e6fb6 !important;
+    color: #a9ceff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-card {
+    background: linear-gradient(145deg, #142139, #111b2e) !important;
+    border-color: #2b3b57 !important;
+    color: #eaf1fb !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header {
+    border-color: #2a3a54 !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header strong {
+    color: #f3f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header span,
+  body.dark-mode.coach-dashboard #athletes .athlete-detail span,
+  body.dark-mode.coach-dashboard #athletes .athlete-detail strong {
+    color: #b4c3d9 !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .view-athlete {
+    background: #1d3760 !important;
+    border-color: #3e6fb6 !important;
+    color: #a9ceff !important;
+  }
+
+  /* Athlete profile opened from My Athletes */
+  body.dark-mode.coach-dashboard #athletes .athlete-detail-dialog {
+    background: #111b2e !important;
+    border: 1px solid #2b3b57 !important;
+    color: #eaf1fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent {
+    color: #eaf1fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h1,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h2,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h3,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent strong {
+    color: #f3f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent p,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent span {
+    color: #b4c3d9;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-detail-close {
+    background: #192944 !important;
+    border-color: #354967 !important;
+    color: #dbe8fb !important;
+  }</style>
 </head>
 
 <body class="coach-dashboard">
 
-<!-- =====================================================
-     SIDEBAR
-===================================================== -->
-
 <aside class="sidebar" id="sidebar">
-
   <div class="brand">
     <div class="brand-icon">
-      <img src="../logo.png" alt="Fit Track Logo" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain;">
+      <img
+        src="../logo.png"
+        alt="Fit Track Logo"
+        class="brand-logo"
+        style="width: 36px; height: 36px; object-fit: contain;"
+      />
     </div>
 
     <div>
-      <div class="brand-name">
-        Fit <span>Track</span>
-      </div>
-
-      <div class="brand-subtitle">
-        COACH PORTAL
-      </div>
+      <div class="brand-name">Fit <span>Track</span></div>
+      <div class="brand-subtitle">COACH PORTAL</div>
     </div>
   </div>
 
-  <div class="menu-title">
-    MAIN MENU
-  </div>
+  <div class="menu-title">WORKSPACE</div>
 
   <div class="nav-menu">
-
     <button
       class="nav-button active"
       onclick="showSection('dashboard', this)"
@@ -89,30 +505,50 @@
 
     <button
       class="nav-button"
+      onclick="showSection('sessions', this)"
+      title="Open training sessions"
+    >
+      <i class="bi bi-calendar2-plus-fill"></i>
+      Sessions
+    </button>
+
+    <button
+      class="nav-button"
+      onclick="showSection('assessments', this)"
+      title="Open athlete assessments"
+    >
+      <i class="bi bi-clipboard-check-fill"></i>
+      Assessments
+    </button>
+
+    <button
+      class="nav-button"
       onclick="showSection('announcements', this)"
     >
       <i class="bi bi-megaphone-fill"></i>
       Announcements
     </button>
 
-    <button class="nav-button" onclick="showSection('events', this)">
+    <button
+      class="nav-button"
+      onclick="showSection('events', this)"
+    >
       <i class="bi bi-calendar-event-fill"></i>
       Events &amp; Calendar
     </button>
 
-    <button class="nav-button" onclick="showSection('schedule', this)">
+    <button
+      class="nav-button"
+      onclick="showSection('schedule', this)"
+    >
       <i class="bi bi-calendar3"></i>
       Schedule
     </button>
-
   </div>
 
-  <div class="menu-title" style="margin-top:22px">
-    ACCOUNT
-  </div>
+  <div class="menu-title" style="margin-top:22px">ACCOUNT</div>
 
   <div class="nav-menu">
-
     <button
       class="nav-button"
       onclick="showSection('profile', this)"
@@ -128,104 +564,58 @@
       <i class="bi bi-gear-fill"></i>
       Settings
     </button>
-
   </div>
 
-  <!-- =========================
-       BOTTOM LEFT COACH BUTTON
-  ========================== -->
-
   <div class="sidebar-bottom">
-
     <button
       class="nav-button"
       onclick="showSectionByName('profile')"
       style="margin-top:10px;"
     >
-
       <i class="bi bi-person-circle"></i>
-
-      <span id="coachDisplayName">
-        Loading…
-      </span>
-
+      <span id="coachDisplayName">Loading…</span>
     </button>
 
+    <button
+      class="nav-button sidebar-logout-link"
+      type="button"
+      onclick="logout()"
+    >
+      <i class="bi bi-box-arrow-left"></i>
+      <span>Log Out</span>
+    </button>
   </div>
-
 </aside>
 
-
-<!-- =====================================================
-     MAIN DASHBOARD
-===================================================== -->
-
 <div class="dashboard">
-
-  <!-- TOPBAR -->
-
   <header class="topbar">
-
     <div style="display:flex;align-items:center;">
-
-      <button
-        class="mobile-menu"
-        onclick="toggleSidebar()"
-      >
+      <button class="mobile-menu" onclick="toggleSidebar()">
         <i class="bi bi-list"></i>
       </button>
-
       <div class="topbar-page-title" id="pageTitle">Coach Dashboard</div>
-
     </div>
 
     <div class="topbar-right">
-
       <div class="date-display">
-
         <i class="bi bi-calendar3"></i>
-
         <span id="topDate"></span>
-
       </div>
-
     </div>
-
   </header>
 
-
   <main class="content">
-
-
-    <!-- =================================================
-         DASHBOARD
-    ================================================== -->
-
-    <section
-      id="dashboard"
-      class="section active"
-    >
-
+    <section id="dashboard" class="section active">
       <div class="hero">
-
         <div class="hero-content">
-
-          <div class="eyebrow">
-            COACH PERFORMANCE OVERVIEW
-          </div>
-
-          <h1>
-            Welcome back, <span id="coachDisplayName">Coach</span>
-          </h1>
-
+          <div class="eyebrow">COACH PERFORMANCE OVERVIEW</div>
+          <h1>Welcome back, <span id="coachDisplayName">Coach</span></h1>
           <p>
-            Manage your athletes, record attendance for any
-            training date and monitor your team's progress
-            from one dashboard.
+            Manage your athletes, record attendance for any training date
+            and monitor your team's progress from one dashboard.
           </p>
 
           <div class="hero-actions">
-
             <button
               class="hero-primary"
               onclick="showSectionByName('attendance')"
@@ -240,217 +630,100 @@
             >
               View Athletes
             </button>
-
           </div>
-
         </div>
-
-
-        
-
       </div>
-
-
-      <!-- TEAM SNAPSHOT -->
 
       <div class="section-header">
-
         <div>
-
-          <h2>
-            Team Snapshot
-          </h2>
-
-          <p>
-            Quick overview of your coaching group.
-          </p>
-
+          <h2>Team Snapshot</h2>
+          <p>Quick overview of your coaching group.</p>
         </div>
-
       </div>
 
-
       <div class="stats">
-
         <div class="stat">
-
           <div class="stat-icon blue">
             <i class="bi bi-people-fill"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Total Athletes
-            </span>
-
-            <strong id="totalAthletes">
-              8
-            </strong>
-
+            <span>Total Athletes</span>
+            <strong id="totalAthletes">0</strong>
           </div>
-
         </div>
 
-
         <div class="stat">
-
           <div class="stat-icon purple">
             <i class="bi bi-check2-circle"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Present Today
-            </span>
-
-            <strong id="presentToday">
-              7
-            </strong>
-
+            <span>Present Today</span>
+            <strong id="presentToday">0</strong>
           </div>
-
         </div>
 
-
         <div class="stat">
-
           <div class="stat-icon orange">
             <i class="bi bi-clock-history"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Attendance Records
-            </span>
-
-            <strong id="recordCount">
-              0
-            </strong>
-
+            <span>Attendance Rate</span>
+            <strong id="attendanceRate">0%</strong>
           </div>
-
         </div>
-
       </div>
-
-
-      <!-- QUICK ACTIONS -->
 
       <div class="section-header">
-
         <div>
-
-          <h2>
-            Quick Access
-          </h2>
-
-          <p>
-            Frequently used coach tools.
-          </p>
-
+          <h2>Quick Access</h2>
+          <p>Frequently used coach tools.</p>
         </div>
-
       </div>
 
-
       <div class="quick-actions">
-
         <button
           class="quick-card"
           onclick="showSectionByName('attendance')"
         >
-
           <div class="quick-icon">
             <i class="bi bi-calendar2-check-fill"></i>
           </div>
-
           <div>
-
-            <strong>
-              Attendance
-            </strong>
-
-            <span>
-              Record or edit attendance for any date.
-            </span>
-
+            <strong>Attendance</strong>
+            <span>Record or edit attendance for any date.</span>
           </div>
-
         </button>
-
 
         <button
           class="quick-card"
           onclick="showSectionByName('athletes')"
         >
-
           <div class="quick-icon purple">
             <i class="bi bi-people-fill"></i>
           </div>
-
           <div>
-
-            <strong>
-              My Athletes
-            </strong>
-
-            <span>
-              View athletes assigned to you.
-            </span>
-
+            <strong>My Athletes</strong>
+            <span>View athletes assigned to you.</span>
           </div>
-
         </button>
-
       </div>
-
     </section>
 
-
-    <!-- =================================================
-         ATTENDANCE
-    ================================================== -->
-
-    <section
-      id="attendance"
-      class="section"
-    >
-
+    <section id="attendance" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          TRAINING RECORD
-        </div>
-
-        <h1>
-          Attendance
-        </h1>
-
+        <div class="eyebrow">TRAINING RECORD</div>
+        <h1>Attendance</h1>
         <p>
-          Select any date to create or edit an attendance
-          record — including dates from previous months.
+          Select any date to create or edit an attendance record —
+          including dates from previous months.
         </p>
-
       </div>
 
-
       <div class="card">
-
         <div class="card-header-custom">
-
           <div>
-
-            <h3>
-              Attendance Register
-            </h3>
-
-            <span>
-              Choose a date and update the student status.
-            </span>
-
+            <h3>Attendance Register</h3>
+            <span>Choose a date and update the student status.</span>
           </div>
 
           <button
@@ -460,62 +733,32 @@
             <i class="bi bi-arrow-clockwise"></i>
             Reload
           </button>
-
         </div>
 
-
-        <!-- ATTENDANCE CONTROLS -->
-
         <div class="attendance-toolbar">
-
           <div class="form-group">
             <label for="attendanceSport">Assigned Sport</label>
             <select id="attendanceSport" onchange="loadAttendance()"></select>
           </div>
 
           <div class="form-group">
-
-            <label>
-              Training Date
-            </label>
-
+            <label>Training Date</label>
             <input
               type="date"
               id="attendanceDate"
               onchange="loadAttendance()"
             />
-
           </div>
-
 
           <div class="form-group">
-
-            <label>
-              Training Session
-            </label>
-
+            <label>Training Session</label>
             <select id="session">
-
-              <option>
-                Morning Training
-              </option>
-
-              <option>
-                Evening Training
-              </option>
-
-              <option>
-                Match Session
-              </option>
-
-              <option>
-                Fitness Session
-              </option>
-
+              <option>Morning Training</option>
+              <option>Evening Training</option>
+              <option>Match Session</option>
+              <option>Fitness Session</option>
             </select>
-
           </div>
-
 
           <button
             class="btn btn-secondary"
@@ -524,14 +767,12 @@
             Mark All Present
           </button>
 
-
           <button
             class="btn btn-secondary"
             onclick="markAll('absent')"
           >
             Mark All Absent
           </button>
-
 
           <button
             class="btn btn-primary"
@@ -540,134 +781,114 @@
             <i class="bi bi-save"></i>
             Save Attendance
           </button>
-
         </div>
-
-
-        <!-- TABLE -->
 
         <div style="overflow-x:auto">
-
           <table class="attendance-table">
-
             <thead>
-
               <tr>
-
-                <th>
-                  Athlete
-                </th>
-
-                <th>
-                  Sport / Position
-                </th>
-
-                <th>
-                  Status
-                </th>
-
+                <th>Athlete</th>
+                <th>Sport / Position</th>
+                <th>Status</th>
               </tr>
-
             </thead>
-
-            <tbody
-              id="attendanceBody"
-            ></tbody>
-
+            <tbody id="attendanceBody"></tbody>
           </table>
-
         </div>
 
-
-        <!-- SUMMARY -->
-
         <div class="attendance-summary">
-
           <div class="summary present">
-
-            <span>
-              Present
-            </span>
-
-            <strong id="presentCount">
-              0
-            </strong>
-
+            <span>Present</span>
+            <strong id="presentCount">0</strong>
           </div>
-
 
           <div class="summary absent">
-
-            <span>
-              Absent
-            </span>
-
-            <strong id="absentCount">
-              0
-            </strong>
-
+            <span>Absent</span>
+            <strong id="absentCount">0</strong>
           </div>
+
           <div class="summary late">
-
-            <span>
-              Late
-            </span>
-
-            <strong id="lateCount">
-              0
-            </strong>
-
+            <span>Late</span>
+            <strong id="lateCount">0</strong>
           </div>
 
           <div class="summary excused">
-
-            <span>
-              Excused
-            </span>
-
-            <strong id="excusedCount">
-              0
-            </strong>
-
+            <span>Excused</span>
+            <strong id="excusedCount">0</strong>
           </div>
-
-
-
         </div>
-
       </div>
-
     </section>
 
-
-    <!-- =================================================
-         ATHLETES
-    ================================================== -->
-
-    <section
-      id="athletes"
-      class="section"
-    >
-
-      <div class="page-heading">
-
-        <div class="eyebrow">
-          TEAM MANAGEMENT
+    <section id="athletes" class="section">
+      <div id="athleteDetailModal" class="athlete-detail-modal" hidden>
+        <div
+          class="athlete-detail-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="athleteDetailName"
+        >
+          <button
+            type="button"
+            class="athlete-detail-close"
+            aria-label="Close athlete details"
+            onclick="closeAthleteDetails()"
+          >
+            ← Back to My Athletes
+          </button>
+          <div id="athleteDetailContent"></div>
         </div>
-
-        <h1>
-          My Athletes
-        </h1>
-
-        <p>
-          Athletes assigned to this coach.
-        </p>
-
       </div>
 
+      <div class="page-heading">
+        <div class="eyebrow">TEAM MANAGEMENT</div>
+        <h1>My Athletes</h1>
+        <p>Athletes assigned to this coach.</p>
+      </div>
+
+      <div
+        class="athlete-filters"
+        aria-label="Filter athletes"
+        style="row-gap: 6px;"
+      >
+      <h3
+        class="athlete-filter-heading"
+        style="grid-column: 1 / -1; margin: 0; font-size: 16px; line-height: 1.2;"
+      >
+        Filter athletes
+      </h3>
+
+        <label class="athlete-filter-field" for="athleteSportFilter">
+          Sport
+          <select id="athleteSportFilter" onchange="renderAthletes()">
+            <option value="">All sports</option>
+          </select>
+        </label>
+
+        <label class="athlete-filter-field" for="athleteDepartmentFilter">
+          Department
+          <select id="athleteDepartmentFilter" onchange="renderAthletes()">
+            <option value="">All departments</option>
+          </select>
+        </label>
+
+        <label class="athlete-filter-field" for="athleteSemesterFilter">
+          Semester
+          <select id="athleteSemesterFilter" onchange="renderAthletes()">
+            <option value="">All semesters</option>
+          </select>
+        </label>
+
+        <button
+          type="button"
+          class="athlete-filter-reset"
+          onclick="resetAthleteFilters()"
+        >
+          Clear filters
+        </button>
+      </div>
 
       <div class="athletes-toolbar">
-
         <button
           class="view-button active"
           id="boxViewButton"
@@ -677,7 +898,6 @@
           <i class="bi bi-grid-3x3-gap-fill"></i>
         </button>
 
-
         <button
           class="view-button"
           id="listViewButton"
@@ -686,71 +906,146 @@
         >
           <i class="bi bi-list-ul"></i>
         </button>
-
       </div>
 
-
-      <div
-        class="athletes-grid"
-        id="athletesGrid"
-      ></div>
-
+      <div class="athletes-grid" id="athletesGrid"></div>
     </section>
 
-
-    <!-- =================================================
-         ANNOUNCEMENTS
-    ================================================== -->
-
-    <section
-      id="announcements"
-      class="section"
-    >
-
+    <section id="sessions" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          CAMPUS NOTICEBOARD
-        </div>
-
-        <h1>
-          Announcements
-        </h1>
-
+        <div class="eyebrow">TRAINING</div>
+        <h1>Sessions</h1>
         <p>
-          Create notices that appear on every dashboard. Students can view them; coaches and admins can delete them.
+          Select an athlete below to create a training session using
+          the existing session form.
         </p>
+      </div>
+      <div class="athletes-grid" id="sessionAthletesGrid"></div>
+    </section>
 
+    <section id="assessments" class="section">
+      <div class="page-heading">
+        <div class="eyebrow">ATHLETE PROGRESS</div>
+        <h1>Assessments</h1>
+        <p>
+          Select an athlete below to record an assessment using
+          the existing assessment form.
+        </p>
+      </div>
+      <div class="athletes-grid" id="assessmentAthletesGrid"></div>
+    </section>
+
+    <section id="announcements" class="section">
+      <div class="page-heading">
+        <div class="eyebrow">CAMPUS NOTICEBOARD</div>
+        <h1>Announcements</h1>
+        <p>
+          Create notices that appear on every dashboard. Students can view
+          them; coaches and admins can delete them.
+        </p>
       </div>
 
       <div id="announcementsPanel" class="announcement-panel">
         <article class="announcement-composer">
-          <div class="announcement-composer-header"><h2>Publish an announcement</h2><p>This notice will appear on student, coach and admin dashboards.</p></div>
+          <div class="announcement-composer-header">
+            <h2>Publish an announcement</h2>
+            <p>This notice will appear on student, coach and admin dashboards.</p>
+          </div>
+
           <form id="dashboardAnnouncementForm" class="announcement-form">
-            <label>Title<input name="title" type="text" maxlength="180" required placeholder="Announcement title"></label>
-            <label>Image <small>(optional)</small><input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
-            <label class="full">Message<textarea name="message" rows="4" required placeholder="Write the announcement"></textarea></label>
-            <div class="full announcement-form-actions"><button type="submit" class="announcement-primary-btn"><i class="bi bi-megaphone-fill"></i> Publish announcement</button></div>
+            <label>
+              Title
+              <input
+                name="title"
+                type="text"
+                maxlength="180"
+                required
+                placeholder="Announcement title"
+              />
+            </label>
+
+            <label>
+              Image <small>(optional)</small>
+              <input
+                name="image"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+              />
+            </label>
+
+            <label class="full">
+              Message
+              <textarea
+                name="message"
+                rows="4"
+                required
+                placeholder="Write the announcement"
+              ></textarea>
+            </label>
+
+            <div class="full announcement-form-actions">
+              <button type="submit" class="announcement-primary-btn">
+                <i class="bi bi-megaphone-fill"></i>
+                Publish announcement
+              </button>
+            </div>
           </form>
+
           <div class="announcement-status" id="announcementStatus" hidden></div>
         </article>
-        <div class="announcement-feed" data-announcement-list><div class="announcement-empty">Loading announcements…</div></div>
-      </div>
 
+        <div class="announcement-feed" data-announcement-list>
+          <div class="announcement-empty">Loading announcements…</div>
+        </div>
+      </div>
     </section>
 
     <section id="events" class="section">
-      <div class="page-heading"><div class="eyebrow">EVENTS &amp; CALENDAR</div><h1>Events &amp; Calendar</h1><p>Create events, review student registrations and manage your calendar.</p></div>
+      <div class="page-heading">
+        <div class="eyebrow">EVENTS &amp; CALENDAR</div>
+        <h1>Events &amp; Calendar</h1>
+        <p>
+          Create events, review student registrations and manage your calendar.
+        </p>
+      </div>
+
       <div id="dashboardEventsPanel" class="announcement-panel">
         <article class="announcement-composer">
-          <div class="announcement-composer-header"><h2>Events &amp; calendar</h2><p>View events published by the admin for your sports.</p></div>
+          <div class="announcement-composer-header">
+            <h2>Events &amp; calendar</h2>
+            <p>View events published by the admin for your sports.</p>
+          </div>
+
           <div class="announcement-status" id="eventStatus" hidden></div>
-          <label class="event-sport-filter">Sport
-            <select data-coach-event-sport-filter aria-label="Filter events by sport"><option value="all">All events</option></select>
+
+          <label class="event-sport-filter">
+            Sport
+            <select
+              data-coach-event-sport-filter
+              aria-label="Filter events by sport"
+            >
+              <option value="all">All events</option>
+            </select>
           </label>
         </article>
-        <div class="event-card-grid" data-event-list><div class="announcement-empty">Loading events…</div></div>
-        <div class="event-modal" data-event-modal hidden><div class="event-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle"><button type="button" class="event-modal-close" aria-label="Close">×</button><div data-event-modal-content></div></div></div>
+
+        <div class="event-card-grid" data-event-list>
+          <div class="announcement-empty">Loading events…</div>
+        </div>
+
+        <div class="event-modal" data-event-modal hidden>
+          <div
+            class="event-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="eventModalTitle"
+          >
+            <button type="button" class="event-modal-close" aria-label="Close">
+              ×
+            </button>
+            <div data-event-modal-content></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -762,190 +1057,76 @@
       </div>
     </section>
 
-
-    <!-- =================================================
-         PROFILE
-    ================================================== -->
-
-    <section
-      id="profile"
-      class="section"
-    >
-
+    <section id="profile" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          ACCOUNT
-        </div>
-
-        <h1>
-          My Profile
-        </h1>
-
-        <p>
-          Coach account information.
-        </p>
-
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>My Profile</h1>
+        <p>Coach account information.</p>
       </div>
 
-
       <div class="profile-card">
-
         <div class="profile-header">
-
-          <div class="large-avatar" id="coachProfileAvatar">
-            C
-          </div>
+          <div class="large-avatar" id="coachProfileAvatar">C</div>
 
           <div>
-
-            <h2 id="coachProfileTitle">
-              Loading…
-            </h2>
-
+            <h2 id="coachProfileTitle">Loading…</h2>
             <span class="profile-badge">
-
               <i class="bi bi-patch-check-fill"></i>
-
               Coach Account
-
             </span>
-
           </div>
-
         </div>
-
 
         <div class="profile-grid">
-
           <div class="profile-field">
-
-            <label>
-              Coach Name
-            </label>
-
-            <strong id="coachProfileName">
-              Loading…
-            </strong>
-
+            <label>Coach Name</label>
+            <strong id="coachProfileName">Loading…</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Email
-            </label>
-
-            <strong id="coachProfileEmail">
-              —
-            </strong>
-
+            <label>Email</label>
+            <strong id="coachProfileEmail">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Phone Number
-            </label>
-
-            <strong id="coachProfilePhone">
-              —
-            </strong>
-
+            <label>Phone Number</label>
+            <strong id="coachProfilePhone">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Coach ID
-            </label>
-
-            <strong id="coachProfileId">
-              —
-            </strong>
-
+            <label>Coach ID</label>
+            <strong id="coachProfileId">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Assigned Role
-            </label>
-
-            <strong id="coachProfileRoles">
-              —
-            </strong>
-
+            <label>Assigned Role</label>
+            <strong id="coachProfileRoles">—</strong>
           </div>
-
         </div>
-
       </div>
-
     </section>
 
-
-    <!-- =================================================
-         SETTINGS
-    ================================================== -->
-
-    <section
-      id="settings"
-      class="section"
-    >
-
+    <section id="settings" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          ACCOUNT
-        </div>
-
-        <h1>
-          Settings
-        </h1>
-
-        <p>
-          Manage account settings.
-        </p>
-
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>Settings</h1>
+        <p>Manage account settings.</p>
       </div>
 
-
       <div class="profile-card">
-
-        <h3
-          style="font-size:14px;font-weight:800;"
-        >
-          Account Settings
-        </h3>
-
+        <h3 style="font-size:14px;font-weight:800;">Account Settings</h3>
 
         <div class="settings-row">
-
           <div class="settings-info">
-
             <div class="settings-icon">
               <i class="bi bi-box-arrow-right"></i>
             </div>
 
             <div>
-
-              <strong>
-                Logout
-              </strong>
-
-              <span>
-                End your current session.
-              </span>
-
+              <strong>Logout</strong>
+              <span>End your current session.</span>
             </div>
-
           </div>
-
 
           <button
             class="btn btn-secondary"
@@ -954,43 +1135,47 @@
           >
             Logout
           </button>
-
         </div>
-
       </div>
-
     </section>
-
   </main>
-
 </div>
-
 
 <dialog id="performanceDialog">
   <form id="performanceForm">
     <h2 id="performanceFormTitle"></h2>
     <div id="performanceFormFields"></div>
+    <p
+      id="performanceFormStatus"
+      class="performance-form-status"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></p>
     <div class="dialog-actions">
-      <button type="button" onclick="document.getElementById('performanceDialog').close()">Cancel</button>
-      <button type="submit">Save record</button>
+      <button
+        type="button"
+        onclick="document.getElementById('performanceDialog').close()"
+      >
+        Cancel
+      </button>
+      <button type="submit" id="performanceSubmitButton">Save record</button>
     </div>
   </form>
 </dialog>
 
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
-
 <script src="../js/api-client.js"></script>
 <script src="../js/announcements-panel.js"></script>
+<script src="../js/dashboard-chrome.js"></script>
 <script src="../js/dashboard-chat.js"></script>
-<script>
 
+<script>
   const API_BASE = window.FITNESS_API_BASE || "";
   let athletes = [];
   let attendanceAthletes = [];
   let assignedSports = [];
   let attendanceRecords = [];
+  let attendanceSummary = {};
   let currentAttendance = {};
   let activeRecordStudentId = null;
   let activeRecordType = null;
@@ -998,11 +1183,19 @@
   async function apiRequest(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
       ...options,
-      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
       credentials: "include"
     });
+
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.message || "The request could not be completed.");
+
+    if (!response.ok) {
+      throw new Error(data.message || "The request could not be completed.");
+    }
+
     return data;
   }
 
@@ -1010,12 +1203,16 @@
     try {
       const sessionData = await apiRequest("/api/session");
       const currentUser = sessionData.user || {};
-      if (currentUser.role === "coach") return sessionData;
+
+      if (currentUser.role === "coach") {
+        return sessionData;
+      }
     } catch (err) {
       console.warn("Coach session check offline:", err);
     }
 
     const cfg = window.APP_CONFIG || {};
+
     if (cfg.AUTH_BYPASS !== false) {
       return {
         authenticated: true,
@@ -1042,84 +1239,236 @@
   function openRecordForm(studentId, resource) {
     const athlete = athletes.find(item => item.id === studentId);
     if (!athlete) return;
+
     activeRecordStudentId = studentId;
     activeRecordType = resource;
+
     const fieldContainer = document.getElementById("performanceFormFields");
+
     const definitions = {
       assessments: [
-        ["assessment_date", "Assessment date", "date", true], ["speed", "Speed", "number"],
-        ["strength", "Strength", "number"], ["endurance", "Endurance", "number"],
-        ["agility", "Agility", "number"], ["flexibility", "Flexibility", "number"],
-        ["reaction_time", "Reaction time", "number"], ["overall_score", "Overall score", "number"],
+        ["assessment_date", "Assessment date", "date", true],
+        ["speed", "Speed", "number"],
+        ["strength", "Strength", "number"],
+        ["endurance", "Endurance", "number"],
+        ["agility", "Agility", "number"],
+        ["flexibility", "Flexibility", "number"],
+        ["reaction_time", "Reaction time", "number"],
+        ["overall_score", "Overall score", "number"],
         ["notes", "Notes", "textarea"]
       ],
+
       "training-sessions": [
-        ["sport_id", "Sport", "sport"], ["session_date", "Session date", "date", true],
-        ["training_type", "Training type", "text", true], ["duration_minutes", "Duration (minutes)", "number", true],
-        ["description", "Description", "textarea"], ["performance_notes", "Performance notes", "textarea"]
+        ["sport_id", "Sport", "sport"],
+        ["session_date", "Session date", "date", true],
+        ["training_type", "Training type", "text", true],
+        ["duration_minutes", "Duration (minutes)", "number", true],
+        ["description", "Description", "textarea"],
+        ["performance_notes", "Performance notes", "textarea"]
       ],
+
       goals: [
-        ["title", "Title", "text", true], ["description", "Description", "textarea"],
-        ["target_value", "Target value", "number"], ["current_value", "Current value", "number"],
-        ["start_date", "Start date", "date"], ["target_date", "Target date", "date"],
+        ["title", "Title", "text", true],
+        ["description", "Description", "textarea"],
+        ["target_value", "Target value", "number"],
+        ["current_value", "Current value", "number"],
+        ["start_date", "Start date", "date"],
+        ["target_date", "Target date", "date"],
         ["status", "Status", "goal-status"]
       ],
-      feedback: [["feedback", "Feedback", "textarea", true], ["rating", "Rating (1-5)", "number"]]
+
+      feedback: [
+        ["feedback", "Feedback for the athlete", "textarea", true],
+        ["rating", "Rating", "rating"]
+      ]
     }[resource];
-    document.getElementById("performanceFormTitle").textContent = `New ${resource.replaceAll("-", " ")} for ${athlete.name}`;
+
+    document.getElementById("performanceFormTitle").textContent =
+      `New ${resource.replaceAll("-", " ")} for ${athlete.name}`;
+
     fieldContainer.replaceChildren();
+
     definitions.forEach(([name, label, type, required]) => {
       const wrapper = document.createElement("label");
       wrapper.textContent = label;
       let control;
+
       if (type === "textarea") {
         control = document.createElement("textarea");
+
+        if (resource === "feedback") {
+          control.maxLength = 2000;
+          control.rows = 6;
+          control.placeholder =
+            "Share a specific observation and one useful next step…";
+          control.setAttribute("aria-describedby", "feedbackCharacterCount");
+        }
+      } else if (type === "rating") {
+        control = document.createElement("select");
+        control.add(new Option("No rating", ""));
+
+        for (let score = 5; score >= 1; score--) {
+          control.add(
+            new Option(
+              `${score} / 5${score === 5 ? " · Excellent" : score === 1 ? " · Needs focus" : ""}`,
+              String(score)
+            )
+          );
+        }
       } else if (type === "sport" || type === "goal-status") {
         control = document.createElement("select");
+
         const options = type === "sport"
-          ? assignedSports.filter(sport => (athlete.sports || []).includes(sport.name)).map(sport => [sport.id, sport.name])
-          : [["active", "Active"], ["completed", "Completed"], ["cancelled", "Cancelled"]];
-        options.forEach(([value, text]) => control.add(new Option(text, value)));
+          ? assignedSports
+              .filter(sport => (athlete.sports || []).includes(sport.name))
+              .map(sport => [sport.id, sport.name])
+          : [
+              ["active", "Active"],
+              ["completed", "Completed"],
+              ["cancelled", "Cancelled"]
+            ];
+
+        options.forEach(([value, text]) => {
+          control.add(new Option(text, value));
+        });
+
         control.required = type === "sport";
       } else {
         control = document.createElement("input");
         control.type = type;
-        if (type === "number") control.step = "any";
-        if (name.endsWith("_date") && name !== "assessment_date" && name !== "session_date") control.value = "";
-        if (name === "assessment_date" || name === "session_date") control.value = getToday();
+
+        if (type === "number") {
+          control.step = "any";
+        }
+
+        if (
+          name.endsWith("_date") &&
+          name !== "assessment_date" &&
+          name !== "session_date"
+        ) {
+          control.value = "";
+        }
+
+        if (name === "assessment_date" || name === "session_date") {
+          control.value = getToday();
+        }
+
         control.required = Boolean(required);
       }
+
       control.name = name;
+      control.required = Boolean(required);
       wrapper.appendChild(control);
+
+      if (resource === "feedback" && name === "feedback") {
+        const helper = document.createElement("small");
+        helper.id = "feedbackCharacterCount";
+        helper.className = "feedback-character-count";
+        helper.textContent =
+          "0 / 2,000 characters · Keep feedback specific, constructive, and actionable.";
+
+        control.addEventListener("input", () => {
+          helper.textContent =
+            `${control.value.length.toLocaleString()} / 2,000 characters · Keep feedback specific, constructive, and actionable.`;
+        });
+
+        wrapper.appendChild(helper);
+      }
+
       fieldContainer.appendChild(wrapper);
     });
+
+    const status = document.getElementById("performanceFormStatus");
+    status.hidden = true;
+    status.textContent = "";
+    document.getElementById("performanceSubmitButton").disabled = false;
     document.getElementById("performanceDialog").showModal();
   }
 
-  document.getElementById("performanceForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    const payload = Object.fromEntries(new FormData(event.currentTarget));
-    payload.student_id = activeRecordStudentId;
-    if (activeRecordType === "training-sessions") payload.sport_id = Number(payload.sport_id);
-    ["speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "overall_score", "duration_minutes", "target_value", "current_value", "rating"].forEach(key => {
-      if (payload[key] !== undefined && payload[key] !== "") payload[key] = Number(payload[key]);
+  document
+    .getElementById("performanceForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      if (!(await getCoachSession())) return;
+
+      const payload = Object.fromEntries(new FormData(form));
+      payload.student_id = activeRecordStudentId;
+
+      if (activeRecordType === "training-sessions") {
+        payload.sport_id = Number(payload.sport_id);
+      }
+
+      [
+        "speed",
+        "strength",
+        "endurance",
+        "agility",
+        "flexibility",
+        "reaction_time",
+        "overall_score",
+        "duration_minutes",
+        "target_value",
+        "current_value",
+        "rating"
+      ].forEach(key => {
+        if (payload[key] !== undefined && payload[key] !== "") {
+          payload[key] = Number(payload[key]);
+        }
+      });
+
+      const submitButton = document.getElementById("performanceSubmitButton");
+      const status = document.getElementById("performanceFormStatus");
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Saving…";
+      status.hidden = true;
+
+      try {
+        await apiRequest(`/api/${activeRecordType}`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        document.getElementById("performanceDialog").close();
+        form.reset();
+
+        const toast = document.createElement("div");
+        toast.className = "feedback-save-toast";
+        toast.textContent =
+          activeRecordType === "feedback"
+            ? "Feedback shared with the athlete."
+            : "Record saved.";
+
+        document.body.appendChild(toast);
+        window.setTimeout(() => toast.remove(), 3200);
+      } catch (error) {
+        status.textContent =
+          error.message || "This record could not be saved. Please try again.";
+        status.dataset.state = "error";
+        status.hidden = false;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Save record";
+      }
     });
-    try {
-      await apiRequest(`/api/${activeRecordType}`, { method: "POST", body: JSON.stringify(payload) });
-      document.getElementById("performanceDialog").close();
-      alert("Record saved.");
-    } catch (error) {
-      alert(error.message);
-    }
-  });
+
   async function initializeCoachDashboard() {
     let currentUser = {};
+
     try {
       const sessionData = await getCoachSession();
       if (!sessionData) return;
+
       currentUser = sessionData.user || {};
 
-      const [athleteData, sportData, attendanceSessions, summaryData] = await Promise.all([
+      const [
+        athleteData,
+        sportData,
+        attendanceSessions,
+        summaryData
+      ] = await Promise.all([
         apiRequest("/api/coach/athletes").catch(() => null),
         apiRequest("/api/coach/sports").catch(() => null),
         apiRequest("/api/coach/attendance/sessions").catch(() => null),
@@ -1135,93 +1484,83 @@
         }));
       }
 
-      if (sportData && sportData.sports) assignedSports = sportData.sports;
-      if (attendanceSessions && attendanceSessions.data) attendanceRecords = attendanceSessions.data;
-      if (summaryData && summaryData.summary) attendanceSummary = summaryData.summary;
+      if (sportData && sportData.sports) {
+        assignedSports = sportData.sports;
+      }
+
+      if (attendanceSessions && attendanceSessions.data) {
+        attendanceRecords = attendanceSessions.data;
+      }
+
+      if (summaryData && summaryData.summary) {
+        attendanceSummary = summaryData.summary;
+      }
     } catch (err) {
       console.warn("Coach dashboard online fetch error:", err);
     }
 
-    if ((!athletes || athletes.length === 0) && (window.APP_CONFIG?.AUTH_BYPASS !== false)) {
-      assignedSports = [
-        { id: 1, name: "Athletics" },
-        { id: 2, name: "Football" },
-        { id: 3, name: "Badminton" },
-        { id: 4, name: "Basketball" }
-      ];
-      athletes = [
-        { id: 1, name: "Alex Morgan", email: "alex.morgan@fittrack.com", department: "Sports Science", semester: "4", sports: ["Athletics"], status: "Active", attendance_rate: 92, performance_score: 88 },
-        { id: 2, name: "Jordan Lee", email: "jordan.lee@fittrack.com", department: "Physical Ed", semester: "6", sports: ["Football"], status: "Active", attendance_rate: 85, performance_score: 84 },
-        { id: 3, name: "Sam Rivera", email: "sam.rivera@fittrack.com", department: "Kinesiology", semester: "2", sports: ["Badminton"], status: "Active", attendance_rate: 95, performance_score: 91 },
-        { id: 4, name: "Taylor Swift", email: "taylor.s@fittrack.com", department: "Athletic Training", semester: "4", sports: ["Athletics", "Football"], status: "Active", attendance_rate: 78, performance_score: 79 },
-        { id: 5, name: "Marcus Cole", email: "marcus.c@fittrack.com", department: "Sports Science", semester: "6", sports: ["Basketball"], status: "Active", attendance_rate: 89, performance_score: 86 }
-      ];
-      attendanceRecords = [
-        { id: 101, session_date: "2026-10-21", sport_name: "Athletics", present_count: 5, absent_count: 1, total_athletes: 6 },
-        { id: 102, session_date: "2026-10-19", sport_name: "Athletics", present_count: 6, absent_count: 0, total_athletes: 6 }
-      ];
-      attendanceSummary = { total_sessions: 24, overall_attendance: 89, active_athletes: 5 };
-    }
+    const coach = currentUser;
+    const coachName = coach.full_name || coach.name || "Coach";
 
-    const coach = currentUser.full_name ? currentUser : { full_name: "Coach Sarah Jenkins", email: "coach@fittrack.com", specialization: "Athletics & Track", contact_number: "+1 555-0192" };
-    const coachName = coach.full_name || "Coach Sarah Jenkins";
     document.getElementById("coachDisplayName").textContent = coachName;
     document.getElementById("coachProfileTitle").textContent = coachName;
     document.getElementById("coachProfileName").textContent = coachName;
-    document.getElementById("coachProfileEmail").textContent = coach.email || "coach@fittrack.com";
-    document.getElementById("coachProfilePhone").textContent = coach.contact_number || "+1 555-0192";
-    document.getElementById("coachProfileId").textContent = coach.id ? `COACH-${coach.id}` : "COACH-2";
-    document.getElementById("coachProfileRoles").textContent = assignedSports.length
-      ? assignedSports.map(sport => sport.name).join(", ")
-      : "Athletics, Football";
-    const initials = coachName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
-    document.getElementById("coachProfileAvatar").textContent = initials || "SJ";
+    document.getElementById("coachProfileEmail").textContent = coach.email || "—";
+    document.getElementById("coachProfilePhone").textContent =
+      coach.contact_number || "—";
+    document.getElementById("coachProfileId").textContent =
+      coach.id ? `COACH-${coach.id}` : "—";
+    document.getElementById("coachProfileRoles").textContent =
+      assignedSports.length
+        ? assignedSports.map(sport => sport.name).join(", ")
+        : "—";
+
+    const initials = coachName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(part => part[0])
+      .join("")
+      .toUpperCase();
+
+    document.getElementById("coachProfileAvatar").textContent =
+      initials || "C";
+
     const select = document.getElementById("attendanceSport");
+
     if (select) {
-      select.innerHTML = assignedSports.map(sport =>
-        `<option value="${sport.id}">${sport.name}</option>`
-      ).join("");
+      select.innerHTML = assignedSports
+        .map(sport => `<option value="${sport.id}">${sport.name}</option>`)
+        .join("");
     }
+
+    populateAthleteFilters();
     await loadAttendance().catch(() => {});
     renderAthletes();
     updateDashboardStats();
   }
 
-
   function getToday() {
-
     const date = new Date();
 
-    const localDate =
-      new Date(
-        date.getTime() -
-        date.getTimezoneOffset() * 60000
-      );
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
 
-    return localDate
-      .toISOString()
-      .split("T")[0];
-
+    return localDate.toISOString().split("T")[0];
   }
 
-
   function getInitials(name) {
-
     return name
       .split(" ")
       .map(word => word[0])
       .join("")
       .substring(0, 2)
       .toUpperCase();
-
   }
 
-
   function formatDate(date) {
-
-    return new Date(
-      date + "T00:00:00"
-    ).toLocaleDateString(
+    return new Date(date + "T00:00:00").toLocaleDateString(
       undefined,
       {
         day: "numeric",
@@ -1229,19 +1568,10 @@
         year: "numeric"
       }
     );
-
   }
 
-
-  /* =========================
-     TOP DATE
-  ========================= */
-
   function updateTopDate() {
-
-    document.getElementById(
-      "topDate"
-    ).textContent =
+    document.getElementById("topDate").textContent =
       new Date().toLocaleDateString(
         undefined,
         {
@@ -1251,436 +1581,250 @@
           year: "numeric"
         }
       );
-
   }
 
+  function showSection(sectionName, button) {
+    document.querySelectorAll(".section").forEach(section => {
+      section.classList.remove("active");
+    });
 
-  /* =========================
-     PAGE NAVIGATION
-  ========================= */
+    document.getElementById(sectionName).classList.add("active");
 
-  function showSection(
-    sectionName,
-    button
-  ) {
-
-    document
-      .querySelectorAll(".section")
-      .forEach(section => {
-
-        section.classList.remove(
-          "active"
-        );
-
-      });
-
-
-    document
-      .getElementById(sectionName)
-      .classList.add("active");
-
-
-    document
-      .querySelectorAll(".nav-button")
-      .forEach(button => {
-
-        button.classList.remove(
-          "active"
-        );
-
-      });
-
+    document.querySelectorAll(".nav-button").forEach(button => {
+      button.classList.remove("active");
+    });
 
     if (button) {
-
       button.classList.add("active");
-
     }
 
-
     const titles = {
-
       dashboard: "Coach Dashboard",
-
       attendance: "Attendance",
-
       athletes: "My Athletes",
-
+      sessions: "Sessions",
+      assessments: "Assessments",
       announcements: "Announcements",
-
       events: "Events & Calendar",
-
       schedule: "Schedule",
-
       profile: "My Profile",
-
       settings: "Settings"
-
     };
-
 
     document.getElementById("pageTitle").textContent =
       titles[sectionName] || "Coach Dashboard";
 
-
     if (sectionName === "attendance") {
-
       loadAttendance();
-
     }
 
     if (sectionName === "schedule") {
-      window.DashboardSchedule?.mount({ root: "#schedule", role: "coach" });
+      window.DashboardSchedule?.mount({
+        root: "#schedule",
+        role: "coach"
+      });
     }
-
 
     if (sectionName === "athletes") {
-
       renderAthletes();
-
     }
 
+    if (sectionName === "sessions") {
+      renderSessions();
+    }
+
+    if (sectionName === "assessments") {
+      renderAssessments();
+    }
 
     if (sectionName === "announcements") {
-
       mountCoachAnnouncements();
-
     }
 
-    if (sectionName === "events") mountCoachEvents();
-
+    if (sectionName === "events") {
+      mountCoachEvents();
+    }
 
     closeSidebar();
-
   }
 
-
-  function showSectionByName(
-    sectionName
-  ) {
-
-    const button =
-      [
-        ...document.querySelectorAll(
-          ".nav-button"
-        )
-      ]
-      .find(
-        btn =>
-          btn.getAttribute(
-            "onclick"
-          ) &&
-          btn.getAttribute(
-            "onclick"
-          ).includes(
-            `'${sectionName}'`
-          )
-      );
-
-
-    showSection(
-      sectionName,
-      button
+  function showSectionByName(sectionName) {
+    const button = [
+      ...document.querySelectorAll(".nav-button")
+    ].find(btn =>
+      btn.getAttribute("onclick") &&
+      btn.getAttribute("onclick").includes(`'${sectionName}'`)
     );
 
+    showSection(sectionName, button);
   }
-
-
-  /* =========================
-     ATTENDANCE
-  ========================= */
 
   async function loadAttendance() {
     try {
       if (!(await getCoachSession())) return;
     } catch (error) {
       if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
-      if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
-      window.location.replace("coach-login.html");
-      return;
-    }
+        if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
+        window.location.replace("coach-login.html");
+        return;
+      }
+
       alert(error.message || "Could not verify coach access.");
       return;
     }
 
-    const dateInput =
-      document.getElementById(
-        "attendanceDate"
-      );
-
+    const dateInput = document.getElementById("attendanceDate");
 
     if (!dateInput.value) {
-
-      dateInput.value =
-        getToday();
-
+      dateInput.value = getToday();
     }
-
 
     const sportId = document.getElementById("attendanceSport").value;
     if (!sportId) return;
+
     const selectedDate = dateInput.value;
+
     try {
       const query = new URLSearchParams({ sport_id: sportId });
+
       const [studentsData, recordsData] = await Promise.all([
         apiRequest(`/api/coach/attendance/students?${query}`),
-        apiRequest(`/api/coach/attendance/records?${new URLSearchParams({ sport_id: sportId, session_date: selectedDate })}`)
+        apiRequest(
+          `/api/coach/attendance/records?${new URLSearchParams({
+            sport_id: sportId,
+            session_date: selectedDate
+          })}`
+        )
       ]);
+
       attendanceAthletes = studentsData.students.map(student => ({
         ...student,
-        sport: assignedSports.find(sport => sport.id === Number(sportId))?.name || ""
+        sport:
+          assignedSports.find(sport => sport.id === Number(sportId))?.name || ""
       }));
+
       currentAttendance = Object.fromEntries(
-        recordsData.records.map(record => [record.student_id, record.status])
+        recordsData.records.map(record => [
+          record.student_id,
+          String(record.status || "").trim().toLowerCase()
+        ])
       );
     } catch (error) {
       alert(error.message);
       return;
     }
 
-
     renderAttendance();
-
     updateAttendanceSummary();
-
   }
-
 
   function renderAttendance() {
-
-    const tableBody =
-      document.getElementById(
-        "attendanceBody"
-      );
-
-
+    const tableBody = document.getElementById("attendanceBody");
     tableBody.innerHTML = "";
 
+    attendanceAthletes.forEach(athlete => {
+      const status = String(currentAttendance[athlete.id] || "absent").trim().toLowerCase();
+      const row = document.createElement("tr");
 
-    attendanceAthletes.forEach(
-      athlete => {
-
-        const status = currentAttendance[athlete.id] || "absent";
-
-
-        const row =
-          document.createElement(
-            "tr"
-          );
-
-
-        row.innerHTML = `
-
-          <td>
-
-            <div class="student">
-
-              <div class="student-avatar">
-                ${getInitials(
-                  athlete.name
-                )}
-              </div>
-
-              <strong>
-                ${athlete.name}
-              </strong>
-
+      row.innerHTML = `
+        <td>
+          <div class="student">
+            <div class="student-avatar">
+              ${getInitials(athlete.name)}
             </div>
+            <strong>${athlete.name}</strong>
+          </div>
+        </td>
+        <td>${athlete.sport}</td>
+        <td>
+          <div class="status-buttons">
+            <button
+              class="present ${status === "present" ? "active" : ""}"
+              aria-pressed="${status === "present"}"
+              onclick="setAttendance(${athlete.id}, 'present')"
+            >
+              Present
+            </button>
+            <button
+              class="absent ${status === "absent" ? "active" : ""}"
+              aria-pressed="${status === "absent"}"
+              onclick="setAttendance(${athlete.id}, 'absent')"
+            >
+              Absent
+            </button>
+            <button
+              class="late ${status === "late" ? "active" : ""}"
+              aria-pressed="${status === "late"}"
+              onclick="setAttendance(${athlete.id}, 'late')"
+            >
+              Late
+            </button>
+            <button
+              class="excused ${status === "excused" ? "active" : ""}"
+              aria-pressed="${status === "excused"}"
+              onclick="setAttendance(${athlete.id}, 'excused')"
+            >
+              Excused
+            </button>
+          </div>
+        </td>
+      `;
 
-          </td>
-
-
-          <td>
-            ${athlete.sport}
-          </td>
-
-
-          <td>
-
-            <div class="status-buttons">
-
-              <button
-                class="present ${
-                  status === "present"
-                    ? "active"
-                    : ""
-                }"
-                onclick="
-                  setAttendance(
-                    ${athlete.id},
-                    'present'
-                  )
-                "
-              >
-                Present
-              </button>
-
-
-              <button
-                class="absent ${
-                  status === "absent"
-                    ? "active"
-                    : ""
-                }"
-                onclick="
-                  setAttendance(
-                    ${athlete.id},
-                    'absent'
-                  )
-                "
-              >
-                Absent
-              </button>
-
-
-            </div>
-
-          </td>
-
-        `;
-
-
-        tableBody.appendChild(
-          row
-        );
-
-      }
-    );
-
+      tableBody.appendChild(row);
+    });
   }
 
-
-  function setAttendance(
-    athleteId,
-    status
-  ) {
-
-    currentAttendance[
-      athleteId
-    ] = status;
-
-
+  function setAttendance(athleteId, status) {
+    currentAttendance[athleteId] = status;
     renderAttendance();
-
     updateAttendanceSummary();
-
   }
-
 
   function markAll(status) {
-
-    attendanceAthletes.forEach(
-      athlete => {
-
-        currentAttendance[
-          athlete.id
-        ] = status;
-
-      }
-    );
-
+    attendanceAthletes.forEach(athlete => {
+      currentAttendance[athlete.id] = status;
+    });
 
     renderAttendance();
-
     updateAttendanceSummary();
-
   }
-
 
   function updateAttendanceSummary() {
+    const values = Object.values(currentAttendance);
+    const present = values.filter(value => value === "present").length;
+    const absent = values.filter(value => value === "absent").length;
+    const late = values.filter(value => value === "late").length;
+    const excused = values.filter(value => value === "excused").length;
 
-    const values =
-      Object.values(
-        currentAttendance
-      );
-
-
-    const present =
-      values.filter(
-        value =>
-          value === "present"
-      ).length;
-
-
-    const absent =
-      values.filter(
-        value =>
-          value === "absent"
-      ).length;
-
-
-    const late =
-      values.filter(
-        value =>
-          value === "late"
-      ).length;
-
-
-    const excused =
-      values.filter(
-        value =>
-          value === "excused"
-      ).length;
-
-
-    document.getElementById(
-      "presentCount"
-    ).textContent =
-      present;
-
-
-    document.getElementById(
-      "absentCount"
-    ).textContent =
-      absent;
-
-
-    document.getElementById(
-      "lateCount"
-    ).textContent =
-      late;
-
-
-    document.getElementById(
-      "excusedCount"
-    ).textContent =
-      excused;
-
-
+    document.getElementById("presentCount").textContent = present;
+    document.getElementById("absentCount").textContent = absent;
+    document.getElementById("lateCount").textContent = late;
+    document.getElementById("excusedCount").textContent = excused;
   }
-
 
   async function saveAttendance() {
     try {
       if (!(await getCoachSession())) return;
     } catch (error) {
       if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
-      if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
-      window.location.replace("coach-login.html");
-      return;
-    }
+        if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
+        window.location.replace("coach-login.html");
+        return;
+      }
+
       alert(error.message || "Could not verify coach access.");
       return;
     }
 
-    const date =
-      document.getElementById(
-        "attendanceDate"
-      ).value;
-
+    const date = document.getElementById("attendanceDate").value;
 
     if (!date) {
-
-      alert(
-        "Please select an attendance date."
-      );
-
+      alert("Please select an attendance date.");
       return;
-
     }
 
-
     const sportId = document.getElementById("attendanceSport").value;
+
     try {
       await apiRequest("/api/coach/attendance/records", {
         method: "POST",
@@ -1693,286 +1837,496 @@
           }))
         })
       });
+
       await loadAttendance();
       alert(`Attendance saved for ${formatDate(date)}.`);
     } catch (error) {
       alert(error.message);
     }
-
   }
 
-
-  /* =========================
-     ATHLETES
-  ========================= */
-
   function renderAthletes() {
+    const grid = document.getElementById("athletesGrid");
+    if (!grid) return;
 
-    const grid =
-      document.getElementById(
-        "athletesGrid"
-      );
+    const selectedSport =
+      document.getElementById("athleteSportFilter")?.value.trim().toLowerCase() || "";
+    const selectedDepartment =
+      document.getElementById("athleteDepartmentFilter")?.value.trim().toLowerCase() || "";
+    const selectedSemester =
+      document.getElementById("athleteSemesterFilter")?.value.trim().toLowerCase() || "";
 
+    const normalizeSemester = value =>
+      String(value ?? "").trim().replace(/^semester\s*/i, "").toLowerCase();
+
+    const filteredAthletes = athletes.filter(athlete => {
+      const sports = Array.isArray(athlete.sports)
+        ? athlete.sports
+        : String(athlete.sport || "").split(",");
+
+      const matchesSport =
+        !selectedSport ||
+        sports.some(sport => String(sport).trim().toLowerCase() === selectedSport);
+
+      const department = String(
+        athlete.department || athlete.department_name || ""
+      ).trim().toLowerCase();
+
+      const semester = normalizeSemester(athlete.semester);
+
+      return matchesSport &&
+        (!selectedDepartment || department === selectedDepartment) &&
+        (!selectedSemester || semester === selectedSemester);
+    });
 
     grid.innerHTML = "";
 
+    if (!filteredAthletes.length) {
+      const emptyMessage = document.createElement("p");
+      emptyMessage.className = "announcement-empty";
+      emptyMessage.textContent = athletes.length
+        ? "No athletes match the selected filters."
+        : "No athletes are currently assigned to you.";
+      grid.appendChild(emptyMessage);
+      return;
+    }
 
-    athletes.forEach(
-      athlete => {
+    filteredAthletes.forEach(athlete => {
+      const card = document.createElement("div");
+      card.className = "athlete-card";
 
-        const card =
-          document.createElement(
-            "div"
-          );
-
-
-        card.className =
-          "athlete-card";
-
-
-        card.innerHTML = `
-
-          <div class="athlete-header">
-
-            <div class="athlete-avatar">
-              ${getInitials(
-                athlete.name
-              )}
-            </div>
-
-            <div>
-
-              <strong>
-                ${athlete.name}
-              </strong>
-
-              <span>
-                ${athlete.sport}
-              </span>
-
-            </div>
-
+      card.innerHTML = `
+        <div class="athlete-header">
+          <div class="athlete-avatar">
+            ${getInitials(athlete.name)}
           </div>
-
-
-          <div class="athlete-details">
-
-            <div class="athlete-detail">
-
-              <span>
-                Email
-              </span>
-
-              <strong>
-                ${athlete.email || "Not provided"}
-              </strong>
-
-            </div>
-
+          <div>
+            <strong>${athlete.name}</strong>
+            <span>${athlete.sport}</span>
           </div>
-
-
-          <div class="athlete-record-actions">
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'assessments')">Assessment</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'training-sessions')">Training</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'goals')">Goal</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'feedback')">Feedback</button>
+        </div>
+        <div class="athlete-details">
+          <div class="athlete-detail">
+            <span>Email</span>
+            <strong>${athlete.email || "Not provided"}</strong>
           </div>
-
+        </div>
+        <div class="athlete-record-actions">
           <button
-            class="view-athlete"
-            onclick="
-              viewAthlete(
-                ${athlete.id}
-              )
-            "
+            type="button"
+            onclick="openRecordForm(${athlete.id}, 'assessments')"
           >
-            View Athlete
+            Assessment
           </button>
+          <button
+            type="button"
+            onclick="openRecordForm(${athlete.id}, 'training-sessions')"
+          >
+            Training
+          </button>
+          <button
+            type="button"
+            onclick="openRecordForm(${athlete.id}, 'goals')"
+          >
+            Goal
+          </button>
+          <button
+            type="button"
+            onclick="openRecordForm(${athlete.id}, 'feedback')"
+          >
+            Feedback
+          </button>
+        </div>
+        <button
+          class="view-athlete"
+          onclick="viewAthlete(${athlete.id})"
+        >
+          View Athlete
+        </button>
+      `;
 
-        `;
-
-
-        grid.appendChild(card);
-
-      }
-    );
-
+      grid.appendChild(card);
+    });
   }
 
+  function populateAthleteFilters() {
+    const sportSelect = document.getElementById("athleteSportFilter");
+    const departmentSelect = document.getElementById("athleteDepartmentFilter");
+    const semesterSelect = document.getElementById("athleteSemesterFilter");
 
-  function setAthleteView(
-    view
-  ) {
+    if (!sportSelect || !departmentSelect || !semesterSelect) return;
 
-    const grid =
-      document.getElementById(
-        "athletesGrid"
-      );
+    const uniqueValues = values =>
+      [...new Map(
+        values
+          .map(value => String(value ?? "").trim())
+          .filter(Boolean)
+          .map(value => [value.toLowerCase(), value])
+      ).values()].sort((a, b) => a.localeCompare(b));
 
+    const fillSelect = (select, values, format = value => value) => {
+      const previousValue = select.value;
+      const allOption = select.options[0].cloneNode(true);
+      select.replaceChildren(allOption);
 
-    const boxButton =
-      document.getElementById(
-        "boxViewButton"
-      );
+      values.forEach(value => {
+        select.appendChild(new Option(format(value), value));
+      });
 
+      if (values.includes(previousValue)) {
+        select.value = previousValue;
+      }
+    };
 
-    const listButton =
-      document.getElementById(
-        "listViewButton"
-      );
+    const sports = uniqueValues(
+      athletes.flatMap(athlete =>
+        Array.isArray(athlete.sports)
+          ? athlete.sports
+          : String(athlete.sport || "").split(",")
+      )
+    );
 
+    const departments = uniqueValues(
+      athletes.map(athlete => athlete.department || athlete.department_name)
+    );
+
+    const semesters = uniqueValues(
+      athletes.map(athlete =>
+        String(athlete.semester ?? "")
+          .trim()
+          .replace(/^semester\s*/i, "")
+      )
+    );
+
+    fillSelect(sportSelect, sports);
+    fillSelect(departmentSelect, departments);
+    fillSelect(semesterSelect, semesters, value => `Semester ${value}`);
+  }
+
+  function resetAthleteFilters() {
+    [
+      "athleteSportFilter",
+      "athleteDepartmentFilter",
+      "athleteSemesterFilter"
+    ].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) select.value = "";
+    });
+
+    renderAthletes();
+  }
+
+  function renderAthleteActionCards(containerId, resource, buttonText) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!athletes.length) {
+      const emptyMessage = document.createElement("p");
+      emptyMessage.className = "announcement-empty";
+      emptyMessage.textContent = "No athletes are currently assigned to you.";
+      container.appendChild(emptyMessage);
+      return;
+    }
+
+    athletes.forEach(athlete => {
+      const card = document.createElement("div");
+      card.className = "athlete-card";
+
+      const header = document.createElement("div");
+      header.className = "athlete-header";
+
+      const avatar = document.createElement("div");
+      avatar.className = "athlete-avatar";
+      avatar.textContent =
+        getInitials(athlete.name || athlete.full_name || "Athlete");
+
+      const details = document.createElement("div");
+      const name = document.createElement("strong");
+      name.textContent = athlete.name || athlete.full_name || "Athlete";
+
+      const sport = document.createElement("span");
+      sport.textContent = athlete.sport || "";
+
+      details.append(name, sport);
+      header.append(avatar, details);
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "view-athlete";
+      button.textContent = buttonText;
+      button.addEventListener("click", () => {
+        openRecordForm(athlete.id, resource);
+      });
+
+      card.append(header, button);
+      container.appendChild(card);
+    });
+  }
+
+  function renderSessions() {
+    renderAthleteActionCards(
+      "sessionAthletesGrid",
+      "training-sessions",
+      "Record Session"
+    );
+  }
+
+  function renderAssessments() {
+    renderAthleteActionCards(
+      "assessmentAthletesGrid",
+      "assessments",
+      "Record Assessment"
+    );
+  }
+
+  function setAthleteView(view) {
+    const grid = document.getElementById("athletesGrid");
+    const boxButton = document.getElementById("boxViewButton");
+    const listButton = document.getElementById("listViewButton");
 
     if (view === "list") {
-
-      grid.classList.add(
-        "list-view"
-      );
-
-      listButton.classList.add(
-        "active"
-      );
-
-      boxButton.classList.remove(
-        "active"
-      );
-
+      grid.classList.add("list-view");
+      listButton.classList.add("active");
+      boxButton.classList.remove("active");
+    } else {
+      grid.classList.remove("list-view");
+      boxButton.classList.add("active");
+      listButton.classList.remove("active");
     }
-
-    else {
-
-      grid.classList.remove(
-        "list-view"
-      );
-
-      boxButton.classList.add(
-        "active"
-      );
-
-      listButton.classList.remove(
-        "active"
-      );
-
-    }
-
   }
 
-
-  function getAthleteAttendance(
-    athleteId
-  ) {
-
+  function getAthleteAttendance(athleteId) {
     let total = 0;
-
     let present = 0;
 
+    Object.values(attendanceRecords).forEach(record => {
+      if (record[athleteId]) {
+        total++;
 
-    Object.values(
-      attendanceRecords
-    ).forEach(
-      record => {
-
-        if (
-          record[athleteId]
-        ) {
-
-          total++;
-
-
-          if (
-            record[athleteId] ===
-            "present"
-          ) {
-
-            present++;
-
-          }
-
+        if (record[athleteId] === "present") {
+          present++;
         }
-
       }
-    );
-
+    });
 
     if (!total) {
-
       return 0;
-
     }
 
-
-    return Math.round(
-      (present / total) * 100
-    );
-
+    return Math.round((present / total) * 100);
   }
 
+  async function viewAthlete(athleteId) {
+    const modal = document.getElementById("athleteDetailModal");
+    const content = document.getElementById("athleteDetailContent");
+    if (!modal || !content) return;
 
-  function viewAthlete(
-    athleteId
-  ) {
+    modal.hidden = false;
+    content.textContent = "Loading athlete profile and progress…";
 
-    const athlete =
-      athletes.find(
-        athlete =>
-          athlete.id === athleteId
-      );
+    const escapeHtml = value =>
+      String(value ?? "Not provided").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[character]));
+    const displayDate = value => {
+      if (!value) return "Not recorded";
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString();
+    };
+    const valueLine = (label, value, suffix = "") =>
+      `<span>${escapeHtml(label)}: ${escapeHtml(value)}${suffix}</span>`;
+    const recordList = (records, renderRecord, emptyText) =>
+      records.length
+        ? `<div class="athlete-profile-records">${records.map(renderRecord).join("")}</div>`
+        : `<div class="athlete-detail-empty">${escapeHtml(emptyText)}</div>`;
 
+    try {
+      const [profileResult, assessmentResult, trainingResult, feedbackResult] =
+        await Promise.allSettled([
+          apiRequest(`/api/coach/athletes/${encodeURIComponent(athleteId)}`),
+          apiRequest("/api/assessments"),
+          apiRequest("/api/training-sessions"),
+          apiRequest("/api/feedback")
+        ]);
 
-    if (!athlete) return;
+      if (profileResult.status !== "fulfilled") throw profileResult.reason;
+      const athlete = profileResult.value.athlete;
+      if (!athlete) throw new Error("Athlete profile was not returned.");
 
+      const recordsForAthlete = result => {
+        if (result.status !== "fulfilled" || !Array.isArray(result.value.data)) return [];
+        return result.value.data.filter(record => String(record.student_id) === String(athlete.id));
+      };
+      const assessments = recordsForAthlete(assessmentResult)
+        .sort((a, b) => String(b.assessment_date || "").localeCompare(String(a.assessment_date || "")));
+      const training = recordsForAthlete(trainingResult)
+        .sort((a, b) => String(b.session_date || "").localeCompare(String(a.session_date || "")));
+      const feedback = recordsForAthlete(feedbackResult)
+        .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
 
-    alert(
-      `${athlete.name}\n\n` +
-      `Sport: ${athlete.sport}\n` +
-      `Email: ${athlete.email || "Not provided"}\n` +
-      `Sports: ${(athlete.sports || []).join(", ")}`
-    );
+      const scores = assessments
+        .map(record => Number(record.overall_score))
+        .filter(Number.isFinite);
+      const averageScore = scores.length
+        ? (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(1)
+        : "—";
+      const latestScore = assessments.length && Number.isFinite(Number(assessments[0].overall_score))
+        ? `${assessments[0].overall_score} / 10`
+        : "—";
+      const attendanceRate = getAthleteAttendance(athlete.id);
+      const sports = Array.isArray(athlete.sports) && athlete.sports.length
+        ? athlete.sports.map(escapeHtml).join(", ")
+        : escapeHtml(athlete.sport);
+      const initials = String(athlete.name || "A")
+        .trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
 
+      const assessmentRows = assessments.slice(0, 6);
+      const trainingRows = training.slice(0, 4);
+      const feedbackRows = feedback.slice(0, 3);
+      const progressRecords = [...assessments].reverse();
+      const maxProgressScore = Math.max(10, ...progressRecords.map(record => Number(record.overall_score) || 0));
+
+      content.innerHTML = `
+        <div class="athlete-detail-eyebrow">ATHLETE PROFILE</div>
+        <div class="athlete-profile-overview">
+          <div class="athlete-profile-avatar" aria-hidden="true">${escapeHtml(initials || "A")}</div>
+          <div>
+            <h2 id="athleteDetailName">${escapeHtml(athlete.name)}</h2>
+            <span>${sports} · ${escapeHtml(athlete.department)} · Semester ${escapeHtml(athlete.semester)}</span>
+          </div>
+        </div>
+
+        <div class="athlete-detail-fields">
+          <section class="athlete-detail-section">
+            <span>Personal Information</span>
+            <strong>
+              ${valueLine("Full name", athlete.name)}
+              ${valueLine("Gender", athlete.gender)}
+              ${valueLine("Date of birth", displayDate(athlete.date_of_birth))}
+              ${valueLine("Student number", athlete.student_number)}
+            </strong>
+          </section>
+          <section class="athlete-detail-section">
+            <span>Contact Information</span>
+            <strong>
+              ${valueLine("Email", athlete.email)}
+              ${valueLine("Phone", athlete.contact_number)}
+              ${valueLine("Emergency number", athlete.emergency_contact)}
+            </strong>
+          </section>
+          <section class="athlete-detail-section">
+            <span>Education</span>
+            <strong>
+              ${valueLine("Department", athlete.department)}
+              ${valueLine("Semester", athlete.semester)}
+            </strong>
+          </section>
+          <section class="athlete-detail-section">
+            <span>Sports &amp; Fitness</span>
+            <strong>
+              ${valueLine("Sports", Array.isArray(athlete.sports) ? athlete.sports.join(", ") : athlete.sport)}
+              ${valueLine("Height", athlete.height_cm, " cm")}
+              ${valueLine("Weight", athlete.weight_kg, " kg")}
+              ${valueLine("Fitness goal", athlete.goal)}
+            </strong>
+          </section>
+          <section class="athlete-detail-section">
+            <span>Bio</span>
+            <strong>${escapeHtml(athlete.bio)}</strong>
+          </section>
+
+          <section class="athlete-detail-section athlete-progress-panel">
+            <span>Performance &amp; Progress</span>
+            <div class="athlete-progress-summary">
+              <div class="athlete-progress-stat"><span>Average score</span><strong>${escapeHtml(averageScore)}${averageScore === "—" ? "" : " / 10"}</strong></div>
+              <div class="athlete-progress-stat"><span>Latest score</span><strong>${escapeHtml(latestScore)}</strong></div>
+              <div class="athlete-progress-stat"><span>Attendance</span><strong>${escapeHtml(attendanceRate)}%</strong></div>
+            </div>
+            ${progressRecords.length ? `
+              <div class="athlete-progress-list">
+                ${progressRecords.map(record => {
+                  const score = Number(record.overall_score);
+                  const percentage = Number.isFinite(score) ? Math.max(0, Math.min(100, score / maxProgressScore * 100)) : 0;
+                  return `<div class="athlete-progress-item">
+                    <div><strong>${escapeHtml(displayDate(record.assessment_date))}</strong><span>Coach assessment</span></div>
+                    <div class="athlete-progress-track" aria-label="Assessment score progress"><span style="width:${percentage}%"></span></div>
+                    <div class="athlete-progress-score">${Number.isFinite(score) ? `${escapeHtml(score)} / 10` : "No score"}</div>
+                  </div>`;
+                }).join("")}
+              </div>` : `<div class="athlete-detail-empty">No performance assessments have been recorded yet.</div>`}
+            ${recordList(assessmentRows, record => `<article class="athlete-profile-record">
+              <strong>Assessment · ${escapeHtml(displayDate(record.assessment_date))}</strong>
+              <span>Score: ${escapeHtml(record.overall_score)} / 10</span>
+              <p>Speed ${escapeHtml(record.speed)} · Strength ${escapeHtml(record.strength)} · Endurance ${escapeHtml(record.endurance)} · Agility ${escapeHtml(record.agility)}</p>
+              <p>${escapeHtml(record.notes)}</p>
+            </article>`, "No assessment details available.")}
+          </section>
+
+          <section class="athlete-detail-section">
+            <span>Training History</span>
+            ${recordList(trainingRows, record => `<article class="athlete-profile-record">
+              <strong>${escapeHtml(record.training_type || "Training session")}</strong>
+              <span>${escapeHtml(displayDate(record.session_date))} · ${escapeHtml(record.duration_minutes)} minutes</span>
+              <p>${escapeHtml(record.description)}</p>
+              <p>${escapeHtml(record.performance_notes)}</p>
+            </article>`, "No training sessions have been recorded yet.")}
+          </section>
+          <section class="athlete-detail-section">
+            <span>Coach Feedback</span>
+            ${recordList(feedbackRows, record => `<article class="athlete-profile-record">
+              <strong>Coach feedback${record.rating == null ? "" : ` · ${escapeHtml(record.rating)} / 5`}</strong>
+              <span>${escapeHtml(displayDate(record.created_at))}</span>
+              <p>${escapeHtml(record.feedback)}</p>
+            </article>`, "No coach feedback has been recorded yet.")}
+          </section>
+        </div>
+
+        <div class="athlete-detail-actions">
+          <button type="button" onclick="closeAthleteDetails(); openRecordForm(${Number(athlete.id)}, 'feedback')">Add feedback</button>
+        </div>
+      `;
+
+      modal.querySelector(".athlete-detail-close")?.focus();
+    } catch (error) {
+      content.textContent = error.message || "Unable to load this athlete's profile.";
+    }
   }
-
-
-  /* =========================
-     DASHBOARD STATISTICS
-  ========================= */
+  function closeAthleteDetails() {
+    const modal = document.getElementById("athleteDetailModal");
+    if (modal) modal.hidden = true;
+  }
 
   function updateDashboardStats() {
+    document.getElementById("totalAthletes").textContent = athletes.length;
 
-    document.getElementById(
-      "totalAthletes"
-    ).textContent =
-      athletes.length;
+    document.getElementById("attendanceRate").textContent =
+      `${attendanceSummary.percentage || 0}%`;
 
-
-    document.getElementById(
-      "recordCount"
-    ).textContent =
-      attendanceRecords.length;
-
-
-    const today =
-      getToday();
-
-
-    document.getElementById("presentToday").textContent = attendanceSummary.present_today || 0;
-
+    document.getElementById("presentToday").textContent =
+      attendanceSummary.present_today || 0;
   }
-
-
-  /* =========================
-     ANNOUNCEMENTS
-  ========================= */
 
   function mountCoachAnnouncements() {
     const root = document.querySelector("#announcementsPanel");
     if (!root) return;
+
     if (!window.AnnouncementsPanel) {
       const list = root.querySelector("[data-announcement-list]");
+
       if (list) {
-        list.innerHTML = '<div class="announcement-empty error">Announcements could not load. Refresh the page and try again.</div>';
+        list.innerHTML =
+          '<div class="announcement-empty error">Announcements could not load. Refresh the page and try again.</div>';
       }
+
       return;
     }
+
     window.AnnouncementsPanel.mount({
       root,
       canManage: true
@@ -1980,67 +2334,48 @@
   }
 
   let coachEventsMounted = false;
+
   function mountCoachEvents() {
     if (coachEventsMounted || !window.DashboardEvents) return;
-    window.DashboardEvents.mount({ root: "#dashboardEventsPanel", role: "coach" });
+
+    window.DashboardEvents.mount({
+      root: "#dashboardEventsPanel",
+      role: "coach"
+    });
+
     coachEventsMounted = true;
   }
-
-
-  /* =========================
-     LOGOUT
-  ========================= */
 
   async function logout() {
     await apiRequest("/api/logout", { method: "POST" }).catch(() => {});
     window.location.href = "coach-login.html";
   }
 
-
-  /* =========================
-     MOBILE SIDEBAR
-  ========================= */
-
   function toggleSidebar() {
-
     document
       .getElementById("sidebar")
-      .classList.toggle(
-        "open"
-      );
-
+      .classList.toggle("open");
   }
-
 
   function closeSidebar() {
-
     document
       .getElementById("sidebar")
-      .classList.remove(
-        "open"
-      );
-
+      .classList.remove("open");
   }
 
-
-  /* =========================
-     INITIALIZE
-  ========================= */
-
-  document.getElementById(
-    "attendanceDate"
-  ).value =
-    getToday();
-
-
+  document.getElementById("attendanceDate").value = getToday();
   updateTopDate();
-
   initializeCoachDashboard();
-
 </script>
+
 <script src="../js/dashboard-events.js?v=event-calendar-6"></script>
 <script src="../js/dashboard-schedule.js"></script>
-<script>window.DashboardEvents?.mount({ root: "#dashboardEventsPanel", role: "coach" });</script>
+<script>
+  window.DashboardEvents?.mount({
+    root: "#dashboardEventsPanel",
+    role: "coach"
+  });
+</script>
 
 </body>
 </html>

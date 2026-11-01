@@ -17,6 +17,14 @@ def test_vercel_preview_uses_configured_postgres(monkeypatch):
     assert database_backend() == "postgres"
 
 
+def test_hosted_deployment_rejects_sqlite(monkeypatch):
+    monkeypatch.setenv("DATABASE_BACKEND", "sqlite")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+
+    with pytest.raises(RuntimeError, match="SQLite is only supported for local development"):
+        database_backend()
+
+
 @pytest.fixture
 def fit_track_db(tmp_path):
     connection = sqlite3.connect(tmp_path / "fit-track.sqlite3")

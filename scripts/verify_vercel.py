@@ -45,7 +45,7 @@ def production_source_files(paths):
     """Exclude intentional local SQLite adapters from production pattern checks."""
     for path in paths:
         relative = path.relative_to(ROOT).as_posix()
-        if relative in LOCAL_DEVELOPMENT_FILES or relative.startswith("tests/"):
+        if relative in LOCAL_DEVELOPMENT_FILES or relative.startswith(("tests/", "scripts/")):
             continue
         yield path
 
@@ -97,11 +97,23 @@ def main():
 
     try:
         config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+        api_rewrite = any(
+            route.get("source") == "/api/(.*)"
+            and route.get("destination") == "/api/index"
+            for route in config.get("rewrites", [])
+        )
+        function_config = config.get("functions", {}).get("api/index.py", {})
+        excluded_files = function_config.get("excludeFiles", "")
         vercel_config_ok = (
-            any(build.get("src") == "api/index.py" for build in config.get("builds", []))
+            config.get("framework", "not-null") is None
+            and config.get("outputDirectory") == "frontend1"
+            and (ROOT / "frontend1" / "index.html").is_file()
             and (ROOT / "api" / "index.py").is_file()
-            and any(route.get("src") == "/api/(.*)" for route in config.get("routes", []))
-            and "setup_and_run.py --init-only" in config.get("buildCommand", "")
+            and api_rewrite
+            and function_config.get("maxDuration", 0) >= 10
+            and "scripts/**" in excluded_files
+            and not config.get("builds")
+            and not config.get("routes")
         )
     except (OSError, json.JSONDecodeError):
         vercel_config_ok = False
@@ -117,6 +129,13 @@ def main():
         for name in ("SUPABASE_DB_URL", "SECRET_KEY", "FRONTEND_URL")
     )
     results.append(print_check("Server-side environment variable names", env_names_ok))
+
+    database_source = (ROOT / "backend" / "db.py").read_text(encoding="utf-8-sig")
+    sqlite_guard_ok = (
+        "SQLite is only supported for local development" in database_source
+        and "if is_hosted:" in database_source
+    )
+    results.append(print_check("Hosted deployments require PostgreSQL", sqlite_guard_ok))
 
     frontend_config = (ROOT / "frontend1" / "js" / "config.js").read_text(
         encoding="utf-8-sig"

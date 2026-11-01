@@ -1849,3 +1849,111 @@ body.dark-mode input.form-control {
         text-align: center;
     }
 }
+/* Student dashboard dark-mode contrast fixes */
+body.dark-mode .attendance-main .attendance-score span {
+    color: #a6b5cc !important;
+}
+
+body.dark-mode .attendance-main .attendance-progress {
+    background: #263550 !important;
+}
+
+body.dark-mode .attendance-main .attendance-stats > div,
+body.dark-mode .attendance-main .attendance-day {
+    background: #17243a !important;
+    border-color: #354661 !important;
+    color: #e9effb !important;
+}
+
+body.dark-mode .attendance-main .attendance-stats strong,
+body.dark-mode .attendance-main .attendance-day strong {
+    color: #f4f7ff !important;
+}
+
+body.dark-mode .attendance-main .attendance-stats span,
+body.dark-mode .attendance-main .attendance-day span,
+body.dark-mode .attendance-status-card p {
+    color: #a6b5cc !important;
+}
+
+body.dark-mode .attendance-main .attendance-day strong.present {
+    color: #6ee7b7 !important;
+}
+
+body.dark-mode .attendance-main .attendance-day strong.absent {
+    color: #b8c7df !important;
+}
+
+body.dark-mode #feedback .feedback-stat,
+body.dark-mode #feedback .feedback-panel,
+body.dark-mode #feedback .feedback-history-panel,
+body.dark-mode #feedback .feedback-history-item {
+    background: #111b33 !important;
+    border-color: #263854 !important;
+    color: #e9effb !important;
+}
+
+body.dark-mode #feedback .feedback-stat span,
+body.dark-mode #feedback .feedback-history-head p,
+body.dark-mode #feedback .feedback-history-meta {
+    color: #a6b5cc !important;
+}
+
+body.dark-mode #feedback .feedback-stat strong,
+body.dark-mode #feedback .feedback-panel-heading h3,
+body.dark-mode #feedback .feedback-history-head h3 {
+    color: #f4f7ff !important;
+}
+
+body.dark-mode #feedback .feedback-latest-copy,
+body.dark-mode #feedback .feedback-history-copy {
+    color: #d5e1f2 !important;
+}
+
+body.dark-mode #feedback .feedback-guidance {
+    background: linear-gradient(145deg, #172a48, #142139) !important;
+}
+
+body.dark-mode #feedback .feedback-guidance p,
+body.dark-mode #feedback .feedback-guidance li {
+    color: #c5d3e8 !important;
+}
+
+body.dark-mode #feedback .feedback-date-pill {
+    background: #1d3760 !important;
+    color: #b9d6ff !important;
+}
+
+body.dark-mode #feedback .feedback-empty {
+    border-color: #354661 !important;
+    color: #b8c7df !important;
+}
+
+body.dark-mode #feedback .feedback-search {
+    background: #0b1425 !important;
+    border-color: #354661 !important;
+    color: #edf3ff !important;
+}
+
+body.dark-mode #announcements .announcement-empty,
+body.dark-mode #events .announcement-empty,
+body.dark-mode #dashboardEventsPanel .announcement-empty {
+    background: #17243a !important;
+    border-color: #354661 !important;
+    color: #b8c7df !important;
+}
+
+body.dark-mode #announcements .announcement-empty.error,
+body.dark-mode #events .announcement-empty.error,
+body.dark-mode #dashboardEventsPanel .announcement-empty.error {
+    background: #3b202b !important;
+    border-color: #743344 !important;
+    color: #fecdd3 !important;
+}
+
+body.dark-mode #dashboardEventsPanel .event-card,
+body.dark-mode #dashboardEventsPanel [data-event-card] {
+    background: #111b33 !important;
+    border-color: #263854 !important;
+    color: #e9effb !important;
+}

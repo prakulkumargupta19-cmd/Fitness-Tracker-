@@ -1,5 +1,6 @@
 import pytest
 from backend.app import app
+from werkzeug.security import generate_password_hash
 
 def test_signup_domain_restriction():
     with app.test_client() as client:
@@ -11,6 +12,79 @@ def test_signup_domain_restriction():
         })
         assert response.status_code == 400
         assert "Only @inspiria.edu.in emails are allowed." in response.get_json()["message"]
+
+
+@pytest.mark.parametrize("role", ["student", "coach"])
+def test_login_completes_without_otp_for_student_and_coach(monkeypatch, role):
+    user = {
+        "id": 42,
+        "role": role,
+        "full_name": "Test User",
+        "email": "test@example.test",
+        "contact_number": None,
+        "is_verified": True,
+        "is_active": True,
+        "coach_status": "approved" if role == "coach" else None,
+        "password_hash": generate_password_hash("Password123"),
+    }
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params=()):
+            pass
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: user)
+    monkeypatch.setattr("backend.app.get_db", Connection)
+    monkeypatch.setattr(
+        "backend.app.store_otp",
+        lambda *args: pytest.fail("Student and coach logins must not issue OTPs"),
+    )
+    monkeypatch.setattr(
+        "backend.app.store_admin_otp",
+        lambda *args: pytest.fail("Student and coach logins must not issue OTPs"),
+    )
+    monkeypatch.setattr(
+        "backend.app.send_otp_email",
+        lambda *args: pytest.fail("Student and coach logins must not send OTPs"),
+    )
+
+    with app.test_client() as client:
+        with client.session_transaction() as state:
+            state["csrf_token"] = "test-csrf-token"
+        response = client.post(
+            "/api/login",
+            json={
+                "email": user["email"],
+                "password": "Password123",
+                "role": role,
+            },
+            headers={"X-CSRFToken": "test-csrf-token"},
+        )
+        with client.session_transaction() as state:
+            assert state["user_id"] == user["id"]
+            assert state["role"] == role
+            assert "pending_login_user_id" not in state
+
+    payload = response.get_json()
+    assert response.status_code == 200
+    assert payload["success"] is True
+    assert payload["otp_required"] is False
+    assert payload["user"]["role"] == role
+
 
 def test_signup_creates_user_and_sends_verification(monkeypatch):
     statements = []
@@ -101,3 +175,102 @@ def test_signup_does_not_create_account_when_mail_fails(monkeypatch):
     assert "no account was created" in response.get_json()["message"]
     assert any("pending_registrations" in query for query in statements)
     assert not any("INSERT INTO users" in query for query in statements)
+
+
+def test_forgot_password_reports_email_delivery_failure(monkeypatch):
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: {
+        "id": 42,
+        "full_name": "Test User",
+        "email": email,
+        "role": "student",
+    })
+    monkeypatch.setattr("backend.app.store_otp", lambda *args: True)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: False)
+
+    with app.test_client() as client:
+        response = client.post("/api/forgot-password", json={"email": "test@example.test"})
+
+    assert response.status_code == 503
+    assert response.get_json()["success"] is False
+    assert "Unable to send" in response.get_json()["message"]
+
+
+def test_forgot_password_reports_otp_request_limit(monkeypatch):
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: {
+        "id": 42,
+        "full_name": "Test User",
+        "email": email,
+        "role": "student",
+    })
+    monkeypatch.setattr("backend.app.store_otp", lambda *args: False)
+    monkeypatch.setattr("backend.app.send_otp_email", lambda *args: True)
+
+    with app.test_client() as client:
+        response = client.post("/api/forgot-password", json={"email": "test@example.test"})
+
+    assert response.status_code == 429
+    assert response.get_json()["success"] is False
+    assert "Too many" in response.get_json()["message"]
+
+
+def test_forgot_password_otp_verification_allows_token_reset(monkeypatch):
+    user = {
+        "id": 42,
+        "full_name": "Test User",
+        "email": "test@example.test",
+        "role": "student",
+        "password_hash": generate_password_hash("OldPassword123!"),
+    }
+
+    class Cursor:
+        def __init__(self):
+            self.statements = []
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params=()):
+            self.statements.append((query, params))
+
+    class Connection:
+        def __init__(self):
+            self.cursor_instance = Cursor()
+
+        def cursor(self):
+            return self.cursor_instance
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    connection = Connection()
+    monkeypatch.setattr("backend.app.find_user_by_email", lambda email: user)
+    monkeypatch.setattr("backend.app.verify_stored_otp", lambda *args: (True, "OTP verified successfully."))
+    monkeypatch.setattr("backend.app.get_db", lambda: connection)
+    monkeypatch.setattr("backend.app.send_password_reset_success_email", lambda *args: True)
+
+    with app.test_client() as client:
+        verified = client.post("/api/forgot-password/verify-otp", json={
+            "email": user["email"],
+            "otp": "123456",
+        })
+        assert verified.status_code == 200
+        reset_token = verified.get_json()["reset_token"]
+
+        reset = client.post("/api/reset-password", json={
+            "email": user["email"],
+            "password": "NewPassword123!",
+            "reset_token": reset_token,
+        })
+
+    assert reset.status_code == 200
+    assert reset.get_json()["success"] is True
+    assert any("UPDATE users SET password_hash" in query for query, _ in connection.cursor_instance.statements)

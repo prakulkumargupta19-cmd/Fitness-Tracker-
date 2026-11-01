@@ -148,6 +148,22 @@ textarea:focus-visible {
     background: rgba(255, 255, 255, 0.07);
 }
 
+.sidebar-bottom .sidebar-logout-link {
+    margin-top: 8px;
+    color: #ffd1d1;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+.sidebar-bottom .sidebar-logout-link i {
+    color: #ffb4b4;
+}
+
+.sidebar-bottom .sidebar-logout-link:hover {
+    border-color: rgba(255, 160, 160, 0.28);
+    background: rgba(220, 38, 38, 0.2);
+    color: #fff;
+}
+
 .dashboard {
     min-width: 0;
     min-height: 100vh;
@@ -668,18 +684,64 @@ textarea:focus-visible {
     cursor: pointer;
     font-size: 10px;
     font-weight: 700;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.status-buttons button.present {
+    border-color: #c4ead4;
+    background: #f0fdf4;
+    color: #187543;
 }
 
 .status-buttons .present.active {
-    border-color: #a7e4c3;
-    background: #ecfdf3;
-    color: #15803d;
+    border-color: #166534;
+    background: #15803d;
+    color: #fff;
+    box-shadow: 0 2px 7px rgba(21, 128, 61, .28);
+}
+
+.status-buttons button.absent {
+    border-color: #fecaca;
+    background: #fff7f7;
+    color: #a61b32;
 }
 
 .status-buttons .absent.active {
-    border-color: #fecaca;
-    background: #fff1f2;
-    color: #be123c;
+    border-color: #9f1239;
+    background: #be123c;
+    color: #fff;
+    box-shadow: 0 2px 7px rgba(190, 18, 60, .25);
+}
+
+.status-buttons button.late {
+    border-color: #f6d58d;
+    background: #fff7e6;
+    color: #8a4b00;
+}
+
+.status-buttons .late.active {
+    border-color: #92400e;
+    background: #b45309;
+    color: #fff;
+    box-shadow: 0 2px 7px rgba(180, 83, 9, .25);
+}
+
+.status-buttons button.excused {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.status-buttons .excused.active {
+    border-color: #1e40af;
+    background: #1d4ed8;
+    color: #fff;
+    box-shadow: 0 2px 7px rgba(29, 78, 216, .25);
+}
+
+.status-buttons button.active {
+    font-weight: 800;
+    transform: translateY(-1px);
 }
 
 .attendance-summary {
@@ -709,6 +771,44 @@ textarea:focus-visible {
 
 .summary.present { background: #ecfdf3; }
 .summary.absent { background: #fff1f2; }
+.summary.late { background: #fff7e6; color: #8a4b00; }
+.summary.late strong { color: #784000; }
+.summary.excused { background: #eff6ff; color: #1e40af; }
+.summary.excused strong { color: #173a83; }
+
+body.dark-mode.coach-dashboard .status-buttons button.late,
+body.dark-mode.coach-dashboard .summary.late {
+    border-color: #875c16;
+    background: #3b2a0f;
+    color: #fbbf24;
+}
+
+body.dark-mode.coach-dashboard .status-buttons .late.active {
+    background: #52380d;
+    color: #ffcf66;
+    box-shadow: inset 0 0 0 1px #b98526;
+}
+
+body.dark-mode.coach-dashboard .summary.late strong {
+    color: #ffcf66;
+}
+
+body.dark-mode.coach-dashboard .status-buttons button.excused,
+body.dark-mode.coach-dashboard .summary.excused {
+    border-color: #285783;
+    background: #102b48;
+    color: #93c5fd;
+}
+
+body.dark-mode.coach-dashboard .status-buttons .excused.active {
+    background: #173d63;
+    color: #c1ddff;
+    box-shadow: inset 0 0 0 1px #4f8bc3;
+}
+
+body.dark-mode.coach-dashboard .summary.excused strong {
+    color: #c1ddff;
+}
 
 .athletes-toolbar {
     display: flex;
@@ -847,7 +947,9 @@ textarea:focus-visible {
 }
 
 .profile-card {
-    max-width: 850px;
+    width: 100%;
+    max-width: none;
+    min-height: calc(100vh - 160px);
 }
 
 .profile-header {
@@ -996,6 +1098,54 @@ textarea:focus-visible {
     resize: vertical;
 }
 
+#performanceDialog label:has(#feedbackCharacterCount) textarea {
+    min-height: 150px;
+    padding: 12px 13px;
+    line-height: 1.6;
+}
+
+.feedback-character-count {
+    display: block;
+    margin-top: 7px;
+    color: var(--coach-muted);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.performance-form-status {
+    margin: 14px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff5f5;
+    color: #9f2525;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.performance-form-status[hidden] { display: none; }
+.dialog-actions button:disabled { cursor: wait; opacity: .65; }
+
+.feedback-save-toast {
+    position: fixed;
+    z-index: 10000;
+    right: 24px;
+    bottom: 24px;
+    max-width: min(360px, calc(100vw - 32px));
+    padding: 13px 17px;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px;
+    background: #10244f;
+    color: #fff;
+    box-shadow: 0 14px 36px rgba(16,36,79,.25);
+    font-size: 12px;
+    font-weight: 750;
+    animation: feedback-toast-in .2s ease-out;
+}
+
+@keyframes feedback-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
 .dialog-actions {
     display: flex;
     justify-content: flex-end;
@@ -1078,6 +1228,7 @@ textarea:focus-visible {
 
 @media (max-width: 560px) {
     .topbar-right { display: none; }
+
     .stats,
     .quick-actions,
     .athletes-grid,
@@ -1217,4 +1368,212 @@ body {
 
 .dashboard-chat-launcher:hover {
     background: #1d4ed8;
+}
+
+/* Let Profile and Settings cards fill the dashboard content area. */
+.profile-card {
+    width: 100%;
+    max-width: none;
+    min-height: calc(100vh - 160px);
+}
+
+/* My Athletes filters: heading sits above a compact row of controls. */
+.athlete-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+    align-items: end;
+    gap: 6px 12px;
+    margin: 0 0 18px;
+    padding: 16px;
+    border: 1px solid var(--coach-line);
+    border-radius: 14px;
+    background: var(--coach-surface);
+    box-shadow: 0 8px 24px rgba(20, 46, 92, 0.04);
+}
+
+.athlete-filter-heading {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--coach-ink);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.athlete-filter-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: #53617c;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.athlete-filter-field select {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 34px 8px 11px;
+    border: 1px solid var(--coach-line);
+    border-radius: 9px;
+    background: #f8faff;
+    color: var(--coach-ink);
+    font-size: 12px;
+}
+
+.athlete-filter-reset {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--coach-line);
+    border-radius: 9px;
+    background: #fff;
+    color: #42516d;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.athlete-filter-reset:hover {
+    border-color: #b8d2ff;
+    background: #f4f8ff;
+    color: var(--coach-blue-deep);
+}
+
+@media (max-width: 850px) {
+    .athlete-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .athlete-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Full-screen athlete profile override. Keep this outside all media queries. */
+.athlete-detail-modal[hidden] {
+    display: none !important;
+}
+
+.athlete-detail-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    background: #f5f7fb !important;
+}
+
+.athlete-detail-modal .athlete-detail-dialog {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: clamp(24px, 4vw, 64px) !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+#athleteDetailContent {
+    width: min(100%, 1440px) !important;
+    min-height: calc(100vh - 120px) !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+}
+
+.athlete-detail-close {
+    position: fixed !important;
+    top: 18px !important;
+    right: 24px !important;
+    z-index: 2100 !important;
+}
+
+@media (max-width: 640px) {
+    .athlete-detail-modal .athlete-detail-dialog {
+        padding: 56px 18px 24px !important;
+    }
+
+    .athlete-detail-close {
+        top: 12px !important;
+        right: 14px !important;
+    }
+}
+
+.athlete-detail-close {
+    position: fixed !important;
+    top: 14px !important;
+    right: 18px !important;
+    left: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    border: 1px solid var(--coach-line) !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: var(--coach-blue-deep) !important;
+    cursor: pointer;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+.athlete-detail-close:hover {
+    background: #eef5ff !important;
+}
+/* Dark-mode fixes for coach announcements, events, and settings */
+body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer,
+body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer {
+    background-color: #111b2e !important;
+    border-color: #263550 !important;
+    color: #e9effb !important;
+}
+
+body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header h2,
+body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header h2,
+body.dark-mode.coach-dashboard #announcementsPanel .announcement-form label,
+body.dark-mode.coach-dashboard #dashboardEventsPanel .event-sport-filter {
+    color: #f4f7ff !important;
+}
+
+body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header p,
+body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header p {
+    color: #a6b5cc !important;
+}
+
+body.dark-mode.coach-dashboard #announcementsPanel .announcement-empty,
+body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-empty {
+    background-color: #17243a !important;
+    border-color: #354661 !important;
+    color: #b8c7df !important;
+}
+
+body.dark-mode.coach-dashboard #settings .settings-row {
+    background-color: #17243a !important;
+    border-color: #354661 !important;
+}
+
+body.dark-mode.coach-dashboard #settings .settings-row strong {
+    color: #f4f7ff !important;
+}
+
+body.dark-mode.coach-dashboard #settings .settings-row span {
+    color: #a6b5cc !important;
+}
+
+body.dark-mode.coach-dashboard #settings .settings-row .btn {
+    background-color: #4a1f2a !important;
+    border-color: #71313d !important;
+    color: #fecdd3 !important;
+}
+
+body.dark-mode.coach-dashboard #settings .settings-row .btn:hover {
+    background-color: #642633 !important;
 }

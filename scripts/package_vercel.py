@@ -39,7 +39,8 @@ def deployment_files():
         "requirements.txt",
         ".python-version",
         "pyproject.toml",
-        "VERCEL_UPLOAD.md",
+        ".env.example",
+        "docs/VERCEL_UPLOAD.md",
     ):
         path = ROOT / name
         if path.is_file():

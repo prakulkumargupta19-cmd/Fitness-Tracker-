@@ -102,7 +102,7 @@ def test_verified_coach_registration_is_marked_pending_approval(monkeypatch):
 def test_admin_diagnostics_requires_authenticated_admin(monkeypatch):
     monkeypatch.setattr(
         "auth.decorators.get_user_by_id",
-        lambda _user_id: None,
+        lambda _user_id, _role=None: None,
     )
     client = app_module.app.test_client()
     with client.session_transaction() as state:
@@ -141,7 +141,7 @@ def test_admin_pending_coaches_includes_verified_staged_registrations(monkeypatc
 
     monkeypatch.setattr(
         "auth.decorators.get_user_by_id",
-        lambda _user_id: {"role": "admin"},
+        lambda _user_id, _role=None: {"role": "admin"},
     )
     monkeypatch.setattr(app_module, "get_db", PendingConnection)
     client = app_module.app.test_client()
@@ -168,7 +168,7 @@ def test_pending_coach_lookup_prefers_email_to_stale_registration_id():
 def test_admin_diagnostics_returns_status_without_exposing_secrets(monkeypatch):
     monkeypatch.setattr(
         "auth.decorators.get_user_by_id",
-        lambda _user_id: {"role": "admin"},
+        lambda _user_id, _role=None: {"role": "admin"},
     )
     monkeypatch.setattr(app_module, "get_db", _HealthConnection)
     monkeypatch.setenv(
