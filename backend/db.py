@@ -9,9 +9,7 @@ import os
 import re
 import sqlite3
 import threading
-import weakref
 from pathlib import Path
-from time import monotonic
 
 import psycopg
 try:
@@ -31,31 +29,6 @@ _local_schema_lock = threading.Lock()
 _local_schema_ready: set[str] = set()
 _postgres_pool = None
 _postgres_pool_lock = threading.Lock()
-_postgres_check_times = weakref.WeakKeyDictionary()
-_postgres_check_lock = threading.Lock()
-
-
-def _check_postgres_connection(connection):
-    """Check pooled connections periodically instead of adding a DB roundtrip to every request."""
-    now = monotonic()
-    interval = max(1.0, float(os.getenv("DB_CONNECTION_CHECK_INTERVAL", "30")))
-    with _postgres_check_lock:
-        checked_at = _postgres_check_times.get(connection)
-        if checked_at is None:
-            # A newly created pool connection is already known to be live.
-            _postgres_check_times[connection] = now
-            return
-        if now - checked_at < interval:
-            return
-
-    try:
-        ConnectionPool.check_connection(connection)
-    except Exception:
-        with _postgres_check_lock:
-            _postgres_check_times.pop(connection, None)
-        raise
-    with _postgres_check_lock:
-        _postgres_check_times[connection] = now
 
 
 class PooledConnection:
@@ -72,7 +45,17 @@ class PooledConnection:
     def close(self):
         if not self._returned:
             self._returned = True
-            self._pool.putconn(self._connection)
+            try:
+                # Clear read-only/failed transactions before returning this
+                # connection. Otherwise psycopg_pool performs the same
+                # rollback and emits a warning on every normal SELECT request.
+                if self._connection.info.transaction_status.name in {"INTRANS", "INERROR"}:
+                    self._connection.rollback()
+            except Exception:
+                # Let the pool discard or reset a connection it cannot clean.
+                pass
+            finally:
+                self._pool.putconn(self._connection)
 
 
 class DatabaseConnectionError(RuntimeError):
@@ -156,18 +139,21 @@ class SQLiteConnection:
 
 
 def database_backend():
-    """Return ``sqlite`` for local development or ``postgres`` explicitly."""
+    """Use PostgreSQL for hosted deployments and SQLite only for local development."""
     configured = os.getenv("DATABASE_BACKEND", "").strip().lower()
+    vercel_environment = os.getenv("VERCEL_ENV", "").strip().lower()
+    is_hosted = (
+        os.getenv("VERCEL", "").strip() == "1"
+        or vercel_environment in {"preview", "production"}
+        or os.getenv("APP_ENV", "development").strip().lower() == "production"
+    )
     if configured in {"postgres", "postgresql", "supabase"}:
         return "postgres"
     if configured in {"sqlite", "local"}:
+        if is_hosted:
+            raise RuntimeError("SQLite is only supported for local development; configure PostgreSQL for hosted deployments.")
         return "sqlite"
-    # Vercel Preview deployments also need the configured Supabase database.
-    # Without this branch, Preview falls through to the local SQLite default,
-    # which is not persistent and is not the deployed application's database.
-    if os.getenv("VERCEL_ENV", "").lower() in {"preview", "production"} and os.getenv("SUPABASE_DB_URL"):
-        return "postgres"
-    if os.getenv("APP_ENV", "development").lower() == "production":
+    if is_hosted:
         return "postgres"
     return "sqlite"
 
@@ -181,8 +167,21 @@ def local_database_path():
     return path
 
 
+def _migrate_legacy_coaching_sessions(connection):
+    """Drop or recreate legacy coaching_sessions without sport_id before applying schema."""
+    try:
+        columns = {
+            row[1]: row
+            for row in connection.execute("PRAGMA table_info(coaching_sessions)").fetchall()
+        }
+        if columns and "sport_id" not in columns:
+            connection.execute("DROP TABLE IF EXISTS coaching_sessions")
+    except Exception:
+        pass
+
+
 def initialize_local_database():
-    """Create/update the local SQLite schema without deleting existing data."""
+    """Create/update the local SQLite schema and remove retired performance tables."""
     path = local_database_path()
     key = str(path.resolve())
     with _local_schema_lock:
@@ -190,7 +189,20 @@ def initialize_local_database():
             connection = sqlite3.connect(path)
             try:
                 connection.execute("PRAGMA foreign_keys = ON")
+                _migrate_legacy_coaching_sessions(connection)
                 connection.executescript(LOCAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+                profile_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(student_profiles)").fetchall()
+                }
+                if "gender" not in profile_columns:
+                    connection.execute("ALTER TABLE student_profiles ADD COLUMN gender TEXT")
+                tournament_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(tournaments)").fetchall()
+                }
+                if "registration_url" not in tournament_columns:
+                    connection.execute("ALTER TABLE tournaments ADD COLUMN registration_url TEXT")
                 admin_columns = {
                     row[1]
                     for row in connection.execute("PRAGMA table_info(admins)").fetchall()
@@ -199,12 +211,78 @@ def initialize_local_database():
                     connection.execute(
                         "ALTER TABLE admins ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
                     )
+                user_columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(users)").fetchall()
+                }
+                for column, declaration in (
+                    ("account_status", "TEXT NOT NULL DEFAULT 'active'"),
+                    ("deactivated_at", "TIMESTAMP"),
+                    ("deactivated_by", "INTEGER"),
+                    ("reactivated_at", "TIMESTAMP"),
+                ):
+                    if column not in user_columns:
+                        connection.execute(f"ALTER TABLE users ADD COLUMN {column} {declaration}")
+                for table in ("users", "pending_registrations"):
+                    table_columns = {
+                        row[1]
+                        for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
+                    }
+                    for column in ("qualification", "specialization", "experience_years"):
+                        if column in table_columns:
+                            connection.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+                connection.execute("UPDATE users SET account_status = CASE WHEN is_active THEN 'active' ELSE 'deactivated' END WHERE account_status IS NULL OR (account_status = 'active' AND is_active = 0)")
+                _migrate_local_tournament_sport(connection)
                 _migrate_legacy_local_accounts(connection, path)
                 connection.commit()
                 _local_schema_ready.add(key)
             finally:
                 connection.close()
     return path
+
+
+def _migrate_local_tournament_sport(connection):
+    """Allow all-student events on older SQLite schemas that required a sport."""
+    columns = {
+        row[1]: row
+        for row in connection.execute("PRAGMA table_info(tournaments)").fetchall()
+    }
+    sport_column = columns.get("sport_id")
+    if sport_column is None or not sport_column[3]:
+        return
+    connection.execute("PRAGMA foreign_keys = OFF")
+    try:
+        connection.executescript("""
+            CREATE TABLE tournaments_schedule_upgrade (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL, sport_id INTEGER REFERENCES sports(id),
+                start_date DATE NOT NULL, end_date DATE, venue TEXT,
+                status TEXT NOT NULL DEFAULT 'Upcoming', description TEXT, poster_path TEXT,
+                registration_open BOOLEAN NOT NULL DEFAULT 1, registration_url TEXT,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            INSERT INTO tournaments_schedule_upgrade
+            SELECT id,name,sport_id,start_date,end_date,venue,status,description,poster_path,
+                   registration_open,registration_url,created_at,updated_at FROM tournaments;
+            DROP TABLE tournaments;
+            ALTER TABLE tournaments_schedule_upgrade RENAME TO tournaments;
+            CREATE TABLE IF NOT EXISTS registrations_schedule_upgrade (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+                student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                team_name TEXT, registration_status TEXT NOT NULL DEFAULT 'Registered',
+                registered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(tournament_id, student_id)
+            );
+            INSERT INTO registrations_schedule_upgrade
+            SELECT id,tournament_id,student_id,team_name,registration_status,registered_at FROM registrations;
+            DROP TABLE registrations;
+            ALTER TABLE registrations_schedule_upgrade RENAME TO registrations;
+            CREATE INDEX IF NOT EXISTS idx_tournaments_start_date ON tournaments(start_date);
+        """)
+    finally:
+        connection.execute("PRAGMA foreign_keys = ON")
 
 
 def _migrate_legacy_local_accounts(connection, current_path):
@@ -247,8 +325,7 @@ def _migrate_legacy_local_accounts(connection, current_path):
         rows = legacy.execute(
             """
             SELECT id, role, full_name, email, password_hash, is_verified,
-                   coach_status, qualification, specialization,
-                   experience_years, is_active, last_login_at, created_at
+                   coach_status, is_active, last_login_at, created_at
             FROM users
             WHERE LOWER(role) IN ('admin', 'student', 'coach')
             """
@@ -274,16 +351,13 @@ def _migrate_legacy_local_accounts(connection, current_path):
                     """
                     INSERT OR IGNORE INTO users
                         (id, role, full_name, email, password_hash,
-                         is_verified, coach_status, qualification,
-                         specialization, experience_years, is_active,
+                         is_verified, coach_status, is_active,
                          last_login_at, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (row["id"], row["role"], row["full_name"], email,
                      row["password_hash"], row["is_verified"], row["coach_status"],
-                     row["qualification"], row["specialization"],
-                     row["experience_years"], row["is_active"], row["last_login_at"],
-                     row["created_at"]),
+                     row["is_active"], row["last_login_at"], row["created_at"]),
                 )
     except (sqlite3.Error, KeyError):
         # A legacy database from an unrelated application must not prevent the
@@ -314,11 +388,20 @@ def get_db():
 
     global _postgres_pool
     try:
+        connect_timeout = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
+        is_serverless = (
+            os.getenv("VERCEL", "").strip() == "1"
+            or os.getenv("VERCEL_ENV", "").strip().lower() in {"preview", "production"}
+        )
+        default_pool_min = "0" if is_serverless else "1"
+        default_pool_max = "1" if is_serverless else "4"
+        pool_max_size = max(1, int(os.getenv("DB_POOL_MAX", default_pool_max)))
+        pool_min_size = max(0, min(pool_max_size, int(os.getenv("DB_POOL_MIN", default_pool_min))))
         if ConnectionPool is None:
             return psycopg.connect(
                 database_url,
                 row_factory=dict_row,
-                connect_timeout=int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
+                connect_timeout=connect_timeout,
             )
         if _postgres_pool is None:
             with _postgres_pool_lock:
@@ -327,14 +410,15 @@ def get_db():
                         conninfo=database_url,
                         # Keep a connection ready on warm serverless instances so
                         # requests don't pay PostgreSQL connection setup latency.
-                        # Supabase may close idle sessions; validate a pooled
-                        # connection before reuse so a warm Vercel instance does
-                        # not hand a stale connection to the next request.
-                        min_size=max(0, min(2, int(os.getenv("DB_POOL_MIN", "1")))),
-                        max_size=max(1, int(os.getenv("DB_POOL_MAX", "5"))),
-                        timeout=float(os.getenv("DB_CONNECT_TIMEOUT", "5")),
-                        check=_check_postgres_connection,
-                        kwargs={"row_factory": dict_row, "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
+                        min_size=pool_min_size,
+                        max_size=pool_max_size,
+                        timeout=float(os.getenv("DB_POOL_TIMEOUT", str(max(15, connect_timeout)))),
+                        kwargs={
+                            "row_factory": dict_row,
+                            "connect_timeout": connect_timeout,
+                            # Supabase transaction pooling does not preserve prepared statements.
+                            "prepare_threshold": None,
+                        },
                         open=False,
                     )
                     _postgres_pool.open(wait=False)
@@ -343,12 +427,3 @@ def get_db():
         raise DatabaseConnectionError(
             "Could not connect to the configured PostgreSQL database."
         ) from error
-
-
-def warm_database_pool():
-    """Establish the local app's first pooled connection before serving requests."""
-    if database_backend() != "postgres" or ConnectionPool is None:
-        return False
-    connection = get_db()
-    connection.close()
-    return True

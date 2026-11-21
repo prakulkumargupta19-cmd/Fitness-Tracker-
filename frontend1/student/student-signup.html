@@ -18,30 +18,9 @@
     <link rel="stylesheet" href="../css/common/app-theme.css">
     <link rel="stylesheet" href="../demo/auth.css">
     <link rel="stylesheet" href="../css/student/student-portal.css?v=8">
-    <style>
-        .signup-progress { margin-bottom: calc(var(--u) * 1.7); }
-        .signup-progress .progress-text { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--u) * .5); margin-bottom: calc(var(--u) * .6); color: var(--student-muted); font-size: max(11px, calc(var(--u) * 1.1)); }
-        .signup-progress .progress-text span:nth-child(2) { text-align: center; }
-        .signup-progress .progress-text span:last-child { text-align: right; }
-        .signup-progress .progress-text .active { color: var(--student-blue); }
-        .signup-progress .progress-bar { height: calc(var(--u) * .45); background: #e7edf7; }
-        .signup-progress .progress { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0a63ff, #19b3ff); }
-        .student-signup-panel .password-wrapper { position: relative; }
-        .student-signup-panel .password-wrapper input { padding-right: 52px !important; }
-        .student-signup-panel .show-password { position: absolute; top: 50%; right: 12px; display: grid; width: 28px; height: 28px; padding: 0; place-items: center; transform: translateY(-50%); border: 0; background: transparent; color: var(--student-muted); cursor: pointer; }
-        .student-signup-panel .show-password:hover { color: var(--student-blue); }
-        .student-signup-panel #errorMessage.hidden,
-        .student-signup-panel #successMessage.hidden { display: none !important; }
-        .student-signup-panel .login-section,
-        .student-signup-panel .back-link,
-        .student-signup-panel .security-note { width: 100%; text-align: center; }
-        .student-signup-panel .login-section { width: fit-content; height: fit-content; min-height: 0; margin: calc(var(--u) * .8) auto 0; padding: 0; color: var(--student-muted); font-size: max(12px, calc(var(--u) * 1.15)); line-height: 1.35; text-align: center; }
-        .student-signup-panel .back-link { display: block; margin-top: calc(var(--u) * .45); color: var(--student-muted); font-size: max(11px, calc(var(--u) * 1.05)); text-align: center; }
-        body[data-portal-role="student"] .student-signup-panel .login-section { width: fit-content; margin-right: auto; margin-left: auto; text-align: center; }
-        body[data-portal-role="student"] .student-signup-panel .back-link { text-align: center; }
-        .student-signup-panel .security-note { display: block; margin-top: calc(var(--u) * .6); padding: calc(var(--u) * .45) calc(var(--u) * .7); border-radius: calc(var(--u) * .6); font-size: max(10px, calc(var(--u) * .9)); line-height: 1.3; }
-        @media (max-width: 480px) { .signup-progress .progress-text { gap: .25rem; font-size: .75rem; } }
-    </style>
+    <link rel="stylesheet" href="../css/student/student-signup-style-1.css" />
+
+    <link rel="stylesheet" href="../css/student/student-signup-attributes.css" />
 </head>
 
 <body data-portal-role="student">
@@ -60,7 +39,7 @@
          SIGNUP SECTION
     ====================================================== -->
 
-    <section class="panel student-signup-panel">
+    <section class="panel student-signup-panel signup-wizard-step" id="accountSignupStep">
 
         <div class="form-container signup-card">
 
@@ -78,7 +57,7 @@
                     <span>Personal Information</span>
                 </div>
                 <div class="progress-bar" role="progressbar" aria-label="Signup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33">
-                    <div class="progress" style="width: 33%;"></div>
+                    <div class="progress" data-external-style-1></div>
                 </div>
             </div>
 
@@ -391,6 +370,155 @@
 
     </section>
 
+    <section class="panel student-profile-panel signup-wizard-step" id="basicInfoStep" hidden>
+        <div class="form-container profile-form">
+            <div class="form-header">
+                <h1>Basic <span>Information</span></h1>
+                <p>Tell us a little more about yourself to complete your profile.</p>
+            </div>
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Account</span>
+                    <span class="active">Basic Information</span>
+                    <span>Personal Information</span>
+                </div>
+                <div class="progress-bar" role="progressbar" aria-label="Profile setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="66">
+                    <div class="progress" data-external-style-2></div>
+                </div>
+            </div>
+            <p id="basicProfileMessage" class="profile-message" role="alert" hidden></p>
+            <form id="basicInfoForm" novalidate>
+                <div class="form-group">
+                    <label for="gender">Gender <span class="required">*</span></label>
+                    <select id="gender" name="gender" required>
+                        <option value="" disabled selected>Select your gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="semester">Semester <span class="required">*</span></label>
+                    <select id="semester" name="semester" required>
+                        <option value="" disabled selected>Select your semester</option>
+                        <option value="1">Semester 1</option><option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option><option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option><option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option><option value="8">Semester 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="department">Department <span class="required">*</span></label>
+                    <select id="department" name="department" required>
+                        <option value="" disabled selected>Select your department</option>
+                        <option value="BCA">BCA</option><option value="BBA">BBA</option>
+                        <option value="BMS">BMS</option><option value="HHA">HHA</option>
+                        <option value="BBA-HM">BBA-HM</option><option value="BMAGD">BMAGD</option>
+                        <option value="BBA-SM">BBA-SM</option><option value="BBA-GB">BBA-GB</option>
+                        <option value="BBA-E">BBA-E</option><option value="BID">BID</option>
+                        <option value="BFDM">BFDM</option><option value="BBA-ATA">BBA-ATA</option>
+                        <option value="BSC-DA">BSC-DA</option><option value="BBA-DM">BBA-DM</option>
+                        <option value="BITAI">BITAI</option><option value="BAHSM">BAHSM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth <span class="required">*</span></label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+                <div class="form-group">
+                    <label for="blood_group">Blood Group</label>
+                    <select id="blood_group" name="blood_group">
+                        <option value="" selected>Select</option>
+                        <option value="A+">A+</option><option value="A-">A-</option>
+                        <option value="B+">B+</option><option value="B-">B-</option>
+                        <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                        <option value="O+">O+</option><option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="medical_history">Medical History / Important Information</label>
+                    <textarea id="medical_history" name="medical_history" placeholder="Write None if there is nothing to declare"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="address">Current Address</label>
+                    <textarea id="address" name="address" placeholder="Your current residential address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="parent_name">Parent / Guardian Name</label>
+                    <input type="text" id="parent_name" name="parent_name" placeholder="Enter parent/guardian name">
+                </div>
+                <div class="form-group">
+                    <label for="parent_phone">Parent / Guardian Phone</label>
+                    <input type="text" id="parent_phone" name="parent_phone" placeholder="Enter parent/guardian phone">
+                </div>
+                <div class="form-group">
+                    <label for="parent_address">Parent / Guardian Address</label>
+                    <textarea id="parent_address" name="parent_address" placeholder="Parent/Guardian's residential address"></textarea>
+                </div>
+                <div class="button-container">
+                    <a href="../index.html" class="back-button">← Back to role selection</a>
+                    <button type="submit" class="next-button">Continue →</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="panel student-profile-panel signup-wizard-step" id="personalInfoStep" hidden>
+        <div class="form-container profile-form">
+            <div class="form-header">
+                <h1>Personal <span>Information</span></h1>
+                <p>Help us understand your fitness profile and goals.</p>
+            </div>
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Account</span><span>Basic Information</span><span class="active">Personal Information</span>
+                </div>
+                <div class="progress-bar" role="progressbar" aria-label="Profile setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                    <div class="progress" data-external-style-3></div>
+                </div>
+            </div>
+            <p id="profileMessage" class="profile-message" role="alert" hidden></p>
+            <form id="personalInfoForm" novalidate>
+                <div class="form-group">
+                    <label for="height">Height <span class="required">*</span></label>
+                    <div class="input-with-unit">
+                        <input type="number" id="height" min="1" max="250" step="0.1" placeholder="Enter your height" required>
+                        <select id="height-unit" class="unit-select" aria-label="Height unit"><option value="cm">cm</option><option value="ft">ft</option></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight <span class="required">*</span></label>
+                    <div class="input-with-unit">
+                        <input type="number" id="weight" min="1" max="300" step="0.1" placeholder="Enter your weight" required>
+                        <select id="weight-unit" class="unit-select" aria-label="Weight unit"><option value="kg">kg</option><option value="lbs">lbs</option></select>
+                    </div>
+                </div>
+                <div class="sports-group">
+                    <label class="sports-label">Sports <span class="required">*</span></label>
+                    <p class="sports-hint">Select one or more sports you participate in.</p>
+                    <div class="sports-options">
+                        <div class="sport-option"><input type="checkbox" id="cricket" name="sports" value="Cricket"><label for="cricket"><span>Cricket</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="football" name="sports" value="Football"><label for="football"><span>Football</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="basketball" name="sports" value="Basketball"><label for="basketball"><span>Basketball</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="volleyball" name="sports" value="Volleyball"><label for="volleyball"><span>Volleyball</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="kickboxing" name="sports" value="Kickboxing"><label for="kickboxing"><span>Kickboxing</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="badminton" name="sports" value="Badminton"><label for="badminton"><span>Badminton</span><span class="sport-check"></span></label></div>
+                        <div class="sport-option"><input type="checkbox" id="athletics" name="sports" value="Athletics"><label for="athletics"><span>Athletics</span><span class="sport-check"></span></label></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="goal">Fitness Goal</label>
+                    <input type="text" id="goal" name="goal" placeholder="e.g. Weight loss, muscle gain, endurance">
+                </div>
+                <div class="button-container">
+                    <button type="button" id="personalBack" class="back-button">← Back</button>
+                    <button type="submit" class="next-button">Complete Profile →</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
 </main>
 
 
@@ -405,560 +533,9 @@
      STUDENT SIGNUP JAVASCRIPT
 ========================================================== -->
 
-<script>
+<script src="../js/student/student-signup-script-1.js"></script>
 
-(function () {
-
-    "use strict";
-
-
-    /* =====================================================
-       ELEMENTS
-    ===================================================== */
-
-    const signupForm =
-        document.getElementById("signupForm");
-
-    const fullNameInput =
-        document.getElementById("fullName");
-
-    const emailInput =
-        document.getElementById("studentEmail");
-
-    const mobileNumberInput =
-        document.getElementById("mobileNumber");
-
-    const emergencyContactInput =
-        document.getElementById("emergencyContact");
-
-    const passwordInput =
-        document.getElementById("password");
-
-    const confirmPasswordInput =
-        document.getElementById("confirmPassword");
-
-    const termsInput =
-        document.getElementById("terms");
-
-    const signupButton =
-        document.getElementById("signupButton");
-
-    const buttonText =
-        document.getElementById("buttonText");
-
-    const errorMessage =
-        document.getElementById("errorMessage");
-
-    const successMessage =
-        document.getElementById("successMessage");
-
-
-    /* =====================================================
-       MESSAGE FUNCTIONS
-    ===================================================== */
-
-    function showError(message) {
-
-        if (successMessage) {
-
-            successMessage.classList.add("hidden");
-
-            successMessage.textContent = "";
-
-        }
-
-        if (errorMessage) {
-
-            errorMessage.textContent = message;
-
-            errorMessage.classList.remove("hidden");
-
-        }
-
-    }
-
-
-    function showSuccess(message) {
-
-        if (errorMessage) {
-
-            errorMessage.classList.add("hidden");
-
-            errorMessage.textContent = "";
-
-        }
-
-        if (successMessage) {
-
-            successMessage.textContent = message;
-
-            successMessage.classList.remove("hidden");
-
-        }
-
-    }
-
-
-    function clearMessages() {
-
-        if (errorMessage) {
-
-            errorMessage.classList.add("hidden");
-
-            errorMessage.textContent = "";
-
-        }
-
-        if (successMessage) {
-
-            successMessage.classList.add("hidden");
-
-            successMessage.textContent = "";
-
-        }
-
-    }
-
-
-    /* =====================================================
-       PASSWORD VISIBILITY
-       SAME STYLE AS STUDENT LOGIN PAGE
-    ===================================================== */
-
-    function setupPasswordToggle(input, button) {
-
-        if (!input || !button) {
-            return;
-        }
-
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                const isPassword =
-                    input.type === "password";
-
-
-                if (isPassword) {
-
-                    input.type = "text";
-
-
-                    button.innerHTML = `
-
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-
-                            <path
-                                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                            ></path>
-
-                            <line
-                                x1="1"
-                                y1="1"
-                                x2="23"
-                                y2="23"
-                            ></line>
-
-                        </svg>
-
-                    `;
-
-
-                    button.setAttribute(
-                        "aria-label",
-                        "Hide password"
-                    );
-
-
-                } else {
-
-                    input.type = "password";
-
-
-                    button.innerHTML = `
-
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-
-                            <path
-                                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                            ></path>
-
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="3"
-                            ></circle>
-
-                        </svg>
-
-                    `;
-
-
-                    button.setAttribute(
-                        "aria-label",
-                        "Show password"
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    setupPasswordToggle(
-        passwordInput,
-        document.getElementById("passwordToggle")
-    );
-
-
-    setupPasswordToggle(
-        confirmPasswordInput,
-        document.getElementById("confirmPasswordToggle")
-    );
-
-
-    /* =====================================================
-       SIGNUP
-    ===================================================== */
-
-    signupForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            clearMessages();
-
-
-            const fullName =
-                fullNameInput.value.trim();
-
-            const email =
-                emailInput.value
-                    .trim()
-                    .toLowerCase();
-
-            const mobileNumber =
-                mobileNumberInput.value.trim();
-
-            const emergencyContact =
-                emergencyContactInput.value.trim();
-
-
-            /*
-             * Never trim passwords.
-             */
-
-            const password =
-                passwordInput.value;
-
-            const confirmPassword =
-                confirmPasswordInput.value;
-
-            const termsAccepted =
-                termsInput.checked;
-
-
-            /* =================================================
-               VALIDATION
-            ================================================= */
-
-            if (!fullName) {
-
-                showError(
-                    "Please enter your full name."
-                );
-
-                fullNameInput.focus();
-
-                return;
-            }
-
-
-            if (!email) {
-
-                showError(
-                    "Please enter your email address."
-                );
-
-                emailInput.focus();
-
-                return;
-            }
-
-
-            if (
-                !email.includes("@") ||
-                !email.includes(".")
-            ) {
-
-                showError(
-                    "Please enter a valid email address."
-                );
-
-                emailInput.focus();
-
-                return;
-            }
-
-
-            if (!/^\d{10}$/.test(mobileNumber)) {
-
-                showError(
-                    "Please enter a valid 10-digit mobile number."
-                );
-
-                mobileNumberInput.focus();
-
-                return;
-            }
-
-
-            if (!/^\d{10}$/.test(emergencyContact)) {
-
-                showError(
-                    "Please enter a valid 10-digit emergency contact number."
-                );
-
-                emergencyContactInput.focus();
-
-                return;
-            }
-
-
-            if (!password) {
-
-                showError(
-                    "Please enter a password."
-                );
-
-                passwordInput.focus();
-
-                return;
-            }
-
-
-            if (!confirmPassword) {
-
-                showError(
-                    "Please confirm your password."
-                );
-
-                confirmPasswordInput.focus();
-
-                return;
-            }
-
-
-            if (password.length < 8) {
-
-                showError(
-                    "Password must contain at least 8 characters."
-                );
-
-                passwordInput.focus();
-
-                return;
-            }
-
-
-            if (password !== confirmPassword) {
-
-                showError(
-                    "Passwords do not match."
-                );
-
-                confirmPasswordInput.focus();
-
-                return;
-            }
-
-
-            if (!termsAccepted) {
-
-                showError(
-                    "Please accept the Terms & Privacy Policy."
-                );
-
-                termsInput.focus();
-
-                return;
-            }
-
-
-            /* =================================================
-               DISABLE BUTTON
-            ================================================= */
-
-            signupButton.disabled = true;
-
-            buttonText.textContent =
-                "Creating Account...";
-
-
-            try {
-
-                /* =================================================
-                   REAL BACKEND REQUEST
-                ================================================= */
-
-                const response =
-                    await API.register({
-
-                        name: fullName,
-
-                        email: email,
-
-                        password: password,
-
-                        contact_number: mobileNumber,
-
-                        confirm_password:
-                            confirmPassword,
-
-                        role: "student"
-
-                    });
-
-
-                console.log(
-                    "STUDENT SIGNUP RESPONSE:",
-                    response.status,
-                    response.data
-                );
-
-
-                /* =================================================
-                   SERVER ERROR
-                ================================================= */
-
-                if (
-                    !response.ok ||
-                    !response.data ||
-                    response.data.success !== true
-                ) {
-
-                    showError(
-
-                        response.data &&
-                        response.data.message
-
-                            ? response.data.message
-
-                            : "Unable to create account. Please try again."
-
-                    );
-
-                    return;
-                }
-
-
-                /* =================================================
-                   TEMPORARY SIGNUP DATA
-                ================================================= */
-
-                sessionStorage.setItem(
-                    "signupEmail",
-                    email
-                );
-
-                sessionStorage.setItem(
-                    "signupName",
-                    fullName
-                );
-
-                sessionStorage.setItem(
-                    "signupMobileNumber",
-                    mobileNumber
-                );
-
-                sessionStorage.setItem(
-                    "signupEmergencyContact",
-                    emergencyContact
-                );
-
-
-                /* =================================================
-                   SUCCESS MESSAGE
-                ================================================= */
-
-                showSuccess(
-
-                    response.data.message ||
-                    "OTP sent to your email."
-
-                );
-
-
-                /* =================================================
-                   REDIRECT
-                ================================================= */
-
-                setTimeout(
-                    function () {
-
-                        window.location.href =
-                            "student-signup-verify.html";
-
-                    },
-                    500
-                );
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "STUDENT SIGNUP ERROR:",
-                    error
-                );
-
-                showError(
-                    "Unable to connect to the server. Please try again."
-                );
-
-            }
-
-
-            finally {
-
-                signupButton.disabled = false;
-
-                buttonText.textContent =
-                    "Create Account";
-
-            }
-
-        }
-    );
-
-})();
-
-</script>
+<script src="../js/student-signup-profile.js"></script>
 
 </body>
 </html>

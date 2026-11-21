@@ -710,32 +710,6 @@
            STUDENT DATA
         ====================================================== */
 
-        getAssessments() {
-
-            return apiRequest(
-
-                "GET",
-
-                "/api/assessments"
-
-            );
-
-        },
-
-
-        getTrainingSessions() {
-
-            return apiRequest(
-
-                "GET",
-
-                "/api/training-sessions"
-
-            );
-
-        },
-
-
         getGoals() {
 
             return apiRequest(
@@ -773,36 +747,6 @@
                 "GET",
 
                 "/api/coach/athletes"
-
-            );
-
-        },
-
-
-        createAssessment(data) {
-
-            return apiRequest(
-
-                "POST",
-
-                "/api/assessments",
-
-                data
-
-            );
-
-        },
-
-
-        createTrainingSession(data) {
-
-            return apiRequest(
-
-                "POST",
-
-                "/api/training-sessions",
-
-                data
 
             );
 

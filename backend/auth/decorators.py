@@ -34,8 +34,17 @@ def login_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not session.get("user_id"):
+        user_id = session.get("user_id")
+        if not user_id:
             return jsonify(success=False, message="Unauthorized — please log in"), 401
+        if session.get("role") == "student":
+            user = get_user_by_id(user_id)
+            if not user or user.get("role") != "student":
+                session.clear()
+                return jsonify(success=False, message="Unauthorized — please log in"), 401
+            if not user.get("is_active", True):
+                session.clear()
+                return jsonify(success=False, message="Your account has been deactivated. Please contact an administrator."), 403
         return f(*args, **kwargs)
 
     return decorated
@@ -66,7 +75,12 @@ def role_required(*roles):
             user_role = user["role"]
             session["role"] = user_role
             if user_role in ("coach", "student") and not user.get("is_active", True):
-                return jsonify(success=False, message="This account is inactive. Contact an administrator."), 403
+                message = (
+                    "Your account has been deactivated. Please contact an administrator."
+                    if user_role == "student"
+                    else "This account is inactive. Contact an administrator."
+                )
+                return jsonify(success=False, message=message), 403
             if user_role == "coach" and user.get("coach_status") != "approved":
                 return jsonify(
                     success=False,

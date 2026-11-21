@@ -5,13 +5,14 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/api/index"
     }
   ],
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "excludeFiles": "{.git/**,.playwright-mcp/**,artifacts/**,docs/**,Fit-Track/**,frontend1/**,tests/**,**/__pycache__/**,**/*.pyc}"
+      "regions": ["icn1"],
+      "excludeFiles": "{.git/**,.playwright-mcp/**,artifacts/**,docs/**,Fit-Track/**,frontend1/**,scripts/**,tests/**,**/__pycache__/**,**/*.pyc}"
     }
   }
 }

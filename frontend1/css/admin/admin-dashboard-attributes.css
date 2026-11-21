@@ -1,0 +1,6 @@
+[data-external-style-1] { width: 36px !important; height: 36px !important; object-fit: contain !important; }
+[data-external-style-2] { font-size: 24px !important; animation: spin 1s linear infinite !important; display: inline-block !important; }
+[data-external-style-3] { margin-top: 8px !important; }
+[data-external-style-4] { color: var(--red) !important; }
+[data-external-style-5] { display: flex !important; flex-direction: column !important; gap: 5px !important; margin-bottom: 10px !important; }
+[data-external-style-6] { display: flex !important; gap: 10px !important; justify-content: flex-end !important; margin-top: 20px !important; border-top: 1px solid var(--border) !important; padding-top: 16px !important; }

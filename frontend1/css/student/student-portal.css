@@ -1,5 +1,5 @@
 body[data-portal-role="student"] .auth {
-    --img: url("../demo/student.jpg");
+    --img: url("../../demo/student.jpg");
     --hx: 5.6cqw;
     --hy: 11.5cqw;
     --hfont: Montserrat, Inter, Poppins, sans-serif;

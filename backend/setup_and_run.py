@@ -43,6 +43,20 @@ FIT_TRACK_INTEGRITY_MIGRATION = (
     / "007_fit_track_integrity.sql"
 )
 
+DEPLOYMENT_MIGRATIONS = (
+    ("Dashboard schedule migration 008", BASE_DIR / "migrations" / "008_dashboard_schedule.sql"),
+    ("Student department migration 009", BASE_DIR / "migrations" / "009_student_department_choices.sql"),
+    ("Schedule migration 010", BASE_DIR / "migrations" / "010_schedule_without_programmes.sql"),
+    ("Admin login rate limit migration 011", BASE_DIR / "migrations" / "011_admin_login_rate_limit.sql"),
+    ("Student deactivation migration 012", BASE_DIR / "migrations" / "012_student_deactivation.sql"),
+    ("Event registration URL migration 013", BASE_DIR / "migrations" / "013_event_registration_url.sql"),
+    ("Expired authentication data cleanup migration 014", BASE_DIR / "migrations" / "014_expired_auth_cleanup.sql"),
+    ("Sport assessment schema migration", BASE_DIR / "migrations" / "20261109_add_assessment_schema.sql"),
+    ("Legacy performance records removal migration 015", BASE_DIR / "migrations" / "015_remove_legacy_performance_records.sql"),
+    ("Coach profile fields removal migration 016", BASE_DIR / "migrations" / "016_remove_coach_profile_fields.sql"),
+    ("Not-held schedule status migration 017", BASE_DIR / "migrations" / "017_schedule_not_held_status.sql"),
+)
+
 
 def init_db():
     """Apply PostgreSQL schema and migrations without deleting existing data."""
@@ -196,6 +210,46 @@ def init_db():
             print("[INFO] Fit-Track integrity migration 007 applied successfully.")
         else:
             print("[WARNING] Migration 007 file was not found; skipping.")
+
+        # Reapply migration 010's idempotent column guards every startup. Some
+        # deployments have already recorded the migration but still lack the
+        # columns used by schedule writes after partial/manual schema upgrades.
+        if SCHEDULE_WITHOUT_PROGRAMMES_MIGRATION.is_file():
+            print("[INFO] Applying schedule migration 010 (sessions are sport-based)...")
+            schedule_sql = SCHEDULE_WITHOUT_PROGRAMMES_MIGRATION.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(schedule_sql)
+            db.commit()
+            print("[INFO] Schedule migration 010 applied successfully.")
+        else:
+            print("[WARNING] Migration 010 file was not found; skipping.")
+
+        if ADMIN_LOGIN_RATE_LIMIT_MIGRATION.is_file():
+            print("[INFO] Applying administrator login rate limit migration 011...")
+            rate_limit_sql = ADMIN_LOGIN_RATE_LIMIT_MIGRATION.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(rate_limit_sql)
+            db.commit()
+            print("[INFO] Administrator login rate limit migration applied successfully.")
+        else:
+            print("[WARNING] Migration 011 file was not found; skipping.")
+        # Apply the migrations required by the current app after the base
+        # schema. Run this initializer against staging before production.
+        for migration_name, migration_path in DEPLOYMENT_MIGRATIONS:
+            if not migration_path.is_file():
+                print(f"[WARNING] {migration_name} was not found; skipping.")
+                continue
+            print(f"[INFO] Applying {migration_name}...")
+            migration_sql = migration_path.read_text(encoding="utf-8")
+            with db.cursor() as cursor:
+                cursor.execute(migration_sql)
+            db.commit()
+            print(f"[INFO] {migration_name} applied successfully.")
+
+        # Keep the programme-independent schema active when local SQLite starts too.
+        from db import initialize_local_database
+        if database_backend() == "sqlite":
+            initialize_local_database()
 
         # =========================================================
         # 5. SUCCESS

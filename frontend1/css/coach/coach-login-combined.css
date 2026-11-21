@@ -1,0 +1,5 @@
+
+        .message:empty { display: none; }
+        .message:not(:empty) { width: calc(var(--u)*33.3); margin: 0 0 calc(var(--u)*1.3); padding: calc(var(--u)*1.1); border: 1px solid #fecdd3; border-radius: calc(var(--u)*.7); background: #fff1f2; color: #be123c; font-size: calc(var(--u)*1.05); }
+        .message.success { border-color: #bbf7d0; background: #ecfdf3; color: #15803d; }
+    .auth{--img:url("../../demo/coach.jpg");--hx:6.2cqw;--hy:11.8cqw;--hs:4.05;--hl:1.03;--bw:4.7;--bt:2.6cqw;--pt:1.7cqw;--pw:23.5;--ps:1.25;--pl:1.55;--btn:linear-gradient(90deg,#0a66ff,#0a46d6);}

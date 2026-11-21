@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="auth.css">
-<style>.auth{--img:url("admin.jpg");--hx:4.2cqw;--hy:15.4cqw;--hs:3.8;--hl:.98;--bw:4.2;--bt:2.4cqw;--pt:2.2cqw;--pw:24.5;--ps:1.26;--pl:1.45;}</style>
+<link rel="stylesheet" href="../css/demo/admin-login-style-1.css" />
 </head>
 <body>
 <main class="auth">
@@ -44,16 +44,6 @@
     <a class="back" href="../index.html">← Back to role selection</a>
   </section>
 </main>
-<script>
-  const t = document.getElementById("toggle");
-  if (t) t.onclick = () => {
-    const p = document.getElementById("password");
-    p.type = p.type === "password" ? "text" : "password";
-  };
-  document.getElementById("loginForm").onsubmit = e => {
-    e.preventDefault();
-    // TODO: call your admin login API here
-  };
-</script>
+<script src="../js/demo/admin-login-script-1.js"></script>
 </body>
 </html>

@@ -29,12 +29,14 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from werkzeug.exceptions import HTTPException
 
 BASE_DIR = Path(__file__).parent.absolute()
-if str(BASE_DIR) not in sys.path:
-    sys.path.insert(0, str(BASE_DIR))
+PROJECT_ROOT = BASE_DIR.parent
+for import_path in (str(PROJECT_ROOT), str(BASE_DIR)):
+    if import_path not in sys.path:
+        sys.path.insert(0, import_path)
 
-from db import DatabaseConnectionError, get_db, warm_database_pool  # noqa: E402
-from logging_config import configure_logging  # noqa: E402
-from auth.helpers import (  # noqa: E402
+from backend.db import DatabaseConnectionError, database_backend, get_db  # noqa: E402
+from backend.logging_config import configure_logging  # noqa: E402
+from backend.auth.helpers import (  # noqa: E402
     generate_otp,
     store_otp,
     verify_stored_otp,
@@ -46,18 +48,29 @@ from auth.helpers import (  # noqa: E402
     store_admin_otp,
     verify_admin_otp,
 )
-from auth.emails import (  # noqa: E402
+from backend.assessments import sync_sport_assessment_fields
+from backend.auth.admin_login_limiter import (  # noqa: E402
+    clear_admin_login_failures,
+    get_admin_lockout_seconds,
+    record_admin_login_failure,
+)
+from backend.auth.emails import (  # noqa: E402
     smtp_settings,
+    email_delivery_failure_message,
     send_otp_email,
     send_account_created_email,
     send_coach_approval_email,
     send_password_reset_success_email,
 )
-from auth.decorators import login_required, role_required  # noqa: E402
-from attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
-from performance import register_performance_routes  # noqa: E402
-from reference_features import register_reference_feature_routes  # noqa: E402
-from reference_extensions import register_reference_extension_routes  # noqa: E402
+from backend.auth.decorators import login_required, role_required  # noqa: E402
+from backend.routes import register_blueprints  # noqa: E402
+from backend.attendance import register_attendance_routes, student_attendance_payload  # noqa: E402
+from backend.assessments import register_assessment_routes  # noqa: E402
+from backend.performance import register_performance_routes  # noqa: E402
+from backend.core_features import register_reference_feature_routes  # noqa: E402
+from backend.support_services import register_reference_extension_routes  # noqa: E402
+from backend.schedule import register_schedule_routes  # noqa: E402
+
 
 app = Flask(__name__)
 
@@ -192,6 +205,7 @@ def add_cors_headers(response):
             method=request.method,
             status=response.status_code,
             duration_ms=duration_ms,
+            error_type=g.get("email_delivery_error"),
             success=(
                 response_payload.get("success")
                 if isinstance(response_payload, dict)
@@ -255,6 +269,10 @@ def api_database_errors(error):
 @app.errorhandler(Exception)
 def api_unhandled_errors(error):
     if request.path.startswith("/api/"):
+        # PostgreSQL UndefinedColumn is a schema-migration failure. Log its
+        # safe diagnostic fields so the missing column can be identified
+        # without exposing SQL parameters or connection credentials.
+        postgres_diag = getattr(error, "diag", None)
         _safe_log(
             logging.ERROR,
             "Unhandled API error",
@@ -262,6 +280,11 @@ def api_unhandled_errors(error):
             route=request.path,
             method=request.method,
             error_type=type(error).__name__,
+            sqlstate=getattr(error, "sqlstate", None),
+            db_column=getattr(postgres_diag, "column_name", None),
+            db_table=getattr(postgres_diag, "table_name", None),
+            db_constraint=getattr(postgres_diag, "constraint_name", None),
+            db_message=getattr(postgres_diag, "message_primary", None),
         )
         return jsonify({
             "success": False,
@@ -336,7 +359,10 @@ def admin_diagnostics():
     except ValueError:
         mail_configured = False
         mail_security = "invalid"
-    database_backend_name = os.getenv("DATABASE_BACKEND", "sqlite" if not is_production else "postgres")
+    try:
+        database_backend_name = database_backend()
+    except RuntimeError:
+        database_backend_name = "unsupported"
     return jsonify({
         "success": True,
         "request_id": g.get("request_id"),
@@ -378,22 +404,6 @@ def signup():
     contact_number = str(
         data.get("contact_number") or data.get("contact") or ""
     ).strip()
-    # These fields apply only to coach registration; student signup does not
-    # collect or require coach qualification details.
-    if role == "coach":
-        qualification = str(data.get("qualification") or "").strip() or None
-        specialization = str(data.get("specialization") or "").strip() or None
-        experience_years = data.get("experience_years") or None
-    else:
-        qualification = specialization = experience_years = None
-
-    try:
-        # These are no longer required, but we keep the try-block for general structure
-        # if we ever needed to validate other numeric fields here.
-        pass
-    except (TypeError, ValueError):
-        return jsonify({"success": False, "message": "Invalid input provided."}), 400
-
     if role not in ("student", "coach"):
         return (
             jsonify(
@@ -470,17 +480,13 @@ def signup():
             cursor.execute(
                 """INSERT INTO pending_registrations
                        (role, full_name, email, password_hash, contact_number,
-                        qualification, specialization, experience_years,
                         otp_hash, otp_expires_at, status, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending_verification', NOW())
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending_verification', NOW())
                    ON CONFLICT (email) DO UPDATE SET
                        role = EXCLUDED.role,
                        full_name = EXCLUDED.full_name,
                        password_hash = EXCLUDED.password_hash,
                        contact_number = EXCLUDED.contact_number,
-                       qualification = EXCLUDED.qualification,
-                       specialization = EXCLUDED.specialization,
-                       experience_years = EXCLUDED.experience_years,
                        otp_hash = EXCLUDED.otp_hash,
                        otp_expires_at = EXCLUDED.otp_expires_at,
                        otp_attempts = 0,
@@ -498,9 +504,6 @@ def signup():
                     email,
                     generate_password_hash(password),
                     contact_number or None,
-                    qualification or None,
-                    specialization or None,
-                    experience_years,
                     generate_password_hash(otp),
                     datetime.now() + timedelta(minutes=OTP_MINUTES),
                 ),
@@ -546,6 +549,22 @@ def login():
         )
 
     user = find_user_by_email(email)
+    admin_login = (
+        requested_role == "admin"
+        or request.path in {"/api/admin-login", "/api/admin/login"}
+        or bool(user and user.get("role") == "admin")
+    )
+    if admin_login:
+        lockout_seconds = get_admin_lockout_seconds(email)
+        if lockout_seconds:
+            response = jsonify({
+                "success": False,
+                "message": "Too many failed administrator sign-in attempts. Try again later.",
+                "retry_after_seconds": lockout_seconds,
+            })
+            response.status_code = 429
+            response.headers["Retry-After"] = str(lockout_seconds)
+            return response
     if not user:
         db = get_db()
         try:
@@ -574,9 +593,19 @@ def login():
                 "message": "Please verify your email before logging in.",
             }), 403
     if not user or not check_password_hash(user["password_hash"], password):
+        if admin_login:
+            record_admin_login_failure(email)
         return jsonify({"success": False, "message": "Invalid email or password."}), 401
+    if user["role"] == "admin":
+        clear_admin_login_failures(email)
     if user.get("role") in ("coach", "student") and not user.get("is_active", True):
         return jsonify({"success": False, "message": "This account is inactive. Contact an administrator."}), 403
+        message = (
+            "Your account has been deactivated. Please contact an administrator."
+            if user.get("role") == "student"
+            else "This account is inactive. Contact an administrator."
+        )
+        return jsonify({"success": False, "message": message}), 403
 
     expected_role = "student" if requested_role == "player" else requested_role
     if expected_role and user["role"] != expected_role:
@@ -648,8 +677,10 @@ def login():
     session.clear()
     session["pending_login_user_id"] = user["id"]
     session["pending_login_role"] = user["role"]
+    if not is_production and os.getenv("SHOW_OTP_IN_TERMINAL") == "1":
+        print(f"\n[DEV ONLY] Login OTP for {email}: {otp}\n", flush=True)
     if not send_otp_email(email, user["full_name"], "login", otp):
-        return jsonify({"success": False, "message": "Login OTP could not be emailed. Configure SMTP and use resend OTP."}), 503
+        return jsonify({"success": False, "message": email_delivery_failure_message()}), 503
     return (
         jsonify(
             {
@@ -675,13 +706,8 @@ def login():
 def pending_login_otp():
     user_id = session.get("pending_login_user_id")
     pending_role = session.get("pending_login_role")
-    if pending_role in ("student", "coach"):
-        return jsonify({
-            "success": False,
-            "message": "Student and coach sign-in uses a password and does not require a login OTP.",
-        }), 403
     user = get_user_by_id(user_id, pending_role) if user_id else None
-    if not user or user.get("role") != pending_role:
+    if not user or (pending_role and user.get("role") != pending_role):
         return jsonify({
             "success": False,
             "message": "No active login verification. Please log in again.",
@@ -785,7 +811,7 @@ def resend_login_otp():
     if not (store_admin_otp if user["role"] == "admin" else store_otp)(user["id"], "login", otp):
         return jsonify({"success": False, "message": "Too many login codes were requested. Try again in an hour."}), 429
     if not send_otp_email(email, user["full_name"], "login", otp):
-        return jsonify({"success": False, "message": "Login OTP could not be emailed. Check SMTP configuration and try again."}), 503
+        return jsonify({"success": False, "message": email_delivery_failure_message()}), 503
     return jsonify({"success": True, "message": "A new login OTP has been sent."}), 200
 
 
@@ -1089,19 +1115,182 @@ def list_sports():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            # Keep the built-in registration choices available on databases
-            # that were created before the sports catalog was seeded.
-            for name in ("Cricket", "Football", "Basketball", "Volleyball", "Kickboxing", "Badminton", "Athletics"):
-                cursor.execute(
-                    "INSERT INTO sports (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
-                    (name,),
-                )
-            db.commit()
-            cursor.execute("SELECT id, name FROM sports ORDER BY name")
-            sports = cursor.fetchall()
+            # Only seed default registration choices if the sports table is completely empty
+            cursor.execute("SELECT COUNT(*) AS total FROM sports")
+            count_row = cursor.fetchone()
+            total = (count_row.get("total") if isinstance(count_row, dict) else count_row[0]) if count_row else 0
+            if total == 0:
+                for name in ("Cricket", "Football", "Basketball", "Volleyball", "Kickboxing", "Badminton", "Athletics"):
+                    cursor.execute(
+                        "INSERT INTO sports (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
+                        (name,),
+                    )
+                db.commit()
+            try:
+                cursor.execute("SELECT id, name, venue FROM sports WHERE is_active = TRUE ORDER BY name")
+                sports = cursor.fetchall()
+            except Exception:
+                try:
+                    cursor.execute("SELECT id, name FROM sports WHERE is_active = TRUE ORDER BY name")
+                    sports = cursor.fetchall()
+                except Exception:
+                    cursor.execute("SELECT id, name FROM sports ORDER BY name")
+                    sports = cursor.fetchall()
         return jsonify({"success": True, "sports": sports}), 200
     finally:
         db.close()
+@app.route("/api/admin/sports", methods=["POST"])
+@role_required("admin")
+def admin_create_sport():
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name") or "").strip()
+    venue = str(data.get("venue") or "").strip() or None
+    assessment_fields = data.get("assessment_fields")
+    if not name:
+        return jsonify({"success": False, "message": "Sport name is required."}), 400
+    
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            try:
+                cursor.execute(
+                    "INSERT INTO sports (name, venue) VALUES (%s, %s) ON CONFLICT (name) DO UPDATE SET venue = COALESCE(EXCLUDED.venue, sports.venue) RETURNING id, name, venue",
+                    (name, venue),
+                )
+                row = cursor.fetchone()
+            except Exception:
+                cursor.execute(
+                    "INSERT INTO sports (name) VALUES (%s) ON CONFLICT (name) DO NOTHING RETURNING id, name",
+                    (name,),
+                )
+                row = cursor.fetchone()
+                if not row:
+                    cursor.execute("SELECT id, name FROM sports WHERE LOWER(name) = LOWER(%s)", (name,))
+                    row = cursor.fetchone()
+            
+            if assessment_fields:
+                try:
+                    sync_sport_assessment_fields(cursor, row["id"], assessment_fields)
+                except ValueError as e:
+                    db.rollback()
+                    return jsonify({"success": False, "message": str(e)}), 400
+                    
+            db.commit()
+            return jsonify({"success": True, "message": "Sport added successfully.", "sport": row}), 201
+    except Exception as exc:
+        db.rollback()
+        return jsonify({"success": False, "message": str(exc)}), 500
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/sports/<int:sport_id>", methods=["PUT", "PATCH"])
+@role_required("admin")
+def admin_update_sport(sport_id):
+    """Update a sport and, when supplied, its assessment fields."""
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name") or "").strip()
+    if not name:
+        return jsonify({"success": False, "message": "Sport name is required."}), 400
+    venue = str(data.get("venue") or "").strip() or None
+    assessment_fields = data.get("assessment_fields")
+
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            try:
+                cursor.execute(
+                    """UPDATE sports
+                       SET name = %s, venue = %s
+                       WHERE id = %s
+                       RETURNING id, name, venue""",
+                    (name, venue, sport_id),
+                )
+            except Exception:
+                cursor.execute(
+                    """UPDATE sports
+                       SET name = %s
+                       WHERE id = %s
+                       RETURNING id, name""",
+                    (name, sport_id),
+                )
+            row = cursor.fetchone()
+            if not row:
+                return jsonify({"success": False, "message": "Sport not found."}), 404
+            if assessment_fields is not None:
+                try:
+                    sync_sport_assessment_fields(cursor, sport_id, assessment_fields)
+                except ValueError as exc:
+                    db.rollback()
+                    return jsonify({"success": False, "message": str(exc)}), 400
+        db.commit()
+        return jsonify({
+            "success": True,
+            "message": "Sport updated successfully.",
+            "sport": row,
+        }), 200
+    except Exception as exc:
+        db.rollback()
+        return jsonify({"success": False, "message": str(exc)}), 500
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/sports/<int:sport_id>", methods=["DELETE"])
+@role_required("admin")
+def admin_delete_sport(sport_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            def safe_exec(sql, params=()):
+                try:
+                    cursor.execute("SAVEPOINT sp_del")
+                    cursor.execute(sql, params)
+                    cursor.execute("RELEASE SAVEPOINT sp_del")
+                except Exception as ex:
+                    try:
+                        cursor.execute("ROLLBACK TO SAVEPOINT sp_del")
+                    except Exception:
+                        pass
+                    print(f"Skipping SQL statement [{sql}] due to error: {ex}")
+
+            for tbl in ["student_sports", "coach_sports", "facility_media", "coaching_sessions", "performance_records", "performance_metrics", "tournaments_schedule_upgrade"]:
+                safe_exec(f"DELETE FROM {tbl} WHERE sport_id = %s", (sport_id,))
+            
+            safe_exec("DELETE FROM attendance_records WHERE session_id IN (SELECT id FROM attendance_sessions WHERE sport_id = %s)", (sport_id,))
+            safe_exec("DELETE FROM attendance_sessions WHERE sport_id = %s", (sport_id,))
+            
+            safe_exec("DELETE FROM tournament_matches WHERE tournament_id IN (SELECT id FROM tournaments WHERE sport_id = %s)", (sport_id,))
+            safe_exec("DELETE FROM tournament_participants WHERE tournament_id IN (SELECT id FROM tournaments WHERE sport_id = %s)", (sport_id,))
+            safe_exec("DELETE FROM tournament_results WHERE tournament_id IN (SELECT id FROM tournaments WHERE sport_id = %s)", (sport_id,))
+            safe_exec("DELETE FROM tournaments WHERE sport_id = %s", (sport_id,))
+            
+            safe_exec("DELETE FROM enrollments WHERE programme_id IN (SELECT id FROM programmes WHERE sport_id = %s)", (sport_id,))
+            safe_exec("DELETE FROM programmes WHERE sport_id = %s", (sport_id,))
+            
+            try:
+                cursor.execute("SAVEPOINT sp_del")
+                cursor.execute("DELETE FROM sports WHERE id = %s", (sport_id,))
+                cursor.execute("RELEASE SAVEPOINT sp_del")
+            except Exception:
+                try:
+                    cursor.execute("ROLLBACK TO SAVEPOINT sp_del")
+                except Exception:
+                    pass
+                cursor.execute("UPDATE sports SET is_active = FALSE WHERE id = %s", (sport_id,))
+
+            db.commit()
+            return jsonify({"success": True, "message": "Sport removed successfully."}), 200
+    except Exception as exc:
+        print("ADMIN DELETE SPORT EXCEPTION:", type(exc).__name__, exc)
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return jsonify({"success": False, "message": str(exc)}), 500
+    finally:
+        db.close()
+
 
 
 @app.route("/api/admin/event-sports", methods=["GET"])
@@ -1273,7 +1462,7 @@ def student_dashboard():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("""SELECT c.id, c.full_name, c.email, c.contact_number, c.specialization
+            cursor.execute("""SELECT c.id, c.full_name, c.email, c.contact_number
                 FROM student_sports ss
                 JOIN coach_sports cs ON cs.sport_id=ss.sport_id
                 JOIN users c ON c.id=cs.coach_id
@@ -1728,12 +1917,11 @@ def admin_list_users():
         with db.cursor() as cursor:
             cursor.execute(
                 """SELECT id, role, full_name, email, contact_number, is_verified, coach_status,
-                           last_login_at, created_at, is_active, qualification, specialization, experience_years
+                           last_login_at, created_at, is_active
                     FROM users
                     UNION
                     SELECT id, 'admin' as role, full_name, email, NULL AS contact_number, is_verified,
-                           NULL as coach_status, last_login_at, created_at, TRUE AS is_active,
-                           NULL AS qualification, NULL AS specialization, NULL AS experience_years
+                           NULL as coach_status, last_login_at, created_at, TRUE AS is_active
                     FROM admins
                     ORDER BY created_at DESC"""
             )
@@ -1757,12 +1945,12 @@ def admin_pending_coaches():
         with db.cursor() as cursor:
                  cursor.execute(
                   """SELECT id AS user_id, NULL AS registration_id, full_name, email,
-                         contact_number, qualification, specialization, experience_years,
+                         contact_number,
                          coach_status, created_at, TRUE AS is_verified
                        FROM users WHERE role = 'coach' AND coach_status = 'pending' AND is_verified = TRUE
                      UNION ALL
                      SELECT NULL AS user_id, id AS registration_id, full_name, email,
-                         contact_number, qualification, specialization, experience_years,
+                         contact_number,
                          'pending' AS coach_status, created_at, TRUE AS is_verified
                      FROM pending_registrations
                      WHERE role = 'coach' AND status = 'pending_approval'
@@ -1785,20 +1973,258 @@ def admin_list_students():
         with db.cursor() as cursor:
             cursor.execute(
                 """SELECT u.id, u.full_name, u.email, u.contact_number,
-                          u.is_verified,
-                          STRING_AGG(DISTINCT s.name, ', ' ORDER BY s.name) AS sports
+                          u.is_verified, u.created_at AS registration_date,
+                          sp.date_of_birth, sp.emergency_contact, sp.gender, sp.height_cm, sp.weight_kg, sp.goal,
+                          sp.department, sp.student_number, sp.semester, sp.bio,
+                          sp.blood_group, sp.medical_history, sp.address,
+                          sp.parent_name, sp.parent_phone, sp.parent_address,
+                          sp.passport_id
                    FROM users u
-                   LEFT JOIN student_sports ss ON ss.student_id = u.id
-                   LEFT JOIN sports s ON s.id = ss.sport_id
-                   WHERE u.role = 'student'
-                   GROUP BY u.id
+                   LEFT JOIN student_profiles sp ON sp.user_id = u.id
+                   WHERE u.role = 'student' AND u.is_active = TRUE
                    ORDER BY u.created_at DESC"""
             )
             students = cursor.fetchall()
+            cursor.execute("""SELECT ss.student_id, s.name FROM student_sports ss
+                               JOIN sports s ON s.id=ss.sport_id
+                               JOIN users u ON u.id=ss.student_id
+                               WHERE u.role='student' AND u.is_active=TRUE
+                               ORDER BY s.name""")
+            sports_by_student = {}
+            for row in cursor.fetchall():
+                sports_by_student.setdefault(row["student_id"], []).append(row["name"])
         for student in students:
             student["is_verified"] = bool(student["is_verified"])
-            student["sports"] = student["sports"].split(", ") if student["sports"] else []
+            for key in ("registration_date", "date_of_birth"):
+                if student.get(key) is not None:
+                    student[key] = str(student[key])
+            student["sports"] = sports_by_student.get(student["id"], [])
         return jsonify({"success": True, "students": students}), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/deactivated-students", methods=["GET"])
+@role_required("admin")
+def admin_list_deactivated_students():
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT u.id, u.full_name, u.email, u.contact_number,
+                          u.account_status, u.deactivated_at, u.reactivated_at,
+                          sp.student_number, sp.passport_id, sp.department,
+                          sp.semester, sp.sport_activity
+                   FROM users u
+                   LEFT JOIN student_profiles sp ON sp.user_id = u.id
+                   WHERE u.role = 'student' AND u.is_active = FALSE
+                   ORDER BY u.deactivated_at DESC NULLS LAST, u.full_name"""
+            )
+            students = cursor.fetchall()
+            cursor.execute("""SELECT ss.student_id, s.name FROM student_sports ss
+                               JOIN sports s ON s.id=ss.sport_id
+                               JOIN users u ON u.id=ss.student_id
+                               WHERE u.role='student' AND u.is_active=FALSE
+                               ORDER BY s.name""")
+            sports_by_student = {}
+            for row in cursor.fetchall():
+                sports_by_student.setdefault(row["student_id"], []).append(row["name"])
+        for student in students:
+            student["account_status"] = "deactivated"
+            for key in ("deactivated_at", "reactivated_at"):
+                if student.get(key) is not None:
+                    student[key] = str(student[key])
+            student["sports"] = sports_by_student.get(student["id"], [])
+        return jsonify(success=True, students=students), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/deactivated-students/<int:student_id>", methods=["GET"])
+@role_required("admin")
+def admin_get_deactivated_student(student_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """SELECT u.id, u.full_name, u.email, u.contact_number, u.created_at,
+                          u.account_status, u.deactivated_at, u.deactivated_by, u.reactivated_at,
+                          sp.*
+                   FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id
+                   WHERE u.id=%s AND u.role='student' AND u.is_active=FALSE""",
+                (student_id,),
+            )
+            student = cursor.fetchone()
+            if not student:
+                return jsonify(success=False, message="Deactivated student not found."), 404
+            queries = {
+                "attendance": ("""SELECT r.session_date, r.status, s.name AS sport
+                                  FROM attendance_records r
+                                  LEFT JOIN attendance_sessions a ON a.id=r.session_id
+                                  LEFT JOIN sports s ON s.id=a.sport_id
+                                  WHERE r.student_id=%s ORDER BY r.session_date DESC""", (student_id,)),
+                "legacy_attendance": ("""SELECT a.session_date, a.present, p.name AS programme,
+                                               s.name AS sport
+                                        FROM attendance a JOIN enrollments e ON e.id=a.enrollment_id
+                                        LEFT JOIN programmes p ON p.id=e.programme_id
+                                        LEFT JOIN sports s ON s.id=p.sport_id
+                                        WHERE e.student_id=%s ORDER BY a.session_date DESC""", (student_id,)),
+                "goals": ("SELECT * FROM goals WHERE student_id=%s ORDER BY created_at DESC", (student_id,)),
+                "coach_feedback": ("""SELECT f.*, u.full_name AS coach_name FROM coach_feedback f
+                                    LEFT JOIN users u ON u.id=f.coach_id
+                                    WHERE f.student_id=%s ORDER BY f.created_at DESC""", (student_id,)),
+                "programme_assessments": ("""SELECT d.*, p.name AS programme, s.name AS sport
+                                           FROM enrollments e JOIN daily_assessments d ON d.enrollment_id=e.id
+                                           LEFT JOIN programmes p ON p.id=e.programme_id
+                                           LEFT JOIN sports s ON s.id=p.sport_id
+                                           WHERE e.student_id=%s ORDER BY d.session_date DESC""", (student_id,)),
+                "programmes": ("""SELECT e.*, p.name AS programme, s.name AS sport
+                                FROM enrollments e LEFT JOIN programmes p ON p.id=e.programme_id
+                                LEFT JOIN sports s ON s.id=p.sport_id WHERE e.student_id=%s""", (student_id,)),
+                "sports": ("""SELECT s.id, s.name FROM student_sports ss
+                            JOIN sports s ON s.id=ss.sport_id
+                            WHERE ss.student_id=%s ORDER BY s.name""", (student_id,)),
+                "achievements": ("""SELECT a.*, s.name AS sport FROM achievements a
+                                  LEFT JOIN sports s ON s.id=a.sport_id
+                                  WHERE a.student_id=%s ORDER BY a.created_at DESC""", (student_id,)),
+                "certificates": ("SELECT * FROM certificates WHERE student_id=%s ORDER BY created_at DESC", (student_id,)),
+                "event_registrations": ("""SELECT r.*, t.name AS event_name, t.start_date
+                                         FROM registrations r JOIN tournaments t ON t.id=r.tournament_id
+                                         WHERE r.student_id=%s ORDER BY t.start_date DESC""", (student_id,)),
+            }
+            for key, (sql, params) in queries.items():
+                cursor.execute(sql, params)
+        def json_value(value):
+            if value is not None and hasattr(value, "isoformat"):
+                return value.isoformat()
+            if value is not None and value.__class__.__name__ == "Decimal":
+                return float(value)
+            return value
+        student = {key: json_value(value) for key, value in student.items()}
+        converted_history = {}
+        for key, (sql, params) in queries.items():
+            converted_history[key] = []
+        with db.cursor() as cursor:
+            for key, (sql, params) in queries.items():
+                cursor.execute(sql, params)
+                converted_history[key] = [
+                    {field: json_value(value) for field, value in row.items()}
+                    for row in cursor.fetchall()
+                ]
+        return jsonify(success=True, student=student, history=converted_history), 200
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/students/<int:student_id>/deactivate", methods=["POST"])
+@role_required("admin")
+def admin_deactivate_student(student_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """UPDATE users SET is_active=FALSE, account_status='deactivated',
+                          deactivated_at=NOW(), deactivated_by=%s
+                   WHERE id=%s AND role='student' AND is_active=TRUE RETURNING id""",
+                (session.get("user_id"), student_id),
+            )
+            if not cursor.fetchone():
+                cursor.execute("SELECT id FROM users WHERE id=%s AND role='student'", (student_id,))
+                exists = cursor.fetchone()
+                if not exists:
+                    return jsonify(success=False, message="Student not found."), 404
+                return jsonify(success=False, message="Student account is already deactivated."), 409
+        db.commit()
+        return jsonify(success=True, message="Student account deactivated."), 200
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/students/<int:student_id>/reactivate", methods=["POST"])
+@role_required("admin")
+def admin_reactivate_student(student_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """UPDATE users SET is_active=TRUE, account_status='active', reactivated_at=NOW()
+                   WHERE id=%s AND role='student' AND is_active=FALSE RETURNING id""",
+                (student_id,),
+            )
+            if not cursor.fetchone():
+                cursor.execute("SELECT id FROM users WHERE id=%s AND role='student'", (student_id,))
+                exists = cursor.fetchone()
+                if not exists:
+                    return jsonify(success=False, message="Student not found."), 404
+                return jsonify(success=False, message="Student account is already active."), 409
+        db.commit()
+        return jsonify(success=True, message="Student account reactivated."), 200
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+@app.route("/api/admin/students/<int:student_id>", methods=["DELETE"])
+@role_required("admin")
+def admin_delete_student(student_id):
+    """Permanently remove a student and their directly linked records."""
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                "SELECT email FROM users WHERE id = %s AND role = 'student'",
+                (student_id,),
+            )
+            student = cursor.fetchone()
+            if not student:
+                return jsonify(success=False, message="Student not found."), 404
+
+            # These tables intentionally used ON DELETE SET NULL so event and
+            # certificate history could survive account removal. For a full
+            # student deletion, remove the linked rows and their personal data.
+            cursor.execute(
+                """DELETE FROM generated_certificates
+                   WHERE student_id = %s
+                      OR participant_id IN (
+                          SELECT id FROM event_participants WHERE student_id = %s
+                      )""",
+                (student_id, student_id),
+            )
+            cursor.execute("DELETE FROM event_participants WHERE student_id = %s", (student_id,))
+            cursor.execute("DELETE FROM match_players WHERE student_id = %s", (student_id,))
+            cursor.execute(
+                "DELETE FROM pending_registrations WHERE role = 'student' AND LOWER(email) = LOWER(%s)",
+                (student["email"],),
+            )
+            cursor.execute(
+                "DELETE FROM users WHERE id = %s AND role = 'student'",
+                (student_id,),
+            )
+        db.commit()
+        _safe_log(
+            logging.INFO,
+            "Student account and linked records deleted",
+            request_id=g.get("request_id"),
+            actor_user_id=session.get("user_id"),
+            student_id=student_id,
+        )
+        return jsonify(success=True, message="Student and linked records deleted."), 200
+    except Exception as error:
+        db.rollback()
+        _safe_log(
+            logging.ERROR,
+            "Student account deletion failed",
+            request_id=g.get("request_id"),
+            actor_user_id=session.get("user_id"),
+            student_id=student_id,
+            error_type=type(error).__name__,
+        )
+        return jsonify(success=False, message="The student could not be deleted."), 500
     finally:
         db.close()
 
@@ -1889,28 +2315,30 @@ def coach_list_athletes():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("""SELECT u.id, u.full_name, u.email, u.contact_number,
+            cursor.execute("""SELECT DISTINCT u.id, u.full_name, u.email, u.contact_number,
                           sp.date_of_birth, sp.height_cm, sp.weight_kg, sp.goal,
                           sp.department, sp.semester, sp.student_number,
-                          sp.sport_activity, sp.bio, sp.emergency_contact,
-                          STRING_AGG(DISTINCT assigned_sport.name, ', ' ORDER BY assigned_sport.name) AS sports
+                          sp.sport_activity, sp.bio, sp.emergency_contact
                    FROM coach_sports cs
                    JOIN users coach ON coach.id=cs.coach_id AND coach.role='coach'
                         AND coach.coach_status='approved' AND coach.is_active=TRUE
                    JOIN student_sports ss ON ss.sport_id=cs.sport_id
-                   JOIN users u ON u.id=ss.student_id AND u.role='student' AND u.is_verified=TRUE
+                   JOIN users u ON u.id=ss.student_id AND u.role='student'
+                        AND u.is_verified=TRUE AND u.is_active=TRUE
                    LEFT JOIN student_profiles sp ON sp.user_id=u.id
-                   JOIN sports assigned_sport ON assigned_sport.id=ss.sport_id
                    WHERE cs.coach_id=%s
-                   GROUP BY u.id, sp.user_id, sp.date_of_birth, sp.height_cm,
-                            sp.weight_kg, sp.goal, sp.department, sp.semester,
-                            sp.student_number, sp.sport_activity,
-                            sp.bio, sp.emergency_contact
                    ORDER BY u.full_name ASC""", (coach_id,))
             athletes = cursor.fetchall()
+            cursor.execute("""SELECT DISTINCT ss.student_id, s.name FROM coach_sports cs
+                               JOIN student_sports ss ON ss.sport_id=cs.sport_id
+                               JOIN users u ON u.id=ss.student_id AND u.role='student' AND u.is_active=TRUE
+                               JOIN sports s ON s.id=ss.sport_id WHERE cs.coach_id=%s ORDER BY s.name""", (coach_id,))
+            sports_by_student = {}
+            for row in cursor.fetchall():
+                sports_by_student.setdefault(row["student_id"], []).append(row["name"])
         for athlete in athletes:
             athlete["name"] = athlete.pop("full_name")
-            athlete["sports"] = athlete["sports"].split(", ") if athlete["sports"] else []
+            athlete["sports"] = sports_by_student.get(athlete["id"], [])
             athlete["sport"] = ", ".join(athlete["sports"])
             athlete["position"] = ""
         return jsonify({"success": True, "athletes": athletes}), 200
@@ -1933,13 +2361,11 @@ def coach_get_athlete(student_id):
                    JOIN users coach ON coach.id=cs.coach_id AND coach.role='coach'
                         AND coach.coach_status='approved' AND coach.is_active=TRUE
                    JOIN student_sports ss ON ss.sport_id=cs.sport_id
-                   JOIN users u ON u.id=ss.student_id AND u.role='student' AND u.is_verified=TRUE
+                   JOIN users u ON u.id=ss.student_id AND u.role='student'
+                        AND u.is_verified=TRUE AND u.is_active=TRUE
                    LEFT JOIN student_profiles sp ON sp.user_id=u.id
                    WHERE cs.coach_id=%s AND u.id=%s
-                   GROUP BY u.id, sp.user_id, sp.date_of_birth, sp.height_cm,
-                            sp.weight_kg, sp.goal, sp.department, sp.semester,
-                             sp.student_number, sp.sport_activity,
-                            sp.bio, sp.emergency_contact""", (coach_id, student_id))
+                   LIMIT 1""", (coach_id, student_id))
             athlete = cursor.fetchone()
             if not athlete:
                 return jsonify({"success": False, "message": "Athlete not found or not assigned to you."}), 404
@@ -1965,7 +2391,7 @@ def admin_dashboard_stats():
             cursor.execute("""SELECT
                 COUNT(*) FILTER (WHERE role='coach') AS total_coaches,
                 COUNT(*) FILTER (WHERE role='coach' AND coach_status='pending') AS pending_coaches,
-                COUNT(*) FILTER (WHERE role='student') AS total_athletes,
+                COUNT(*) FILTER (WHERE role='student' AND is_active=TRUE) AS total_athletes,
                 COUNT(*) FILTER (WHERE role='coach' AND coach_status='approved' AND is_active) AS active_coaches
                 FROM users""")
             row = cursor.fetchone()
@@ -1976,11 +2402,17 @@ def admin_dashboard_stats():
                 COUNT(*) FILTER (WHERE status='absent' AND session_date=CURRENT_DATE) AS absent_today,
                 COUNT(*) FILTER (WHERE session_date=CURRENT_DATE) AS today_total,
                 COUNT(*) FILTER (WHERE status='present') AS present_all,
+                COUNT(*) FILTER (WHERE status='late') AS late_all,
+                COUNT(*) FILTER (WHERE status='excused') AS excused_all,
                 COUNT(*) AS total_all FROM attendance_records""")
             attendance = cursor.fetchone()
         attendance.update({key: int(value or 0) for key, value in row.items()})
         attendance["pending_coaches"] += staged_pending
-        attendance["overall_attendance_percent"] = round(attendance["present_all"] * 100 / attendance["total_all"]) if attendance["total_all"] else 0
+        eligible_attendance = attendance["total_all"] - attendance["excused_all"]
+        attendance["overall_attendance_percent"] = (
+            round((attendance["present_all"] + attendance["late_all"]) * 100 / eligible_attendance)
+            if eligible_attendance else 0
+        )
         return jsonify({"success": True, "stats": attendance}), 200
     finally:
         db.close()
@@ -1993,18 +2425,32 @@ def admin_list_coaches():
     try:
         with db.cursor() as cursor:
             cursor.execute("""SELECT c.id, c.full_name, c.email, c.contact_number,
-                    c.specialization, c.qualification, c.experience_years, c.coach_status,
+                    c.coach_status,
                     c.coach_decided_at AS decision_at, c.coach_decision_reason AS decision_reason,
-                    c.is_active, COUNT(DISTINCT st.id)::INTEGER AS athlete_count
+                    c.is_active, COUNT(DISTINCT st.id) AS athlete_count,
+                    (SELECT COUNT(DISTINCT attendance.id)
+                     FROM attendance_sessions attendance
+                     JOIN coaching_sessions scheduled
+                       ON scheduled.sport_id = attendance.sport_id
+                      AND scheduled.session_date = attendance.session_date
+                      AND (scheduled.coach_id = attendance.coach_id OR scheduled.coach_id IS NULL)
+                      AND scheduled.status <> 'Cancelled'
+                     WHERE attendance.coach_id = c.id
+                       AND EXISTS (
+                           SELECT 1 FROM attendance_records coach_record
+                           WHERE coach_record.session_id = attendance.id
+                             AND coach_record.marked_by_role = 'coach'
+                       )) AS sessions_taken
                 FROM users c
                 LEFT JOIN coach_sports cs ON cs.coach_id=c.id
                 LEFT JOIN student_sports ss ON ss.sport_id=cs.sport_id
-                LEFT JOIN users st ON st.id=ss.student_id AND st.role='student' AND st.is_verified=TRUE
+                LEFT JOIN users st ON st.id=ss.student_id AND st.role='student' AND st.is_verified=TRUE AND st.is_active=TRUE
                 WHERE c.role='coach' GROUP BY c.id ORDER BY c.full_name""")
             coaches = cursor.fetchall()
-            cursor.execute("""SELECT id, full_name, email, contact_number, specialization, qualification,
-                    experience_years, CASE WHEN status='rejected' THEN 'declined' ELSE status END AS coach_status,
-                    decision_at, decision_reason, TRUE AS is_active, 0 AS athlete_count
+            cursor.execute("""SELECT id, full_name, email, contact_number,
+                    CASE WHEN status='rejected' THEN 'declined' ELSE status END AS coach_status,
+                    decision_at, decision_reason, TRUE AS is_active, 0 AS athlete_count,
+                    0 AS sessions_taken
                 FROM pending_registrations WHERE role='coach' AND status IN ('declined','rejected')""")
             coaches.extend(cursor.fetchall())
         for coach in coaches:
@@ -2040,7 +2486,7 @@ def student_assigned_coach():
     db = get_db()
     try:
         with db.cursor() as cursor:
-            cursor.execute("""SELECT c.id, c.full_name, c.email, c.contact_number, c.specialization
+            cursor.execute("""SELECT c.id, c.full_name, c.email, c.contact_number
                 FROM student_sports ss
                 JOIN coach_sports cs ON cs.sport_id=ss.sport_id
                 JOIN users c ON c.id=cs.coach_id
@@ -2144,11 +2590,10 @@ def _approve_staged_coach(registration_id, sports, email=None):
             cursor.execute(
                 """INSERT INTO users
                    (role, full_name, email, password_hash, contact_number, is_verified, coach_status,
-                    qualification, specialization, experience_years, coach_decided_at)
-                   VALUES ('coach', %s, %s, %s, %s, TRUE, 'approved', %s, %s, %s, NOW())
+                    coach_decided_at)
+                   VALUES ('coach', %s, %s, %s, %s, TRUE, 'approved', NOW())
                    RETURNING id""",
-                (draft["full_name"], draft["email"], draft["password_hash"], draft["contact_number"],
-                 draft.get("qualification"), draft.get("specialization"), draft.get("experience_years")),
+                (draft["full_name"], draft["email"], draft["password_hash"], draft["contact_number"]),
             )
             coach_id = cursor.fetchone()["id"]
             for sport in selected_sports:
@@ -2251,17 +2696,17 @@ def _set_coach_status(user_id, status):
 
 register_attendance_routes(app)
 register_performance_routes(app)
+register_schedule_routes(app)
+
 register_reference_feature_routes(app)
+register_blueprints(app)
 register_reference_extension_routes(app)
+register_assessment_routes(app)
 if __name__ == "__main__":
-    try:
-        if warm_database_pool():
-            app.logger.info("PostgreSQL connection pool is ready.")
-    except DatabaseConnectionError:
-        app.logger.warning("PostgreSQL pool warm-up failed; the first request will retry.")
     app.run(
         host="0.0.0.0",
         port=int(os.getenv("PORT", "5000")),
         debug=False,
         use_reloader=False,
+        threaded=True,
     )

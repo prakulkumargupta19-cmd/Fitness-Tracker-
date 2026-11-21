@@ -1,0 +1,4 @@
+[data-external-style-1] { width: 36px !important; height: 36px !important; object-fit: contain !important; }
+[data-external-style-2] { width: var(--attendance-progress-width, 0%) !important; }
+[data-external-style-3] { grid-column: 1/-1 !important; }
+[data-external-style-4] { width: 36px !important; height: 36px !important; object-fit: contain !important; }

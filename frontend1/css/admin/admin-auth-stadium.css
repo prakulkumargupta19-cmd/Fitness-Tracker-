@@ -1,0 +1,63 @@
+.auth {
+    --img: url("../../assets/admin-stadium.png");
+}
+
+.auth .art {
+    background-image:
+        linear-gradient(
+            115deg,
+            rgba(2, 10, 28, 0.72),
+            rgba(2, 10, 28, 0.38) 68%,
+            rgba(2, 10, 28, 0.3)
+        ),
+        var(--img);
+    background-position: center;
+    background-size: cover;
+}
+
+.auth .copy h2 {
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.auth .copy h2 .accent {
+    background: linear-gradient(90deg, #fff, #b9efff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.8));
+}
+
+.auth .copy .bar {
+    background: #64d7ff;
+    box-shadow: 0 0 16px rgba(100, 215, 255, 0.55);
+}
+
+.auth .copy p {
+    color: #fff;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+.auth .panel .sub,
+.auth .panel .description,
+.auth .panel .email-display,
+.auth .panel .timer,
+.auth .panel .resend,
+.auth .panel .security-note {
+    color: #52617b;
+}
+
+.auth .panel .email-display strong {
+    color: #172033;
+}
+
+.auth .panel .timer span,
+.auth .panel .resend button,
+.auth .panel .change-email {
+    color: #0754db;
+}
+
+.auth .panel .resend button:disabled {
+    color: #64748b;
+}

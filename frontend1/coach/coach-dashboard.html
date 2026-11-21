@@ -1,785 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="../css/coach/coach-dashboard-combined.css" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fit Track | Coach Dashboard</title>
 
-  <!-- Bootstrap -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
-
-  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     rel="stylesheet"
   />
-
-  <!-- Inter Font -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-<link
-        rel="stylesheet"
-        href="../css/coach/coach-dashboard.css"
-    >
-<link rel="stylesheet" href="../css/common/announcements-panel.css">
-<link rel="stylesheet" href="../css/common/dashboard-events.css?v=event-calendar-5">
-<link rel="stylesheet" href="../css/common/dashboard-schedule.css">
-<link rel="stylesheet" href="../css/common/dashboard-chat.css?v=blue-chat-2">
-<link rel="stylesheet" href="../css/common/dashboard-chrome.css?v=nav-calendar-contrast-2">
-<style>
-  .athlete-detail-modal[hidden] { display: none; }
-  .athlete-detail-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .58); }
-  .athlete-detail-dialog { position: relative; display: flex; flex-direction: column; width: min(650px, 100%); max-height: calc(100vh - 40px); padding: 22px; border-radius: 20px; background: #fff; box-shadow: 0 24px 70px rgba(15, 23, 42, .28); }
-  #athleteDetailContent { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
-  .athlete-detail-close { position: absolute; top: 10px; right: 12px; z-index: 1; border: 0; background: #fff; color: #64748b; font-size: 25px; line-height: 1; }
-  .athlete-detail-eyebrow { color: #2563eb; font-size: .75rem; font-weight: 800; letter-spacing: .1em; }
-  .athlete-detail-dialog h2 { margin: 6px 36px 14px 0; color: #172033; font-size: 1.25rem; }
-  .athlete-detail-fields { display: grid; gap: 8px; }
-  .athlete-detail-fields > div { display: grid; gap: 5px; padding: 9px 11px; border-radius: 10px; background: #f8fafc; overflow-wrap: anywhere; }
-  .athlete-detail-fields span { color: #718096; font-size: .72rem; font-weight: 600; }
-  .athlete-detail-fields strong { display: grid; gap: 3px; color: #172033; font-size: .82rem; font-weight: 500; line-height: 1.45; }
-  .athlete-detail-fields strong > span { color: #172033; font-size: inherit; font-weight: 500; }
-  .athlete-detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-  .athlete-detail-actions button { border: 0; border-radius: 10px; padding: 10px 14px; background: #2563eb; color: #fff; font: inherit; font-weight: 700; }
-</style>
-<script src="../js/config.js"></script>
+
+  <link rel="stylesheet" href="../css/coach/coach-dashboard.css?v=dark-dialog-fix-1" />
+  <link rel="stylesheet" href="../features/announcements/announcements-panel.css" />
+  <link rel="stylesheet" href="../features/schedule/dashboard-schedule.css" />
+  <link rel="stylesheet" href="../features/chat/chat.css?v=blue-chat-2" />
+  <link rel="stylesheet" href="../features/events/dashboard-events.css?v=event-registration-1" />
+  <link rel="stylesheet" href="../features/dashboard-shell/dashboard-chrome.css?v=portal-brand-1" />
+
+
+  <script src="../js/config.js"></script>
+
+
+    <link rel="stylesheet" href="../css/coach/coach-dashboard-attributes.css" />
 </head>
 
 <body class="coach-dashboard">
 
-<!-- =====================================================
-     SIDEBAR
-===================================================== -->
-
 <aside class="sidebar" id="sidebar">
-
   <div class="brand">
     <div class="brand-icon">
-      <img src="../logo.png" alt="Fit Track Logo" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain;">
+      <img
+        src="../logo.png"
+        alt="Fit Track Logo"
+        class="brand-logo"
+       data-external-style-1/>
     </div>
 
     <div>
-      <div class="brand-name">
-        Fit <span>Track</span>
-      </div>
-
-      <div class="brand-subtitle">
-        COACH PORTAL
-      </div>
+      <div class="brand-name">Fit <span>Track</span></div>
+      <div class="brand-subtitle">COACH PORTAL</div>
     </div>
   </div>
 
-  <div class="menu-title">
-    WORKSPACE
-  </div>
+  <div class="menu-title">WORKSPACE</div>
 
-  <div class="nav-menu">
-
+  <div class="nav-menu workspace-nav-menu">
     <button
       class="nav-button active"
-      onclick="showSection('dashboard', this)"
-    >
+     data-external-handler-1>
       <i class="bi bi-grid-1x2-fill"></i>
       Dashboard
     </button>
 
     <button
       class="nav-button"
-      onclick="showSection('attendance', this)"
-    >
+     data-external-handler-2>
       <i class="bi bi-calendar-check-fill"></i>
       Attendance
     </button>
 
     <button
       class="nav-button"
-      onclick="showSection('athletes', this)"
-    >
+     data-external-handler-3>
       <i class="bi bi-people-fill"></i>
       My Athletes
     </button>
 
     <button
       class="nav-button"
-      onclick="showSection('announcements', this)"
-    >
+     data-external-handler-4>
       <i class="bi bi-megaphone-fill"></i>
       Announcements
     </button>
 
-    <button class="nav-button" onclick="showSection('events', this)">
+    <button
+      class="nav-button"
+     data-external-handler-5>
       <i class="bi bi-calendar-event-fill"></i>
       Events &amp; Calendar
     </button>
 
-    <button class="nav-button" onclick="showSection('schedule', this)">
+    <button
+      class="nav-button"
+      title="View live scores"
+     data-external-handler-6>
+      <i class="bi bi-activity"></i>
+      Live Scores
+    </button>
+
+    <button
+      class="nav-button"
+     data-external-handler-7>
       <i class="bi bi-calendar3"></i>
       Schedule
     </button>
-
   </div>
 
-  <div class="menu-title" style="margin-top:22px">
-    ACCOUNT
-  </div>
-
-  <div class="nav-menu">
-
-    <button
-      class="nav-button"
-      onclick="showSection('profile', this)"
-    >
-      <i class="bi bi-person-fill"></i>
-      My Profile
-    </button>
-
-    <button
-      class="nav-button"
-      onclick="showSection('settings', this)"
-    >
-      <i class="bi bi-gear-fill"></i>
-      Settings
-    </button>
-
-  </div>
-
-  <!-- =========================
-       BOTTOM LEFT COACH BUTTON
-  ========================== -->
+  <div class="menu-title account-menu-title" data-external-style-2>ACCOUNT</div>
 
   <div class="sidebar-bottom">
-
     <button
       class="nav-button"
-      onclick="showSectionByName('profile')"
-      style="margin-top:10px;"
-    >
-
+     data-external-handler-10 data-external-style-3>
       <i class="bi bi-person-circle"></i>
-
-      <span id="coachDisplayName">
-        Loading…
-      </span>
-
+      <span class="coach-display-name">Loading…</span>
     </button>
 
-    <button class="nav-button sidebar-logout-link" type="button" onclick="logout()">
+    <button
+      class="nav-button sidebar-logout-link"
+      type="button"
+     data-external-handler-11>
       <i class="bi bi-box-arrow-left"></i>
       <span>Log Out</span>
     </button>
-
   </div>
-
 </aside>
 
-
-<!-- =====================================================
-     MAIN DASHBOARD
-===================================================== -->
-
 <div class="dashboard">
-
-  <!-- TOPBAR -->
-
   <header class="topbar">
-
-    <div style="display:flex;align-items:center;">
-
-      <button
-        class="mobile-menu"
-        onclick="toggleSidebar()"
-      >
+    <div data-external-style-4>
+      <button class="mobile-menu" data-external-handler-12>
         <i class="bi bi-list"></i>
       </button>
-
       <div class="topbar-page-title" id="pageTitle">Coach Dashboard</div>
-
     </div>
 
     <div class="topbar-right">
-
       <div class="date-display">
-
         <i class="bi bi-calendar3"></i>
-
         <span id="topDate"></span>
-
       </div>
-
     </div>
-
   </header>
 
-
   <main class="content">
-
-
-    <!-- =================================================
-         DASHBOARD
-    ================================================== -->
-
-    <section
-      id="dashboard"
-      class="section active"
-    >
-
+    <section id="dashboard" class="section active">
       <div class="hero">
-
         <div class="hero-content">
-
-          <div class="eyebrow">
-            COACH PERFORMANCE OVERVIEW
-          </div>
-
-          <h1>
-            Welcome back, <span id="coachDisplayName">Coach</span>
-          </h1>
-
+          <div class="eyebrow">COACH PERFORMANCE OVERVIEW</div>
+          <h1>Welcome back, <span class="coach-display-name">Coach</span></h1>
           <p>
-            Manage your athletes, record attendance for any
-            training date and monitor your team's progress
-            from one dashboard.
+            Manage your athletes, record attendance for any training date
+            and monitor your team's progress from one dashboard.
           </p>
 
           <div class="hero-actions">
-
             <button
               class="hero-primary"
-              onclick="showSectionByName('attendance')"
-            >
+             data-external-handler-13>
               Attendance
               <i class="bi bi-arrow-right"></i>
             </button>
 
             <button
               class="hero-secondary"
-              onclick="showSectionByName('athletes')"
-            >
+             data-external-handler-14>
               View Athletes
             </button>
-
           </div>
-
         </div>
-
-
-        
-
       </div>
-
-
-      <!-- TEAM SNAPSHOT -->
 
       <div class="section-header">
-
         <div>
-
-          <h2>
-            Team Snapshot
-          </h2>
-
-          <p>
-            Quick overview of your coaching group.
-          </p>
-
+          <h2>Team Snapshot</h2>
+          <p>Quick overview of your coaching group.</p>
         </div>
-
       </div>
 
-
       <div class="stats">
-
         <div class="stat">
-
           <div class="stat-icon blue">
             <i class="bi bi-people-fill"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Total Athletes
-            </span>
-
-            <strong id="totalAthletes">
-              0
-            </strong>
-
+            <span>Total Athletes</span>
+            <strong id="totalAthletes">0</strong>
           </div>
-
         </div>
 
-
         <div class="stat">
-
           <div class="stat-icon purple">
             <i class="bi bi-check2-circle"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Present Today
-            </span>
-
-            <strong id="presentToday">
-              0
-            </strong>
-
+            <span>Present Today</span>
+            <strong id="presentToday">0</strong>
           </div>
-
         </div>
 
-
         <div class="stat">
-
           <div class="stat-icon orange">
             <i class="bi bi-clock-history"></i>
           </div>
-
           <div class="stat-info">
-
-            <span>
-              Attendance Rate
-            </span>
-
-            <strong id="attendanceRate">
-              0%
-            </strong>
-
+            <span>Attendance Rate</span>
+            <strong id="attendanceRate">0%</strong>
           </div>
-
         </div>
-
       </div>
-
-
-      <!-- QUICK ACTIONS -->
 
       <div class="section-header">
-
         <div>
-
-          <h2>
-            Quick Access
-          </h2>
-
-          <p>
-            Frequently used coach tools.
-          </p>
-
+          <h2>Quick Access</h2>
+          <p>Frequently used coach tools.</p>
         </div>
-
       </div>
 
-
       <div class="quick-actions">
-
         <button
           class="quick-card"
-          onclick="showSectionByName('attendance')"
-        >
-
+         data-external-handler-15>
           <div class="quick-icon">
             <i class="bi bi-calendar2-check-fill"></i>
           </div>
-
           <div>
-
-            <strong>
-              Attendance
-            </strong>
-
-            <span>
-              Record or edit attendance for any date.
-            </span>
-
+            <strong>Attendance</strong>
+            <span>Record or edit attendance for any date.</span>
           </div>
-
         </button>
-
 
         <button
           class="quick-card"
-          onclick="showSectionByName('athletes')"
-        >
-
+         data-external-handler-16>
           <div class="quick-icon purple">
             <i class="bi bi-people-fill"></i>
           </div>
-
           <div>
-
-            <strong>
-              My Athletes
-            </strong>
-
-            <span>
-              View athletes assigned to you.
-            </span>
-
+            <strong>My Athletes</strong>
+            <span>View athletes assigned to you.</span>
           </div>
-
         </button>
-
       </div>
-
     </section>
 
-
-    <!-- =================================================
-         ATTENDANCE
-    ================================================== -->
-
-    <section
-      id="attendance"
-      class="section"
-    >
-
+    <section id="attendance" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          TRAINING RECORD
-        </div>
-
-        <h1>
-          Attendance
-        </h1>
-
+        <div class="eyebrow">TRAINING RECORD</div>
+        <h1>Attendance</h1>
         <p>
-          Select any date to create or edit an attendance
-          record — including dates from previous months.
+          Select any date to create or edit an attendance record —
+          including dates from previous months.
         </p>
-
       </div>
 
-
       <div class="card">
-
         <div class="card-header-custom">
-
           <div>
-
-            <h3>
-              Attendance Register
-            </h3>
-
-            <span>
-              Choose a date and update the student status.
-            </span>
-
+            <h3>Attendance Register</h3>
+            <span>Choose a date and update the student status.</span>
           </div>
-
-          <button
-            class="btn btn-secondary"
-            onclick="loadAttendance()"
-          >
-            <i class="bi bi-arrow-clockwise"></i>
-            Reload
-          </button>
-
+          <div class="attendance-history-actions">
+            <button type="button" class="btn btn-secondary" data-external-handler-17>
+              <i class="bi bi-arrow-clockwise"></i>
+              Reload
+            </button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('extraSessionDialog').showModal()">
+              <i class="bi bi-plus-circle"></i>
+              Request Extra Session
+            </button>
+            <button type="button" class="btn btn-secondary" data-external-handler-33>
+              <i class="bi bi-clock-history"></i>
+              View History
+            </button>
+          </div>
         </div>
 
-
-        <!-- ATTENDANCE CONTROLS -->
-
         <div class="attendance-toolbar">
-
           <div class="form-group">
             <label for="attendanceSport">Assigned Sport</label>
-            <select id="attendanceSport" onchange="loadAttendance()"></select>
+            <select id="attendanceSport" data-external-handler-18></select>
           </div>
 
           <div class="form-group">
-
-            <label>
-              Training Date
-            </label>
-
+            <label>Training Date</label>
             <input
               type="date"
               id="attendanceDate"
-              onchange="loadAttendance()"
-            />
-
+             data-external-handler-19/>
           </div>
-
 
           <div class="form-group">
-
-            <label>
-              Training Session
-            </label>
-
+            <label>Training Session</label>
             <select id="session">
-
-              <option>
-                Morning Training
-              </option>
-
-              <option>
-                Evening Training
-              </option>
-
-              <option>
-                Match Session
-              </option>
-
-              <option>
-                Fitness Session
-              </option>
-
+              <option>Morning Training</option>
+              <option>Evening Training</option>
+              <option>Match Session</option>
+              <option>Fitness Session</option>
             </select>
-
           </div>
-
 
           <button
             class="btn btn-secondary"
-            onclick="markAll('present')"
-          >
+           data-external-handler-20>
             Mark All Present
           </button>
 
-
           <button
             class="btn btn-secondary"
-            onclick="markAll('absent')"
-          >
+           data-external-handler-21>
             Mark All Absent
           </button>
 
-
           <button
             class="btn btn-primary"
-            onclick="saveAttendance()"
-          >
+           data-external-handler-22>
             <i class="bi bi-save"></i>
             Save Attendance
           </button>
-
         </div>
 
+        <p id="attendanceAssessmentStatus" class="attendance-assessment-status" role="status" hidden></p>
 
-        <!-- TABLE -->
-
-        <div style="overflow-x:auto">
-
+        <div data-external-style-5>
           <table class="attendance-table">
-
             <thead>
-
               <tr>
-
-                <th>
-                  Athlete
-                </th>
-
-                <th>
-                  Sport / Position
-                </th>
-
-                <th>
-                  Status
-                </th>
-
+                <th>Athlete</th>
+                <th>Sport / Position</th>
+                <th>Status</th>
               </tr>
-
             </thead>
-
-            <tbody
-              id="attendanceBody"
-            ></tbody>
-
+            <tbody id="attendanceBody"></tbody>
           </table>
-
         </div>
-
-
-        <!-- SUMMARY -->
 
         <div class="attendance-summary">
-
           <div class="summary present">
-
-            <span>
-              Present
-            </span>
-
-            <strong id="presentCount">
-              0
-            </strong>
-
+            <span>Present</span>
+            <strong id="presentCount">0</strong>
           </div>
-
 
           <div class="summary absent">
-
-            <span>
-              Absent
-            </span>
-
-            <strong id="absentCount">
-              0
-            </strong>
-
+            <span>Absent</span>
+            <strong id="absentCount">0</strong>
           </div>
+
           <div class="summary late">
-
-            <span>
-              Late
-            </span>
-
-            <strong id="lateCount">
-              0
-            </strong>
-
+            <span>Late</span>
+            <strong id="lateCount">0</strong>
           </div>
 
           <div class="summary excused">
-
-            <span>
-              Excused
-            </span>
-
-            <strong id="excusedCount">
-              0
-            </strong>
-
+            <span>Excused</span>
+            <strong id="excusedCount">0</strong>
           </div>
-
-
-
         </div>
-
       </div>
-
     </section>
 
-
-    <!-- =================================================
-         ATHLETES
-    ================================================== -->
-
-    <section
-      id="athletes"
-      class="section"
-    >
-
+    <section id="athletes" class="section">
       <div id="athleteDetailModal" class="athlete-detail-modal" hidden>
-        <div class="athlete-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="athleteDetailName">
-          <button type="button" class="athlete-detail-close" aria-label="Close athlete details" onclick="closeAthleteDetails()">&times;</button>
+        <div
+          class="athlete-detail-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="athleteDetailName"
+        >
+          <button
+            type="button"
+            class="athlete-detail-close"
+            aria-label="Close athlete details"
+           data-external-handler-23>
+            ← Back to My Athletes
+          </button>
           <div id="athleteDetailContent"></div>
         </div>
       </div>
 
       <div class="page-heading">
-
-        <div class="eyebrow">
-          TEAM MANAGEMENT
-        </div>
-
-        <h1>
-          My Athletes
-        </h1>
-
-        <p>
-          Athletes assigned to this coach.
-        </p>
-
+        <div class="eyebrow">TEAM MANAGEMENT</div>
+        <h1>My Athletes</h1>
+        <p>Athletes assigned to this coach.</p>
       </div>
 
+      <div
+        class="athlete-filters"
+        aria-label="Filter athletes"
+       data-external-style-6>
+      <h3
+        class="athlete-filter-heading"
+       data-external-style-7>
+        Filter athletes
+      </h3>
+
+        <label class="athlete-filter-field" for="athleteSportFilter">
+          Sport
+          <select id="athleteSportFilter" data-external-handler-24>
+            <option value="">All sports</option>
+          </select>
+        </label>
+
+        <label class="athlete-filter-field" for="athleteDepartmentFilter">
+          Department
+          <select id="athleteDepartmentFilter" data-external-handler-25>
+            <option value="">All departments</option>
+          </select>
+        </label>
+
+        <label class="athlete-filter-field" for="athleteSemesterFilter">
+          Semester
+          <select id="athleteSemesterFilter" data-external-handler-26>
+            <option value="">All semesters</option>
+          </select>
+        </label>
+
+        <button
+          type="button"
+          class="athlete-filter-reset"
+         data-external-handler-27>
+          Clear filters
+        </button>
+      </div>
 
       <div class="athletes-toolbar">
-
         <button
           class="view-button active"
           id="boxViewButton"
-          onclick="setAthleteView('box')"
           title="Box view"
-        >
+         data-external-handler-28>
           <i class="bi bi-grid-3x3-gap-fill"></i>
         </button>
-
 
         <button
           class="view-button"
           id="listViewButton"
-          onclick="setAthleteView('list')"
           title="List view"
-        >
+         data-external-handler-29>
           <i class="bi bi-list-ul"></i>
         </button>
-
       </div>
 
-
-      <div
-        class="athletes-grid"
-        id="athletesGrid"
-      ></div>
-
+      <div class="athletes-grid" id="athletesGrid"></div>
     </section>
 
-
-    <!-- =================================================
-         ANNOUNCEMENTS
-    ================================================== -->
-
-    <section
-      id="announcements"
-      class="section"
-    >
-
+    <section id="announcements" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          CAMPUS NOTICEBOARD
-        </div>
-
-        <h1>
-          Announcements
-        </h1>
-
+        <div class="eyebrow">CAMPUS NOTICEBOARD</div>
+        <h1>Announcements</h1>
         <p>
-          Create notices that appear on every dashboard. Students can view them; coaches and admins can delete them.
+          Create notices that appear on every dashboard. Students can view
+          them; coaches and admins can delete them.
         </p>
-
       </div>
 
       <div id="announcementsPanel" class="announcement-panel">
         <article class="announcement-composer">
-          <div class="announcement-composer-header"><h2>Publish an announcement</h2><p>This notice will appear on student, coach and admin dashboards.</p></div>
+          <div class="announcement-composer-header">
+            <h2>Publish an announcement</h2>
+            <p>This notice will appear on student, coach and admin dashboards.</p>
+          </div>
+
           <form id="dashboardAnnouncementForm" class="announcement-form">
-            <label>Title<input name="title" type="text" maxlength="180" required placeholder="Announcement title"></label>
-            <label>Image <small>(optional)</small><input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
-            <label class="full">Message<textarea name="message" rows="4" required placeholder="Write the announcement"></textarea></label>
-            <div class="full announcement-form-actions"><button type="submit" class="announcement-primary-btn"><i class="bi bi-megaphone-fill"></i> Publish announcement</button></div>
+            <label>
+              Title
+              <input
+                name="title"
+                type="text"
+                maxlength="180"
+                required
+                placeholder="Announcement title"
+              />
+            </label>
+
+            <label>
+              Image <small>(optional)</small>
+              <input
+                name="image"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+              />
+            </label>
+
+            <label class="full">
+              Message
+              <textarea
+                name="message"
+                rows="4"
+                required
+                placeholder="Write the announcement"
+              ></textarea>
+            </label>
+
+            <div class="full announcement-form-actions">
+              <button type="submit" class="announcement-primary-btn">
+                <i class="bi bi-megaphone-fill"></i>
+                Publish announcement
+              </button>
+            </div>
           </form>
+
           <div class="announcement-status" id="announcementStatus" hidden></div>
         </article>
-        <div class="announcement-feed" data-announcement-list><div class="announcement-empty">Loading announcements…</div></div>
-      </div>
 
+        <div class="announcement-feed" data-announcement-list>
+          <div class="announcement-empty">Loading announcements…</div>
+        </div>
+      </div>
     </section>
 
     <section id="events" class="section">
-      <div class="page-heading"><div class="eyebrow">EVENTS &amp; CALENDAR</div><h1>Events &amp; Calendar</h1><p>Create events, review student registrations and manage your calendar.</p></div>
+      <div class="page-heading">
+        <div class="eyebrow">EVENTS &amp; CALENDAR</div>
+        <h1>Events &amp; Calendar</h1>
+        <p>
+          Create events, review student registrations and manage your calendar.
+        </p>
+      </div>
+
       <div id="dashboardEventsPanel" class="announcement-panel">
         <article class="announcement-composer">
-          <div class="announcement-composer-header"><h2>Events &amp; calendar</h2><p>View events published by the admin for your sports.</p></div>
+          <div class="announcement-composer-header">
+            <h2>Events &amp; calendar</h2>
+            <p>View events published by the admin for your sports.</p>
+          </div>
+
           <div class="announcement-status" id="eventStatus" hidden></div>
-          <label class="event-sport-filter">Sport
-            <select data-coach-event-sport-filter aria-label="Filter events by sport"><option value="all">All events</option></select>
+
+          <label class="event-sport-filter">
+            Sport
+            <select
+              data-coach-event-sport-filter
+              aria-label="Filter events by sport"
+            >
+              <option value="all">All events</option>
+            </select>
           </label>
         </article>
-        <div class="event-card-grid" data-event-list><div class="announcement-empty">Loading events…</div></div>
-        <div class="event-modal" data-event-modal hidden><div class="event-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle"><button type="button" class="event-modal-close" aria-label="Close">×</button><div data-event-modal-content></div></div></div>
+
+        <div class="event-card-grid" data-event-list>
+          <div class="announcement-empty">Loading events…</div>
+        </div>
+
+        <div class="event-modal" data-event-modal hidden>
+          <div
+            class="event-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="eventModalTitle"
+          >
+            <button type="button" class="event-modal-close" aria-label="Close">
+              ×
+            </button>
+            <div data-event-modal-content></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="liveScores" class="section" aria-labelledby="liveScoresHeading">
+      <div class="page-heading">
+        <div class="eyebrow">MATCH CENTRE</div>
+        <h1 id="liveScoresHeading">Live Scores</h1>
+        <p>View match fixtures and scores published by the admin.</p>
+      </div>
+
+      <div class="card coach-live-scores-card">
+        <div class="card-header-custom">
+          <div>
+            <h3>Fixtures and results</h3>
+            <span>Scores are managed by the admin and shown here for viewing.</span>
+          </div>
+          <button class="btn btn-secondary" type="button" data-external-handler-30>
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+        <div id="coachLiveScoresList" class="coach-live-scores-list" aria-live="polite">
+          <div class="announcement-empty">Open Live Scores to load fixtures.</div>
+        </div>
       </div>
     </section>
 
@@ -791,1323 +588,178 @@
       </div>
     </section>
 
-
-    <!-- =================================================
-         PROFILE
-    ================================================== -->
-
-    <section
-      id="profile"
-      class="section"
-    >
-
+    <section id="profile" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          ACCOUNT
-        </div>
-
-        <h1>
-          My Profile
-        </h1>
-
-        <p>
-          Coach account information.
-        </p>
-
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>My Profile</h1>
+        <p>Coach account information.</p>
       </div>
 
-
       <div class="profile-card">
-
         <div class="profile-header">
-
-          <div class="large-avatar" id="coachProfileAvatar">
-            C
-          </div>
+          <div class="large-avatar" id="coachProfileAvatar">C</div>
 
           <div>
-
-            <h2 id="coachProfileTitle">
-              Loading…
-            </h2>
-
+            <h2 id="coachProfileTitle">Loading…</h2>
             <span class="profile-badge">
-
               <i class="bi bi-patch-check-fill"></i>
-
               Coach Account
-
             </span>
-
           </div>
-
         </div>
-
 
         <div class="profile-grid">
-
           <div class="profile-field">
-
-            <label>
-              Coach Name
-            </label>
-
-            <strong id="coachProfileName">
-              Loading…
-            </strong>
-
+            <label>Coach Name</label>
+            <strong id="coachProfileName">Loading…</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Email
-            </label>
-
-            <strong id="coachProfileEmail">
-              —
-            </strong>
-
+            <label>Email</label>
+            <strong id="coachProfileEmail">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Phone Number
-            </label>
-
-            <strong id="coachProfilePhone">
-              —
-            </strong>
-
+            <label>Phone Number</label>
+            <strong id="coachProfilePhone">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Coach ID
-            </label>
-
-            <strong id="coachProfileId">
-              —
-            </strong>
-
+            <label>Coach ID</label>
+            <strong id="coachProfileId">—</strong>
           </div>
 
-
           <div class="profile-field">
-
-            <label>
-              Assigned Role
-            </label>
-
-            <strong id="coachProfileRoles">
-              —
-            </strong>
-
+            <label>Assigned Role</label>
+            <strong id="coachProfileRoles">—</strong>
           </div>
-
         </div>
 
-      </div>
+        <div class="coach-profile-actions" id="coachProfileActions">
+          <button type="button" class="btn btn-primary" id="editCoachProfileButton">
+            <i class="bi bi-pencil-square"></i> Edit Profile
+          </button>
+        </div>
 
+        <form id="coachProfileEditForm" class="coach-profile-edit-form" hidden>
+          <label>
+            Coach Name
+            <input type="text" id="editCoachName" name="name" maxlength="120" required>
+          </label>
+          <label>
+            Email
+            <input type="email" id="editCoachEmail" name="email" required>
+          </label>
+          <label>
+            Phone Number
+            <input type="tel" id="editCoachPhone" name="contact_number" maxlength="30">
+          </label>
+          <p class="coach-profile-edit-note">
+            These edits update the profile displayed in this dashboard only. Gareema's existing backend does not provide a coach-profile update endpoint, so changes are not saved to the server or database.
+          </p>
+          <div class="coach-profile-actions coach-profile-form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelCoachProfileEdit">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
     </section>
 
-
-    <!-- =================================================
-         SETTINGS
-    ================================================== -->
-
-    <section
-      id="settings"
-      class="section"
-    >
-
+    <section id="settings" class="section">
       <div class="page-heading">
-
-        <div class="eyebrow">
-          ACCOUNT
-        </div>
-
-        <h1>
-          Settings
-        </h1>
-
-        <p>
-          Manage account settings.
-        </p>
-
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>Settings</h1>
+        <p>Manage account settings.</p>
       </div>
 
-
       <div class="profile-card">
-
-        <h3
-          style="font-size:14px;font-weight:800;"
-        >
-          Account Settings
-        </h3>
-
+        <h3 data-external-style-8>Account Settings</h3>
 
         <div class="settings-row">
-
           <div class="settings-info">
-
             <div class="settings-icon">
               <i class="bi bi-box-arrow-right"></i>
             </div>
 
             <div>
-
-              <strong>
-                Logout
-              </strong>
-
-              <span>
-                End your current session.
-              </span>
-
+              <strong>Logout</strong>
+              <span>End your current session.</span>
             </div>
-
           </div>
-
 
           <button
             class="btn btn-secondary"
-            style="color:#dc2626;background:#fee2e2;"
-            onclick="logout()"
-          >
+           data-external-style-9 data-external-handler-31>
             Logout
           </button>
-
         </div>
-
       </div>
-
     </section>
-
   </main>
-
 </div>
 
+  <dialog id="performanceDialog">
+    <form id="performanceForm">
+      <h2 id="performanceFormTitle"></h2>
+      <div id="performanceFormFields"></div>
+      <p
+        id="performanceFormStatus"
+        class="performance-form-status"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></p>
+      <div class="dialog-actions">
+        <button type="button" data-external-handler-32>Cancel</button>
+        <button type="submit" id="performanceSubmitButton">Save record</button>
+      </div>
+    </form>
+  </dialog>
 
-<dialog id="performanceDialog">
-  <form id="performanceForm">
-    <h2 id="performanceFormTitle"></h2>
-    <div id="performanceFormFields"></div>
-    <p id="performanceFormStatus" class="performance-form-status" role="status" aria-live="polite" hidden></p>
-    <div class="dialog-actions">
-      <button type="button" onclick="document.getElementById('performanceDialog').close()">Cancel</button>
-      <button type="submit" id="performanceSubmitButton">Save record</button>
+  <dialog id="extraSessionDialog">
+    <form id="extraSessionForm">
+      <h2>Request Extra Session</h2>
+      <label>Sport: <select id="extraSessionSport" required></select></label>
+      <label>Date: <input type="date" id="extraSessionDate" required></label>
+      <label>Start Time: <input type="time" id="extraSessionStart" required></label>
+      <label>End Time: <input type="time" id="extraSessionEnd" required></label>
+      <p id="extraSessionFormStatus" role="status" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button type="button" onclick="document.getElementById('extraSessionDialog').close()">Cancel</button>
+        <button type="submit">Submit Request</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="attendanceHistoryDialog" aria-labelledby="attendanceHistoryTitle">
+    <div class="attendance-history-dialog">
+      <h2 id="attendanceHistoryTitle">Attendance History</h2>
+      <p>Review the athletes and attendance status recorded for each session.</p>
+      <div class="attendance-history-filters">
+        <label for="attendanceHistorySport">Sport</label>
+        <select id="attendanceHistorySport">
+          <option value="">All assigned sports</option>
+        </select>
+        <label for="attendanceHistoryDate">Date</label>
+        <input id="attendanceHistoryDate" type="date">
+        <button type="button" id="loadCoachAttendanceHistory" class="btn btn-primary">Load history</button>
+      </div>
+      <div id="coachAttendanceHistoryResults" aria-live="polite">
+        Choose filters or load all attendance history.
+      </div>
+      <button type="button" id="attendanceHistoryClose" class="btn btn-secondary">Close</button>
     </div>
-  </form>
-</dialog>
-
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
+  </dialog>
 
 <script src="../js/api-client.js"></script>
-<script src="../js/announcements-panel.js"></script>
-<script src="../js/dashboard-chrome.js"></script>
-<script src="../js/dashboard-chat.js"></script>
-<script>
+<script src="../features/announcements/announcements-panel.js"></script>
+<script src="../features/dashboard-shell/dashboard-chrome.js?v=dashboard-theme-fix-1"></script>
+<script src="../features/chat/chat.js"></script>
+<script src="../features/schedule/dashboard-schedule.js"></script>
 
-  const API_BASE = window.FITNESS_API_BASE || "";
-  let athletes = [];
-  let attendanceAthletes = [];
-  let assignedSports = [];
-  let attendanceRecords = [];
-  let attendanceSummary = {};
-  let currentAttendance = {};
-  let activeRecordStudentId = null;
-  let activeRecordType = null;
+<script src="../js/coach/coach-dashboard-script-combined.js"></script>
 
-  async function apiRequest(path, options = {}) {
-    const response = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-      credentials: "include"
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.message || "The request could not be completed.");
-    return data;
-  }
 
-  async function getCoachSession() {
-    try {
-      const sessionData = await apiRequest("/api/session");
-      const currentUser = sessionData.user || {};
-      if (currentUser.role === "coach") return sessionData;
-    } catch (err) {
-      console.warn("Coach session check offline:", err);
-    }
-
-    const cfg = window.APP_CONFIG || {};
-    if (cfg.AUTH_BYPASS !== false) {
-      return {
-        authenticated: true,
-        user: {
-          id: 2,
-          name: "Coach Sarah Jenkins",
-          full_name: "Coach Sarah Jenkins",
-          email: "coach@fittrack.com",
-          role: "coach",
-          specialization: "Athletics & Track",
-          contact_number: "+1 555-0192"
-        }
-      };
-    }
-
-    window.location.replace("coach-login.html");
-    return null;
-  }
-
-  window.addEventListener("focus", () => {
-    getCoachSession().catch(() => {});
-  });
-
-  function openRecordForm(studentId, resource) {
-    const athlete = athletes.find(item => item.id === studentId);
-    if (!athlete) return;
-    activeRecordStudentId = studentId;
-    activeRecordType = resource;
-    const fieldContainer = document.getElementById("performanceFormFields");
-    const definitions = {
-      assessments: [
-        ["assessment_date", "Assessment date", "date", true], ["speed", "Speed", "number"],
-        ["strength", "Strength", "number"], ["endurance", "Endurance", "number"],
-        ["agility", "Agility", "number"], ["flexibility", "Flexibility", "number"],
-        ["reaction_time", "Reaction time", "number"], ["overall_score", "Overall score", "number"],
-        ["notes", "Notes", "textarea"]
-      ],
-      "training-sessions": [
-        ["sport_id", "Sport", "sport"], ["session_date", "Session date", "date", true],
-        ["training_type", "Training type", "text", true], ["duration_minutes", "Duration (minutes)", "number", true],
-        ["description", "Description", "textarea"], ["performance_notes", "Performance notes", "textarea"]
-      ],
-      goals: [
-        ["title", "Title", "text", true], ["description", "Description", "textarea"],
-        ["target_value", "Target value", "number"], ["current_value", "Current value", "number"],
-        ["start_date", "Start date", "date"], ["target_date", "Target date", "date"],
-        ["status", "Status", "goal-status"]
-      ],
-      feedback: [["feedback", "Feedback for the athlete", "textarea", true], ["rating", "Rating", "rating"]]
-    }[resource];
-    document.getElementById("performanceFormTitle").textContent = `New ${resource.replaceAll("-", " ")} for ${athlete.name}`;
-    fieldContainer.replaceChildren();
-    definitions.forEach(([name, label, type, required]) => {
-      const wrapper = document.createElement("label");
-      wrapper.textContent = label;
-      let control;
-      if (type === "textarea") {
-        control = document.createElement("textarea");
-        if (resource === "feedback") {
-          control.maxLength = 2000;
-          control.rows = 6;
-          control.placeholder = "Share a specific observation and one useful next step…";
-          control.setAttribute("aria-describedby", "feedbackCharacterCount");
-        }
-      } else if (type === "rating") {
-        control = document.createElement("select");
-        control.add(new Option("No rating", ""));
-        for (let score = 5; score >= 1; score--) control.add(new Option(`${score} / 5${score === 5 ? " · Excellent" : score === 1 ? " · Needs focus" : ""}`, String(score)));
-      } else if (type === "sport" || type === "goal-status") {
-        control = document.createElement("select");
-        const options = type === "sport"
-          ? assignedSports.filter(sport => (athlete.sports || []).includes(sport.name)).map(sport => [sport.id, sport.name])
-          : [["active", "Active"], ["completed", "Completed"], ["cancelled", "Cancelled"]];
-        options.forEach(([value, text]) => control.add(new Option(text, value)));
-        control.required = type === "sport";
-      } else {
-        control = document.createElement("input");
-        control.type = type;
-        if (type === "number") control.step = "any";
-        if (name.endsWith("_date") && name !== "assessment_date" && name !== "session_date") control.value = "";
-        if (name === "assessment_date" || name === "session_date") control.value = getToday();
-        control.required = Boolean(required);
-      }
-      control.name = name;
-      control.required = Boolean(required);
-      wrapper.appendChild(control);
-      if (resource === "feedback" && name === "feedback") {
-        const helper = document.createElement("small");
-        helper.id = "feedbackCharacterCount";
-        helper.className = "feedback-character-count";
-        helper.textContent = "0 / 2,000 characters · Keep feedback specific, constructive, and actionable.";
-        control.addEventListener("input", () => { helper.textContent = `${control.value.length.toLocaleString()} / 2,000 characters · Keep feedback specific, constructive, and actionable.`; });
-        wrapper.appendChild(helper);
-      }
-      fieldContainer.appendChild(wrapper);
-    });
-    const status = document.getElementById("performanceFormStatus");
-    status.hidden = true;
-    status.textContent = "";
-    document.getElementById("performanceSubmitButton").disabled = false;
-    document.getElementById("performanceDialog").showModal();
-  }
-
-  document.getElementById("performanceForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(await getCoachSession())) return;
-    const payload = Object.fromEntries(new FormData(form));
-    payload.student_id = activeRecordStudentId;
-    if (activeRecordType === "training-sessions") payload.sport_id = Number(payload.sport_id);
-    ["speed", "strength", "endurance", "agility", "flexibility", "reaction_time", "overall_score", "duration_minutes", "target_value", "current_value", "rating"].forEach(key => {
-      if (payload[key] !== undefined && payload[key] !== "") payload[key] = Number(payload[key]);
-    });
-    const submitButton = document.getElementById("performanceSubmitButton");
-    const status = document.getElementById("performanceFormStatus");
-    submitButton.disabled = true;
-    submitButton.textContent = "Saving…";
-    status.hidden = true;
-    try {
-      await apiRequest(`/api/${activeRecordType}`, { method: "POST", body: JSON.stringify(payload) });
-      document.getElementById("performanceDialog").close();
-      form.reset();
-      const toast = document.createElement("div");
-      toast.className = "feedback-save-toast";
-      toast.textContent = activeRecordType === "feedback" ? "Feedback shared with the athlete." : "Record saved.";
-      document.body.appendChild(toast);
-      window.setTimeout(() => toast.remove(), 3200);
-    } catch (error) {
-      status.textContent = error.message || "This record could not be saved. Please try again.";
-      status.dataset.state = "error";
-      status.hidden = false;
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = "Save record";
-    }
-  });
-  async function initializeCoachDashboard() {
-    let currentUser = {};
-    try {
-      const sessionData = await getCoachSession();
-      if (!sessionData) return;
-      currentUser = sessionData.user || {};
-
-      const [athleteData, sportData, attendanceSessions, summaryData] = await Promise.all([
-        apiRequest("/api/coach/athletes").catch(() => null),
-        apiRequest("/api/coach/sports").catch(() => null),
-        apiRequest("/api/coach/attendance/sessions").catch(() => null),
-        apiRequest("/api/coach/attendance/summary").catch(() => null)
-      ]);
-
-      if (athleteData && athleteData.athletes) {
-        athletes = athleteData.athletes.map(athlete => ({
-          ...athlete,
-          name: athlete.name || athlete.full_name,
-          sports: athlete.sports || [],
-          sport: (athlete.sports || []).join(", ")
-        }));
-      }
-
-      if (sportData && sportData.sports) assignedSports = sportData.sports;
-      if (attendanceSessions && attendanceSessions.data) attendanceRecords = attendanceSessions.data;
-      if (summaryData && summaryData.summary) attendanceSummary = summaryData.summary;
-    } catch (err) {
-      console.warn("Coach dashboard online fetch error:", err);
-    }
-
-    const coach = currentUser;
-    const coachName = coach.full_name || coach.name || "Coach";
-    document.getElementById("coachDisplayName").textContent = coachName;
-    document.getElementById("coachProfileTitle").textContent = coachName;
-    document.getElementById("coachProfileName").textContent = coachName;
-    document.getElementById("coachProfileEmail").textContent = coach.email || "—";
-    document.getElementById("coachProfilePhone").textContent = coach.contact_number || "—";
-    document.getElementById("coachProfileId").textContent = coach.id ? `COACH-${coach.id}` : "—";
-    document.getElementById("coachProfileRoles").textContent = assignedSports.length
-      ? assignedSports.map(sport => sport.name).join(", ")
-      : "—";
-    const initials = coachName.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
-    document.getElementById("coachProfileAvatar").textContent = initials || "C";
-    const select = document.getElementById("attendanceSport");
-    if (select) {
-      select.innerHTML = assignedSports.map(sport =>
-        `<option value="${sport.id}">${sport.name}</option>`
-      ).join("");
-    }
-    await loadAttendance().catch(() => {});
-    renderAthletes();
-    updateDashboardStats();
-  }
-
-
-  function getToday() {
-
-    const date = new Date();
-
-    const localDate =
-      new Date(
-        date.getTime() -
-        date.getTimezoneOffset() * 60000
-      );
-
-    return localDate
-      .toISOString()
-      .split("T")[0];
-
-  }
-
-
-  function getInitials(name) {
-
-    return name
-      .split(" ")
-      .map(word => word[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
-
-  }
-
-
-  function formatDate(date) {
-
-    return new Date(
-      date + "T00:00:00"
-    ).toLocaleDateString(
-      undefined,
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      }
-    );
-
-  }
-
-
-  /* =========================
-     TOP DATE
-  ========================= */
-
-  function updateTopDate() {
-
-    document.getElementById(
-      "topDate"
-    ).textContent =
-      new Date().toLocaleDateString(
-        undefined,
-        {
-          weekday: "short",
-          day: "numeric",
-          month: "short",
-          year: "numeric"
-        }
-      );
-
-  }
-
-
-  /* =========================
-     PAGE NAVIGATION
-  ========================= */
-
-  function showSection(
-    sectionName,
-    button
-  ) {
-
-    document
-      .querySelectorAll(".section")
-      .forEach(section => {
-
-        section.classList.remove(
-          "active"
-        );
-
-      });
-
-
-    document
-      .getElementById(sectionName)
-      .classList.add("active");
-
-
-    document
-      .querySelectorAll(".nav-button")
-      .forEach(button => {
-
-        button.classList.remove(
-          "active"
-        );
-
-      });
-
-
-    if (button) {
-
-      button.classList.add("active");
-
-    }
-
-
-    const titles = {
-
-      dashboard: "Coach Dashboard",
-
-      attendance: "Attendance",
-
-      athletes: "My Athletes",
-
-      announcements: "Announcements",
-
-      events: "Events & Calendar",
-
-      schedule: "Schedule",
-
-      profile: "My Profile",
-
-      settings: "Settings"
-
-    };
-
-
-    document.getElementById("pageTitle").textContent =
-      titles[sectionName] || "Coach Dashboard";
-
-
-    if (sectionName === "attendance") {
-
-      loadAttendance();
-
-    }
-
-    if (sectionName === "schedule") {
-      window.DashboardSchedule?.mount({ root: "#schedule", role: "coach" });
-    }
-
-
-    if (sectionName === "athletes") {
-
-      renderAthletes();
-
-    }
-
-
-    if (sectionName === "announcements") {
-
-      mountCoachAnnouncements();
-
-    }
-
-    if (sectionName === "events") mountCoachEvents();
-
-
-    closeSidebar();
-
-  }
-
-
-  function showSectionByName(
-    sectionName
-  ) {
-
-    const button =
-      [
-        ...document.querySelectorAll(
-          ".nav-button"
-        )
-      ]
-      .find(
-        btn =>
-          btn.getAttribute(
-            "onclick"
-          ) &&
-          btn.getAttribute(
-            "onclick"
-          ).includes(
-            `'${sectionName}'`
-          )
-      );
-
-
-    showSection(
-      sectionName,
-      button
-    );
-
-  }
-
-
-  /* =========================
-     ATTENDANCE
-  ========================= */
-
-  async function loadAttendance() {
-    try {
-      if (!(await getCoachSession())) return;
-    } catch (error) {
-      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
-      if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
-      window.location.replace("coach-login.html");
-      return;
-    }
-      alert(error.message || "Could not verify coach access.");
-      return;
-    }
-
-    const dateInput =
-      document.getElementById(
-        "attendanceDate"
-      );
-
-
-    if (!dateInput.value) {
-
-      dateInput.value =
-        getToday();
-
-    }
-
-
-    const sportId = document.getElementById("attendanceSport").value;
-    if (!sportId) return;
-    const selectedDate = dateInput.value;
-    try {
-      const query = new URLSearchParams({ sport_id: sportId });
-      const [studentsData, recordsData] = await Promise.all([
-        apiRequest(`/api/coach/attendance/students?${query}`),
-        apiRequest(`/api/coach/attendance/records?${new URLSearchParams({ sport_id: sportId, session_date: selectedDate })}`)
-      ]);
-      attendanceAthletes = studentsData.students.map(student => ({
-        ...student,
-        sport: assignedSports.find(sport => sport.id === Number(sportId))?.name || ""
-      }));
-      currentAttendance = Object.fromEntries(
-        recordsData.records.map(record => [record.student_id, record.status])
-      );
-    } catch (error) {
-      alert(error.message);
-      return;
-    }
-
-
-    renderAttendance();
-
-    updateAttendanceSummary();
-
-  }
-
-
-  function renderAttendance() {
-
-    const tableBody =
-      document.getElementById(
-        "attendanceBody"
-      );
-
-
-    tableBody.innerHTML = "";
-
-
-    attendanceAthletes.forEach(
-      athlete => {
-
-        const status = currentAttendance[athlete.id] || "absent";
-
-
-        const row =
-          document.createElement(
-            "tr"
-          );
-
-
-        row.innerHTML = `
-
-          <td>
-
-            <div class="student">
-
-              <div class="student-avatar">
-                ${getInitials(
-                  athlete.name
-                )}
-              </div>
-
-              <strong>
-                ${athlete.name}
-              </strong>
-
-            </div>
-
-          </td>
-
-
-          <td>
-            ${athlete.sport}
-          </td>
-
-
-          <td>
-
-            <div class="status-buttons">
-
-              <button
-                class="present ${
-                  status === "present"
-                    ? "active"
-                    : ""
-                }"
-                onclick="
-                  setAttendance(
-                    ${athlete.id},
-                    'present'
-                  )
-                "
-              >
-                Present
-              </button>
-
-
-              <button
-                class="absent ${
-                  status === "absent"
-                    ? "active"
-                    : ""
-                }"
-                onclick="
-                  setAttendance(
-                    ${athlete.id},
-                    'absent'
-                  )
-                "
-              >
-                Absent
-              </button>
-
-              <button class="${status === "late" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'late')">Late</button>
-              <button class="${status === "excused" ? "active" : ""}" onclick="setAttendance(${athlete.id}, 'excused')">Excused</button>
-
-
-            </div>
-
-          </td>
-
-        `;
-
-
-        tableBody.appendChild(
-          row
-        );
-
-      }
-    );
-
-  }
-
-
-  function setAttendance(
-    athleteId,
-    status
-  ) {
-
-    currentAttendance[
-      athleteId
-    ] = status;
-
-
-    renderAttendance();
-
-    updateAttendanceSummary();
-
-  }
-
-
-  function markAll(status) {
-
-    attendanceAthletes.forEach(
-      athlete => {
-
-        currentAttendance[
-          athlete.id
-        ] = status;
-
-      }
-    );
-
-
-    renderAttendance();
-
-    updateAttendanceSummary();
-
-  }
-
-
-  function updateAttendanceSummary() {
-
-    const values =
-      Object.values(
-        currentAttendance
-      );
-
-
-    const present =
-      values.filter(
-        value =>
-          value === "present"
-      ).length;
-
-
-    const absent =
-      values.filter(
-        value =>
-          value === "absent"
-      ).length;
-
-
-    const late =
-      values.filter(
-        value =>
-          value === "late"
-      ).length;
-
-
-    const excused =
-      values.filter(
-        value =>
-          value === "excused"
-      ).length;
-
-
-    document.getElementById(
-      "presentCount"
-    ).textContent =
-      present;
-
-
-    document.getElementById(
-      "absentCount"
-    ).textContent =
-      absent;
-
-
-    document.getElementById(
-      "lateCount"
-    ).textContent =
-      late;
-
-
-    document.getElementById(
-      "excusedCount"
-    ).textContent =
-      excused;
-
-
-  }
-
-
-  async function saveAttendance() {
-    try {
-      if (!(await getCoachSession())) return;
-    } catch (error) {
-      if (/unauthorized|session|coach account|approved|disabled/i.test(error.message)) {
-      if (window.APP_CONFIG?.AUTH_BYPASS !== false) return;
-      window.location.replace("coach-login.html");
-      return;
-    }
-      alert(error.message || "Could not verify coach access.");
-      return;
-    }
-
-    const date =
-      document.getElementById(
-        "attendanceDate"
-      ).value;
-
-
-    if (!date) {
-
-      alert(
-        "Please select an attendance date."
-      );
-
-      return;
-
-    }
-
-
-    const sportId = document.getElementById("attendanceSport").value;
-    try {
-      await apiRequest("/api/coach/attendance/records", {
-        method: "POST",
-        body: JSON.stringify({
-          sport_id: Number(sportId),
-          session_date: date,
-          records: attendanceAthletes.map(athlete => ({
-            student_id: athlete.id,
-            status: currentAttendance[athlete.id] || "absent"
-          }))
-        })
-      });
-      await loadAttendance();
-      alert(`Attendance saved for ${formatDate(date)}.`);
-    } catch (error) {
-      alert(error.message);
-    }
-
-  }
-
-
-  /* =========================
-     ATHLETES
-  ========================= */
-
-  function renderAthletes() {
-
-    const grid =
-      document.getElementById(
-        "athletesGrid"
-      );
-
-
-    grid.innerHTML = "";
-
-
-    athletes.forEach(
-      athlete => {
-
-        const card =
-          document.createElement(
-            "div"
-          );
-
-
-        card.className =
-          "athlete-card";
-
-
-        card.innerHTML = `
-
-          <div class="athlete-header">
-
-            <div class="athlete-avatar">
-              ${getInitials(
-                athlete.name
-              )}
-            </div>
-
-            <div>
-
-              <strong>
-                ${athlete.name}
-              </strong>
-
-              <span>
-                ${athlete.sport}
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div class="athlete-details">
-
-            <div class="athlete-detail">
-
-              <span>
-                Email
-              </span>
-
-              <strong>
-                ${athlete.email || "Not provided"}
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="athlete-record-actions">
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'assessments')">Assessment</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'training-sessions')">Training</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'goals')">Goal</button>
-            <button type="button" onclick="openRecordForm(${athlete.id}, 'feedback')">Feedback</button>
-          </div>
-
-          <button
-            class="view-athlete"
-            onclick="
-              viewAthlete(
-                ${athlete.id}
-              )
-            "
-          >
-            View Athlete
-          </button>
-
-        `;
-
-
-        grid.appendChild(card);
-
-      }
-    );
-
-  }
-
-
-  function setAthleteView(
-    view
-  ) {
-
-    const grid =
-      document.getElementById(
-        "athletesGrid"
-      );
-
-
-    const boxButton =
-      document.getElementById(
-        "boxViewButton"
-      );
-
-
-    const listButton =
-      document.getElementById(
-        "listViewButton"
-      );
-
-
-    if (view === "list") {
-
-      grid.classList.add(
-        "list-view"
-      );
-
-      listButton.classList.add(
-        "active"
-      );
-
-      boxButton.classList.remove(
-        "active"
-      );
-
-    }
-
-    else {
-
-      grid.classList.remove(
-        "list-view"
-      );
-
-      boxButton.classList.add(
-        "active"
-      );
-
-      listButton.classList.remove(
-        "active"
-      );
-
-    }
-
-  }
-
-
-  function getAthleteAttendance(
-    athleteId
-  ) {
-
-    let total = 0;
-
-    let present = 0;
-
-
-    Object.values(
-      attendanceRecords
-    ).forEach(
-      record => {
-
-        if (
-          record[athleteId]
-        ) {
-
-          total++;
-
-
-          if (
-            record[athleteId] ===
-            "present"
-          ) {
-
-            present++;
-
-          }
-
-        }
-
-      }
-    );
-
-
-    if (!total) {
-
-      return 0;
-
-    }
-
-
-    return Math.round(
-      (present / total) * 100
-    );
-
-  }
-
-
-  async function viewAthlete(athleteId) {
-    const modal = document.getElementById("athleteDetailModal");
-    const content = document.getElementById("athleteDetailContent");
-    if (!modal || !content) return;
-    modal.hidden = false;
-    content.textContent = "Loading athlete profile…";
-    try {
-      const response = await apiRequest(`/api/coach/athletes/${encodeURIComponent(athleteId)}`);
-      const athlete = response.athlete;
-      if (!athlete) throw new Error("Athlete profile was not returned.");
-      const escapeHtml = value => String(value ?? "—").replace(/[&<>"']/g, character => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-      }[character]));
-      const sports = Array.isArray(athlete.sports) ? athlete.sports.map(escapeHtml).join(", ") : "—";
-      content.innerHTML = `
-        <div class="athlete-detail-eyebrow">ATHLETE PROFILE</div>
-        <h2 id="athleteDetailName">${escapeHtml(athlete.name)}</h2>
-        <div class="athlete-detail-fields">
-          <div><span>Personal Information</span><strong><span>Gender: ${escapeHtml(athlete.gender)}</span><span>Date of Birth: ${escapeHtml(athlete.date_of_birth)}</span><span>Student Number: ${escapeHtml(athlete.student_number)}</span></strong></div>
-          <div><span>Contact Information</span><strong><span>Email: ${escapeHtml(athlete.email)}</span><span>Phone: ${escapeHtml(athlete.contact_number)}</span><span>Emergency Number: ${escapeHtml(athlete.emergency_contact)}</span></strong></div>
-          <div><span>Education</span><strong><span>Department: ${escapeHtml(athlete.department)}</span><span>Semester: ${escapeHtml(athlete.semester)}</span></strong></div>
-          <div><span>Sports & Fitness</span><strong><span>Sports: ${sports || "—"}</span><span>Height: ${escapeHtml(athlete.height_cm)} cm</span><span>Weight: ${escapeHtml(athlete.weight_kg)} kg</span><span>Fitness Goal: ${escapeHtml(athlete.goal)}</span></strong></div>
-          <div><span>Bio</span><strong>${escapeHtml(athlete.bio)}</strong></div>
-        </div>
-        <div class="athlete-detail-actions">
-          <button type="button" onclick="closeAthleteDetails(); openRecordForm(${Number(athlete.id)}, 'assessments')">View assessment</button>
-          <button type="button" onclick="closeAthleteDetails(); openRecordForm(${Number(athlete.id)}, 'feedback')">Add feedback</button>
-        </div>`;
-      modal.querySelector(".athlete-detail-close")?.focus();
-    } catch (error) {
-      content.textContent = error.message || "Unable to load this athlete's profile.";
-    }
-  }
-
-  function closeAthleteDetails() {
-    const modal = document.getElementById("athleteDetailModal");
-    if (modal) modal.hidden = true;
-  }
-
-
-  /* =========================
-     DASHBOARD STATISTICS
-  ========================= */
-
-  function updateDashboardStats() {
-
-    document.getElementById(
-      "totalAthletes"
-    ).textContent =
-      athletes.length;
-
-
-    document.getElementById("attendanceRate").textContent = `${attendanceSummary.percentage || 0}%`;
-
-
-    const today =
-      getToday();
-
-
-    document.getElementById("presentToday").textContent = attendanceSummary.present_today || 0;
-
-  }
-
-
-  /* =========================
-     ANNOUNCEMENTS
-  ========================= */
-
-  function mountCoachAnnouncements() {
-    const root = document.querySelector("#announcementsPanel");
-    if (!root) return;
-    if (!window.AnnouncementsPanel) {
-      const list = root.querySelector("[data-announcement-list]");
-      if (list) {
-        list.innerHTML = '<div class="announcement-empty error">Announcements could not load. Refresh the page and try again.</div>';
-      }
-      return;
-    }
-    window.AnnouncementsPanel.mount({
-      root,
-      canManage: true
-    });
-  }
-
-  let coachEventsMounted = false;
-  function mountCoachEvents() {
-    if (coachEventsMounted || !window.DashboardEvents) return;
-    window.DashboardEvents.mount({ root: "#dashboardEventsPanel", role: "coach" });
-    coachEventsMounted = true;
-  }
-
-
-  /* =========================
-     LOGOUT
-  ========================= */
-
-  async function logout() {
-    await apiRequest("/api/logout", { method: "POST" }).catch(() => {});
-    window.location.href = "coach-login.html";
-  }
-
-
-  /* =========================
-     MOBILE SIDEBAR
-  ========================= */
-
-  function toggleSidebar() {
-
-    document
-      .getElementById("sidebar")
-      .classList.toggle(
-        "open"
-      );
-
-  }
-
-
-  function closeSidebar() {
-
-    document
-      .getElementById("sidebar")
-      .classList.remove(
-        "open"
-      );
-
-  }
-
-
-  /* =========================
-     INITIALIZE
-  ========================= */
-
-  document.getElementById(
-    "attendanceDate"
-  ).value =
-    getToday();
-
-
-  updateTopDate();
-
-  initializeCoachDashboard();
-
-</script>
-<script src="../js/dashboard-events.js?v=event-calendar-6"></script>
-<script src="../js/dashboard-schedule.js"></script>
-<script>window.DashboardEvents?.mount({ root: "#dashboardEventsPanel", role: "coach" });</script>
-
+    <script src="../js/coach/coach-dashboard-handlers.js"></script>
 </body>
 </html>

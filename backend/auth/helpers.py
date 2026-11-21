@@ -283,23 +283,6 @@ def store_admin_otp(admin_id, purpose, otp, minutes=OTP_MINUTES):
 
     try:
         with db.cursor() as cursor:
-
-            cursor.execute(
-                """
-                SELECT COUNT(*) AS sent_count
-                FROM admin_otp_verifications
-                WHERE admin_id = %s
-                  AND purpose = %s
-                  AND created_at >= NOW() - INTERVAL '1 hour'
-                """,
-                (admin_id, purpose),
-            )
-
-            sent = cursor.fetchone() or {}
-
-            if sent.get("sent_count", 0) >= 5:
-                return False
-
             # Invalidate previous unused admin OTPs
             cursor.execute(
                 """

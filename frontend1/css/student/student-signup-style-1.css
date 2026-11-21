@@ -1,0 +1,47 @@
+
+        .signup-progress { margin-bottom: calc(var(--u) * 1.7); }
+        .signup-progress .progress-text { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--u) * .5); margin-bottom: calc(var(--u) * .6); color: var(--student-muted); font-size: max(11px, calc(var(--u) * 1.1)); }
+        .signup-progress .progress-text span:nth-child(2) { text-align: center; }
+        .signup-progress .progress-text span:last-child { text-align: right; }
+        .signup-progress .progress-text .active { color: var(--student-blue); }
+        .signup-progress .progress-bar { height: calc(var(--u) * .45); background: #e7edf7; }
+        .signup-progress .progress { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0a63ff, #19b3ff); }
+        .student-signup-panel .password-wrapper { position: relative; }
+        .student-signup-panel .password-wrapper input { padding-right: 52px !important; }
+        .student-signup-panel .show-password { position: absolute; top: 50%; right: 12px; display: grid; width: 28px; height: 28px; padding: 0; place-items: center; transform: translateY(-50%); border: 0; background: transparent; color: var(--student-muted); cursor: pointer; }
+        .student-signup-panel .show-password:hover { color: var(--student-blue); }
+        .student-signup-panel #errorMessage.hidden,
+        .student-signup-panel #successMessage.hidden { display: none !important; }
+        .student-signup-panel .login-section,
+        .student-signup-panel .back-link,
+        .student-signup-panel .security-note { width: 100%; text-align: center; }
+        .student-signup-panel .login-section { width: fit-content; height: fit-content; min-height: 0; margin: calc(var(--u) * .8) auto 0; padding: 0; color: var(--student-muted); font-size: max(12px, calc(var(--u) * 1.15)); line-height: 1.35; text-align: center; }
+        .student-signup-panel .back-link { display: block; margin-top: calc(var(--u) * .45); color: var(--student-muted); font-size: max(11px, calc(var(--u) * 1.05)); text-align: center; }
+        body[data-portal-role="student"] .student-signup-panel .login-section { width: fit-content; margin-right: auto; margin-left: auto; text-align: center; }
+        body[data-portal-role="student"] .student-signup-panel .back-link { text-align: center; }
+        .student-signup-panel .security-note { display: block; margin-top: calc(var(--u) * .6); padding: calc(var(--u) * .45) calc(var(--u) * .7); border-radius: calc(var(--u) * .6); font-size: max(10px, calc(var(--u) * .9)); line-height: 1.3; }
+        .signup-wizard-step[hidden] { display: none !important; }
+        .profile-form { width: min(33.3cqw, 100%); }
+        .profile-form .progress-text { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .profile-form .progress-text span:nth-child(2) { text-align: center; }
+        .profile-form .progress-text span:last-child { text-align: right; }
+        .profile-form .button-container { display: flex; justify-content: space-between; align-items: center; gap: .75rem; }
+        .profile-form .next-button { margin-left: auto; }
+        .profile-form textarea { resize: none; }
+        .input-with-unit { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
+        .unit-select { min-height: 48px; }
+        .sports-group { margin-bottom: 24px; }
+        .sports-label { display: block; margin-bottom: 8px; font-weight: 700; }
+        .sports-hint { margin: 0 0 12px; color: var(--muted); font-size: .85rem; }
+        .sports-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .sport-option { position: relative; }
+        .sport-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+        .sport-option label { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); cursor: pointer; font-size: .9rem; font-weight: 600; }
+        .sport-check { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 5px; }
+        .sport-option input:checked + label { border-color: #087cff; background: #eef6ff; color: #0564d6; }
+        .sport-option input:checked + label .sport-check { border-color: #087cff; background: #087cff; box-shadow: inset 0 0 0 4px #eef6ff; }
+        .profile-message { margin: 0 0 12px; color: #be123c; font-size: .9rem; }
+        @media (max-width: 860px) { .profile-form { width: 100%; } }
+        @media (max-width: 600px) { .sports-options { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .signup-progress .progress-text { gap: .25rem; font-size: .75rem; } }
+    

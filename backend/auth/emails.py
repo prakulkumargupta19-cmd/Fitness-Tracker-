@@ -8,10 +8,11 @@ It has no dependency on the Flask application instance or module
 import os
 import smtplib
 import ssl
+import threading
 from email.message import EmailMessage
 from pathlib import Path
 
-from flask import current_app
+from flask import current_app, g, has_request_context
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
@@ -27,13 +28,15 @@ def _test_mode():
 
 def smtp_settings():
     """Return validated SMTP settings without exposing the password."""
-    username = os.getenv("MAIL_USERNAME", "").strip()
-    password = os.getenv("MAIL_PASSWORD", "")
-    host = os.getenv("MAIL_SERVER", "smtp.gmail.com").strip()
-    security = os.getenv("MAIL_SECURITY", "starttls").strip().lower()
+    # Accept both the documented MAIL_* names and conventional SMTP_* names.
+    # MAIL_* takes precedence when both are present.
+    username = (os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USERNAME") or os.getenv("SMTP_USER") or "").strip()
+    password = os.getenv("MAIL_PASSWORD") or os.getenv("SMTP_PASSWORD") or os.getenv("SMTP_PASS") or ""
+    host = (os.getenv("MAIL_SERVER") or os.getenv("SMTP_SERVER") or os.getenv("SMTP_HOST") or "smtp.gmail.com").strip()
+    security = (os.getenv("MAIL_SECURITY") or os.getenv("SMTP_SECURITY") or "starttls").strip().lower()
     try:
-        port = int(os.getenv("MAIL_PORT", "587"))
-        timeout = float(os.getenv("MAIL_TIMEOUT", "20"))
+        port = int(os.getenv("MAIL_PORT") or os.getenv("SMTP_PORT") or "587")
+        timeout = float(os.getenv("MAIL_TIMEOUT") or os.getenv("SMTP_TIMEOUT") or "20")
     except ValueError as error:
         raise ValueError("MAIL_PORT and MAIL_TIMEOUT must be numeric.") from error
     if not host or not 1 <= port <= 65535:
@@ -47,7 +50,7 @@ def smtp_settings():
         "port": port,
         "timeout": timeout,
         "security": security,
-        "from": os.getenv("MAIL_FROM", "").strip() or username,
+        "from": (os.getenv("MAIL_FROM") or os.getenv("SMTP_FROM") or "").strip() or username,
     }
 
 
@@ -83,48 +86,98 @@ def display_role(role):
 
 
 def send_email(recipient, subject, body):
+    if has_request_context():
+        g.email_delivery_error = None
     try:
         settings = smtp_settings()
     except ValueError as error:
-        current_app.logger.error("Email configuration is invalid (%s)", type(error).__name__)
+        if has_request_context():
+            g.email_delivery_error = "invalid_configuration"
+            current_app.logger.error("Email configuration is invalid (%s)", type(error).__name__)
         return False
     if not settings["username"] or not settings["password"]:
-        current_app.logger.warning(
-            "Email not configured: set MAIL_USERNAME and MAIL_PASSWORD"
-        )
+        if has_request_context():
+            g.email_delivery_error = "missing_credentials"
+            current_app.logger.warning(
+                "Email not configured: set MAIL_USERNAME/MAIL_PASSWORD or SMTP_USERNAME/SMTP_PASSWORD"
+            )
         return False
     message = EmailMessage()
     message["Subject"] = subject
     message["From"] = settings["from"]
     message["To"] = recipient
     message.set_content(body)
-    try:
-        if settings["security"] in ("ssl", "smtps") or settings["port"] == 465:
-            server = smtplib.SMTP_SSL(
-                settings["host"],
-                settings["port"],
-                timeout=settings["timeout"],
-                context=ssl.create_default_context(),
-            )
-        else:
-            server = smtplib.SMTP(
-                settings["host"], settings["port"], timeout=settings["timeout"]
-            )
 
-        with server:
-            server.ehlo()
-            if settings["security"] in ("starttls", "tls"):
-                server.starttls(context=ssl.create_default_context())
+    def _deliver():
+        try:
+            if settings["security"] in ("ssl", "smtps") or settings["port"] == 465:
+                server = smtplib.SMTP_SSL(
+                    settings["host"],
+                    settings["port"],
+                    timeout=settings["timeout"],
+                    context=ssl.create_default_context(),
+                )
+            else:
+                server = smtplib.SMTP(
+                    settings["host"], settings["port"], timeout=settings["timeout"]
+                )
+
+            with server:
                 server.ehlo()
-            server.login(settings["username"], settings["password"])
-            server.send_message(message)
-        return True
-    except (OSError, smtplib.SMTPException, ValueError) as error:
-        current_app.logger.error(
-            "Email delivery failed (%s)",
-            type(error).__name__,
-        )
-        return False
+                if settings["security"] in ("starttls", "tls"):
+                    server.starttls(context=ssl.create_default_context())
+                    server.ehlo()
+                server.login(settings["username"], settings["password"])
+                server.send_message(message)
+        except (OSError, smtplib.SMTPException, ValueError) as error:
+            if isinstance(error, smtplib.SMTPResponseException):
+                failure_reason = f"{type(error).__name__}:SMTP_{error.smtp_code}"
+                if has_request_context():
+                    current_app.logger.error(
+                        "Email delivery failed (%s, SMTP %s)",
+                        type(error).__name__,
+                        error.smtp_code,
+                    )
+            else:
+                failure_reason = type(error).__name__
+                if has_request_context():
+                    current_app.logger.error("Email delivery failed (%s)", failure_reason)
+            return False, failure_reason
+        return True, None
+
+    # Vercel may freeze a function as soon as the response is returned. A
+    # detached daemon thread can therefore report success without ever
+    # completing SMTP delivery. Finish the send before acknowledging OTPs.
+    is_serverless = (
+        os.getenv("VERCEL", "").strip() == "1"
+        or os.getenv("VERCEL_ENV", "").strip().lower() in {"preview", "production"}
+    )
+    if is_serverless:
+        delivered, failure_reason = _deliver()
+        if not delivered and has_request_context():
+            g.email_delivery_error = failure_reason
+        return delivered
+
+    thread = threading.Thread(target=_deliver, daemon=True)
+    thread.start()
+    return True
+
+
+def email_delivery_failure_message():
+    """Return a safe, actionable message for the current failed email request."""
+    reason = getattr(g, "email_delivery_error", None) if has_request_context() else None
+    if reason == "missing_credentials":
+        return "Email is not configured on the server. Add MAIL_USERNAME and MAIL_PASSWORD (or SMTP_USERNAME and SMTP_PASSWORD) to Vercel and redeploy."
+    if reason == "invalid_configuration":
+        return "Email server settings are invalid. Check the SMTP host, port, and security settings in Vercel."
+    if reason and ":SMTP_" in reason:
+        error_type, smtp_code = reason.split(":", 1)
+        if error_type == "SMTPAuthenticationError":
+            return f"SMTP login was rejected ({smtp_code}). Verify the username and password in Vercel; Gmail requires an App Password."
+        return f"The SMTP server rejected the email ({error_type}, {smtp_code}). Check the sender address and SMTP provider settings."
+    if reason:
+        return f"SMTP connection or delivery failed ({reason}). Check MAIL_SERVER, MAIL_PORT, MAIL_SECURITY and the Vercel function logs."
+    return "Email delivery failed before SMTP details were captured. Check the Vercel function logs for this request ID."
 
 
 def send_otp_email(email, name, purpose, otp):

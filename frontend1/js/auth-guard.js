@@ -15,8 +15,6 @@
         "student-loginotp.html",
         "student-signup.html",
         "student-signup-verify.html",
-        "student-basicinfo.html",
-        "student-personalinfo.html",
         "coach-login.html",
         "coach-loginotp.html",
         "coach-signup.html",
@@ -63,7 +61,6 @@
             full_name: "Sarah Jenkins",
             email: "coach@fittrack.com",
             role: "coach",
-            specialization: "Athletics & Fitness",
             contact_number: "+1 555-0192"
         },
         admin: {

@@ -1,0 +1,23 @@
+[data-external-style-1] { width: 36px !important; height: 36px !important; object-fit: contain !important; }
+[data-external-style-2] { margin-top: 22px !important; }
+[data-external-style-3] { margin-top: 10px !important; }
+[data-external-style-4] { display: flex !important; align-items: center !important; }
+[data-external-style-5] { overflow-x: auto !important; }
+[data-external-style-6] { row-gap: 6px !important; }
+[data-external-style-7] { grid-column: 1 / -1 !important; margin: 0 !important; font-size: 16px !important; line-height: 1.2 !important; }
+[data-external-style-8] { font-size: 14px !important; font-weight: 800 !important; }
+[data-external-style-9] { color: #dc2626 !important; background: #fee2e2 !important; }
+
+/* Sidebar divider and Account heading placement */
+.sidebar > .workspace-nav-menu {
+    border-bottom: 1px solid rgba(190, 209, 240, 0.16);
+    padding-bottom: 12px;
+}
+
+.sidebar > .menu-title.account-menu-title {
+    margin-top: 28px !important;
+}
+
+.sidebar > .sidebar-bottom {
+    border-top: 0 !important;
+}

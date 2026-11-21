@@ -1,0 +1,26 @@
+
+        .auth { --img: url("../../demo/coach.jpg"); --btn: linear-gradient(90deg, #0a66ff, #0a46d6); }
+        .auth > .art { background-image: linear-gradient(rgba(3,16,34,.30), rgba(3,16,34,.48)), url("../../demo/coach.jpg"); background-position: center; background-size: cover; }
+        .coach-signup-panel { align-items: stretch; justify-content: flex-start; overflow-y: auto; }
+        .coach-signup-content { width: min(33.3cqw, 100%); margin: 0 auto; }
+        .coach-signup-content h1 { margin: 0; }
+        .coach-signup-content header { margin-bottom: 22px; }
+        .signup-field { margin-bottom: 15px; }
+        .signup-field label { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
+        .signup-field input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--field); color: var(--ink); font: 400 14px/1.4 Inter, sans-serif; }
+        .signup-field input:focus { border-color: #8dbcff; outline: 0; background: #eef5ff; box-shadow: 0 0 0 3px rgba(60,135,255,.18); }
+        .password-field { position: relative; }
+        .password-field input { padding-right: 46px; }
+        .password-toggle { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #7b86a3; cursor: pointer; }
+        .password-toggle svg { width: 19px; height: 19px; }
+        .terms-row { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0 16px; color: #53617a; font-size: 13px; line-height: 1.45; }
+        .terms-row input { width: 16px; height: 16px; margin-top: 1px; accent-color: #0a63ff; }
+        .terms-row a, .signup-links a { color: #0a63ff; font-weight: 700; }
+        .signup-error { margin-bottom: 12px; padding: 10px 12px; border: 1px solid #fecdd3; border-radius: 8px; background: #fff1f2; color: #be123c; font-size: 13px; line-height: 1.5; }
+        .signup-error[hidden] { display: none; }
+        .signup-submit { width: 100%; min-height: 48px; border: 0; border-radius: 9px; background: linear-gradient(90deg, #0a66ff, #00a6ff); color: #fff; font: 700 14px Inter, sans-serif; box-shadow: 0 8px 18px rgba(10,99,255,.22); cursor: pointer; }
+        .signup-submit:disabled { opacity: .65; cursor: not-allowed; }
+        .signup-links { margin-top: 18px; color: #7b86a3; font-size: 13px; line-height: 1.7; text-align: center; }
+        .signup-links p { margin: 0; }
+        @media (max-width: 860px) { .coach-signup-panel { padding: 28px 20px 30px; } .coach-signup-content { width: 100%; } }
+    

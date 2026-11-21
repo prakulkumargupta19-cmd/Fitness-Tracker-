@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="auth.css">
-<style>.auth{--img:url("coach.jpg");--hx:6.2cqw;--hy:11.8cqw;--hs:4.05;--hl:1.03;--bw:4.7;--bt:2.6cqw;--pt:1.7cqw;--pw:23.5;--ps:1.25;--pl:1.55;--btn:linear-gradient(90deg,#0a66ff,#0a46d6);}</style>
+<link rel="stylesheet" href="../css/demo/coach-login-style-1.css" />
 </head>
 <body>
 <main class="auth">
@@ -44,16 +44,6 @@
     <a class="back" href="../index.html">← Back to role selection</a>
   </section>
 </main>
-<script>
-  const t = document.getElementById("toggle");
-  if (t) t.onclick = () => {
-    const p = document.getElementById("password");
-    p.type = p.type === "password" ? "text" : "password";
-  };
-  document.getElementById("loginForm").onsubmit = e => {
-    e.preventDefault();
-    // TODO: call your coach login API here
-  };
-</script>
+<script src="../js/demo/coach-login-script-1.js"></script>
 </body>
 </html>

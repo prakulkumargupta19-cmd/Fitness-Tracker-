@@ -1,5 +1,5 @@
 -- SQLite schema used by the local-only development mode.
--- This is intentionally additive and is safe to run on every startup.
+-- This schema is safe to run on every startup and removes only retired standalone performance records.
 
 PRAGMA foreign_keys = ON;
 
@@ -12,10 +12,11 @@ CREATE TABLE IF NOT EXISTS users (
     contact_number TEXT,
     is_verified BOOLEAN NOT NULL DEFAULT 1,
     coach_status TEXT,
-    qualification TEXT,
-    specialization TEXT,
-    experience_years INTEGER,
     is_active BOOLEAN NOT NULL DEFAULT 1,
+    account_status TEXT NOT NULL DEFAULT 'active',
+    deactivated_at TIMESTAMP,
+    deactivated_by INTEGER,
+    reactivated_at TIMESTAMP,
     coach_decided_at TIMESTAMP,
     coach_decision_reason TEXT,
     last_login_at TIMESTAMP,
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS student_profiles (
     weight_kg REAL,
     goal TEXT,
     sport_activity TEXT,
+    gender TEXT,
     department TEXT CHECK (department IS NULL OR department IN (
         'BCA', 'BBA', 'BMS', 'HHA', 'BBA-HM', 'BMAGD', 'BBA-SM', 'BBA-GB',
         'BBA-E', 'BID', 'BFDM', 'BBA-ATA', 'BSC-DA', 'BBA-DM', 'BITAI', 'BAHSM'
@@ -86,9 +88,6 @@ CREATE TABLE IF NOT EXISTS pending_registrations (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     contact_number TEXT,
-    qualification TEXT,
-    specialization TEXT,
-    experience_years INTEGER,
     otp_hash TEXT NOT NULL,
     otp_expires_at TIMESTAMP NOT NULL,
     otp_attempts INTEGER NOT NULL DEFAULT 0,
@@ -138,6 +137,16 @@ CREATE TABLE IF NOT EXISTS admin_otp_verifications (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS admin_login_attempt_limits (
+    email_hash TEXT PRIMARY KEY,
+    failed_attempts INTEGER NOT NULL DEFAULT 0 CHECK (failed_attempts >= 0),
+    window_started_at TIMESTAMP NOT NULL,
+    locked_until TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempt_window
+    ON admin_login_attempt_limits (window_started_at);
+
 CREATE TABLE IF NOT EXISTS coach_sports (
     coach_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     sport_id INTEGER NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
@@ -151,29 +160,46 @@ CREATE TABLE IF NOT EXISTS student_sports (
     PRIMARY KEY(student_id, sport_id)
 );
 
-CREATE TABLE IF NOT EXISTS physical_assessments (
+DROP TABLE IF EXISTS physical_assessments;
+DROP TABLE IF EXISTS training_sessions;
+
+CREATE TABLE IF NOT EXISTS sport_assessment_fields (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    coach_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    assessment_date DATE NOT NULL,
-    speed REAL, strength REAL, endurance REAL, agility REAL,
-    flexibility REAL, reaction_time REAL, overall_score REAL, notes TEXT,
+    sport_id INTEGER NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
+    field_key TEXT NOT NULL,
+    field_label TEXT NOT NULL,
+    field_type TEXT NOT NULL DEFAULT 'rating',
+    min_value NUMERIC,
+    max_value NUMERIC,
+    max_score NUMERIC NOT NULL DEFAULT 10,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT 1,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    UNIQUE(sport_id, field_key)
 );
 
-CREATE TABLE IF NOT EXISTS training_sessions (
+CREATE TABLE IF NOT EXISTS sport_student_assessments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    coach_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    sport_id INTEGER NOT NULL REFERENCES sports(id),
+    sport_id INTEGER NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
+    coach_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     session_date DATE NOT NULL,
-    training_type TEXT NOT NULL,
-    duration_minutes INTEGER NOT NULL,
-    description TEXT,
-    performance_notes TEXT,
+    attendance_status TEXT NOT NULL DEFAULT 'present'
+        CHECK (attendance_status IN ('present', 'absent', 'late', 'excused')),
+    general_remarks TEXT,
+    overall_score NUMERIC,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(student_id, sport_id, session_date)
+);
+
+CREATE TABLE IF NOT EXISTS sport_student_assessment_values (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    assessment_id INTEGER NOT NULL
+        REFERENCES sport_student_assessments(id) ON DELETE CASCADE,
+    field_key TEXT NOT NULL,
+    score_value NUMERIC NOT NULL,
+    UNIQUE(assessment_id, field_key)
 );
 
 CREATE TABLE IF NOT EXISTS goals (
@@ -274,13 +300,16 @@ CREATE TABLE IF NOT EXISTS assessment_metric_scores (
 
 CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL, sport_id INTEGER NOT NULL REFERENCES sports(id),
+    name TEXT NOT NULL, sport_id INTEGER REFERENCES sports(id),
     start_date DATE NOT NULL, end_date DATE, venue TEXT,
     status TEXT NOT NULL DEFAULT 'Upcoming', description TEXT, poster_path TEXT,
-    registration_open BOOLEAN NOT NULL DEFAULT 1,
+    registration_open BOOLEAN NOT NULL DEFAULT 1, registration_url TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Older local databases created sport-specific tournaments as NOT NULL.
+-- SQLite cannot drop NOT NULL in place, so rebuild while preserving rows.
 
 CREATE TABLE IF NOT EXISTS registrations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -400,12 +429,29 @@ CREATE TABLE IF NOT EXISTS facility_media (
 
 CREATE TABLE IF NOT EXISTS coaching_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    programme_id INTEGER NOT NULL REFERENCES programmes(id) ON DELETE CASCADE,
+    sport_id INTEGER NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
+    coach_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     session_date DATE NOT NULL, start_time TIME NOT NULL, end_time TIME NOT NULL,
     venue TEXT, notes TEXT, status TEXT NOT NULL DEFAULT 'Scheduled',
+    session_type TEXT NOT NULL DEFAULT 'practice'
+        CHECK (session_type IN ('practice', 'assessment', 'training')),
     created_by INTEGER REFERENCES users(id), updated_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_coaching_sessions_sport_date ON coaching_sessions(sport_id, session_date);
+
+CREATE TABLE IF NOT EXISTS extra_session_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    coach_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    sport_id INTEGER NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
+    requested_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'approved', 'rejected')),
+    admin_notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Fit-Track relationship indexes. These are additive and do not touch the
@@ -606,17 +652,19 @@ BEGIN
     SELECT RAISE(ABORT, 'tournament end_date cannot be before start_date');
 END;
 
-CREATE TRIGGER IF NOT EXISTS trg_fit_track_session_status_insert
+DROP TRIGGER IF EXISTS trg_fit_track_session_status_insert;
+CREATE TRIGGER trg_fit_track_session_status_insert
 BEFORE INSERT ON coaching_sessions
-WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed')
+WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed', 'Not Held')
   OR NEW.end_time <= NEW.start_time
 BEGIN
     SELECT RAISE(ABORT, 'invalid coaching session status or time range');
 END;
 
-CREATE TRIGGER IF NOT EXISTS trg_fit_track_session_status_update
+DROP TRIGGER IF EXISTS trg_fit_track_session_status_update;
+CREATE TRIGGER trg_fit_track_session_status_update
 BEFORE UPDATE OF status, start_time, end_time ON coaching_sessions
-WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed')
+WHEN NEW.status NOT IN ('Scheduled', 'Rescheduled', 'Cancelled', 'Completed', 'Not Held')
   OR NEW.end_time <= NEW.start_time
 BEGIN
     SELECT RAISE(ABORT, 'invalid coaching session status or time range');

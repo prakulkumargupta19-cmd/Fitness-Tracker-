@@ -36,3 +36,5 @@ backend/*.sqlite3
 # account info
 accounts.txt
 fitness-tracker-local-fast.zip
+
+!.env.example

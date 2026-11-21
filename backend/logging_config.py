@@ -30,6 +30,10 @@ class JSONFormatter(logging.Formatter):
                 "duration_ms",
                 "user_id",
                 "error_type",
+                "sqlstate",
+                "db_column",
+                "db_table",
+                "db_message",
             ):
                 if key in event_data:
                     payload[key] = event_data[key]
@@ -66,6 +70,10 @@ class ReadableFormatter(logging.Formatter):
                 ("success", "success"),
                 ("user_id", "user"),
                 ("error_type", "error"),
+                ("sqlstate", "sqlstate"),
+                ("db_table", "table"),
+                ("db_column", "column"),
+                ("db_message", "database"),
             )
             for key, label in labels:
                 if key in event_data:

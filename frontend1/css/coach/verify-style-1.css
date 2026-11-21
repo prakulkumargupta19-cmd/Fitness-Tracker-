@@ -1,0 +1,11 @@
+
+        .auth {
+            --img: url("../../demo/coach.jpg");
+        }
+
+        .auth > .art {
+            background:
+                linear-gradient(rgba(3, 16, 34, .30), rgba(3, 16, 34, .48)),
+                url("../../demo/coach.jpg") center / cover no-repeat;
+        }
+    

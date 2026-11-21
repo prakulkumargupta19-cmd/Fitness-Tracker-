@@ -1,0 +1,455 @@
+
+  #profile > .profile-card,
+  #settings > .profile-card {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100vh - 160px);
+  }
+
+    .athlete-detail-modal[hidden] {
+      display: none;
+    }
+
+    .athlete-detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, .58);
+    }
+
+    .athlete-detail-dialog {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: min(650px, 100%);
+      max-height: calc(100vh - 40px);
+      padding: 22px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+    }
+
+    #athleteDetailContent {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 6px;
+    }
+
+    .athlete-detail-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      z-index: 1;
+      border: 0;
+      background: #fff;
+      color: #64748b;
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .athlete-detail-eyebrow {
+      color: #2563eb;
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+
+    .athlete-detail-dialog h2 {
+      margin: 6px 36px 14px 0;
+      color: #172033;
+      font-size: 1.25rem;
+    }
+
+    .athlete-detail-fields {
+      display: grid;
+      gap: 8px;
+    }
+
+    .athlete-detail-fields > div {
+      display: grid;
+      gap: 5px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: #f8fafc;
+      overflow-wrap: anywhere;
+    }
+
+    .athlete-detail-fields span {
+      color: #718096;
+      font-size: .72rem;
+      font-weight: 600;
+    }
+
+    .athlete-detail-fields strong {
+      display: grid;
+      gap: 3px;
+      color: #172033;
+      font-size: .82rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .athlete-detail-fields strong > span {
+      color: #172033;
+      font-size: inherit;
+      font-weight: 500;
+    }
+
+    .athlete-detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .athlete-detail-actions button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #2563eb;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    /* Expanded athlete profile: responsive, scrollable, page-like modal. */
+    .athlete-detail-dialog {
+      width: min(1080px, calc(100vw - 40px));
+      max-height: min(92vh, 1000px);
+      padding: clamp(20px, 3vw, 34px);
+      overflow-y: auto;
+    }
+
+    .athlete-detail-eyebrow { margin-bottom: 6px; }
+    .athlete-detail-dialog h2 { margin-bottom: 20px; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .athlete-profile-overview {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+      padding: 17px;
+      border: 1px solid #e5edf8;
+      border-radius: 14px;
+      background: linear-gradient(120deg, #f8fbff, #eef5ff);
+    }
+    .athlete-profile-avatar {
+      display: grid;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(140deg, #0a66ff, #19b3ff);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .athlete-profile-overview strong,
+    .athlete-profile-overview span { display: block; }
+    .athlete-profile-overview strong { color: #172033; font-size: 15px; }
+    .athlete-profile-overview span { margin-top: 4px; color: #718096; font-size: 12px; }
+    .athlete-detail-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .athlete-detail-fields > .athlete-detail-section { min-height: 100%; padding: 16px; }
+    .athlete-detail-section > span:first-child {
+      color: #2563eb;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .athlete-detail-section strong { margin-top: 8px; }
+    .athlete-attendance-panel { grid-column: 1 / -1; }
+    .athlete-attendance-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      margin: 12px 0 0;
+    }
+    .athlete-attendance-stat {
+      padding: 12px;
+      border-radius: 10px;
+      background: #eef5ff;
+    }
+    .athlete-attendance-stat span,
+    .athlete-attendance-stat strong { display: block; }
+    .athlete-attendance-stat span { color: #718096; font-size: 10px; }
+    .athlete-attendance-stat strong { margin-top: 4px; color: #172033; font-size: 18px; }
+    .athlete-profile-records { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+    .athlete-profile-record { padding: 13px; border: 1px solid #edf1f7; border-radius: 10px; }
+    .athlete-profile-record strong,
+    .athlete-profile-record span,
+    .athlete-profile-record p { display: block; margin: 0; }
+    .athlete-profile-record strong { color: #172033; font-size: 12px; }
+    .athlete-profile-record span { margin-top: 4px; color: #718096; font-size: 10px; }
+    .athlete-profile-record p { margin-top: 7px; color: #42516d; font-size: 11px; line-height: 1.5; }
+    .athlete-detail-empty { padding: 14px; border-radius: 10px; background: #f8fafc; color: #718096; font-size: 12px; }
+    @media (max-width: 640px) {
+      .athlete-detail-modal { padding: 10px; }
+      .athlete-detail-dialog { width: 100%; max-height: 94vh; padding: 18px; }
+      .athlete-detail-fields,
+      .athlete-profile-records,
+      .athlete-attendance-summary { grid-template-columns: 1fr; }
+    }
+  
+    .athlete-filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+      align-items: end;
+      gap: 12px;
+      margin: 0 0 18px;
+      padding: 16px;
+      border: 1px solid #e3eaf4;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(20, 46, 92, .04);
+    }
+
+    .athlete-filter-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      color: #53617c;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .athlete-filter-field select {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 34px 8px 11px;
+      border: 1px solid #dce4f2;
+      border-radius: 9px;
+      background: #f8faff;
+      color: #172033;
+      font-size: 12px;
+    }
+
+    .athlete-filter-reset {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid #dce4f2;
+      border-radius: 9px;
+      background: #fff;
+      color: #42516d;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .athlete-filter-reset:hover {
+      border-color: #b8d2ff;
+      background: #f4f8ff;
+      color: #1d4ed8;
+    }
+
+    @media (max-width: 850px) {
+      .athlete-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .athlete-filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+      
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer {
+    background: #111b2e !important;
+    border-color: #263550 !important;
+    color: #e9effb !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header h2,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header h2,
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-form label,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .event-sport-filter {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-composer-header p,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-composer-header p {
+    color: #a6b5cc !important;
+  }
+
+  body.dark-mode.coach-dashboard #announcementsPanel .announcement-empty,
+  body.dark-mode.coach-dashboard #dashboardEventsPanel .announcement-empty {
+    background: #17243a !important;
+    border-color: #354661 !important;
+    color: #b8c7df !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row {
+    background: #17243a !important;
+    border-color: #354661 !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row strong {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row span {
+    color: #a6b5cc !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row .btn {
+    background: #4a1f2a !important;
+    border-color: #71313d !important;
+    color: #fecdd3 !important;
+  }
+
+  body.dark-mode.coach-dashboard #settings .settings-row .btn:hover {
+    background: #642633 !important;
+  }
+
+  /* My Athletes filters and cards */
+  body.dark-mode.coach-dashboard #athletes .athlete-filters {
+    background: #111b2e !important;
+    border-color: #263550 !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-heading {
+    color: #f4f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-field {
+    color: #b8c7df !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-field select {
+    background: #0b1425 !important;
+    border-color: #354661 !important;
+    color: #edf3ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-reset,
+  body.dark-mode.coach-dashboard #athletes .view-button,
+  body.dark-mode.coach-dashboard #athletes .athlete-record-actions button {
+    background: #192944 !important;
+    border-color: #354967 !important;
+    color: #dbe8fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-filter-reset:hover,
+  body.dark-mode.coach-dashboard #athletes .view-button.active,
+  body.dark-mode.coach-dashboard #athletes .athlete-record-actions button:hover {
+    background: #1d3760 !important;
+    border-color: #3e6fb6 !important;
+    color: #a9ceff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-card {
+    background: linear-gradient(145deg, #142139, #111b2e) !important;
+    border-color: #2b3b57 !important;
+    color: #eaf1fb !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18) !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header {
+    border-color: #2a3a54 !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header strong {
+    color: #f3f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-header span,
+  body.dark-mode.coach-dashboard #athletes .athlete-detail span,
+  body.dark-mode.coach-dashboard #athletes .athlete-detail strong {
+    color: #b4c3d9 !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .view-athlete {
+    background: #1d3760 !important;
+    border-color: #3e6fb6 !important;
+    color: #a9ceff !important;
+  }
+
+  /* Athlete profile opened from My Athletes */
+  body.dark-mode.coach-dashboard #athletes .athlete-detail-dialog {
+    background: #111b2e !important;
+    border: 1px solid #2b3b57 !important;
+    color: #eaf1fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent {
+    color: #eaf1fb !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h1,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h2,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent h3,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent strong {
+    color: #f3f7ff !important;
+  }
+
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent p,
+  body.dark-mode.coach-dashboard #athletes #athleteDetailContent span {
+    color: #b4c3d9;
+  }
+
+  body.dark-mode.coach-dashboard #athletes .athlete-detail-close {
+    background: #192944 !important;
+    border-color: #354967 !important;
+    color: #dbe8fb !important;
+  }
+
+/* Coach profile editor transferred from the Anurag frontend. */
+.coach-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.coach-profile-edit-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid var(--coach-line);
+    border-radius: 14px;
+    background: #f8faff;
+}
+
+.coach-profile-edit-form[hidden] { display: none !important; }
+.coach-profile-edit-form > label {
+    display: grid;
+    gap: 7px;
+    color: var(--coach-ink);
+    font-size: 13px;
+    font-weight: 700;
+}
+.coach-profile-edit-form input {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 1px solid var(--coach-line);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--coach-ink);
+}
+.coach-profile-edit-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--coach-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+.coach-profile-form-actions { grid-column: 1 / -1; margin-top: 0; }
+
+@media (max-width: 640px) {
+    .coach-profile-edit-form { grid-template-columns: minmax(0, 1fr); }
+    .coach-profile-edit-note, .coach-profile-form-actions { grid-column: 1; }
+}
